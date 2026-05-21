@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIMS Prototype - TEMU Import Orders</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #333;
+      background: #e9eef1;
+    }
+
+    .topbar {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #3f3f3f;
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+    }
+
+    .logo {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e4002b;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .title {
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .primary-nav,
+    .secondary-nav {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      padding: 8px 8px;
+      font-size: 11px;
+      background: linear-gradient(#f7f9fa, #dbe2e7);
+      border-bottom: 1px solid #cbd4dc;
+    }
+
+    .primary-nav a,
+    .secondary-nav a {
+      color: #2f7893;
+      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .primary-nav a.active {
+      color: #a51b2b;
+    }
+
+    .secondary-nav {
+      gap: 32px;
+      padding: 6px 14px;
+      background: linear-gradient(#edf2f5, #d6dee5);
+    }
+
+    .secondary-nav .highlight {
+      display: inline;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      color: #2f7893;
+      background: transparent;
+      font-size: 11px;
+      font-weight: 400;
+      text-decoration: underline;
+      text-shadow: none;
+    }
+
+    .page {
+      padding: 0 4px 32px;
+    }
+
+    .screen {
+      display: none;
+      max-width: none;
+      min-height: 560px;
+      margin: 0;
+      border: 0;
+      background: #f7f9fa;
+      box-shadow: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid #cfd7de;
+      background: linear-gradient(#f8fafb, #e4eaee);
+    }
+
+    .screen-header h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .screen-body {
+      padding: 14px 16px;
+    }
+
+    .hint {
+      margin: 0 0 12px;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .btn {
+      min-width: 74px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #b7c1c9;
+      border-radius: 2px;
+      background: linear-gradient(#ffffff, #e6ecef);
+      color: #2f7893;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #8fc34a;
+      border-color: #7ab23a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      min-width: 78px;
+      height: 32px;
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: #1f6f90;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-actions .btn.primary {
+      min-width: 74px;
+      height: 30px;
+      font-size: 12px;
+    }
+
+    .modal-footer .btn.primary {
+      min-width: 86px;
+      height: 42px;
+      font-size: 16px;
+    }
+
+    .mock-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      background: #fff;
+    }
+
+    .mock-table th,
+    .mock-table td {
+      padding: 6px 8px;
+      border: 1px solid #cbd4dc;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .mock-table th {
+      background: linear-gradient(#f5f8fa, #dce5eb);
+      color: #333;
+      font-weight: 700;
+    }
+
+    .mock-table a {
+      color: #0a6f8f;
+      text-decoration: underline;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 0;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .created {
+      background: #e5f7e9;
+      color: #277044;
+    }
+
+    .ignored {
+      background: #eef2f6;
+      color: #546170;
+    }
+
+    .failed {
+      background: #fff1f1;
+      color: #b3261e;
+    }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      padding: 8px 10px;
+      border: 1px solid #cbd4dc;
+      border-radius: 0;
+      background: linear-gradient(#ffffff, #edf2f5);
+    }
+
+    .summary-card .number {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2933;
+    }
+
+    .summary-card .label {
+      margin-top: 5px;
+      color: #555;
+      font-size: 11px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 2px;
+      margin: 10px 0 0;
+      border-bottom: 1px solid #cbd4dc;
+    }
+
+    .tab {
+      padding: 7px 10px;
+      border: 1px solid #cbd4dc;
+      border-bottom: none;
+      background: linear-gradient(#f9fbfc, #e4eaee);
+      color: #2f7893;
+      cursor: pointer;
+      font-size: 11px;
+      text-decoration: underline;
+    }
+
+    .tab.active {
+      border-color: #d8e0e6;
+      background: #fff;
+      color: #333;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .tab-panel {
+      display: none;
+      padding-top: 8px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8px;
+      background: rgba(0, 0, 0, 0.52);
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      width: min(980px, calc(100vw - 40px));
+      min-height: 560px;
+      background: #fff;
+      border: 1px solid #c4ccd3;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .result-modal {
+      width: min(1080px, calc(100vw - 36px));
+      min-height: 0;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+    }
+
+    .result-modal .modal-body {
+      padding: 16px 22px 22px;
+    }
+
+    .result-modal .modal-header {
+      padding: 18px 24px;
+    }
+
+    .result-modal .modal-header h2 {
+      font-size: 22px;
+    }
+
+    .result-modal .modal-footer {
+      padding: 14px 24px 20px;
+      border-top: 1px solid #d8e0e6;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 30px;
+      border-bottom: 1px solid #d8e0e6;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 500;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: #b8b8b8;
+      font-size: 36px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 42px 60px 26px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .label {
+      padding-top: 18px;
+      font-size: 18px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .upload-box {
+      width: 560px;
+      max-width: 100%;
+      border: 3px dotted #16859a;
+      background: #fbfbfb;
+      text-align: center;
+    }
+
+    .drop-zone {
+      padding: 50px 22px;
+      color: #444;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .file-name {
+      display: none;
+      padding: 16px 20px;
+      border-top: 1px solid #d8e0e6;
+      background: #ecfdf5;
+      color: #276749;
+      font-size: 15px;
+      text-align: left;
+    }
+
+    .camera-row {
+      padding: 16px 20px;
+      background: #ebebeb;
+      color: #333;
+      font-size: 23px;
+      text-align: center;
+    }
+
+    .upload-help {
+      width: 560px;
+      max-width: 100%;
+      margin-top: 12px;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      padding: 46px 50px 34px;
+    }
+
+    .stepper {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      color: #555;
+      font-size: 11px;
+    }
+
+    .step {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #d8e0e6;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .step.active .dot {
+      background: #0a7890;
+    }
+
+    .arrow-small {
+      color: #9aa6b2;
+    }
+
+    .download-note {
+      margin-top: 12px;
+      padding: 9px 12px;
+      border-left: 4px solid #8fc34a;
+      background: #f3fbeb;
+      color: #314829;
+      line-height: 1.4;
+      font-size: 12px;
+    }
+
+    .modal .stepper {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      .primary-nav,
+      .secondary-nav {
+        overflow-x: auto;
+      }
+
+      .summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .label {
+        text-align: left;
+        padding-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">Q</div>
+    <div class="title">ORDER MANAGEMENT</div>
+  </header>
+
+  <nav class="primary-nav" aria-label="Order status navigation">
+    <a class="active">Orders</a>
+    <a>Orders(Pending)</a>
+    <a>Orders(Inquiry)</a>
+    <a>Orders(Hold)</a>
+    <a>Orders(Completed)</a>
+    <a>Orders(Finished)</a>
+    <a>Orders(Cancelled)</a>
+    <a>Quotation</a>
+    <a>Labs</a>
+    <a>Subcontract Labs</a>
+    <a>Sample Collection</a>
+  </nav>
+
+  <nav class="secondary-nav" aria-label="Order action navigation">
+    <a>Add Order</a>
+    <a>Add Order by SRF</a>
+    <a>Multi Checkin(Station)</a>
+    <a>Multi Checkin(Status)</a>
+    <a class="highlight" onclick="openImportModal()">Import Orders</a>
+  </nav>
+
+  <main class="page">
+    <section id="orderListScreen" class="screen active">
+      <div class="screen-header">
+        <h1>Orders</h1>
+        <div class="toolbar-actions">
+          <button class="btn" onclick="openImportModal()">Import Orders</button>
+          <button class="btn primary">Add Order</button>
+        </div>
+      </div>
+      <div class="screen-body">
+        <p class="hint">
+          Lab users can import the Excel file downloaded from TEMU. The system will validate the file,
+          create new LT orders, ignore duplicate TEMU Order Numbers, and return an Excel file with QIMA LT Order Numbers.
+        </p>
+        <table class="mock-table" aria-label="Sample order list">
+          <thead>
+            <tr>
+              <th>Order No.</th>
+              <th>Client</th>
+              <th>Product</th>
+              <th>Submitter</th>
+              <th>Status</th>
+              <th>Created Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><a href="#">LT-260520-001</a></td>
+              <td>Shanghai Yucan Information Technology Co., Ltd</td>
+              <td>Consumer product</td>
+              <td>TEMU fixed account</td>
+              <td><span class="status created">Created</span></td>
+              <td>2026-05-20</td>
+            </tr>
+            <tr>
+              <td><a href="#">LT-260520-002</a></td>
+              <td>Shanghai Yucan Information Technology Co., Ltd</td>
+              <td>Consumer product</td>
+              <td>TEMU fixed account</td>
+              <td><span class="status created">Created</span></td>
+              <td>2026-05-20</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="resultModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="resultModalTitle">
+      <div class="modal result-modal">
+      <div class="modal-header">
+        <h2 id="resultModalTitle">TEMU Import Result</h2>
+        <button class="close" aria-label="Close" onclick="closeResultModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stepper" aria-label="Import steps">
+          <span class="step"><span class="dot">1</span>Upload TEMU Excel</span>
+          <span class="arrow-small">-&gt;</span>
+          <span class="step"><span class="dot">2</span>Validate Data</span>
+          <span class="arrow-small">-&gt;</span>
+          <span class="step active"><span class="dot">3</span>Review Result</span>
+        </div>
+
+        <div class="summary-cards">
+          <div class="summary-card">
+            <div class="number">128</div>
+            <div class="label">Rows in uploaded Excel</div>
+          </div>
+          <div class="summary-card">
+            <div class="number">112</div>
+            <div class="label">Orders successfully created</div>
+          </div>
+          <div class="summary-card">
+            <div class="number">12</div>
+            <div class="label">Already created, ignored</div>
+          </div>
+          <div class="summary-card">
+            <div class="number">4</div>
+            <div class="label">Failed validation</div>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tab active" onclick="switchTab('createdPanel', this)">Successfully Created</button>
+          <button class="tab" onclick="switchTab('ignoredPanel', this)">Already Created / Ignored</button>
+          <button class="tab" onclick="switchTab('failedPanel', this)">Failed Validation</button>
+        </div>
+
+        <div id="createdPanel" class="tab-panel active">
+          <table class="mock-table">
+            <thead>
+              <tr>
+                <th>TEMU Order Number</th>
+                <th>QIMA LT Order Number</th>
+                <th>Tracking Number</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TEMU202605200001</td>
+                <td><a href="#">LT-260520-101</a></td>
+                <td>KY123456789CN</td>
+                <td><span class="status created">Created</span></td>
+              </tr>
+              <tr>
+                <td>TEMU202605200002</td>
+                <td><a href="#">LT-260520-102</a></td>
+                <td>KY123456790CN</td>
+                <td><span class="status created">Created</span></td>
+              </tr>
+              <tr>
+                <td>TEMU202605200003</td>
+                <td><a href="#">LT-260520-103</a></td>
+                <td>KY123456791CN</td>
+                <td><span class="status created">Created</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="ignoredPanel" class="tab-panel">
+          <table class="mock-table">
+            <thead>
+              <tr>
+                <th>TEMU Order Number</th>
+                <th>Existing QIMA LT Order Number</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TEMU202605190088</td>
+                <td><a href="#">LT-260519-088</a></td>
+                <td>This TEMU Order Number was already created in AIMS.</td>
+                <td><span class="status ignored">Ignored</span></td>
+              </tr>
+              <tr>
+                <td>TEMU202605190089</td>
+                <td><a href="#">LT-260519-089</a></td>
+                <td>This TEMU Order Number was already created in AIMS.</td>
+                <td><span class="status ignored">Ignored</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="failedPanel" class="tab-panel">
+          <table class="mock-table">
+            <thead>
+              <tr>
+                <th>Excel Row</th>
+                <th>TEMU Order Number</th>
+                <th>Failure Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>57</td>
+                <td>TEMU202605200057</td>
+                <td>Missing tracking number.</td>
+                <td><span class="status failed">Failed</span></td>
+              </tr>
+              <tr>
+                <td>68</td>
+                <td>TEMU202605200068</td>
+                <td>Invalid mapping for product category.</td>
+                <td><span class="status failed">Failed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="download-note">
+          The returned Excel keeps the original TEMU columns and appends QIMA result columns:
+          QIMA LT Order Number, Import Status, and Failure Reason.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" onclick="closeResultModal()">Close</button>
+        <button class="btn primary">Download Result Excel</button>
+      </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="importModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="importModalTitle">Import Orders</h2>
+        <button class="close" aria-label="Close" onclick="closeImportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stepper" aria-label="Import steps">
+          <span class="step active"><span class="dot">1</span>Upload TEMU Excel</span>
+          <span class="arrow-small">-&gt;</span>
+          <span class="step"><span class="dot">2</span>Validate Data</span>
+          <span class="arrow-small">-&gt;</span>
+          <span class="step"><span class="dot">3</span>Review Result</span>
+        </div>
+
+        <div class="form-row">
+          <div class="label">File *</div>
+          <div>
+            <div class="upload-box">
+              <div class="drop-zone" onclick="mockSelectFile()">Drop TEMU Excel here or click to upload.</div>
+              <div id="fileName" class="file-name">Selected file: TEMU_orders_2026-05-20.xlsx</div>
+              <div class="camera-row">Capture Photo by camera</div>
+            </div>
+            <div class="upload-help">
+              Supported file: the fixed Excel template downloaded from the TEMU platform.
+              The system will validate required fields and use TEMU Order Number to prevent duplicate booking.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn secondary" onclick="closeImportModal()">Cancel</button>
+        <button id="nextButton" class="btn primary" onclick="showResult()" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openImportModal() {
+      document.getElementById('importModal').classList.add('active');
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+    }
+
+    function mockSelectFile() {
+      document.getElementById('fileName').style.display = 'block';
+      document.getElementById('nextButton').disabled = false;
+    }
+
+    function showResult() {
+      closeImportModal();
+      document.getElementById('resultModal').classList.add('active');
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.remove('active');
+    }
+
+    function switchTab(panelId, tabButton) {
+      document.querySelectorAll('.tab').forEach(function(tab) {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+      });
+
+      tabButton.classList.add('active');
+      document.getElementById(panelId).classList.add('active');
+    }
+  </script>
+</body>
+</html>
