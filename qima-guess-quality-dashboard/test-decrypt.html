@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Decrypt Test</title></head>
+<body>
+<h3>AES Decrypt Test</h3>
+<p>Password: <input id="pwd" value="QIMA"> <button onclick="go()">Decrypt</button></p>
+<pre id="log"></pre>
+<script>
+var CIPHER = 'ItT4zP7oqWuu8K0Jyqu2P0Bp77NA1ikDhiio6PxJplBIffZPm+YOcBM0WHCHKjolOfcYAcRMqxW+QEdMyhhKmA==';
+var IV_HEX = 'cde1b1ae8cf8c283f085e2995fe23b0d';
+
+function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2)b[i/2]=parseInt(h.substr(i,2),16);return b}
+function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])})}
+function decrypt(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher)}
+
+function log(m){document.getElementById('log').textContent += m + '
+'}
+
+function go(){
+  var pwd = document.getElementById('pwd').value;
+  log('Password: ' + pwd);
+  log('CIPHER length: ' + CIPHER.length);
+  log('IV_HEX: ' + IV_HEX);
+  
+  try {
+    var raw = atob(CIPHER);
+    log('atob decoded length: ' + raw.length);
+    var bytes = new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
+    log('bytes length: ' + bytes.length);
+    
+    var salt = bytes.slice(0,16);
+    log('salt hex: ' + Array.from(salt).map(function(b){return b.toString(16).padStart(2,'0')}).join(''));
+    log('iv hex from template: ' + IV_HEX);
+    
+    var cipherBytes = bytes.slice(16);
+    log('cipher bytes length: ' + cipherBytes.length);
+    
+    deriveKey(pwd, salt).then(function(key){
+      log('Key derived OK');
+      return decrypt(key, hexToBytes(IV_HEX), cipherBytes);
+    }).then(function(plain){
+      var html = new TextDecoder().decode(plain);
+      log('DECRYPTED: ' + html);
+    }).catch(function(e){
+      log('DECRYPT ERROR: ' + e);
+    });
+  } catch(e) {
+    log('ERROR: ' + e);
+  }
+}
+</script>
+</body>
+</html>
