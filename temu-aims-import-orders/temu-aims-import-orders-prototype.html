@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIMS Prototype - TEMU Import Orders</title>
+  <style>
+    /* AIMS aims-web-css-style-common */
+    * {
+      border-radius: 0 !important;
+      -webkit-border-radius: 0 !important;
+      -moz-border-radius: 0 !important;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0 auto;
+      min-width: 1000px;
+      width: auto !important;
+      font-family: Helvetica, Arial, sans-serif;
+      font-size: 12px;
+      background-color: #ffffff;
+      color: #474747;
+    }
+
+    a {
+      color: #337ab7;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    a:hover,
+    a:focus {
+      color: #23527c;
+    }
+
+    .container-fluid {
+      padding-right: 0;
+      padding-left: 0;
+      margin-right: 0;
+      margin-left: 0;
+    }
+
+    .row {
+      margin-right: 0;
+      margin-left: 0;
+    }
+
+    .col-md-12 {
+      position: relative;
+      min-height: 1px;
+      padding-right: 15px;
+      padding-left: 15px;
+      float: left;
+      width: 100%;
+    }
+
+    /* Ribbon */
+    #ribbon {
+      background-color: #464646;
+      box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.4);
+      z-index: 99;
+      position: relative;
+    }
+
+    .double-container-fluid {
+      position: relative;
+    }
+
+    .app-name {
+      font-size: 30px;
+      color: #ffffff;
+      text-align: center;
+      width: 100%;
+      height: 58px;
+      line-height: 58px;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .navbar-brand {
+      padding: 0;
+      float: left;
+    }
+
+    .nav--img__logo {
+      background-color: red;
+      height: 48px;
+      width: 60px;
+      margin-top: 6px;
+      margin-right: 23px;
+      float: left;
+      display: block;
+      background: url("data:image/png;base64,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") no-repeat 10px 50%;
+      background-size: 46px;
+    }
+
+    .user-module {
+      position: absolute;
+      margin: 6px 0;
+      display: inline-block;
+      right: 0;
+      top: 0;
+    }
+
+    .user-module span {
+      vertical-align: middle;
+    }
+
+    .greetings {
+      color: #ffffff;
+      display: inline-block;
+      font-size: 12px;
+    }
+
+    .greetings span {
+      text-decoration: underline;
+      display: inline-block;
+      height: 20px;
+      line-height: 18px;
+    }
+
+    .user-avatar {
+      background-color: #E4002B;
+      color: #ffffff;
+      font-size: 18px;
+      font-family: Georgia, serif;
+      width: 46px;
+      height: 46px;
+      display: inline-block;
+      margin-left: 20px;
+      line-height: 46px;
+      text-align: center;
+      border-radius: 45px !important;
+      -webkit-border-radius: 45px !important;
+      -moz-border-radius: 45px !important;
+    }
+
+    /* Sub-header nav tabs */
+    .sub-header__menu {
+      height: 48px;
+      padding-left: 15px;
+    }
+
+    .nav-tabs {
+      border-bottom: none !important;
+      margin-top: 10px;
+      padding-left: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav-tabs > li {
+      float: left;
+      margin-bottom: -1px;
+    }
+
+    .nav-tabs > li > a {
+      display: block;
+      padding: 10px 15px;
+      text-decoration: underline !important;
+      color: #337ab7;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+
+    .nav-tabs > li.active > a,
+    .nav-tabs > li.active > a:hover,
+    .nav-tabs > li.active > a:focus {
+      color: #b11821 !important;
+      background-color: #f5f6f6 !important;
+      z-index: 999;
+      margin-left: -1px;
+      border: 1px solid #ddd;
+      border-bottom-color: transparent;
+    }
+
+    .tableLink {
+      color: #337ab7;
+      text-decoration: underline;
+    }
+
+    /* Main content box */
+    .main__box {
+      box-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.1);
+      background-color: #f5f6f6;
+      min-height: 100vh;
+      padding-bottom: 32px;
+    }
+
+    .sub-header__options {
+      background-color: #dce0e4;
+      margin-top: 15px;
+      height: 24px;
+      padding: 3px 10px;
+      margin-left: -15px;
+      margin-right: -15px;
+    }
+
+    a.sub-header {
+      cursor: pointer;
+      text-decoration: underline;
+      margin-right: 14px;
+      margin-left: 0;
+      color: #337ab7;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .page-hint {
+      margin: 12px 15px;
+      color: #474747;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* jsgrid table */
+    .jsgrid-table-wrap {
+      margin: 0 15px;
+    }
+
+    .jsgrid-table {
+      width: 100% !important;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .jsgrid-table tr th {
+      text-align: left !important;
+      font-size: 14px !important;
+      font-weight: bold !important;
+      background-color: #eeefef !important;
+      padding: 6px 8px;
+      border: none !important;
+    }
+
+    .jsgrid-table tr td {
+      padding: 6px 8px;
+      border: none !important;
+      vertical-align: top;
+    }
+
+    .jsgrid-row > td {
+      background: #eeefef !important;
+    }
+
+    .jsgrid-alt-row > td {
+      background: #f5f6f6 !important;
+    }
+
+    .clickable-row {
+      cursor: pointer;
+    }
+
+    .clickable-row:hover > td {
+      background: #e8f4fb !important;
+    }
+
+    .status-text {
+      font-weight: bold;
+    }
+
+    .status-text.success,
+    .status-text.created {
+      color: #458B00;
+    }
+
+    .status-text.partial-success {
+      color: #b8860b;
+    }
+
+    .status-text.fail,
+    .status-text.failed {
+      color: #b3261e;
+    }
+
+    .status-text.ignored {
+      color: #546170;
+    }
+
+    .status-text.processing {
+      color: #b8860b;
+    }
+
+    /* Bootstrap buttons */
+    .btn {
+      display: inline-block;
+      padding: 6px 12px;
+      margin-bottom: 0;
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 1.42857143;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .btn-default {
+      color: #333;
+      background-color: #fff;
+      border-color: #ccc;
+    }
+
+    .btn-default:hover {
+      color: #333;
+      background-color: #e6e6e6;
+      border-color: #adadad;
+      text-decoration: underline !important;
+    }
+
+    .btn-primary {
+      color: #fff !important;
+      background-color: #5ba311 !important;
+      border-color: transparent !important;
+    }
+
+    .btn-primary:hover {
+      background-color: #4a8727 !important;
+    }
+
+    .btn-primary:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.5);
+      overflow: auto;
+    }
+
+    .modal-backdrop.active {
+      display: block;
+    }
+
+    .modal-dialog {
+      width: min(980px, calc(100vw - 40px));
+      margin: 30px auto;
+    }
+
+    .modal-dialog.result-dialog {
+      width: min(1080px, calc(100vw - 36px));
+    }
+
+    .modal-content {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      padding: 15px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2,
+    .modal-header h4 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+      color: #474747;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      font-size: 21px;
+      font-weight: bold;
+      line-height: 1;
+      color: #000;
+      opacity: 0.2;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .close:hover {
+      opacity: 0.5;
+    }
+
+    .modal-body {
+      padding: 15px;
+    }
+
+    .modal-footer {
+      padding: 15px;
+      text-align: right;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .modal-footer .btn + .btn {
+      margin-left: 5px;
+    }
+
+    .form-horizontal .form-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 15px;
+      align-items: start;
+    }
+
+    .form-horizontal .control-label {
+      text-align: right !important;
+      margin-bottom: 0;
+      padding-top: 7px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .upload-box {
+      border: 3px dotted #16859a;
+      background: #fbfbfb;
+      max-width: 560px;
+    }
+
+    .drop-zone {
+      padding: 40px 20px;
+      color: #474747;
+      font-size: 14px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .file-name {
+      display: none;
+      padding: 10px 15px;
+      border-top: 1px solid #dce0e4;
+      background: #eaf8ed;
+      color: #458B00;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .camera-row {
+      padding: 10px 15px;
+      background: #ebebeb;
+      color: #474747;
+      font-size: 12px;
+      text-align: center;
+      border-top: 1px solid #dce0e4;
+    }
+
+    .upload-help {
+      max-width: 560px;
+      margin-top: 8px;
+      color: #474747;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    /* Result modal */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .summary-card {
+      padding: 8px 10px;
+      border: 1px solid #cbd4dc;
+      background: #ffffff;
+    }
+
+    .summary-card .number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #474747;
+    }
+
+    .summary-card .label {
+      margin-top: 4px;
+      color: #474747;
+      font-size: 11px;
+    }
+
+    .result-tabs {
+      margin-bottom: 0;
+      border-bottom: 1px solid #ddd !important;
+    }
+
+    .tab-panel {
+      display: none;
+      padding-top: 8px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .download-note {
+      margin-top: 12px;
+      padding: 9px 12px;
+      border-left: 4px solid #5ba311;
+      background: #f3fbeb;
+      color: #314829;
+      line-height: 1.4;
+      font-size: 12px;
+    }
+
+    .stepper {
+      display: none;
+    }
+
+    /* Notification snackbar — top-left, semantic alert colors */
+    .notification {
+      position: fixed;
+      top: 66px;
+      left: 16px;
+      min-width: 280px;
+      max-width: 420px;
+      border: 2px solid transparent;
+      text-align: left;
+      font-size: 12px;
+      line-height: 1.4;
+      padding: 10px 14px;
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(-12px);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .notification.alert-success {
+      color: #3c763d;
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+    }
+
+    .notification.alert-danger {
+      color: #a94442;
+      background-color: #f2dede;
+      border-color: #ebccd1;
+    }
+
+    .notification.alert-warning {
+      color: #8a6d3b;
+      background-color: #fcf8e3;
+      border-color: #faebcc;
+    }
+
+    .notification.alert-info {
+      color: #31708f;
+      background-color: #d9edf7;
+      border-color: #bce8f1;
+    }
+
+    @media (max-width: 860px) {
+      .nav-tabs {
+        overflow-x: auto;
+      }
+
+      .summary-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .form-horizontal .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-horizontal .control-label {
+        text-align: left !important;
+        padding-top: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="ribbon">
+    <div class="double-container-fluid">
+      <div class="app-name">
+        <a class="navbar-brand" href="#">
+          <span class="nav--img__logo"></span>
+        </a>
+        <div style="text-align: center;">ORDER MANAGEMENT</div>
+        <div>&nbsp;</div>
+      </div>
+      <div class="user-module">
+        <span class="greetings">Hey there, <span>Lyon Li</span></span>
+        <span class="user-avatar">LL</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row sub-header__menu">
+      <ul class="nav nav-tabs">
+        <li><a class="tableLink" href="#">Orders</a></li>
+        <li class="active"><a class="tableLink" href="#">Import Orders</a></li>
+        <li><a class="tableLink" href="#">Orders(Pending)</a></li>
+        <li><a class="tableLink" href="#">Orders(Inquiry)</a></li>
+        <li><a class="tableLink" href="#">Orders(Hold)</a></li>
+        <li><a class="tableLink" href="#">Orders(Completed)</a></li>
+        <li><a class="tableLink" href="#">Orders(Finished)</a></li>
+        <li><a class="tableLink" href="#">Orders(Cancelled)</a></li>
+        <li><a class="tableLink" href="#">Quotation</a></li>
+        <li><a class="tableLink" href="#">Labs</a></li>
+        <li><a class="tableLink" href="#">Subcontract Labs</a></li>
+        <li><a class="tableLink" href="#">Sample Collection</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12 main main__box" id="orderListScreen">
+        <div class="sub-header__options">
+          <a class="sub-header" href="javascript:void(0)" onclick="openImportModal()">Import Orders</a>
+        </div>
+
+        <p class="page-hint">
+          Lab users can import the Excel file downloaded from TEMU. The system will validate the file,
+          create new LT orders, ignore duplicate TEMU Order Numbers, and return an Excel file with QIMA LT Order Numbers.
+        </p>
+
+        <div class="jsgrid-table-wrap">
+          <table class="jsgrid-table" id="importTable" aria-label="Import order batch list">
+            <thead>
+              <tr class="jsgrid-header-row">
+                <th>Batch No.</th>
+                <th>Operator</th>
+                <th>Status</th>
+                <th>Import Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="jsgrid-row clickable-row" onclick="openResultModal('BATCH-20260520-001', 'success')">
+                <td>BATCH-20260520-001</td>
+                <td>TEMU fixed account</td>
+                <td><span class="status-text success">Success</span></td>
+                <td>2026-05-20</td>
+              </tr>
+              <tr class="jsgrid-alt-row clickable-row" onclick="openResultModal('BATCH-20260520-002', 'partial-success')">
+                <td>BATCH-20260520-002</td>
+                <td>TEMU fixed account</td>
+                <td><span class="status-text partial-success">Partial Success</span></td>
+                <td>2026-05-20</td>
+              </tr>
+              <tr class="jsgrid-row clickable-row" onclick="openResultModal('BATCH-20260520-003', 'fail')">
+                <td>BATCH-20260520-003</td>
+                <td>TEMU fixed account</td>
+                <td><span class="status-text fail">Fail</span></td>
+                <td>2026-05-20</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="resultModalTitle">
+    <div class="modal-dialog result-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="resultModalTitle">TEMU Import Result</h2>
+          <button class="close" type="button" aria-label="Close" onclick="closeResultModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="summary-cards" id="summaryCards">
+            <div class="summary-card" id="cardTotal">
+              <div class="number" id="numTotal">128</div>
+              <div class="label">Rows in uploaded Excel</div>
+            </div>
+            <div class="summary-card" id="cardSuccess">
+              <div class="number" id="numSuccess">112</div>
+              <div class="label">Orders successfully created</div>
+            </div>
+            <div class="summary-card" id="cardIgnored">
+              <div class="number" id="numIgnored">12</div>
+              <div class="label">Already created, ignored</div>
+            </div>
+            <div class="summary-card" id="cardFailed">
+              <div class="number" id="numFailed">4</div>
+              <div class="label">Failed validation</div>
+            </div>
+          </div>
+
+          <ul class="nav nav-tabs result-tabs" role="tablist" id="resultTabs">
+            <li class="active" id="tabCreatedLi"><a class="tableLink" id="tabCreated" href="javascript:void(0)" onclick="switchTab('createdPanel', this)">Successfully Created</a></li>
+            <li id="tabIgnoredLi"><a class="tableLink" id="tabIgnored" href="javascript:void(0)" onclick="switchTab('ignoredPanel', this)">Already Created / Ignored</a></li>
+            <li id="tabFailedLi"><a class="tableLink" id="tabFailed" href="javascript:void(0)" onclick="switchTab('failedPanel', this)">Failed Validation</a></li>
+          </ul>
+
+          <div id="createdPanel" class="tab-panel active">
+            <table class="jsgrid-table">
+              <thead>
+                <tr>
+                  <th>TEMU Order Number</th>
+                  <th>QIMA LT Order Number</th>
+                  <th>Tracking Number</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="jsgrid-row">
+                  <td>TEMU202605200001</td>
+                  <td><a href="#">LT-260520-101</a></td>
+                  <td>KY123456789CN</td>
+                  <td><span class="status-text created">Created</span></td>
+                </tr>
+                <tr class="jsgrid-alt-row">
+                  <td>TEMU202605200002</td>
+                  <td><a href="#">LT-260520-102</a></td>
+                  <td>KY123456790CN</td>
+                  <td><span class="status-text created">Created</span></td>
+                </tr>
+                <tr class="jsgrid-row">
+                  <td>TEMU202605200003</td>
+                  <td><a href="#">LT-260520-103</a></td>
+                  <td>KY123456791CN</td>
+                  <td><span class="status-text created">Created</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="ignoredPanel" class="tab-panel">
+            <table class="jsgrid-table">
+              <thead>
+                <tr>
+                  <th>TEMU Order Number</th>
+                  <th>Existing QIMA LT Order Number</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="jsgrid-row">
+                  <td>TEMU202605190088</td>
+                  <td><a href="#">LT-260519-088</a></td>
+                  <td>This TEMU Order Number was already created in AIMS.</td>
+                  <td><span class="status-text ignored">Ignored</span></td>
+                </tr>
+                <tr class="jsgrid-alt-row">
+                  <td>TEMU202605190089</td>
+                  <td><a href="#">LT-260519-089</a></td>
+                  <td>This TEMU Order Number was already created in AIMS.</td>
+                  <td><span class="status-text ignored">Ignored</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="failedPanel" class="tab-panel">
+            <table class="jsgrid-table">
+              <thead>
+                <tr>
+                  <th>Excel Row</th>
+                  <th>TEMU Order Number</th>
+                  <th>Failure Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="jsgrid-row">
+                  <td>57</td>
+                  <td>TEMU202605200057</td>
+                  <td>Missing tracking number.</td>
+                  <td><span class="status-text failed">Failed</span></td>
+                </tr>
+                <tr class="jsgrid-alt-row">
+                  <td>68</td>
+                  <td>TEMU202605200068</td>
+                  <td>Invalid mapping for product category.</td>
+                  <td><span class="status-text failed">Failed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="download-note">
+            The returned Excel keeps the original TEMU columns and appends QIMA result columns:
+            QIMA LT Order Number, Import Status, and Failure Reason.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" type="button" onclick="closeResultModal()">Close</button>
+          <button class="btn btn-primary" type="button">Download Result Excel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="importModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="importModalTitle">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="importModalTitle">Import Orders</h2>
+          <button class="close" type="button" aria-label="Close" onclick="closeImportModal()">&times;</button>
+        </div>
+        <div class="modal-body form-horizontal">
+          <div class="form-row">
+            <label class="control-label">File *</label>
+            <div>
+              <div class="upload-box">
+                <div class="drop-zone" onclick="mockSelectFile()">Drop TEMU Excel here or click to upload.</div>
+                <div id="fileName" class="file-name">Selected file: TEMU_orders_2026-05-20.xlsx</div>
+                <div class="camera-row">Capture Photo by camera</div>
+              </div>
+              <div class="upload-help">
+                Supported file: the fixed Excel template downloaded from the TEMU platform.
+                The system will validate required fields and use TEMU Order Number to prevent duplicate booking.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-default" type="button" onclick="closeImportModal()">Cancel</button>
+          <button id="nextButton" class="btn btn-primary" type="button" onclick="submitImport()" disabled>Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="snackbar" class="alert notification alert-success" role="alert" aria-live="polite"></div>
+
+  <script>
+    function showNotification(message, type) {
+      var snackbar = document.getElementById('snackbar');
+      snackbar.className = 'alert notification alert-' + type;
+      snackbar.textContent = message;
+      snackbar.classList.add('show');
+      setTimeout(function() {
+        snackbar.classList.remove('show');
+      }, 3000);
+    }
+
+    function openImportModal() {
+      document.getElementById('importModal').classList.add('active');
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+    }
+
+    function mockSelectFile() {
+      document.getElementById('fileName').style.display = 'block';
+      document.getElementById('nextButton').disabled = false;
+    }
+
+    function submitImport() {
+      closeImportModal();
+
+      showNotification('Submitted Successfully', 'success');
+
+      var tbody = document.querySelector('#importTable tbody');
+      var now = new Date();
+      var dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      var batchNo = 'BATCH-' + dateStr.replace(/-/g, '') + '-' + String(tbody.rows.length + 1).padStart(3, '0');
+      var rowClass = tbody.rows.length % 2 === 0 ? 'jsgrid-alt-row' : 'jsgrid-row';
+
+      var row = document.createElement('tr');
+      row.className = rowClass + ' clickable-row';
+      row.innerHTML =
+        '<td>' + batchNo + '</td>' +
+        '<td>TEMU fixed account</td>' +
+        '<td><span class="status-text processing" id="newRowStatus">Processing</span></td>' +
+        '<td>' + dateStr + '</td>';
+      tbody.insertBefore(row, tbody.firstChild);
+
+      setTimeout(function() {
+        var statusEl = document.getElementById('newRowStatus');
+        if (statusEl) {
+          statusEl.textContent = 'Success';
+          statusEl.className = 'status-text success';
+          statusEl.removeAttribute('id');
+        }
+        row.setAttribute('onclick', "openResultModal('" + batchNo + "', 'success')");
+      }, 10000);
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.remove('active');
+    }
+
+    function switchTab(panelId, tabLink) {
+      document.querySelectorAll('#resultTabs li').forEach(function(tabLi) {
+        tabLi.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+      });
+
+      tabLink.parentElement.classList.add('active');
+      document.getElementById(panelId).classList.add('active');
+    }
+
+    function openResultModal(batchNo, status) {
+      document.getElementById('resultModalTitle').textContent = 'Import Result - ' + batchNo;
+
+      document.querySelectorAll('#resultTabs li').forEach(function(tabLi) {
+        tabLi.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-panel').forEach(function(panel) {
+        panel.classList.remove('active');
+      });
+
+      if (status === 'success') {
+        document.getElementById('cardTotal').style.display = '';
+        document.getElementById('cardSuccess').style.display = '';
+        document.getElementById('cardIgnored').style.display = '';
+        document.getElementById('cardFailed').style.display = '';
+        document.getElementById('numTotal').textContent = '112';
+        document.getElementById('numSuccess').textContent = '112';
+        document.getElementById('numIgnored').textContent = '0';
+        document.getElementById('numFailed').textContent = '0';
+        document.getElementById('tabCreatedLi').style.display = '';
+        document.getElementById('tabIgnoredLi').style.display = 'none';
+        document.getElementById('tabFailedLi').style.display = 'none';
+        document.getElementById('tabCreatedLi').classList.add('active');
+        document.getElementById('createdPanel').classList.add('active');
+      } else if (status === 'partial-success') {
+        document.getElementById('cardTotal').style.display = '';
+        document.getElementById('cardSuccess').style.display = '';
+        document.getElementById('cardIgnored').style.display = '';
+        document.getElementById('cardFailed').style.display = '';
+        document.getElementById('numTotal').textContent = '128';
+        document.getElementById('numSuccess').textContent = '112';
+        document.getElementById('numIgnored').textContent = '12';
+        document.getElementById('numFailed').textContent = '4';
+        document.getElementById('tabCreatedLi').style.display = '';
+        document.getElementById('tabIgnoredLi').style.display = '';
+        document.getElementById('tabFailedLi').style.display = '';
+        document.getElementById('tabCreatedLi').classList.add('active');
+        document.getElementById('createdPanel').classList.add('active');
+      } else if (status === 'fail') {
+        document.getElementById('cardTotal').style.display = '';
+        document.getElementById('cardSuccess').style.display = 'none';
+        document.getElementById('cardIgnored').style.display = 'none';
+        document.getElementById('cardFailed').style.display = '';
+        document.getElementById('numTotal').textContent = '4';
+        document.getElementById('numFailed').textContent = '4';
+        document.getElementById('tabCreatedLi').style.display = 'none';
+        document.getElementById('tabIgnoredLi').style.display = 'none';
+        document.getElementById('tabFailedLi').style.display = '';
+        document.getElementById('tabFailedLi').classList.add('active');
+        document.getElementById('failedPanel').classList.add('active');
+      }
+
+      document.getElementById('resultModal').classList.add('active');
+    }
+  </script>
+</body>
+</html>
