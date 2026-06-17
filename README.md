@@ -21,7 +21,9 @@
 
 ## 首次启用 GitHub Pages
 
-合并到 `main` 后，在仓库 Settings → Pages 中确认 Source 为 **GitHub Actions**。首次 workflow 成功运行后站点即可访问。
+1. 合并 PR 到 `main`
+2. 在仓库 **Settings → Pages** 中确认 Source 为 **GitHub Actions**
+3. 首次 workflow 成功运行后，站点地址为：**https://asiainspection.github.io/PM-/**
 
 ## 新增周报
 

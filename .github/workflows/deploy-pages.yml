@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - cursor/chinese-tic-market-report-a8ed
     paths:
       - 'docs/**'
       - 'reports/**'
