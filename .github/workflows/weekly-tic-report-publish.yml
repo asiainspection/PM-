@@ -1,0 +1,39 @@
+name: Weekly TIC Report Publish
+
+on:
+  schedule:
+    # Every Friday 09:00 UTC — aligned with Cursor automation cron (0 9 * * 5)
+    - cron: '0 9 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-tic-report-publish
+  cancel-in-progress: false
+
+jobs:
+  sync-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare GitHub Pages assets
+        run: bash scripts/prepare-pages.sh
+
+      - name: Commit synced docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          if git diff --staged --quiet; then
+            echo "No docs changes to commit."
+          else
+            git commit -m "chore: sync GitHub Pages docs for weekly TIC report publish"
+            git push origin HEAD
+            echo "Pushed docs sync; deploy-pages workflow will publish GitHub Pages."
+          fi

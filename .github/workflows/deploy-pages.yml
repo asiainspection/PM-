@@ -9,8 +9,11 @@ on:
       - 'reports/**'
       - 'logo.svg'
       - 'scripts/prepare-pages.sh'
+      - 'scripts/generate-pages-index.sh'
       - '.github/workflows/deploy-pages.yml'
+      - '.github/workflows/weekly-tic-report-publish.yml'
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
