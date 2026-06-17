@@ -10,7 +10,7 @@
 
 最新报告：
 
-- [2026-06-17 中国 TIC 行业整体市场研究周报](https://asiainspection.github.io/PM-/reports/china-tic-weekly-market-report-2026-06-17.html)
+- [2026-06-17 中国 TIC 行业整体市场研究周报](https://asiainspection.github.io/PM-/reports/china-tic-market-weekly-2026-06-17.html)
 
 ## 目录结构
 
@@ -27,6 +27,6 @@
 
 ## 新增周报
 
-1. 将新报告 HTML 放入 `reports/`
+1. 将新报告 HTML 放入 `reports/`，命名格式：`china-tic-market-weekly-YYYY-MM-DD.html`
 2. 更新 `docs/index.html` 中的报告列表
 3. 推送后 workflow 会自动同步并发布
