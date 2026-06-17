@@ -52,6 +52,23 @@ GitHub Actions: deploy-pages.yml
 
 不要单独展开大段「研究方法与证据等级」章节；证据标准仅在 Evidence Pack 中体现。
 
+## Cursor Automation 设置
+
+Automation 配置与 Prompt 已纳入仓库，便于团队复用：
+
+- 配置参考：`.cursor/automations/weekly-tic-competitor-news-report.yaml`
+- 完整 Prompt：`.cursor/prompts/weekly-tic-competitor-news-report.md`
+- 创建步骤：`.cursor/automations/README.md`
+
+在 [cursor.com/automations](https://cursor.com/automations) 新建 Automation：
+
+| 项 | 值 |
+|----|-----|
+| Trigger | Cron `0 9 * * 5`（每周五 09:00 UTC） |
+| Repository | `asiainspection/PM-` · `main` |
+| Prompt | 粘贴上述 `.md` 文件全文 |
+| Tools | Memories（建议开启） |
+
 ## Cursor Automation 发布步骤
 
 1. 生成报告到 `reports/china-tic-market-weekly-YYYY-MM-DD.html`（按上述结构）

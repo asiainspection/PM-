@@ -1,0 +1,40 @@
+# Cursor Automation 参考配置
+# 说明：Automations 目前需在 Cursor UI 中创建（Agents 窗口 或 https://cursor.com/automations）
+# 本文件是团队可版本管理的「单一事实来源」；在 UI 中按此配置手动创建一次即可。
+#
+# 快速创建步骤见：.cursor/automations/README.md
+
+name: 中国 TIC 行业周报（竞品新闻优先）
+enabled: true
+
+# Cursor UI: Scheduled trigger
+trigger:
+  type: scheduled
+  cron: "0 9 * * 5"   # 每周五 09:00 UTC（北京时间 17:00）
+
+repository:
+  url: https://github.com/asiainspection/PM-
+  branch: main
+
+# Cursor UI: Model — 选用具备联网检索能力的 Cloud Agent 模型（Max Mode 默认开启）
+model: default
+
+permissions: team_visible   # 或 team_owned（团队共享 service account）
+
+tools:
+  memories: true            # 持久化发布流程与结构偏好
+  # 可选：Send to Slack — 报告发布后通知频道
+
+prompt_file: .cursor/prompts/weekly-tic-competitor-news-report.md
+
+# 与 GitHub Actions 对齐（仅发布，不生成内容）
+downstream:
+  - workflow: .github/workflows/weekly-tic-report-publish.yml
+    cron: "0 9 * * 5"
+    role: sync docs/ and deploy GitHub Pages
+  - workflow: .github/workflows/deploy-pages.yml
+    trigger: push to main (reports/** or docs/**)
+
+outputs:
+  report: reports/china-tic-market-weekly-YYYY-MM-DD.html
+  pages_url: https://asiainspection.github.io/PM-/reports/china-tic-market-weekly-YYYY-MM-DD.html
