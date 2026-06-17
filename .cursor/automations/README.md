@@ -13,8 +13,19 @@
 | **Trigger** | Scheduled · Cron `0 9 * * 5`（每周五 09:00 UTC） |
 | **Repository** | `asiainspection/PM-` · 分支 `main` |
 | **Prompt** | 复制 `.cursor/prompts/weekly-tic-competitor-news-report.md` 全文 |
-| **Tools** | ✅ Memories（建议开启） |
+| **Tools** | ✅ Memories（建议开启）· 需联网检索 |
 | **Permissions** | Team Visible 或 Team Owned |
+
+### Prompt 重点（v2）
+
+每周围期**写 HTML 前先检索**，必扫 4 赛道：
+
+1. **Amazon DV / 平台直连** — SGS、Intertek、CQC、Eurofins、UL 等
+2. **ESG 数字化平台** — LRQA EiQ、CSRD/CSDDD SaaS
+3. **工业网络安全一体包** — Kiwa×Siemens、NIS2/CRA
+4. **AI 治理 / 行业平台** — FoodNexus、AI²、BV+AWS 等
+
+详见 Prompt 内「第 0 步：强制调研」。
 
 3. 保存并 **Run once** 测试一次
 4. 确认 `main` 上出现新文件 `reports/china-tic-market-weekly-YYYY-MM-DD.html`

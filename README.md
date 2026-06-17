@@ -43,7 +43,7 @@ GitHub Actions: deploy-pages.yml
 
 ## 周报内容结构（竞品新闻优先）
 
-1. **竞品新闻雷达** — 各 TIC 竞品官方新闻：新系统/平台、新业务线、并购
+1. **竞品新闻雷达** — 各 TIC 竞品官方新闻：新系统/平台、新业务线、并购；**必扫** Amazon DV 平台直连、ESG 数字化（LRQA EiQ）、工业 cyber 一体包（Kiwa 等）
 2. **竞品 AI 使用方向动态** — 表格对照：AI 动作、方向判断、对 QIMA 的含义
 3. **Executive Summary** — 给 PM/业务团队的 3–4 条要点
 4. **QIMA Implications** — 产品/销售可执行建议

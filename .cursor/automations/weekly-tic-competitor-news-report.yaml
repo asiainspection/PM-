@@ -27,6 +27,24 @@ tools:
 
 prompt_file: .cursor/prompts/weekly-tic-competitor-news-report.md
 
+# 必扫赛道（每周围期）
+research_tracks:
+  - id: platform-direct-validation
+    priority: P0
+    examples: "Amazon TIC DV, CQC/Intertek/SGS 直连, CPSC eFiling/InterLink"
+  - id: esg-digital-platform
+    priority: P0
+    examples: "LRQA EiQ, CSRD/CSDDD SaaS, Hillhouse 入股后产品迭代"
+  - id: industrial-cyber-bundle
+    priority: P0
+    examples: "Kiwa×Siemens OT/NIS2/CRA, IEC 62443 合规包"
+  - id: ai-governance-platforms
+    priority: P1
+    examples: "SGS FoodNexus, Intertek AI², BV+AWS, TÜV AI Procured"
+
+# 最低调研量：写 HTML 前 ≥10 次联网检索，覆盖 4 赛道
+min_web_searches_before_write: 10
+
 # 与 GitHub Actions 对齐（仅发布，不生成内容）
 downstream:
   - workflow: .github/workflows/weekly-tic-report-publish.yml
