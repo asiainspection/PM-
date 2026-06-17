@@ -1,6 +1,6 @@
 # QIMA TIC Weekly Market Report
 
-面向 QIMA PM 与业务团队的中国 TIC 行业周度市场研究报告。
+面向 QIMA PM 与业务团队的中国 TIC 行业周度市场研究报告。每期**优先收录竞品新闻**（新系统/平台/业务/并购）与**竞品 AI 使用方向**，监管与市场数据作为附录参考。
 
 ## GitHub Pages
 
@@ -41,9 +41,20 @@ GitHub Actions: deploy-pages.yml
 - `.github/workflows/weekly-tic-report-publish.yml`：每周五 cron 同步 + 发布
 - `.github/workflows/deploy-pages.yml`：Pages 构建与部署
 
+## 周报内容结构（竞品新闻优先）
+
+1. **竞品新闻雷达** — 各 TIC 竞品官方新闻：新系统/平台、新业务线、并购
+2. **竞品 AI 使用方向动态** — 表格对照：AI 动作、方向判断、对 QIMA 的含义
+3. **Executive Summary** — 给 PM/业务团队的 3–4 条要点
+4. **QIMA Implications** — 产品/销售可执行建议
+5. **Evidence Pack** — 3–5 条核心证据（含来源链接与可信度）
+6. **附录（默认折叠）** — Market/Regulation Trends、数字化补充信号
+
+不要单独展开大段「研究方法与证据等级」章节；证据标准仅在 Evidence Pack 中体现。
+
 ## Cursor Automation 发布步骤
 
-1. 生成报告到 `reports/china-tic-market-weekly-YYYY-MM-DD.html`
+1. 生成报告到 `reports/china-tic-market-weekly-YYYY-MM-DD.html`（按上述结构）
 2. 确保 logo 引用为 `../assets/logo.svg`
 3. 提交并 push 到 `main`
 4. （可选）运行 `bash scripts/publish-weekly-report.sh YYYY-MM-DD` 立即同步 docs 并触发部署

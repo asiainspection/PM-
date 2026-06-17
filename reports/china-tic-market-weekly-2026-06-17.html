@@ -194,6 +194,22 @@
       font-size: 13px;
     }
     footer a { color: #bfdbfe; }
+    .news-grid { display: grid; gap: 14px; }
+    .news-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+    .news-card.featured { border-color: #fecaca; background: linear-gradient(180deg, #fff, #fff7f8); }
+    .news-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .news-headline { font-size: 17px; font-weight: 800; margin: 0 0 8px; line-height: 1.35; }
+    .news-body { font-size: 14px; color: #334155; margin: 0 0 8px; }
+    .news-meta { font-size: 12px; color: var(--muted); }
+    .news-link { font-size: 13px; font-weight: 700; }
+    .appendix { opacity: .96; }
+    .appendix summary { cursor: pointer; font-weight: 800; margin-bottom: 12px; }
+    details.appendix-box { border: 1px dashed var(--line); border-radius: 16px; padding: 14px 16px; background: #fafbfd; }
     @media print {
       body { background: #fff; }
       .page { width: 100%; margin: 0; border: 0; box-shadow: none; }
@@ -216,153 +232,127 @@
         <span class="badge">Weekly TIC Market Intelligence</span>
       </div>
       <h1>中国 TIC 行业整体市场研究周报</h1>
-      <p class="subtitle">面向 QIMA PM 与业务团队；覆盖全球与中国 TIC 市场、主要企业动态、政策监管、数字化/AI/远程检验/供应链合规信号，以及对 QIMA 产品与业务线的启示。</p>
+      <p class="subtitle">面向 QIMA PM 与业务团队。本期重点：竞品最新系统/平台/业务动作，以及它们在 AI 使用方向上的公开动态。</p>
       <div class="meta">
         <span>报告日期：2026-06-17</span>
-        <span>观察窗口：截至公开检索日的最新可核验资料</span>
-        <span>方法：Evidence-first / 结论绑定来源</span>
-        <span>无法核验项：标注 “Unverified, further confirmation required”</span>
+        <span>阅读优先级：竞品新闻 &gt; AI 动态 &gt; 监管背景</span>
+        <span>证据标准：每条新闻绑定来源 [Sx]</span>
       </div>
     </header>
 
     <main>
-      <section id="methodology">
-        <h2><span class="dot"></span>研究方法与证据等级</h2>
-        <div class="method">
-          <div class="card">
-            <p class="lead">本报告优先采用官方公告、监管/标准文件、企业新闻稿和投资者关系材料；其次采用行业组织、权威媒体与咨询机构资料。所有关键判断均在正文中以 <span class="source">[Sx]</span> 标注来源。</p>
-            <ul class="bullets">
-              <li><strong>高可信：</strong>政府/监管机构、CNAS/CNCA、CPSC、EU 官方、企业 IR/年报、TIC Council、ISO。</li>
-              <li><strong>中可信：</strong>Business Wire、Investegate、PRNewswire 等原文转发或公告渠道。</li>
-              <li><strong>方向性：</strong>咨询/市场研究摘要；只用于趋势辅助，不单独作为投资或市场规模结论。</li>
-              <li><strong>缺口处理：</strong>若公开资料未覆盖或时间点尚未落定，明确标注 “Unverified, further confirmation required”。</li>
-            </ul>
-          </div>
-          <figure class="diagram">
-            <svg viewBox="0 0 760 310" role="img" aria-label="证据优先研究流程图">
-              <defs>
-                <linearGradient id="g1" x1="0" x2="1">
-                  <stop offset="0%" stop-color="#e4002b"/>
-                  <stop offset="100%" stop-color="#2454ff"/>
-                </linearGradient>
-                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity=".14"/>
-                </filter>
-              </defs>
-              <rect width="760" height="310" rx="22" fill="#f8fafc"/>
-              <g filter="url(#shadow)">
-                <rect x="40" y="55" width="150" height="80" rx="16" fill="#fff"/>
-                <rect x="225" y="55" width="150" height="80" rx="16" fill="#fff"/>
-                <rect x="410" y="55" width="150" height="80" rx="16" fill="#fff"/>
-                <rect x="595" y="55" width="125" height="80" rx="16" fill="#fff"/>
-              </g>
-              <text x="115" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#111827">来源筛选</text>
-              <text x="115" y="112" text-anchor="middle" font-size="13" fill="#64748b">官方优先</text>
-              <text x="300" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#111827">交叉验证</text>
-              <text x="300" y="112" text-anchor="middle" font-size="13" fill="#64748b">数字/时间/口径</text>
-              <text x="485" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#111827">结论分级</text>
-              <text x="485" y="112" text-anchor="middle" font-size="13" fill="#64748b">高/中/方向性</text>
-              <text x="657" y="86" text-anchor="middle" font-size="18" font-weight="800" fill="#111827">QIMA启示</text>
-              <text x="657" y="112" text-anchor="middle" font-size="13" fill="#64748b">产品/销售动作</text>
-              <path d="M190 95 H225" stroke="url(#g1)" stroke-width="4" marker-end="url(#arrow)"/>
-              <path d="M375 95 H410" stroke="url(#g1)" stroke-width="4"/>
-              <path d="M560 95 H595" stroke="url(#g1)" stroke-width="4"/>
-              <defs>
-                <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
-                  <path d="M0,0 L0,6 L6,3 z" fill="#2454ff"/>
-                </marker>
-              </defs>
-              <path d="M95 205 C180 170, 260 245, 345 205 S530 170, 645 205" fill="none" stroke="#e4002b" stroke-width="5"/>
-              <circle cx="95" cy="205" r="9" fill="#e4002b"/>
-              <circle cx="345" cy="205" r="9" fill="#e4002b"/>
-              <circle cx="645" cy="205" r="9" fill="#e4002b"/>
-              <text x="380" y="254" text-anchor="middle" font-size="15" fill="#334155">每个关键结论必须可追溯到证据包或来源清单</text>
-            </svg>
-            <figcaption>图 1：证据优先的周报生成流程。</figcaption>
-          </figure>
+      <section id="competitor-news-radar">
+        <h2><span class="dot"></span>竞品新闻雷达（系统 / 平台 / 新业务）</h2>
+        <p class="lead">本期优先收录竞品官方新闻、IR 材料与可核验公告，聚焦“发布了什么系统/平台”和“新开了什么业务线/并购”。</p>
+        <div class="news-grid">
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag red">SGS</span><span class="tag purple">新平台</span><span class="news-meta">2026-03 · 官方新闻</span></div>
+            <h3 class="news-headline">发布 SGS FoodNexus：合并 Digicomply + Agroknow 的 AI 食品风险情报平台</h3>
+            <p class="news-body">SGS 将监管情报平台 SGS Digicomply 与 AI 食品安全分析公司 Agroknow 合并，推出 SGS FoodNexus，定位为单一数字平台，用于预测全球供应链中的食品安全与合规风险；未来 12 个月将统一平台能力并推出新工具。<a href="#s18" class="source">[S18]</a></p>
+            <a class="news-link" href="https://www.sgs.com/en-bo/news/2026/03/sgs-launches-new-global-food-intelligence-platform-to-help-industry-predict-safety" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag green">Intertek</span><span class="tag purple">新产品包</span><span class="news-meta">2025-2026 · 官方新闻</span></div>
+            <h3 class="news-headline">SupplyTek：端到端供应链重构 + 全球市场准入解决方案</h3>
+            <p class="news-body">Intertek 推出 SupplyTek，整合 Consulting / Training / Assurance，帮助客户在关税、贸易政策变化下重构供应链、识别替代供应商并保持合规；Corporate Assurance Q1 2026 有机增长 +10.8%，受供应链韧性与可持续保障驱动。<a href="#s23" class="source">[S23]</a><a href="#s5" class="source">[S5]</a></p>
+            <a class="news-link" href="https://www.intertek.com/news/2025/intertek-launches-supplytek/" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card">
+            <div class="news-top"><span class="tag blue" style="background:#dbeafe;color:#1e3a8a;">Bureau Veritas</span><span class="tag amber">并购</span><span class="news-meta">2026-04 · 官方新闻</span></div>
+            <h3 class="news-headline">收购 LotusWorks，建立约 EUR 3 亿关键资产平台（数据中心 + 半导体）</h3>
+            <p class="news-body">BV 收购 LotusWorks（2025 年营收 EUR 1.31 亿，750 人），与现有数据中心业务合并，形成 TIC 行业独特的 mission-critical 平台，约占 Buildings & Infrastructure 事业部 15%，直接对接 AI 驱动的半导体与数字基础设施投资周期。<a href="#s21" class="source">[S21]</a></p>
+            <a class="news-link" href="https://group.bureauveritas.com/newsroom/bureau-veritas-acquires-lotusworks-reinforcing-its-position-data-centers-and-entering" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card">
+            <div class="news-top"><span class="tag red">SGS</span><span class="tag amber">并购</span><span class="news-meta">2026 Q1 · 官方新闻</span></div>
+            <h3 class="news-headline">Digital Trust 连续并购：Panacea Infosec、GRL、Cyanre Group</h3>
+            <p class="news-body">SGS 2026 年初连续收购 Panacea Infosec（支付卡/网络安全）、Granite River Labs（高速连接测试，支撑 AI 数字基础设施）、Cyanre Group（数字取证）；Q1 Business Assurance organic +7.4%，Digital Trust 与 Sustainability 双位数增长。<a href="#s19" class="source">[S19]</a><a href="#s3" class="source">[S3]</a></p>
+            <a class="news-link" href="https://www.sgs.com/en/news/2026/04/sgs-first-quarter-2026-sales-update" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card">
+            <div class="news-top"><span class="tag purple">TÜV SÜD</span><span class="tag green">新 venture</span><span class="news-meta">官方 · 新加坡</span></div>
+            <h3 class="news-headline">设立 AI Procured 平台：帮助企业采购合规 AI 解决方案</h3>
+            <p class="news-body">TÜV SÜD 在新加坡设立 corporate venture “AI Procured”，提供 AI 解决方案合格评定与持续监控，基于 TÜV SÜD AI Quality Framework；获 TÜV SÜD 与 FutureLabs 初始 EUR 360 万投资。<a href="#s24" class="source">[S24]</a></p>
+            <a class="news-link" href="https://www.edb.gov.sg/en/about-edb/media-releases-publications/tuv-sud-establishes-ai-procured-platform-to-qualify-ai-solutions.html" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card">
+            <div class="news-top"><span class="tag amber">CTI 华测</span><span class="tag green">新业务</span><span class="news-meta">2026 Q1 · IR/公告</span></div>
+            <h3 class="news-headline">“鲲跃之年”：半导体/PCB/AI 硬件测试 + CBAM/碳服务 + 海外 HSEQ 并购</h3>
+            <p class="news-body">华测 Q1 2026 营收 +16.17%、净利 +30.93%；持续投资芯片/机器人/PCB 测试，通过 Emicert 布局欧盟 CBAM 预核查；工业测试数字化收入较快增长，与戴纳科技共建黑灯实验室。<a href="#s7" class="source">[S7]</a><a href="#s25" class="source">[S25]</a></p>
+            <a class="news-link" href="https://static.cninfo.com.cn/finalpage/2026-04-20/1225115406.PDF" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+          <article class="news-card">
+            <div class="news-top"><span class="tag green">Intertek</span><span class="tag red">资本事件</span><span class="news-meta">2026-05/06 · RNS</span></div>
+            <h3 class="news-headline">启动拆分评估后，因 EQT £60/股 条件性收购方案暂停 Strategic Review</h3>
+            <p class="news-body">Intertek 4 月启动 Testing & Assurance / Energy & Infrastructure 拆分评估；5 月收到 EQT 最终条件性方案后暂停拆分工作；PUSU 截止日延至 2026-06-18，结果在报告日尚未落定。<strong>Unverified, further confirmation required</strong><a href="#s17" class="source">[S17]</a></p>
+            <a class="news-link" href="https://www.investegate.co.uk/announcement/rns/intertek-group--itrk/extension-of-pusu-deadline/9612343" target="_blank" rel="noreferrer">阅读原文 →</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="competitor-ai-dynamics">
+        <h2><span class="dot"></span>竞品 AI 使用方向动态</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>企业</th>
+                <th>AI 相关动作（公开信息）</th>
+                <th>方向判断</th>
+                <th>对 QIMA 的含义</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>SGS</strong></td>
+                <td>FoodNexus 用 AI 做食品风险预测；Q1 完成跨 80 个数据中心的 ISO/IEC 42001 AI 认证项目；Digital Trust 并购强化 AI 基础设施连接测试与网络安全。<a href="#s18" class="source">[S18]</a><a href="#s3" class="source">[S3]</a></td>
+                <td>AI 用于<strong>行业情报平台 + AI 治理认证 + 数字基础设施测试</strong>，不是单纯实验室自动化。</td>
+                <td>QIMA 可在食品/消费品供应链推出“AI 风险信号 + 检验/审核触发”组合，而非只做传统 PSI。</td>
+              </tr>
+              <tr>
+                <td><strong>Bureau Veritas</strong></td>
+                <td>与 AWS 合作推出 EU AI Act 独立 AI 系统审计，使用 AWS AIRI 自动化文档审查与测试，把审计周期从数周缩短到数天；2026 Q2 起在法国、英国、西班牙等市场部署。<a href="#s20" class="source">[S20]</a></td>
+                <td>AI 用于<strong>加速合规审计交付</strong>，并与 cloud/tech partner 绑定。</td>
+                <td>QIMA 可评估与 cloud/RegTech 伙伴共建轻量 AI 合规预检，而不必自建全套 AI 审计栈。</td>
+              </tr>
+              <tr>
+                <td><strong>Intertek</strong></td>
+                <td>Intertek AI² 提供 governance / transparency / security / safety 四支柱端到端 AI 保障；覆盖 EU AI Act、ISO 42001、AI 专属测试与验证。<a href="#s22" class="source">[S22]</a></td>
+                <td>AI 被产品化为<strong>独立 assurance programme</strong>，面向制造商与 AI 系统运营方。</td>
+                <td>Intertek 在 AI assurance 上品牌占位早；QIMA 更适合从供应链/产品检验场景切入 AI 证据与风险分层。</td>
+              </tr>
+              <tr>
+                <td><strong>TÜV Group</strong></td>
+                <td>TÜV SÜD 推出 EU AI Act 自愿符合性证书、AI Procured 采购合格平台；TÜV Rheinland 提供 AI Fitness Check、ISO 42001/27001 与 notified body 预评估路径。<a href="#s24" class="source">[S24]</a><a href="#s26" class="source">[S26]</a></td>
+                <td>AI 方向偏<strong>法规合规 + 采购合格 + 产品/market access</strong>。</td>
+                <td>QIMA 不必复制 TÜV 的重认证路径，可做“出口前 AI/IoT 产品合规准备 + 买家审核证据包”。</td>
+              </tr>
+              <tr>
+                <td><strong>CTI 华测</strong></td>
+                <td>AI 以项目制推进：AI 图谱报警、AI 智能报告审核、纺织品智能评级、消费者偏好 AI 模型、黑灯实验室；尚未形成集团级 AI 收入统计，CMA 资质认可仍是瓶颈。<a href="#s25" class="source">[S25]</a></td>
+                <td>AI 主要用于<strong>实验室效率与内部运营</strong>，对外产品化仍处早期。</td>
+                <td>华测在本土实验室 AI 效率上投入深；QIMA 优势仍在跨境买家网络、远程检验与供应链 SaaS。</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
       <section id="executive-summary">
-        <h2><span class="dot"></span>Executive Summary</h2>
-        <div class="grid cols-4">
-          <div class="card kpi">
-            <span class="tag red">中国检验检测</span>
-            <strong>5303.08亿元</strong>
-            <span class="label">2025 年全国检验检测营收，同比增长 8.76%；报告 5.71 亿份。<a href="#s1" class="source">[S1]</a></span>
-          </div>
-          <div class="card kpi">
-            <span class="tag green">全球 TIC</span>
-            <strong>3.8% CAGR</strong>
-            <span class="label">市场研究摘要预测 2026-2031 年全球 TIC 从 2544 亿美元增至 3061 亿美元；作为方向性参考。<a href="#s15" class="source">[S15]</a></span>
-          </div>
-          <div class="card kpi">
-            <span class="tag purple">数字化</span>
-            <strong>HITL</strong>
-            <span class="label">TIC Council 明确 AI/IoT/数字孪生可用于合格评定，但人类监督和责任不可移除。<a href="#s2" class="source">[S2]</a></span>
-          </div>
-          <div class="card kpi">
-            <span class="tag amber">监管节点</span>
-            <strong>2026-07-08</strong>
-            <span class="label">CPSC 进口消费品证书电子申报 eFiling 开始强制实施，直接影响消费品出口链路。<a href="#s10" class="source">[S10]</a></span>
-          </div>
-        </div>
-
-        <div class="card tint" style="margin-top:16px;">
-          <h3>本周核心判断</h3>
+        <h2><span class="dot"></span>Executive Summary（给 PM / 业务团队）</h2>
+        <div class="card tint">
           <ol class="bullets">
-            <li><strong>中国 TIC 仍在扩容，但竞争重心从“机构数量”转向“高技术、高附加值、可采信数据”。</strong>2025 年全国检验检测机构 54,340 家、从业 158.64 万人、营收 5303.08 亿元；认证机构数量下降但营收增长，显示低质供给出清与效率提升并行。<a href="#s1" class="source">[S1]</a></li>
-            <li><strong>全球头部 TIC 公司把增长锚点集中在数字信任、AI 治理、可持续与关键基础设施。</strong>SGS 的 Business Assurance、BV 的 LEAP | 28 组合调整、TÜV 的 POWER 2030/安全数字化、Intertek 的 Corporate Assurance 与 SupplyTek/AI² 均指向同一方向。<a href="#s3" class="source">[S3]</a><a href="#s4" class="source">[S4]</a><a href="#s5" class="source">[S5]</a><a href="#s6" class="source">[S6]</a></li>
-            <li><strong>监管正在把“文件合规”升级为“可验证、可追溯、可电子申报的数据合规”。</strong>CBAM 正式期要求授权申报、实际排放核查和 CBAM 证书；CPSC eFiling 要求在进口环节提交证书数据；CNAS 产品碳足迹核查认可制度提升中国本土碳数据可信度。<a href="#s9" class="source">[S9]</a><a href="#s10" class="source">[S10]</a><a href="#s8" class="source">[S8]</a></li>
-            <li><strong>对 QIMA 的直接启示：</strong>消费品、食品、生命科学和供应链合规业务应从单点检验/审核，升级为“证据数据管理 + 远程/现场混合验证 + 合规申报准备 + 风险看板”的产品包。</li>
+            <li><strong>竞品不是在卖“更多检测”，而是在卖“平台 + 合规数据 + AI 治理”。</strong>SGS FoodNexus、Intertek SupplyTek/AI²、BV+AWS AI 审计、TÜV AI Procured 都是可售产品包，不是内部工具。<a href="#s18" class="source">[S18]</a><a href="#s22" class="source">[S22]</a><a href="#s20" class="source">[S20]</a><a href="#s24" class="source">[S24]</a></li>
+            <li><strong>AI 方向分三类：</strong>① 行业/供应链情报（SGS）；② AI 治理与合规认证（SGS/Intertek/TÜV/BV）；③ 实验室与报告效率（CTI）。QIMA 应优先做 ①+② 在供应链场景的轻量版本。</li>
+            <li><strong>关键基础设施是新的并购战场。</strong>BV 的 LotusWorks、SGS 的 GRL 显示数据中心/半导体/高速连接测试正成为 TIC 新增长极。<a href="#s21" class="source">[S21]</a><a href="#s19" class="source">[S19]</a></li>
+            <li><strong>QIMA 本周最该跟进的销售话术：</strong>“我们不仅能验货，还能帮你把 CPSC eFiling/CBAM/供应链 AI 风险信号变成可交付的数据包。”<a href="#s10" class="source">[S10]</a><a href="#s9" class="source">[S9]</a></li>
           </ol>
         </div>
-
-        <figure class="diagram" style="margin-top:18px;">
-          <svg viewBox="0 0 1080 360" role="img" aria-label="TIC行业增长驱动雷达图">
-            <rect width="1080" height="360" rx="22" fill="#fbfcff"/>
-            <text x="48" y="42" font-size="20" font-weight="900" fill="#111827">TIC 需求从周期性检测转向持续性信任基础设施</text>
-            <g transform="translate(160,190)">
-              <circle r="110" fill="none" stroke="#e5e7eb"/>
-              <circle r="75" fill="none" stroke="#e5e7eb"/>
-              <circle r="40" fill="none" stroke="#e5e7eb"/>
-              <path d="M0,-105 L88,-28 L55,78 L-60,82 L-92,-28 Z" fill="rgba(228,0,43,.16)" stroke="#e4002b" stroke-width="4"/>
-              <line x1="0" y1="0" x2="0" y2="-120" stroke="#cbd5e1"/>
-              <line x1="0" y1="0" x2="110" y2="-36" stroke="#cbd5e1"/>
-              <line x1="0" y1="0" x2="72" y2="100" stroke="#cbd5e1"/>
-              <line x1="0" y1="0" x2="-72" y2="100" stroke="#cbd5e1"/>
-              <line x1="0" y1="0" x2="-110" y2="-36" stroke="#cbd5e1"/>
-              <text x="0" y="-132" text-anchor="middle" font-size="13">监管趋严</text>
-              <text x="132" y="-36" font-size="13">供应链韧性</text>
-              <text x="84" y="120" font-size="13">可持续</text>
-              <text x="-126" y="120" font-size="13">数字化/AI</text>
-              <text x="-178" y="-36" font-size="13">跨境贸易</text>
-            </g>
-            <g transform="translate(380,82)">
-              <rect width="300" height="84" rx="18" fill="#fff" stroke="#e7eaf0"/>
-              <text x="22" y="30" font-size="15" font-weight="800" fill="#111827">数据型监管</text>
-              <text x="22" y="56" font-size="13" fill="#64748b">CBAM、CPSC eFiling、产品碳足迹核查</text>
-              <rect y="110" width="300" height="84" rx="18" fill="#fff" stroke="#e7eaf0"/>
-              <text x="22" y="140" font-size="15" font-weight="800" fill="#111827">混合型验证</text>
-              <text x="22" y="166" font-size="13" fill="#64748b">现场检验 + 远程指导 + 数字证据</text>
-              <rect y="220" width="300" height="84" rx="18" fill="#fff" stroke="#e7eaf0"/>
-              <text x="22" y="250" font-size="15" font-weight="800" fill="#111827">高附加值咨询/认证</text>
-              <text x="22" y="276" font-size="13" fill="#64748b">AI治理、ESG、供应链尽责、网络安全</text>
-            </g>
-            <g transform="translate(730,78)">
-              <rect width="300" height="230" rx="22" fill="#111827"/>
-              <text x="24" y="38" font-size="18" font-weight="900" fill="#fff">QIMA 产品机会</text>
-              <circle cx="42" cy="78" r="12" fill="#e4002b"/><text x="66" y="84" font-size="14" fill="#e5e7eb">合规数据中台与证书仓</text>
-              <circle cx="42" cy="118" r="12" fill="#2454ff"/><text x="66" y="124" font-size="14" fill="#e5e7eb">远程检验证据链标准化</text>
-              <circle cx="42" cy="158" r="12" fill="#13966a"/><text x="66" y="164" font-size="14" fill="#e5e7eb">CBAM/碳足迹/ESG服务包</text>
-              <circle cx="42" cy="198" r="12" fill="#f59e0b"/><text x="66" y="204" font-size="14" fill="#e5e7eb">供应链风险雷达与预警</text>
-            </g>
-          </svg>
-          <figcaption>图 2：从传统 TIC 到“持续信任基础设施”的迁移。</figcaption>
-        </figure>
       </section>
 
-      <section id="market-regulation-trends">
+      <details class="appendix-box appendix" id="market-regulation-trends">
+        <summary>附录：Market / Regulation Trends（背景参考，默认折叠）</summary>
+        <section style="margin-top:14px;">
         <h2><span class="dot"></span>Market / Regulation Trends</h2>
         <div class="grid cols-2">
           <div class="card">
@@ -456,10 +446,11 @@
         <div class="note" style="margin-top:16px;">
           <strong>需持续跟踪：</strong>欧盟强迫劳动条例官方页面显示指南和风险数据库节点为 2026-06-14，规则 2027-12-14 适用。由于检索结果仍以“mandates / publication”描述为主，数据库具体入口与最终指南内容需下周复核：<strong>Unverified, further confirmation required</strong>。<a href="#s12" class="source">[S12]</a>
         </div>
-      </section>
+        </section>
+      </details>
 
       <section id="company-dynamics">
-        <h2><span class="dot"></span>Major TIC Company Dynamics</h2>
+        <h2><span class="dot"></span>竞品一览表（补充）</h2>
         <div class="table-wrap">
           <table>
             <thead>
@@ -562,123 +553,83 @@
       </section>
 
       <section id="digital-signals">
-        <h2><span class="dot"></span>Digital Innovation Signals</h2>
+        <h2><span class="dot"></span>行业 AI / 数字化信号（补充）</h2>
         <div class="grid cols-3">
           <div class="card">
-            <span class="tag purple">AI + HITL</span>
-            <h3>AI 可以增强合格评定，但不能替代责任主体</h3>
-            <p>TIC Council 明确提出 AI、IoT、数字孪生和远程技术可被采用，但需要独立性、公正性、技术能力、保密性和 HITL。完全自动化的合格评定决定在当前状态下不可接受。<a href="#s2" class="source">[S2]</a></p>
+            <span class="tag purple">行业规则</span>
+            <h3>TIC Council：AI 可用，但 HITL 不可省</h3>
+            <p>行业组织明确 AI/IoT/远程技术可进入合格评定，但人类监督与责任主体不能移除；这对竞品“AI 审计/AI 平台”产品的边界定义很重要。<a href="#s2" class="source">[S2]</a></p>
           </div>
           <div class="card">
-            <span class="tag green">ISO/IEC 42001</span>
-            <h3>AI 治理认证进入“审查机构能力”阶段</h3>
-            <p>ISO/IEC 42006:2025 为 ISO/IEC 42001 AI 管理体系审核与认证机构提出补充要求，意味着 AI 认证服务需要具备更清晰的审核能力和一致性规则。<a href="#s13" class="source">[S13]</a></p>
+            <span class="tag green">标准</span>
+            <h3>ISO/IEC 42006 强化 AI 认证机构能力要求</h3>
+            <p>SGS、Intertek、TÜV 都在围绕 ISO 42001/42006 布局 AI 治理认证；这是竞品 AI 业务的共同“合规底座”。<a href="#s13" class="source">[S13]</a></p>
           </div>
           <div class="card">
-            <span class="tag amber">Remote Inspection</span>
-            <h3>远程检验应定位为补充证据层</h3>
-            <p>QIMA Guided Inspections 公开资料也承认其不是完整现场检验替代，而是通过直播指导和图像证据为工厂自检增加安全层。<a href="#s14" class="source">[S14]</a></p>
+            <span class="tag amber">QIMA 对照</span>
+            <h3>远程检验 + AI 预审是可行切入点</h3>
+            <p>QIMA Guided Inspections / QIMAone 已具备远程证据与供应链协同基础；竞品主要在“认证/平台/并购”上加速，QIMA 可在交付速度与买家网络侧差异化。<a href="#s14" class="source">[S14]</a></p>
           </div>
         </div>
-
-        <figure class="diagram" style="margin-top:16px;">
-          <svg viewBox="0 0 1080 380" role="img" aria-label="远程检验和AI证据链架构">
-            <rect width="1080" height="380" rx="22" fill="#fff"/>
-            <text x="40" y="44" font-size="20" font-weight="900" fill="#111827">建议的 QIMA 数字化证据链架构</text>
-            <g transform="translate(46,86)">
-              <rect width="170" height="82" rx="16" fill="#fee2e2" stroke="#fecaca"/>
-              <text x="85" y="34" text-anchor="middle" font-size="15" font-weight="900">现场/远程采集</text>
-              <text x="85" y="58" text-anchor="middle" font-size="12" fill="#7f1d1d">图片/视频/时间戳/GPS</text>
-              <path d="M178 41 H232" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr3)"/>
-              <rect x="240" width="170" height="82" rx="16" fill="#dbeafe" stroke="#bfdbfe"/>
-              <text x="325" y="34" text-anchor="middle" font-size="15" font-weight="900">AI 预审</text>
-              <text x="325" y="58" text-anchor="middle" font-size="12" fill="#1e3a8a">异常识别/文本抽取</text>
-              <path d="M418 41 H472" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr3)"/>
-              <rect x="480" width="170" height="82" rx="16" fill="#dcfce7" stroke="#bbf7d0"/>
-              <text x="565" y="34" text-anchor="middle" font-size="15" font-weight="900">专家复核</text>
-              <text x="565" y="58" text-anchor="middle" font-size="12" fill="#14532d">HITL/责任签署</text>
-              <path d="M658 41 H712" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr3)"/>
-              <rect x="720" width="170" height="82" rx="16" fill="#fef3c7" stroke="#fde68a"/>
-              <text x="805" y="34" text-anchor="middle" font-size="15" font-weight="900">证书/报告仓</text>
-              <text x="805" y="58" text-anchor="middle" font-size="12" fill="#78350f">版本/原始证据/审计轨迹</text>
-              <path d="M898 41 H952" stroke="#94a3b8" stroke-width="3" marker-end="url(#arr3)"/>
-              <rect x="960" width="80" height="82" rx="16" fill="#111827"/>
-              <text x="1000" y="34" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">客户</text>
-              <text x="1000" y="58" text-anchor="middle" font-size="11" fill="#cbd5e1">API/看板</text>
-              <defs>
-                <marker id="arr3" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
-                  <path d="M0,0 L0,6 L6,3 z" fill="#94a3b8"/>
-                </marker>
-              </defs>
-            </g>
-            <g transform="translate(60,220)">
-              <rect width="960" height="92" rx="18" fill="#f8fafc" stroke="#e7eaf0"/>
-              <text x="24" y="34" font-size="15" font-weight="900" fill="#111827">关键设计原则</text>
-              <text x="24" y="62" font-size="13" fill="#475569">证据不可篡改、AI 输出可解释、专家责任可追溯、报告可机器读取、监管申报字段可复用。</text>
-              <text x="24" y="84" font-size="12" fill="#64748b">这与 TIC Council 对数字化质量基础设施的技术中立、可审计、HITL 原则一致。</text>
-            </g>
-          </svg>
-          <figcaption>图 5：远程检验、AI 预审与专家复核的混合证据链。</figcaption>
-        </figure>
       </section>
 
       <section id="evidence-pack">
         <h2><span class="dot"></span>Article Evidence Pack</h2>
-        <p class="lead">以下 5 条为本期最高价值证据。每条均包含标题、发布方、日期、链接、图片/截图情况、摘要/摘录、支持的发现及可信度限制。</p>
+        <p class="lead">以下 5 条为本期竞品新闻与 AI 动态的核心证据原文。</p>
         <div class="evidence">
           <article class="card">
-            <h3>市场监管总局：我国认证认可检验检测行业发展持续向新向优向好</h3>
-            <p><strong>发布方：</strong>中国经济网，转述市场监管总局/国家认监委第三届认证认可大会发布数据。</p>
-            <p><strong>发布日期：</strong>2026-06-10。</p>
-            <p><strong>链接：</strong><a href="http://www.ce.cn/cysc/newmain/yc/jsxw/202606/t20260610_3022075.shtml" target="_blank" rel="noreferrer">http://www.ce.cn/cysc/newmain/yc/jsxw/202606/t20260610_3022075.shtml</a></p>
-            <p><strong>图片/截图详情：</strong>未在本环境抓取截图；公开页面以新闻文字为主，建议后续归档网页截图或 PDF 打印件。</p>
-            <div class="quote"><strong>相关摘录/摘要：</strong>认证机构 1214 家、营收 591.13 亿元；检验检测机构 54,340 家、从业 158.64 万人、设备 1130.95 万台套、全年报告 5.71 亿份、营收 5303.08 亿元，同比增长 8.76%。</div>
-            <p><strong>支持的具体发现：</strong>中国 TIC 市场规模继续增长，行业结构从数量扩张转向质量效益；QIMA 在中国应关注高技术服务、产品碳数据和高可信供应链证据。</p>
-            <p><strong>可信度与限制：</strong>高可信，因数据来自监管口径；但报道为媒体转述，最好在后续版本补充 SAMR/CNCA 原始发布页或会议材料。</p>
+            <h3>SGS launches SGS FoodNexus global food intelligence platform</h3>
+            <p><strong>发布方：</strong>SGS 官方新闻稿。</p>
+            <p><strong>发布日期：</strong>2026-03。</p>
+            <p><strong>链接：</strong><a href="https://www.sgs.com/en-bo/news/2026/03/sgs-launches-new-global-food-intelligence-platform-to-help-industry-predict-safety" target="_blank" rel="noreferrer">SGS 官方新闻</a></p>
+            <p><strong>图片/截图详情：</strong>未抓取截图；建议归档新闻页 PDF。</p>
+            <div class="quote"><strong>摘录：</strong>SGS Digicomply 与 Agroknow 合并为 SGS FoodNexus；Agroknow 的 FOODAKAI 平台使用 AI 预测食品风险；未来 12 个月推出统一平台与新工具。</div>
+            <p><strong>支持发现：</strong>SGS 把 AI 嵌入可售食品供应链情报平台，而非仅内部实验室工具。</p>
+            <p><strong>可信度与限制：</strong>高可信；平台 rollout 进度与定价需后续跟踪。</p>
           </article>
 
           <article class="card">
-            <h3>CNAS-SV03:2026《产品碳足迹核查机构认可方案（试行）》</h3>
-            <p><strong>发布方：</strong>中国合格评定国家认可委员会（CNAS）。</p>
-            <p><strong>发布日期：</strong>2026-06-05。</p>
-            <p><strong>链接：</strong><a href="https://www.cnas.org.cn/rkfw/sdyhcjg/rkyq/rkfa/art/2026/art_1293935126.html" target="_blank" rel="noreferrer">https://www.cnas.org.cn/rkfw/sdyhcjg/rkyq/rkfa/art/2026/art_1293935126.html</a></p>
-            <p><strong>图片/截图详情：</strong>未抓取截图；页面提供 PDF 下载链接，建议内部归档 PDF 原件。</p>
-            <div class="quote"><strong>相关摘录/摘要：</strong>CNAS 建立产品碳足迹核查机构认可方案，适用于依据 ISO 14067 实施产品碳足迹核查的机构，并与 CNAS-RV01、CNAS-CV01/CV02/CV03/CV05 等规则/准则共同使用。</div>
-            <p><strong>支持的具体发现：</strong>中国碳足迹核查服务正在从咨询型市场走向认可型、可采信的合格评定市场；为 QIMA 碳足迹、CBAM、供应链低碳数据服务提供本地化制度入口。</p>
-            <p><strong>可信度与限制：</strong>高可信，官方认可机构文件；具体申请条件、认可进度和首批获认可机构名单仍需后续跟踪。</p>
+            <h3>Bureau Veritas launches AI assessment offering with AWS</h3>
+            <p><strong>发布方：</strong>Bureau Veritas 官方新闻室。</p>
+            <p><strong>发布日期：</strong>2026-04（Q2 2026 起在欧洲多国部署）。</p>
+            <p><strong>链接：</strong><a href="https://group.bureauveritas.com/newsroom/bureau-veritas-launches-independent-ai-assessment-offering-european-enterprises-developed" target="_blank" rel="noreferrer">BV 官方新闻</a></p>
+            <p><strong>图片/截图详情：</strong>未抓取截图。</p>
+            <div class="quote"><strong>摘录：</strong>基于 AWS AIRI 自动化文档审查与 direct testing；覆盖 security、robustness、privacy、governance、fairness、explainability 等 8 个标准化支柱；审计周期从数周缩短到数天。</div>
+            <p><strong>支持发现：</strong>BV 的 AI 方向是“合规审计产品化 + 云伙伴加速交付”。</p>
+            <p><strong>可信度与限制：</strong>高可信；英国市场采用 ISO 路径，与 EU AI Act 路径可能不同。</p>
           </article>
 
           <article class="card">
-            <h3>Press Release: TIC Council Outlines a Framework to Support Responsible Digitalisation of Assurance Services</h3>
-            <p><strong>发布方：</strong>TIC Council。</p>
-            <p><strong>发布日期：</strong>2026-02-16。</p>
-            <p><strong>链接：</strong><a href="https://www.tic-council.org/news-and-events/news/press-release-tic-council-outlines-a-framework-for-digitalisation-of-assurance-services" target="_blank" rel="noreferrer">https://www.tic-council.org/news-and-events/news/press-release-tic-council-outlines-a-framework-for-digitalisation-of-assurance-services</a></p>
-            <p><strong>图片/截图详情：</strong>未抓取截图；页面含新闻文字与可下载 Library 文件入口。</p>
-            <div class="quote"><strong>相关摘录/摘要：</strong>数字化合格评定可采用 AI、IoT、数字孪生等技术，但必须维持独立性、公正性、技术能力、保密性；HITL 要求人类监督和人类责任；当前不接受完全自动化的合格评定决策。</div>
-            <p><strong>支持的具体发现：</strong>AI/远程检验应被产品化为“增强证据与效率”的工具，而不是替代专家判断；QIMA 的 AI 功能设计需要保留专家复核、审计轨迹和责任链。</p>
-            <p><strong>可信度与限制：</strong>高可信，行业组织立场文件；不是法律法规，具体采信仍取决于监管机构、认可机构和客户质量协议。</p>
+            <h3>Launch of Intertek AI² end-to-end AI assurance programme</h3>
+            <p><strong>发布方：</strong>Intertek 官方新闻。</p>
+            <p><strong>发布日期：</strong>2025（持续推广至 2026）。</p>
+            <p><strong>链接：</strong><a href="https://www.intertek.com/news/2025/intertek-launches-ai2/" target="_blank" rel="noreferrer">Intertek 官方新闻</a></p>
+            <p><strong>图片/截图详情：</strong>未抓取截图。</p>
+            <div class="quote"><strong>摘录：</strong>Intertek AI² 覆盖 governance、transparency、security、safety 四支柱；服务包括 risk framework、AI-specific cybersecurity、testing/validation；对标 EU AI Act 与 ISO 42001。</div>
+            <p><strong>支持发现：</strong>Intertek 把 AI assurance 做成独立品牌 programme，而非附加服务。</p>
+            <p><strong>可信度与限制：</strong>高可信；具体订单量与行业渗透数据未公开。</p>
           </article>
 
           <article class="card">
-            <h3>Start of the definitive period of the CBAM in the EU</h3>
-            <p><strong>发布方：</strong>European Commission Access2Markets。</p>
-            <p><strong>发布日期：</strong>2026-01-28。</p>
-            <p><strong>链接：</strong><a href="https://trade.ec.europa.eu/access-to-markets/en/news/start-definitive-period-cbam-eu" target="_blank" rel="noreferrer">https://trade.ec.europa.eu/access-to-markets/en/news/start-definitive-period-cbam-eu</a></p>
-            <p><strong>图片/截图详情：</strong>未抓取截图；页面为官方新闻和表格型说明。</p>
-            <div class="quote"><strong>相关摘录/摘要：</strong>CBAM 自 2026-01-01 进入正式期，涉及授权 CBAM 申报人、购买证书、实际排放核查、50 吨年度净重 de minimis 规则，以及在进口申报中提供 CBAM 相关代码/文件。</div>
-            <p><strong>支持的具体发现：</strong>碳排放数据从 ESG 披露材料变成贸易通关与财务合规输入；QIMA 可把碳数据采集、供应商培训、预核查与证据包交付打包销售给出口制造商和 EU 进口商。</p>
-            <p><strong>可信度与限制：</strong>高可信，欧盟官方页面；具体行业方法学、授权状态和成员国执行细节仍需按客户所在国复核。</p>
+            <h3>TÜV SÜD establishes AI Procured platform in Singapore</h3>
+            <p><strong>发布方：</strong>Singapore EDB / TÜV SÜD。</p>
+            <p><strong>发布日期：</strong>官方新闻（具体日期见原文）。</p>
+            <p><strong>链接：</strong><a href="https://www.edb.gov.sg/en/about-edb/media-releases-publications/tuv-sud-establishes-ai-procured-platform-to-qualify-ai-solutions.html" target="_blank" rel="noreferrer">EDB 官方发布</a></p>
+            <p><strong>图片/截图详情：</strong>未抓取截图。</p>
+            <div class="quote"><strong>摘录：</strong>AI Procured 帮助企业采购符合安全、安保与伦理标准的 AI 解决方案；基于 AI Quality Framework；初始投资 EUR 360 万。</div>
+            <p><strong>支持发现：</strong>TÜV 的 AI 创新以 venture/platform 形式出现，瞄准企业 AI 采购合规。</p>
+            <p><strong>可信度与限制：</strong>高可信；产品 MVP 与客户案例仍需跟踪。</p>
           </article>
 
           <article class="card">
-            <h3>Update: Certificates of Compliance and eFiling</h3>
-            <p><strong>发布方：</strong>U.S. Consumer Product Safety Commission (CPSC)。</p>
-            <p><strong>发布日期：</strong>页面未显示发布日期；内容引用 16 CFR part 1110 更新，生效节点为 2026-07-08/2027-01-08。</p>
-            <p><strong>链接：</strong><a href="https://www.cpsc.gov/Business--Manufacturing/Business-Education/Business-Guidance/Certificates" target="_blank" rel="noreferrer">https://www.cpsc.gov/Business--Manufacturing/Business-Education/Business-Guidance/Certificates</a></p>
-            <p><strong>图片/截图详情：</strong>未抓取截图；页面为官方指引表格。</p>
-            <div class="quote"><strong>相关摘录/摘要：</strong>进口一般情形与美国本土制造产品证书内容更新均为 2026-07-08 生效；保税区进入情形为 2027-01-08；进口商必须电子提交受 CPSC 证书要求约束产品的证书数据。</div>
-            <p><strong>支持的具体发现：</strong>消费品合规正在从 PDF 证书交付转向结构化电子数据交付；QIMA 可优先推出 CPSC eFiling readiness check、证书字段验证和客户系统对接服务。</p>
-            <p><strong>可信度与限制：</strong>高可信，美国监管机构页面；具体产品是否适用仍需结合 CPC/GCC、HS/产品标准和进口商角色判断。</p>
+            <h3>华测检测：AI 应用以项目制推进（投资者关系）</h3>
+            <p><strong>发布方：</strong>华测检测 2025 年报 / 2026 Q1 投资者交流 PDF。</p>
+            <p><strong>发布日期：</strong>2026-03 / 2026-04。</p>
+            <p><strong>链接：</strong><a href="https://pdf.dfcfw.com/pdf/H2_AN202603311820925086_1.pdf" target="_blank" rel="noreferrer">2025 年报 PDF</a>；<a href="https://static.cninfo.com.cn/finalpage/2026-04-20/1225115406.PDF" target="_blank" rel="noreferrer">2026 Q1 报告</a></p>
+            <p><strong>图片/截图详情：</strong>未抓取截图；PDF 原文可归档。</p>
+            <div class="quote"><strong>摘录：</strong>AI 图谱报警、AI 智能报告审核、黑灯实验室、消费者偏好 AI 模型；AI 尚未形成集团级统计；CMA 资质认可仍是黑灯实验室推广瓶颈。</div>
+            <p><strong>支持发现：</strong>本土竞品 AI 重心在实验室效率，对外平台化仍弱于 SGS/Intertek/BV。</p>
+            <p><strong>可信度与限制：</strong>高可信（上市公司 IR）；AI 收入贡献未量化。</p>
           </article>
         </div>
       </section>
@@ -793,7 +744,16 @@
               <tr id="s14"><td>[S14]</td><td><a href="https://www.qima.vn/quality-control-services/guided-inspections">QIMA Guided Inspections</a>；<a href="https://www.qimaone.com/">QIMAone</a></td><td>QIMA 远程检验和供应链质量/合规软件定位。</td></tr>
               <tr id="s15"><td>[S15]</td><td><a href="https://www.prnewswire.com/news-releases/testing-inspection-and-certification-tic-market-worth-306-13-billion-by-2031---exclusive-report-by-marketsandmarkets-302709351.html">MarketsandMarkets via PRNewswire：Global TIC Market 2026-2031</a></td><td>全球 TIC 市场方向性预测。</td></tr>
               <tr id="s16"><td>[S16]</td><td><a href="https://www.tuv.com/press/en/press-releases/tuev-rheinland-results-2025.html">TÜV Rheinland 2025 Annual Results</a></td><td>TÜV Rheinland 2025 营收和国际化数据。</td></tr>
-              <tr id="s17"><td>[S17]</td><td><a href="https://www.investegate.co.uk/announcement/rns/intertek-group--itrk/extension-of-pusu-deadline/9612343">Intertek：Extension of PUSU deadline</a></td><td>Intertek/EQT 截止日延长与交易不确定性。</td></tr>
+              <tr id="s17"><td>[S17]</td><td><a href="https://www.investegate.co.uk/announcement/rns/intertek-group--itrk/extension-of-pusu-deadline/9612343">Intertek：Extension of PUSU deadline</a></td><td>Intertek/EQT 交易不确定性。</td></tr>
+              <tr id="s18"><td>[S18]</td><td><a href="https://www.sgs.com/en-bo/news/2026/03/sgs-launches-new-global-food-intelligence-platform-to-help-industry-predict-safety">SGS FoodNexus 平台发布</a></td><td>SGS AI 食品情报平台。</td></tr>
+              <tr id="s19"><td>[S19]</td><td><a href="https://www.sgs.com/en-gb/news/2026/01/sgs-expands-digital-trust-leadership-with-acquisition-of-panacea-infosec-in-india">SGS Panacea Infosec / GRL 并购</a></td><td>SGS Digital Trust 扩张。</td></tr>
+              <tr id="s20"><td>[S20]</td><td><a href="https://group.bureauveritas.com/newsroom/bureau-veritas-launches-independent-ai-assessment-offering-european-enterprises-developed">BV + AWS AI 审计服务</a></td><td>BV AI 合规审计产品。</td></tr>
+              <tr id="s21"><td>[S21]</td><td><a href="https://group.bureauveritas.com/newsroom/bureau-veritas-acquires-lotusworks-reinforcing-its-position-data-centers-and-entering">BV 收购 LotusWorks</a></td><td>数据中心/半导体关键资产业务。</td></tr>
+              <tr id="s22"><td>[S22]</td><td><a href="https://www.intertek.com/news/2025/intertek-launches-ai2/">Intertek AI² 发布</a></td><td>Intertek AI assurance programme。</td></tr>
+              <tr id="s23"><td>[S23]</td><td><a href="https://www.intertek.com/news/2025/intertek-launches-supplytek/">Intertek SupplyTek 发布</a></td><td>供应链/global market access 产品包。</td></tr>
+              <tr id="s24"><td>[S24]</td><td><a href="https://www.edb.gov.sg/en/about-edb/media-releases-publications/tuv-sud-establishes-ai-procured-platform-to-qualify-ai-solutions.html">TÜV SÜD AI Procured</a></td><td>TÜV AI 采购合格平台。</td></tr>
+              <tr id="s25"><td>[S25]</td><td><a href="https://pdf.dfcfw.com/pdf/H2_AN202603311820925086_1.pdf">华测检测 2025 年报 / AI 应用说明</a></td><td>CTI AI 实验室与项目制应用。</td></tr>
+              <tr id="s26"><td>[S26]</td><td><a href="https://www.tuvsud.com/en/newsroom/press-releases/2025/november/new-tuev-sued-services-for-efficient-implementation-of-the-eu-ai-act">TÜV SÜD EU AI Act 自愿符合性证书</a></td><td>TÜV AI Act 服务。</td></tr>
             </tbody>
           </table>
         </div>
@@ -802,7 +762,7 @@
 
     <footer>
       <strong>QIMA PM & Business Teams - Weekly TIC Market Intelligence.</strong><br>
-      本 HTML 为可分享的研究快照；建议每周五复用同一结构，并将新增证据、过期节点和未验证项逐项更新。
+      本期结构已调整为“竞品新闻优先”。方法论说明仅保留在来源清单与 Evidence Pack 的可信度字段中。
     </footer>
   </div>
 </body>

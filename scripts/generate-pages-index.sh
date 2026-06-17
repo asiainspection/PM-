@@ -42,7 +42,7 @@ for entry in entries:
         "        <li>\n"
         "          <div>\n"
         f"            <div class=\"report-title\">{html.escape(entry['title'])}</div>\n"
-        f"            <div class=\"report-meta\">报告日期：{html.escape(entry['date'])} · 含 Executive Summary、Evidence Pack、QIMA Implications</div>\n"
+        f"            <div class=\"report-meta\">报告日期：{html.escape(entry['date'])} · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>\n"
         "          </div>\n"
         f"          <a class=\"btn\" href=\"reports/{html.escape(entry['file'])}\">阅读报告</a>\n"
         "        </li>"
@@ -169,7 +169,7 @@ page = f"""<!doctype html>
         <span class=\"badge\">GitHub Pages · Weekly Intelligence</span>
       </div>
       <h1>中国 TIC 行业周度市场研究</h1>
-      <p class=\"subtitle\">面向 QIMA PM 与业务团队的行业情报站点。报告采用 evidence-first 方法，覆盖全球与中国 TIC 市场、主要企业动态、政策监管、数字化/AI/远程检验与供应链合规。</p>
+      <p class=\"subtitle\">面向 QIMA PM 与业务团队的行业情报站点。每期优先收录竞品最新系统/平台/业务动作与 AI 使用方向，监管与市场背景作为附录参考。</p>
     </header>
 
     <section class=\"card\">
@@ -181,7 +181,7 @@ page = f"""<!doctype html>
 
     <div class=\"grid\">
       <div class=\"pill\"><strong>更新频率</strong><br>每周五 09:00 UTC 自动同步发布</div>
-      <div class=\"pill\"><strong>证据标准</strong><br>关键结论绑定来源；未验证项单独标注</div>
+      <div class=\"pill\"><strong>内容优先级</strong><br>竞品新闻 &gt; AI 动态 &gt; 监管背景</div>
       <div class=\"pill\"><strong>部署方式</strong><br>GitHub Actions 自动发布 Pages</div>
     </div>
 
