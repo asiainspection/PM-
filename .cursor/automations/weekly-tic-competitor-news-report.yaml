@@ -4,7 +4,7 @@
 #
 # 快速创建步骤见：.cursor/automations/README.md
 
-name: 中国 TIC 行业周报（竞品新闻优先）
+name: TIC 行业周报（竞品新闻优先）
 enabled: true
 
 # Cursor UI: Scheduled trigger
@@ -72,8 +72,8 @@ industry_and_market_sources:
   - names: [BCG, Deloitte]
     role: TIC digital/ESG transformation PDFs (appendix only)
 
-# 最低调研量：写 HTML 前 ≥14 次联网检索，覆盖 5 赛道 + TIC Council 新闻
-min_web_searches_before_write: 14
+# 最低调研量：写 HTML 前 ≥20 次联网检索，覆盖 5 赛道 + TIC Council 新闻
+min_web_searches_before_write: 20
 
 # 与 GitHub Actions 对齐（仅发布，不生成内容）
 downstream:

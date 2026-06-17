@@ -1,4 +1,4 @@
-# 中国 TIC 行业周报 · 竞品新闻优先（Weekly Automation Prompt）
+# TIC 行业周报 · 竞品新闻优先（Weekly Automation Prompt）
 
 你是 QIMA 的行业情报 Cloud Agent。每周五生成一份**中文 HTML 周报**，面向 PM 与业务团队。
 
@@ -9,7 +9,7 @@
 
 ## 第 0 步：强制调研（写报告前必须完成，不可跳过）
 
-在生成 HTML **之前**，必须执行 **至少 14 次** 联网检索，覆盖下面 **5 个「必扫赛道」**。每个赛道至少 2 次搜索，并记录命中来源 URL。
+在生成 HTML **之前**，必须执行 **至少 20 次** 联网检索，覆盖下面 **5 个「必扫赛道」**。每个赛道至少 2 次搜索，并记录命中来源 URL。若实际检索超过 20 次，应在 `#open-questions` 中写明总次数与覆盖品牌。
 
 ### 赛道 A · 电商平台 / 监管直连数字化产品（P0）
 
@@ -275,6 +275,44 @@ Fortune Business Insights TIC market forecast
 - 模板：`reports/china-tic-market-weekly-2026-06-17.html`（结构/样式）
 - 输出：`reports/china-tic-market-weekly-YYYY-MM-DD.html`（UTC 日期）
 - Logo：`../assets/logo.svg` · 语言：简体中文
+- GitHub Pages 在线预览：
+  - 首页：`https://asiainspection.github.io/PM-/`
+  - 报告直达：`https://asiainspection.github.io/PM-/reports/china-tic-market-weekly-YYYY-MM-DD.html`
+
+---
+
+## 页面标题、Logo 与排版硬性要求
+
+- `<h1>` 主标题必须写：`TIC 行业周报：竞品数字化产品与 AI 动态`，**不要写“中国 TIC 行业周报”**。
+- `<title>` 可保留日期与 QIMA 信息，但页面可视主标题不加“中国”。
+- 报告页 logo 使用：`<img src="../assets/logo.svg" alt="QIMA logo">`。
+- 必须确保两处 logo 文件均存在，避免本地浏览 `reports/*.html` 或 GitHub Pages 预览时图片挂掉：
+  - `assets/logo.svg`
+  - `docs/assets/logo.svg`
+- `scripts/prepare-pages.sh` 应负责同步 logo 到 `assets/` 与 `docs/assets/`；若脚本缺失该逻辑，必须补齐。
+- `.news-body` 需要做成易扫读的信息块，避免一整段文字挤在一起。推荐 CSS：
+
+```css
+.news-body {
+  font-size: 14px;
+  color: #334155;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.news-body strong {
+  color: #111827;
+  font-weight: 900;
+}
+.news-body strong:not(:first-child) {
+  display: block;
+  margin-top: 6px;
+}
+```
+
+- 每条 `.news-body` 的信息顺序固定为：`谁：`、`产品：`、`场景：`、`与 QIMA 关系：`，并通过上面的 CSS 形成分段视觉效果。
 
 ---
 
@@ -314,16 +352,22 @@ Fortune Business Insights TIC market forecast
 
 ```bash
 bash scripts/prepare-pages.sh
-git add reports/ docs/
+git add reports/ docs/ assets/
 git commit -m "Add weekly TIC market report YYYY-MM-DD (competitor news focus)"
-git push origin main
+git push -u origin main
+```
+
+最终回复必须给出 GitHub Pages 在线预览链接：
+
+```text
+https://asiainspection.github.io/PM-/reports/china-tic-market-weekly-YYYY-MM-DD.html
 ```
 
 ---
 
 ## 提交前质量检查
 
-- [ ] 已完成 ≥**14** 次分赛道检索（覆盖 A–E；在 `#open-questions` 简述覆盖的品牌）
+- [ ] 已完成 ≥**20** 次分赛道检索（覆盖 A–E；在 `#open-questions` 简述检索次数与覆盖品牌）
 - [ ] 无 `#methodology` 大段
 - [ ] 竞品新闻 ≥ **10** 条；含 Amazon DV、ESG 数字化、工业 cyber、**QC SaaS（Inspectorio/TradeBeyond/SafetyCulture/TIC/Checkfirst/IFS 至少 2 条）** 各有意覆盖
 - [ ] AI 动态表 ≥ **8** 行
@@ -332,7 +376,10 @@ git push origin main
 - [ ] 附录若含市场规模，已标注 L8 来源与口径限制（MarketsandMarkets / Fortune BI / Mordor / Grand View / BCG / Deloitte）
 - [ ] 已检索用户必查名单：**谱尼测试、Inspectorio、TÜV 莱茵、TradeBeyond、Pivot88、The Inspection Company、Sourcemap、SafetyCulture、IFS Cloud、Checkfirst/InspectAI**
 - [ ] 多数条目有 L1/L4 官方链接
-- [ ] Logo `../assets/logo.svg`
+- [ ] Logo `../assets/logo.svg` 可正常显示；`assets/logo.svg` 与 `docs/assets/logo.svg` 均存在
+- [ ] H1 不含“中国”，应为 `TIC 行业周报：竞品数字化产品与 AI 动态`
+- [ ] `.news-body` 使用信息块排版，并让 `谁/产品/场景/与 QIMA 关系` 易扫读
+- [ ] 最终回复包含 GitHub Pages 报告直达链接
 
 ---
 
