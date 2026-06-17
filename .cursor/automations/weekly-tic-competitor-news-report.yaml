@@ -59,7 +59,20 @@ mandatory_sources:
   - Checkfirst
   - InspectAI
 
-# 最低调研量：写 HTML 前 ≥14 次联网检索，覆盖 5 赛道
+# 行业组织与市场研究（附录/背景）
+industry_and_market_sources:
+  - url: https://www.tic-council.org/news-and-events/news
+    role: weekly industry news and policy
+  - url: https://iaf.nu/en/home/
+    role: accreditation / MLA updates
+  - url: https://www.marketsandmarkets.com/
+    role: TIC market size directionality (appendix only)
+  - names: [Fortune Business Insights, Mordor Intelligence, Grand View Research]
+    role: market summaries (appendix only)
+  - names: [BCG, Deloitte]
+    role: TIC digital/ESG transformation PDFs (appendix only)
+
+# 最低调研量：写 HTML 前 ≥14 次联网检索，覆盖 5 赛道 + TIC Council 新闻
 min_web_searches_before_write: 14
 
 # 与 GitHub Actions 对齐（仅发布，不生成内容）

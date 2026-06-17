@@ -28,6 +28,8 @@
 
 **用户指定必查：** 谱尼测试、Inspectorio、TÜV 莱茵、TradeBeyond、Pivot88、The Inspection Company、Sourcemap、SafetyCulture、IFS Cloud、Checkfirst、InspectAI
 
+**行业/市场背景源（附录用）：** [TIC Council 新闻](https://www.tic-council.org/news-and-events/news)、[IAF](https://iaf.nu/en/home/)、MarketsandMarkets、Fortune BI、Mordor、Grand View、BCG、Deloitte
+
 3. 保存并 **Run once** 测试一次
 4. 确认 `main` 上出现新文件 `reports/china-tic-market-weekly-YYYY-MM-DD.html`
 
