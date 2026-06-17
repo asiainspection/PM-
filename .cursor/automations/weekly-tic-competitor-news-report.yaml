@@ -31,7 +31,7 @@ prompt_file: .cursor/prompts/weekly-tic-competitor-news-report.md
 research_tracks:
   - id: platform-direct-validation
     priority: P0
-    examples: "Amazon TIC DV, CQC/Intertek/SGS 直连, CPSC eFiling/InterLink"
+    examples: "Amazon TIC DV, CQC/Intertek/SGS/TÜV Rheinland 直连, CPSC eFiling/InterLink"
   - id: esg-digital-platform
     priority: P0
     examples: "LRQA EiQ, CSRD/CSDDD SaaS, Hillhouse 入股后产品迭代"
@@ -41,9 +41,26 @@ research_tracks:
   - id: ai-governance-platforms
     priority: P1
     examples: "SGS FoodNexus, Intertek AI², BV+AWS, TÜV AI Procured"
+  - id: qc-inspection-saas
+    priority: P0
+    examples: "Inspectorio, TradeBeyond/Pivot88, Sourcemap, SafetyCulture, TIC, Checkfirst/InspectAI, IFS Cloud"
 
-# 最低调研量：写 HTML 前 ≥10 次联网检索，覆盖 4 赛道
-min_web_searches_before_write: 10
+# 用户指定必查数据源
+mandatory_sources:
+  - 谱尼测试
+  - Inspectorio
+  - TÜV 莱茵
+  - TradeBeyond
+  - Pivot88
+  - The Inspection Company
+  - Sourcemap
+  - SafetyCulture
+  - IFS Cloud
+  - Checkfirst
+  - InspectAI
+
+# 最低调研量：写 HTML 前 ≥14 次联网检索，覆盖 5 赛道
+min_web_searches_before_write: 14
 
 # 与 GitHub Actions 对齐（仅发布，不生成内容）
 downstream:
