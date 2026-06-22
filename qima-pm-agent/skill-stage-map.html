@@ -391,6 +391,29 @@
       font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
     }
 
+    .stage-video {
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--mist);
+    }
+
+    .stage-video iframe {
+      display: block;
+      width: 100%;
+      height: 92px;
+      border: 0;
+    }
+
+    .stage-video a {
+      display: block;
+      padding: 6px 8px;
+      border-top: 1px solid var(--border-default);
+      color: var(--qima-red-900);
+      font: 600 11px/14px var(--font-sans);
+      text-decoration: none;
+    }
+
     .agent-board {
       margin-top: var(--space-l);
       padding: var(--space-m);
@@ -749,6 +772,10 @@
               <div class="agent-list">
                 <span class="agent-pill pm" data-icon="P">PM Agent</span>
               </div>
+            </div>
+            <div class="stage-video">
+              <iframe title="PRD demo video" src="https://ainsp-my.sharepoint.com/personal/lyon_li_qima_com/_layouts/15/stream.aspx?id=%2Fpersonal%2Flyon%5Fli%5Fqima%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FPRD%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E0ea0b71d%2D9eea%2D4f34%2D8b2b%2Dc4303dad2b2c" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+              <a href="https://ainsp-my.sharepoint.com/personal/lyon_li_qima_com/_layouts/15/stream.aspx?id=%2Fpersonal%2Flyon%5Fli%5Fqima%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FPRD%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E0ea0b71d%2D9eea%2D4f34%2D8b2b%2Dc4303dad2b2c" target="_blank" rel="noopener">Open PRD demo video</a>
             </div>
             <p class="stage-desc">PM Agent turns raw data into a PRD, early design intent, and prototype views for stakeholder confirmation.</p>
           </div>
