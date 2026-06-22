@@ -395,23 +395,43 @@
       overflow: hidden;
       border: 1px solid var(--border-default);
       border-radius: var(--radius-md);
-      background: var(--mist);
-    }
-
-    .stage-video iframe {
-      display: block;
-      width: 100%;
-      height: 92px;
-      border: 0;
+      background: linear-gradient(135deg, var(--qima-red-bg), var(--mist));
     }
 
     .stage-video a {
-      display: block;
-      padding: 6px 8px;
-      border-top: 1px solid var(--border-default);
-      color: var(--qima-red-900);
-      font: 600 11px/14px var(--font-sans);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 72px;
+      padding: 10px;
+      color: var(--fg-1);
       text-decoration: none;
+    }
+
+    .stage-video-icon {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--qima-red);
+      color: var(--white);
+      font: 700 12px/1 var(--font-sans);
+    }
+
+    .stage-video-title {
+      display: block;
+      color: var(--fg-1);
+      font: 700 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .stage-video-meta {
+      display: block;
+      margin-top: 2px;
+      color: var(--fg-2);
+      font: 400 11px/14px var(--font-sans);
     }
 
     .agent-board {
@@ -774,8 +794,13 @@
               </div>
             </div>
             <div class="stage-video">
-              <iframe title="PRD demo video" src="https://ainsp-my.sharepoint.com/personal/lyon_li_qima_com/_layouts/15/stream.aspx?id=%2Fpersonal%2Flyon%5Fli%5Fqima%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FPRD%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E0ea0b71d%2D9eea%2D4f34%2D8b2b%2Dc4303dad2b2c" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
               <a href="https://ainsp-my.sharepoint.com/personal/lyon_li_qima_com/_layouts/15/stream.aspx?id=%2Fpersonal%2Flyon%5Fli%5Fqima%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FPRD%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E0ea0b71d%2D9eea%2D4f34%2D8b2b%2Dc4303dad2b2c" target="_blank" rel="noopener">Open PRD demo video</a>
+                <span class="stage-video-icon">▶</span>
+                <span>
+                  <span class="stage-video-title">PRD demo video</span>
+                  <span class="stage-video-meta">Open in Microsoft Stream · 0:22</span>
+                </span>
+              </a>
             </div>
             <p class="stage-desc">PM Agent turns raw data into a PRD, early design intent, and prototype views for stakeholder confirmation.</p>
           </div>
