@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QIMA PDLC AI Agent Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --qima-red: #E4002B;
+      --qima-red-900: #9E141B;
+      --qima-red-bg: #FDEFEF;
+      --white: #FFFFFF;
+      --mist: #F7F7F7;
+      --seal: #F0F0F0;
+      --cloud: #DEDEDE;
+      --ash: #979797;
+      --stone: #737373;
+      --slate: #3E3E3E;
+      --carbon: #191919;
+      --kiwi-050: #EAF6F2;
+      --kiwi-500: #00A876;
+      --kiwi-900: #006648;
+      --orange-050: #FCF2E6;
+      --orange-500: #F58F00;
+      --orange-900: #B26309;
+      --lemon-050: #FFF9E7;
+      --lemon-900: #BD8A00;
+      --elderberry: #0070D7;
+      --guava: #00AEB7;
+      --plum: #F7A963;
+      --fg-1: var(--carbon);
+      --fg-2: var(--stone);
+      --fg-3: var(--ash);
+      --bg-app: var(--mist);
+      --bg-surface: var(--white);
+      --border-default: rgba(0, 0, 0, 0.1);
+      --border-strong: var(--cloud);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --space-xs: 8px;
+      --space-s: 12px;
+      --space-m: 16px;
+      --space-l: 24px;
+      --space-xl: 36px;
+      --space-xxl: 48px;
+      --shadow-0: 0 1px 2px rgba(25, 25, 25, 0.08);
+      --shadow-1: 0 2px 4px rgba(25, 25, 25, 0.1);
+      --shadow-2: 0 4px 12px rgba(25, 25, 25, 0.15);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, Menlo, monospace;
+      --fs-h1: 45px;
+      --lh-h1: 52px;
+      --fs-h2: 37px;
+      --lh-h2: 44px;
+      --fs-h3: 30px;
+      --lh-h3: 36px;
+      --fs-h5: 22px;
+      --lh-h5: 28px;
+      --fs-h6: 18px;
+      --lh-h6: 24px;
+      --fs-body-01: 16px;
+      --lh-body-01: 22px;
+      --fs-body-02: 14px;
+      --lh-body-02: 20px;
+      --fs-caption: 12px;
+      --lh-caption: 16px;
+      --fs-overline: 11px;
+      --lh-overline: 12px;
+      --tracking-tight: -0.02em;
+      --dur-base: 200ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      background: var(--bg-app);
+      color: var(--fg-1);
+      font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      padding: 4px;
+    }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-1);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      padding: var(--space-m) var(--space-l);
+      border-bottom: 1px solid var(--border-default);
+      background: var(--bg-surface);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-m);
+      min-width: 0;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border-strong);
+    }
+
+    .brand-label,
+    .updated {
+      color: var(--fg-2);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      white-space: nowrap;
+    }
+
+    .updated {
+      font-weight: 400;
+    }
+
+    .hero {
+      display: block;
+      padding: var(--space-xl) var(--space-l);
+      border-bottom: 1px solid var(--border-default);
+      background: var(--mist);
+    }
+
+    .overline {
+      margin-bottom: var(--space-s);
+      color: var(--fg-2);
+      font: 700 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 840px;
+      color: var(--fg-1);
+      font: 400 var(--fs-h1)/var(--lh-h1) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .hero-copy {
+      max-width: 74ch;
+      margin-top: var(--space-m);
+      color: var(--fg-2);
+      font: 400 var(--fs-body-01)/var(--lh-body-01) var(--font-sans);
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: var(--space-l);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font: 600 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      white-space: nowrap;
+    }
+
+    .badge.info {
+      background: var(--qima-red-bg);
+      color: var(--qima-red-900);
+    }
+
+    .badge.neutral {
+      background: var(--seal);
+      color: var(--slate);
+    }
+
+    .badge.pass {
+      background: var(--kiwi-050);
+      color: var(--kiwi-900);
+    }
+
+    main {
+      padding: var(--space-l);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-m);
+      margin-bottom: var(--space-m);
+    }
+
+    h2 {
+      color: var(--fg-1);
+      font: 400 var(--fs-h3)/var(--lh-h3) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .section-note {
+      max-width: 64ch;
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      text-align: right;
+    }
+
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .stage {
+      display: flex;
+      min-height: 348px;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-1);
+      transition: transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
+    }
+
+    .stage:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-2);
+    }
+
+    .stage-head {
+      padding: var(--space-m);
+      border-bottom: 1px solid var(--border-default);
+      background: var(--mist);
+    }
+
+    .stage-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin-bottom: var(--space-s);
+      border-radius: 50%;
+      background: var(--qima-red);
+      color: var(--white);
+      font: 700 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .stage h3 {
+      color: var(--fg-1);
+      font: 600 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .stage-subtitle {
+      margin-top: var(--space-xs);
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .stage-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: var(--space-m);
+      padding: var(--space-m);
+    }
+
+    .agent-group {
+      display: grid;
+      gap: var(--space-xs);
+    }
+
+    .group-label {
+      color: var(--fg-2);
+      font: 700 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .agent-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .agent-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 4px 8px;
+      border: 1px solid rgba(158, 20, 27, 0.18);
+      border-radius: var(--radius-md);
+      background: var(--qima-red-bg);
+      color: var(--qima-red-900);
+      font: 600 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .agent-pill::before {
+      content: attr(data-icon);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--qima-red);
+      color: var(--white);
+      font: 700 9px/1 var(--font-sans);
+      letter-spacing: 0;
+    }
+
+    .agent-pill.pm {
+      border-color: rgba(158, 20, 27, 0.18);
+      background: var(--qima-red-bg);
+      color: var(--qima-red-900);
+    }
+
+    .agent-pill.dev {
+      border-color: rgba(247, 169, 99, 0.38);
+      background: var(--orange-050);
+      color: var(--orange-900);
+    }
+
+    .agent-pill.dev::before {
+      background: var(--orange-500);
+    }
+
+    .agent-pill.qa {
+      border-color: rgba(0, 112, 215, 0.22);
+      background: #EAF2FB;
+      color: #155E9E;
+    }
+
+    .agent-pill.qa::before {
+      background: var(--elderberry);
+    }
+
+    .agent-pill.ops {
+      border-color: rgba(0, 168, 118, 0.22);
+      background: var(--kiwi-050);
+      color: var(--kiwi-900);
+    }
+
+    .agent-pill.ops::before {
+      background: var(--kiwi-500);
+    }
+
+    .agent-pill.security {
+      border-color: rgba(117, 20, 72, 0.2);
+      background: #F6E6EF;
+      color: #741448;
+    }
+
+    .agent-pill.security::before {
+      background: #741448;
+    }
+
+    .agent-pill.optional {
+      border-color: var(--border-default);
+    }
+
+    .stage-desc {
+      margin-top: auto;
+      padding-top: var(--space-m);
+      border-top: 1px solid var(--border-default);
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .agent-board {
+      margin-top: var(--space-l);
+      padding: var(--space-m);
+      border-radius: var(--radius-lg);
+      background: #101727;
+      color: var(--bg-surface);
+      box-shadow: var(--shadow-2);
+    }
+
+    .agent-board-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-m);
+      padding: var(--space-xs) var(--space-xs) var(--space-m);
+    }
+
+    .agent-board h2 {
+      color: var(--bg-surface);
+      font-size: var(--fs-h4, 26px);
+      line-height: var(--lh-h4, 32px);
+    }
+
+    .agent-board-note {
+      max-width: 62ch;
+      color: rgba(255, 255, 255, 0.72);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      text-align: right;
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .agent-grid.secondary {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-top: var(--space-s);
+    }
+
+    .agent-card {
+      display: flex;
+      min-height: 260px;
+      flex-direction: column;
+      padding: var(--space-m);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-lg);
+      background: #F4F0EB;
+      color: var(--fg-1);
+      box-shadow: var(--shadow-1);
+    }
+
+    .agent-card.auxiliary {
+      min-height: 176px;
+      background: #C8C8C8;
+      opacity: 0.88;
+    }
+
+    .accent-red {
+      border-top: 4px solid var(--qima-red);
+    }
+
+    .accent-orange {
+      border-top: 4px solid var(--plum);
+    }
+
+    .accent-blue {
+      border-top: 4px solid var(--elderberry);
+    }
+
+    .accent-green {
+      border-top: 4px solid var(--kiwi-500);
+    }
+
+    .accent-cyan {
+      border-top: 4px solid var(--guava);
+    }
+
+    .agent-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-s);
+      margin-bottom: var(--space-s);
+    }
+
+    .agent-name {
+      color: var(--fg-1);
+      font: 700 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .agent-slug {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: var(--radius-md);
+      background: rgba(25, 25, 25, 0.06);
+      color: var(--fg-3);
+      font: 500 10px/12px var(--font-mono);
+      white-space: nowrap;
+    }
+
+    .agent-status {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 22px;
+      align-items: center;
+      margin-bottom: var(--space-m);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font: 700 10px/12px var(--font-sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .agent-status.ready {
+      background: var(--kiwi-050);
+      color: var(--kiwi-900);
+    }
+
+    .agent-status.partial {
+      background: #EAF2FB;
+      color: #155E9E;
+    }
+
+    .agent-status.future {
+      background: rgba(255, 255, 255, 0.34);
+      color: var(--slate);
+    }
+
+    .agent-desc {
+      color: var(--fg-2);
+      font: 400 13px/20px var(--font-sans);
+    }
+
+    .capability-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: var(--space-m);
+    }
+
+    .capability {
+      display: inline-flex;
+      min-height: 24px;
+      align-items: center;
+      padding: 4px 8px;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--white);
+      color: var(--qima-red-900);
+      font: 500 11px/14px var(--font-mono);
+    }
+
+    .agent-meta {
+      margin-top: auto;
+      padding-top: var(--space-m);
+      color: var(--fg-2);
+      font: 400 11px/16px var(--font-sans);
+    }
+
+    .demo {
+      margin-top: var(--space-l);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-1);
+      overflow: hidden;
+    }
+
+    .demo-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      padding: var(--space-m);
+      border-bottom: 1px solid var(--border-default);
+      background: var(--mist);
+    }
+
+    .demo-title {
+      font: 600 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-s);
+      padding: var(--space-m);
+    }
+
+    .timeline-step {
+      padding: var(--space-m);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--white);
+    }
+
+    .timecode {
+      margin-bottom: var(--space-xs);
+      color: var(--qima-red-900);
+      font: 600 12px/16px var(--font-mono);
+    }
+
+    .timeline-step h3 {
+      margin-bottom: var(--space-xs);
+      color: var(--fg-1);
+      font: 600 14px/20px var(--font-sans);
+    }
+
+    .timeline-step p {
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-m);
+      align-items: center;
+      margin-top: var(--space-l);
+      padding: var(--space-m);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--qima-red-bg);
+    }
+
+    .footer p {
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .footer strong {
+      color: var(--qima-red-900);
+    }
+
+    svg.icon {
+      flex: 0 0 auto;
+      color: var(--qima-red);
+    }
+
+    @media (max-width: 1180px) {
+      .stage-grid,
+      .agent-grid,
+      .agent-grid.secondary,
+      .timeline {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: var(--space-m);
+      }
+
+      .hero,
+      .footer {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head,
+      .agent-board-head,
+      .demo-head,
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .section-note,
+      .agent-board-note {
+        text-align: left;
+      }
+
+      .stage-grid,
+      .agent-grid,
+      .agent-grid.secondary,
+      .timeline {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: var(--fs-h3);
+        line-height: var(--lh-h3);
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-dashboard" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1.2"/><rect x="11" y="3" width="6" height="4" rx="1.2"/><rect x="11" y="9" width="6" height="8" rx="1.2"/><rect x="3" y="11" width="6" height="6" rx="1.2"/></symbol>
+    <symbol id="i-tick-circle" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm4.3 6.7-5.3 5.6a.7.7 0 0 1-1 0L5.7 11a.7.7 0 0 1 1-1l2.8 2.8 4.8-5a.7.7 0 0 1 1 1z"/></symbol>
+  </svg>
+
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA">
+          <defs><style>.cls-1{fill:#e4002b}</style></defs>
+          <g id="Layer_2" data-name="Layer 2"><g id="Layer1">
+            <path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/>
+          </g></g>
+        </svg>
+        <span class="brand-divider"></span>
+        <span class="brand-label">PDLC AI Agent Map</span>
+      </div>
+      <span class="updated">Updated · 22 Jun 2026</span>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="overline">Overview</div>
+        <h1>Map AI agents to the full product development lifecycle</h1>
+        <div class="hero-meta">
+          <span class="badge info">10 PDLC stages</span>
+          <span class="badge pass">4 primary agents</span>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <div class="section-head">
+        <h2>Stage Mapping</h2>
+      </div>
+
+      <section class="stage-grid" aria-label="Agent stage mapping">
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">1</span>
+            <h3>Intake · Raw Data Collection</h3>
+            <p class="stage-subtitle">Collect original demand, meeting notes, SOPs, examples, workflow diagrams, and stakeholder context.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">PM Agent digests raw materials and can also guide the user through conversational intake to fill missing context and open questions.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">2</span>
+            <h3>PRD / Design · Requirements Output</h3>
+            <p class="stage-subtitle">Produce PRD, UI direction, interaction notes, and stakeholder-readable requirement artefacts.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">PM Agent turns raw data into a PRD and early design intent. A separate Designer Agent is not shown for now; design capability remains inside PM Agent.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">3</span>
+            <h3>Grooming · Scope Clarification</h3>
+            <p class="stage-subtitle">Clarify scope, review feasibility, refine stories, and surface risks before sprint commitment.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agents</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">PM Agent iterates PRD and ticket breakdown; Developer Agent checks feasibility, workload, and implementation risk before sprint commitment.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">4</span>
+            <h3>Planning · Sprint Commitment</h3>
+            <p class="stage-subtitle">Confirm sprint backlog, user stories, feasibility, workload, and team commitment.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agents</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+                <span class="agent-pill qa" data-icon="Q">QA Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">PM Agent completes Epic and User Story breakdown; Developer Agent confirms workload and implementation approach; QA Agent confirms test planning needs.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">5</span>
+            <h3>Development · Delivery Execution</h3>
+            <p class="stage-subtitle">Build the solution, prepare implementation details, and open PRs for review.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">Developer Agent owns implementation work: understand ticket context, propose technical design, write code, generate tests, and prepare PR handoff.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">6</span>
+            <h3>Code Review · PR Quality Gate</h3>
+            <p class="stage-subtitle">Review implementation with AI assistance and human approval before merge.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">Code review stays within the developer workflow. It is a review capability, not a standalone management-level agent in this story.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">7</span>
+            <h3>QA · Functional + Regression Testing</h3>
+            <p class="stage-subtitle">Test functionality, integration path, regression scope, and bug readiness.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill qa" data-icon="Q">QA Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">QA Agent generates test cases from acceptance criteria, supports regression thinking, and prepares bug-ready findings when behaviour fails.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">8</span>
+            <h3>PM Acceptance · Consistency Validation</h3>
+            <p class="stage-subtitle">Validate whether delivery matches PRD, UI design, main flow, behaviour, and expected logic.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agent</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">This is not business outcome validation. PM Agent supports high-level PM review: does the delivered product match what the PM requested?</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">9</span>
+            <h3>Release · Production Readiness</h3>
+            <p class="stage-subtitle">Move from staging to production with release checks, security review, and operational confidence.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agents</div>
+              <div class="agent-list">
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+                <span class="agent-pill optional ops" data-icon="O">DevOps Agent</span>
+                <span class="agent-pill optional security" data-icon="S">Security Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">Developer Agent can drive basic release readiness; DevOps and Security Agents are planned extensions for deployment and compliance checks.</p>
+          </div>
+        </article>
+
+        <article class="stage">
+          <div class="stage-head">
+            <span class="stage-number">10</span>
+            <h3>Retro · Delivery Review</h3>
+            <p class="stage-subtitle">Review delivery result, risks, collaboration issues, and improvement proposals.</p>
+          </div>
+          <div class="stage-body">
+            <div class="agent-group">
+              <div class="group-label">Agents</div>
+              <div class="agent-list">
+                <span class="agent-pill pm" data-icon="P">PM Agent</span>
+                <span class="agent-pill dev" data-icon="D">Developer Agent</span>
+                <span class="agent-pill qa" data-icon="Q">QA Agent</span>
+              </div>
+            </div>
+            <p class="stage-desc">The core trio reviews what went well, what created rework, and what should be improved in the next intake-to-release cycle.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="agent-board" aria-label="Agent capability portfolio">
+        <div class="agent-board-head">
+          <div>
+            <div class="overline">Agent Capability Map</div>
+            <h2>Primary agents and their underlying skills</h2>
+          </div>
+          <p class="agent-board-note">The top layer is deliberately simple: PM, Developer, and QA. More specialised agents can be introduced later as the workflow matures.</p>
+        </div>
+
+        <div class="agent-grid" aria-label="Primary agents">
+          <article class="agent-card accent-red">
+            <div class="agent-top">
+              <h3 class="agent-name">PM Agent</h3>
+              <span class="agent-slug">qima-pm-agent</span>
+            </div>
+            <span class="agent-status ready">Primary</span>
+            <p class="agent-desc">Turns raw product data into PRD, design intent, Epic and User Stories, then supports PM acceptance by checking delivery consistency against PRD and UI expectations.</p>
+            <div class="capability-list">
+              <span class="capability">research</span>
+              <span class="capability">codebase-understanding</span>
+              <span class="capability">write-prd</span>
+              <span class="capability">prd-critique</span>
+              <span class="capability">ticket-breakdown</span>
+              <span class="capability">write-ticket</span>
+              <span class="capability">prd-design-assets</span>
+              <span class="capability">design-qa-review</span>
+            </div>
+            <div class="agent-meta">Covers stages 1-4 and 8; owns product intent and handoff quality.</div>
+          </article>
+
+          <article class="agent-card accent-orange">
+            <div class="agent-top">
+              <h3 class="agent-name">Frontend Developer Agent</h3>
+              <span class="agent-slug">frontend-developer-agent</span>
+            </div>
+            <span class="agent-status ready">Primary</span>
+            <p class="agent-desc">Reads tickets, analyses requirements, proposes front-end approach, implements Angular / Nx changes, writes unit and E2E tests, and prepares PR workflow.</p>
+            <div class="capability-list">
+              <span class="capability">analyse-requirement</span>
+              <span class="capability">implement-feature</span>
+              <span class="capability">angular-unit-test</span>
+              <span class="capability">cypress-e2e-test</span>
+              <span class="capability">git-pr-workflow</span>
+            </div>
+            <div class="agent-meta">Covers stages 3-6; owns front-end feasibility, delivery, and review handoff.</div>
+          </article>
+
+          <article class="agent-card accent-green">
+            <div class="agent-top">
+              <h3 class="agent-name">Backend Developer Agent</h3>
+              <span class="agent-slug">backend-dev-agent</span>
+            </div>
+            <span class="agent-status ready">Primary</span>
+            <p class="agent-desc">Reviews Jira context, looks up QSP architecture, prepares technical design, implements backend changes, traces service context, and opens PRs.</p>
+            <div class="capability-list">
+              <span class="capability">jira-ticket-review</span>
+              <span class="capability">technical-design</span>
+              <span class="capability">code-implementation</span>
+              <span class="capability">code-trace</span>
+              <span class="capability">open-pr</span>
+            </div>
+            <div class="agent-meta">Covers stages 3-6; owns backend feasibility, delivery, and review handoff.</div>
+          </article>
+
+          <article class="agent-card accent-blue">
+            <div class="agent-top">
+              <h3 class="agent-name">QA Agent</h3>
+              <span class="agent-slug">qa-agent</span>
+            </div>
+            <span class="agent-status partial">Near term</span>
+            <p class="agent-desc">Generates test cases from acceptance criteria, supports functional and regression validation, and turns observed failures into bug-ready descriptions.</p>
+            <div class="capability-list">
+              <span class="capability">qa_analyze</span>
+              <span class="capability">qa_create_testcase</span>
+              <span class="capability">qa_run_testcase</span>
+            </div>
+            <div class="agent-meta">Covers stages 3, 4, 7 and 10; owns testability and validation readiness.</div>
+          </article>
+        </div>
+
+        <div class="agent-grid secondary" aria-label="Auxiliary and future agents">
+          <article class="agent-card auxiliary accent-cyan">
+            <div class="agent-top">
+              <h3 class="agent-name">Expert Review Capability</h3>
+              <span class="agent-slug">review-skill</span>
+            </div>
+            <span class="agent-status future">Embedded</span>
+            <p class="agent-desc">Treat review as a capability inside PM or Developer workflows, not a standalone management-level agent.</p>
+          </article>
+
+          <article class="agent-card auxiliary accent-green">
+            <div class="agent-top">
+              <h3 class="agent-name">DevOps Agent</h3>
+              <span class="agent-slug">devops-agent</span>
+            </div>
+            <span class="agent-status future">Planned</span>
+            <p class="agent-desc">Deployment checks, environment validation, CI/CD pipeline support, monitoring and release readiness.</p>
+          </article>
+
+          <article class="agent-card auxiliary accent-red">
+            <div class="agent-top">
+              <h3 class="agent-name">Security Agent</h3>
+              <span class="agent-slug">security-agent</span>
+            </div>
+            <span class="agent-status future">Planned</span>
+            <p class="agent-desc">Security review, vulnerability assessment, compliance checks and remediation guidance before release.</p>
+          </article>
+
+          <article class="agent-card auxiliary accent-orange">
+            <div class="agent-top">
+              <h3 class="agent-name">Analytics Agent</h3>
+              <span class="agent-slug">analytics-agent</span>
+            </div>
+            <span class="agent-status future">Planned</span>
+            <p class="agent-desc">Agent health metrics, R&D efficiency tracking, rework analysis and monthly progress reporting.</p>
+          </article>
+
+          <article class="agent-card auxiliary accent-blue">
+            <div class="agent-top">
+              <h3 class="agent-name">Data Agent</h3>
+              <span class="agent-slug">data-agent</span>
+            </div>
+            <span class="agent-status future">Planned</span>
+            <p class="agent-desc">SQL assistance, dashboards, reporting and data pipeline support across QIMA platforms.</p>
+          </article>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</body>
+</html>
