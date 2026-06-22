@@ -881,13 +881,15 @@
               </div>
             </div>
             <div class="stage-video">
-              <a href="https://ainsp-my.sharepoint.com/personal/lyon_li_qima_com/_layouts/15/stream.aspx?id=%2Fpersonal%2Flyon%5Fli%5Fqima%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FPRD%2Emp4&amp;referrer=StreamWebApp%2EWeb&amp;referrerScenario=AddressBarCopied%2Eview%2E0ea0b71d%2D9eea%2D4f34%2D8b2b%2Dc4303dad2b2c" target="_blank" rel="noopener">Open PRD demo video</a>
-                <span class="stage-video-icon">▶</span>
-                <span>
-                  <span class="stage-video-title">PRD demo video</span>
-                  <span class="stage-video-meta">Open in Microsoft Stream · 0:22</span>
+              <button class="stage-video-button" type="button" data-video-open="prd-video">
+                <video class="stage-video-preview" preload="metadata" muted playsinline>
+                  <source src="https://asiainspection.github.io/PM-/qima-pm-agent/prd.mp4" type="video/mp4">
+                </video>
+                <span class="stage-video-overlay">
+                  <span class="stage-video-icon">▶</span>
                 </span>
-              </a>
+              </button>
+              <div class="stage-video-caption">PRD demo video · 0:22</div>
             </div>
             <p class="stage-desc">PM Agent turns raw data into a PRD, early design intent, and prototype views for stakeholder confirmation.</p>
           </div>
@@ -1179,6 +1181,17 @@
 
     </main>
   </div>
+  <div class="video-modal" id="prd-video" aria-hidden="true">
+    <div class="video-modal-panel" role="dialog" aria-modal="true" aria-label="PRD demo video">
+      <div class="video-modal-head">
+        <span>PRD demo video · 0:22</span>
+        <button class="video-modal-close" type="button" data-video-close aria-label="Close video">×</button>
+      </div>
+      <video controls preload="metadata">
+        <source src="https://asiainspection.github.io/PM-/qima-pm-agent/prd.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
   <div class="video-modal" id="ticket-breakdown-video" aria-hidden="true">
     <div class="video-modal-panel" role="dialog" aria-modal="true" aria-label="Ticket breakdown demo video">
       <div class="video-modal-head">
@@ -1192,17 +1205,9 @@
   </div>
   <script>
     (function () {
-      var modal = document.getElementById('ticket-breakdown-video');
-      if (!modal) return;
-      var player = modal.querySelector('video');
-      document.querySelectorAll('[data-video-open="ticket-breakdown-video"]').forEach(function (button) {
-        button.addEventListener('click', function () {
-          modal.classList.add('is-open');
-          modal.setAttribute('aria-hidden', 'false');
-          if (player) player.play().catch(function () {});
-        });
-      });
-      function closeModal() {
+      var modals = Array.prototype.slice.call(document.querySelectorAll('.video-modal'));
+      function closeModal(modal) {
+        var player = modal.querySelector('video');
         modal.classList.remove('is-open');
         modal.setAttribute('aria-hidden', 'true');
         if (player) {
@@ -1210,12 +1215,30 @@
           player.currentTime = 0;
         }
       }
-      modal.querySelector('[data-video-close]').addEventListener('click', closeModal);
-      modal.addEventListener('click', function (event) {
-        if (event.target === modal) closeModal();
+      document.querySelectorAll('[data-video-open]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var modal = document.getElementById(button.getAttribute('data-video-open'));
+          if (!modal) return;
+          var player = modal.querySelector('video');
+          modal.classList.add('is-open');
+          modal.setAttribute('aria-hidden', 'false');
+          if (player) player.play().catch(function () {});
+        });
+      });
+      modals.forEach(function (modal) {
+        modal.querySelector('[data-video-close]').addEventListener('click', function () {
+          closeModal(modal);
+        });
+        modal.addEventListener('click', function (event) {
+          if (event.target === modal) closeModal(modal);
+        });
       });
       document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+        if (event.key === 'Escape') {
+          modals.forEach(function (modal) {
+            if (modal.classList.contains('is-open')) closeModal(modal);
+          });
+        }
       });
     })();
   </script>
