@@ -542,13 +542,13 @@
     .real-example-head {
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-l);
+      flex-direction: column;
+      gap: var(--space-s);
       margin-bottom: var(--space-l);
     }
 
     .real-example-title {
-      max-width: 760px;
+      max-width: 100%;
     }
 
     .real-example-title h2 {
@@ -567,6 +567,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: var(--space-xs);
+      width: 100%;
     }
 
     .real-example-link {
@@ -1361,16 +1362,13 @@
           </div>
         </div>
 
-        <p class="real-example-summary">This example covers a customized client report capability for QIMAlabs: clients need report formats that better match their own templates, stakeholder preferences, and downstream sharing needs. The AI workflow starts from raw demand materials, turns them into a PRD, then supports Epic and User Story preparation for grooming and planning.</p>
-
         <div class="real-example-grid">
           <div class="real-example-panel">
             <h3>How AI improves the workflow</h3>
             <ul class="real-example-list">
-              <li>Converts scattered meeting notes, SOPs, examples, and report-template requests into a structured PRD.</li>
-              <li>Helps PMs clarify missing context through conversational questions before handoff.</li>
-              <li>Accelerates grooming by breaking the approved PRD into Epic and User Stories.</li>
-              <li>Supports ticket refinement after PM, developer, and QA alignment.</li>
+              <li>Turns raw demand materials into a structured PRD.</li>
+              <li>Breaks the PRD into Epic and User Stories for grooming.</li>
+              <li>Refines tickets after PM, developer, and QA alignment.</li>
             </ul>
           </div>
           <div class="real-example-panel">
