@@ -552,7 +552,7 @@
 
     .skill-video-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--space-m);
     }
 
@@ -566,7 +566,7 @@
 
     .skill-video-card-head {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: var(--space-m);
       padding: var(--space-m);
@@ -589,11 +589,11 @@
     }
 
     .skill-video-card .stage-video-button {
-      min-height: 160px;
+      min-height: 124px;
     }
 
     .skill-video-card .stage-video-preview {
-      height: 160px;
+      height: 124px;
     }
 
     .skill-video-desc {
@@ -1289,6 +1289,44 @@
             </div>
             <p class="skill-video-desc">Uses PRD context to break work into Epic and User Stories for downstream planning.</p>
           </article>
+
+          <article class="skill-video-card">
+            <div class="skill-video-card-head">
+              <span class="skill-video-name">research</span>
+              <span class="skill-video-stage">Stage 1 · Intake</span>
+            </div>
+            <div class="stage-video">
+              <button class="stage-video-button" type="button" data-video-open="research-video">
+                <video class="stage-video-preview" preload="metadata" muted playsinline>
+                  <source src="https://asiainspection.github.io/PM-/qima-pm-agent/research.mp4" type="video/mp4">
+                </video>
+                <span class="stage-video-overlay">
+                  <span class="stage-video-icon">▶</span>
+                </span>
+              </button>
+              <div class="stage-video-caption">Research demo</div>
+            </div>
+            <p class="skill-video-desc">Collects market, customer, and business context before PRD drafting.</p>
+          </article>
+
+          <article class="skill-video-card">
+            <div class="skill-video-card-head">
+              <span class="skill-video-name">mermaid-chart</span>
+              <span class="skill-video-stage">Visual support</span>
+            </div>
+            <div class="stage-video">
+              <button class="stage-video-button" type="button" data-video-open="mermaid-chart-video">
+                <video class="stage-video-preview" preload="metadata" muted playsinline>
+                  <source src="https://asiainspection.github.io/PM-/qima-pm-agent/mermaid-chart.mp4" type="video/mp4">
+                </video>
+                <span class="stage-video-overlay">
+                  <span class="stage-video-icon">▶</span>
+                </span>
+              </button>
+              <div class="stage-video-caption">Mermaid chart demo</div>
+            </div>
+            <p class="skill-video-desc">Turns process notes and requirements into readable Mermaid diagrams.</p>
+          </article>
         </div>
       </section>
 
@@ -1313,6 +1351,28 @@
       </div>
       <video controls preload="metadata">
         <source src="https://asiainspection.github.io/PM-/qima-pm-agent/ticket-breakdown.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <div class="video-modal" id="research-video" aria-hidden="true">
+    <div class="video-modal-panel" role="dialog" aria-modal="true" aria-label="Research demo video">
+      <div class="video-modal-head">
+        <span>Research demo</span>
+        <button class="video-modal-close" type="button" data-video-close aria-label="Close video">×</button>
+      </div>
+      <video controls preload="metadata">
+        <source src="https://asiainspection.github.io/PM-/qima-pm-agent/research.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+  <div class="video-modal" id="mermaid-chart-video" aria-hidden="true">
+    <div class="video-modal-panel" role="dialog" aria-modal="true" aria-label="Mermaid chart demo video">
+      <div class="video-modal-head">
+        <span>Mermaid chart demo</span>
+        <button class="video-modal-close" type="button" data-video-close aria-label="Close video">×</button>
+      </div>
+      <video controls preload="metadata">
+        <source src="https://asiainspection.github.io/PM-/qima-pm-agent/mermaid-chart.mp4" type="video/mp4">
       </video>
     </div>
   </div>
