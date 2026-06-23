@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QIMAlabs Customisable Report Logic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Brand */
+      --qima-red: #E4002B;
+      --qima-red-dark: #C71A21;
+      --qima-red-900: #9E141B;
+      --qima-red-bg: #FDEFEF;
+
+      /* Neutrals */
+      --white: #FFFFFF;
+      --mist:  #F7F7F7;
+      --seal:  #F0F0F0;
+      --cloud: #DEDEDE;
+      --pearl: #BFBFBF;
+      --ash:   #979797;
+      --stone: #737373;
+      --slate: #3E3E3E;
+      --carbon:#191919;
+      --black: #000000;
+
+      /* Semantic - Cherry (Critical / Danger) */
+      --cherry-050: #FDEFEF;
+      --cherry-100: #FBDDDD;
+      --cherry-500: #E5353D;
+      --cherry-600: #C71A21;
+      --cherry-900: #9E141B;
+
+      /* Semantic - Orange (Major / Warning) */
+      --orange-050: #FCF2E6;
+      --orange-100: #F9E4CD;
+      --orange-500: #F58F00;
+      --orange-600: #D67D00;
+      --orange-900: #B26309;
+
+      /* Semantic - Lemon (Minor / Caution) */
+      --lemon-050: #FFF9E7;
+      --lemon-100: #FFF2CF;
+      --lemon-500: #FFCA0F;
+      --lemon-600: #E5A700;
+      --lemon-900: #BD8A00;
+
+      /* Semantic - Kiwi (Success / Pass) */
+      --kiwi-050: #EAF6F2;
+      --kiwi-100: #CEEAE1;
+      --kiwi-500: #00A876;
+      --kiwi-600: #008A61;
+      --kiwi-900: #006648;
+
+      /* Decorative (charts / illustrations) */
+      --olive: #170F78;       --guava: #00AEB7;
+      --aubergine: #FF6159;   --forest: #FF8261;
+      --pumpkin: #524DB1;      --blueberry: #29A37E;
+      --avocado: #72D0E3;      --beetroot: #D97F2F;
+      --elderberry: #0070D7;   --mandarine: #57C49F;
+      --grapes: #741448;       --grapes-light: #5E90CC;
+      --cabbage: #FFBE0F;      --waterlily: #A2005D;
+      --melon: #F6E6EF;        --peach: #A086C4;
+      --plum: #F7A963;
+
+      /* Semantic Aliases */
+      --fg-1: var(--carbon);
+      --fg-2: var(--stone);
+      --fg-3: var(--ash);
+      --fg-link: var(--qima-red);
+      --bg-app: var(--mist);
+      --bg-surface: var(--white);
+      --bg-sunken: var(--seal);
+      --bg-brand: var(--qima-red);
+      --border-default: rgba(0, 0, 0, 0.1);
+      --border-strong: var(--cloud);
+
+      /* Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+
+      /* Spacing - 4-point grid */
+      --space-tiny: 2px;
+      --space-xxs: 4px;
+      --space-xs: 8px;
+      --space-s: 12px;
+      --space-m: 16px;
+      --space-l: 24px;
+      --space-xl: 36px;
+      --space-xxl: 48px;
+
+      /* Shadows */
+      --shadow-0: 0 1px 2px rgba(25, 25, 25, 0.08);
+      --shadow-1: 0 2px 4px rgba(25, 25, 25, 0.1);
+      --shadow-2: 0 4px 12px rgba(25, 25, 25, 0.15);
+      --shadow-3: 0 8px 24px rgba(25, 25, 25, 0.2);
+
+      /* Typography - Families */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      --font-cjk: 'Noto Sans SC', 'Inter', sans-serif;
+
+      /* Typography - Scale */
+      --fs-h1: 45px;    --lh-h1: 52px;
+      --fs-h2: 37px;    --lh-h2: 44px;
+      --fs-h3: 30px;    --lh-h3: 36px;
+      --fs-h4: 26px;    --lh-h4: 32px;
+      --fs-h5: 22px;    --lh-h5: 28px;
+      --fs-h6: 18px;    --lh-h6: 24px;
+      --fs-body-01: 16px; --lh-body-01: 20px;
+      --fs-body-02: 14px; --lh-body-02: 20px;
+      --fs-caption: 12px; --lh-caption: 16px;
+      --fs-overline: 11px; --lh-overline: 12px;
+      --tracking-tight: -0.02em;
+      --tracking-snug: -0.01em;
+
+      /* Animation */
+      --dur-base: 200ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--fs-body-02);
+      line-height: var(--lh-body-02);
+      color: var(--fg-1);
+      background: var(--bg-app);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: var(--fg-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--qima-red); outline-offset: 3px; }
+    h1,.h1 { font: 400 var(--fs-h1)/var(--lh-h1) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    h2,.h2 { font: 400 var(--fs-h2)/var(--lh-h2) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    h3,.h3 { font: 400 var(--fs-h3)/var(--lh-h3) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    h4,.h4 { font: 400 var(--fs-h4)/var(--lh-h4) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    h5,.h5 { font: 500 var(--fs-h5)/var(--lh-h5) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    h6,.h6 { font: 500 var(--fs-h6)/var(--lh-h6) var(--font-sans); letter-spacing: var(--tracking-tight); color: var(--fg-1); }
+    .body-01 { font: 400 var(--fs-body-01)/var(--lh-body-01) var(--font-sans); }
+    .caption { font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans); color: var(--fg-2); }
+    .overline { font: 600 var(--fs-overline)/var(--lh-overline) var(--font-sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-2); }
+    code,.mono { font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-mono); color: var(--fg-2); }
+
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: var(--space-xxs);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      min-height: 56px;
+      padding: var(--space-m) var(--space-l);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-s);
+      color: var(--fg-2);
+      font-size: var(--fs-caption);
+      line-height: var(--lh-caption);
+      text-align: right;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+      gap: var(--space-s);
+      margin-top: var(--space-s);
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-default);
+      box-shadow: var(--shadow-1);
+      padding: var(--space-m);
+    }
+
+    .hero-main {
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-xl);
+      padding: var(--space-xl);
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      display: grid;
+      gap: var(--space-l);
+    }
+
+    .hero-copy p {
+      max-width: 68ch;
+      color: var(--fg-2);
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: var(--radius-pill);
+      font: 500 12px/16px var(--font-sans);
+    }
+    .badge.critical { background: var(--cherry-050); color: var(--cherry-900); }
+    .badge.major { background: var(--orange-050); color: var(--orange-900); }
+    .badge.minor { background: var(--lemon-050); color: var(--lemon-900); }
+    .badge.pass { background: var(--kiwi-050); color: var(--kiwi-900); }
+    .badge.info { background: var(--qima-red-bg); color: var(--qima-red-900); }
+    .badge.neutral { background: var(--seal); color: var(--slate); }
+
+    .quick-read {
+      display: grid;
+      align-content: start;
+      gap: var(--space-l);
+      padding: var(--space-xl);
+    }
+
+    .quick-items {
+      display: grid;
+      gap: var(--space-m);
+    }
+
+    .quick-item {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: var(--space-s);
+      align-items: start;
+      padding-bottom: var(--space-m);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .quick-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .icon-chip {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--qima-red-900);
+      background: var(--qima-red-bg);
+    }
+
+    .section {
+      margin-top: var(--space-s);
+      display: grid;
+      gap: var(--space-s);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: var(--space-l);
+      padding: var(--space-xl) var(--space-xl) var(--space-m);
+    }
+
+    .section-title {
+      display: grid;
+      gap: var(--space-xs);
+      max-width: 760px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .logic-card {
+      min-height: 212px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-m);
+      justify-content: space-between;
+    }
+
+    .logic-card p,
+    .risk-list li,
+    .next-list li {
+      color: var(--fg-2);
+    }
+
+    .logic-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+    }
+
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-pill);
+      background: var(--seal);
+      color: var(--slate);
+      font-weight: 600;
+      font-size: var(--fs-caption);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 156px;
+    }
+
+    .flow-step h3 {
+      margin-top: var(--space-l);
+      font-size: var(--fs-h6);
+      line-height: var(--lh-h6);
+      font-weight: 500;
+    }
+
+    .flow-step p {
+      margin-top: var(--space-xs);
+      color: var(--fg-2);
+    }
+
+    .custom-flow {
+      display: grid;
+      gap: var(--space-s);
+    }
+
+    .custom-step {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr) minmax(240px, 0.42fr);
+      gap: var(--space-m);
+      align-items: start;
+    }
+
+    .custom-step + .custom-step {
+      margin-top: var(--space-s);
+    }
+
+    .custom-step h3 {
+      font-size: var(--fs-h6);
+      line-height: var(--lh-h6);
+      font-weight: 500;
+      margin-bottom: var(--space-xs);
+    }
+
+    .custom-step p {
+      color: var(--fg-2);
+      max-width: 72ch;
+    }
+
+    .module-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      justify-content: flex-end;
+    }
+
+    .system-map {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+
+    .system-card {
+      min-height: 224px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-l);
+    }
+
+    .system-card ul {
+      list-style: none;
+      display: grid;
+      gap: var(--space-xs);
+      color: var(--fg-2);
+    }
+
+    .system-card li {
+      padding-bottom: var(--space-xs);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .system-card li:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .mermaid-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.8fr);
+      gap: var(--space-s);
+    }
+
+    .diagram-board {
+      display: grid;
+      gap: var(--space-s);
+      align-content: start;
+    }
+
+    .diagram-row {
+      display: grid;
+      grid-template-columns: 148px repeat(4, minmax(0, 1fr));
+      gap: var(--space-xs);
+      align-items: stretch;
+    }
+
+    .diagram-lane {
+      display: flex;
+      align-items: center;
+      color: var(--fg-2);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .diagram-node {
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-xs);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      color: var(--fg-1);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .diagram-node.brand {
+      background: var(--qima-red-bg);
+      color: var(--qima-red-900);
+    }
+
+    .diagram-node.success {
+      background: var(--kiwi-050);
+      color: var(--kiwi-900);
+    }
+
+    .diagram-node.warning {
+      background: var(--orange-050);
+      color: var(--orange-900);
+    }
+
+    .diagram-node.empty {
+      border-style: dashed;
+      color: var(--fg-3);
+      background: var(--bg-app);
+    }
+
+    .diagram-arrow {
+      min-height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--fg-3);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .mermaid-code {
+      height: 100%;
+      min-height: 520px;
+      overflow: auto;
+      padding: var(--space-m);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-default);
+      background: var(--bg-app);
+      color: var(--slate);
+      white-space: pre;
+    }
+
+    .rendered-flow {
+      overflow-x: auto;
+      padding: var(--space-m);
+    }
+
+    .rendered-flow svg {
+      width: 100%;
+      min-width: 960px;
+      height: auto;
+      display: block;
+    }
+
+    .svg-label {
+      font-family: var(--font-sans);
+      fill: var(--fg-1);
+    }
+
+    .svg-muted {
+      font-family: var(--font-sans);
+      fill: var(--fg-2);
+    }
+
+    .svg-small {
+      font: 500 12px/16px var(--font-sans);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .svg-node {
+      fill: var(--bg-surface);
+      stroke: rgba(0, 0, 0, .16);
+      stroke-width: 1.2;
+    }
+
+    .svg-node.brand {
+      fill: var(--qima-red-bg);
+      stroke: var(--cherry-100);
+    }
+
+    .svg-node.warning {
+      fill: var(--orange-050);
+      stroke: var(--orange-100);
+    }
+
+    .svg-node.success {
+      fill: var(--kiwi-050);
+      stroke: var(--kiwi-100);
+    }
+
+    .svg-edge {
+      stroke: #6A8289;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .svg-back-edge {
+      stroke: var(--orange-600);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 6 6;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: var(--space-s);
+    }
+
+    .plain-list,
+    .risk-list,
+    .next-list {
+      list-style: none;
+      display: grid;
+      gap: var(--space-s);
+    }
+
+    .plain-list li,
+    .risk-list li,
+    .next-list li {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: var(--space-s);
+      align-items: start;
+    }
+
+    .plain-list svg,
+    .risk-list svg,
+    .next-list svg {
+      margin-top: 2px;
+      color: var(--qima-red);
+    }
+
+    .tbl-wrap {
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-default);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font: 400 13px/20px var(--font-sans);
+      color: var(--fg-1);
+    }
+
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font: 500 12px/16px var(--font-sans);
+      color: var(--fg-2);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--border-default);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-default);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: var(--qima-red-bg); }
+
+    .source-grid {
+      display: grid;
+      grid-template-columns: 0.88fr 1.12fr;
+      gap: var(--space-s);
+    }
+
+    .source-block {
+      display: grid;
+      gap: var(--space-m);
+    }
+
+    .source-line {
+      display: grid;
+      grid-template-columns: 132px 1fr;
+      gap: var(--space-s);
+      padding-bottom: var(--space-s);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .source-line:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .banner {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-s);
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      font: 400 14px/20px var(--font-sans);
+    }
+
+    .banner.info { background: var(--qima-red-bg); }
+    .banner.warning { background: var(--orange-050); }
+
+    .footer {
+      margin-top: var(--space-s);
+      padding: var(--space-l) var(--space-xl);
+      color: var(--fg-2);
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-l);
+    }
+
+    @media (max-width: 1180px) {
+      .flow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .system-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mermaid-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-row {
+        grid-template-columns: 128px repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        padding: var(--space-m);
+      }
+
+      .hero,
+      .grid-3,
+      .grid-2,
+      .split,
+      .source-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .custom-step {
+        grid-template-columns: 1fr;
+      }
+
+      .module-tags {
+        justify-content: flex-start;
+      }
+
+      .system-map {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-row {
+        grid-template-columns: 1fr;
+      }
+
+      .diagram-lane {
+        padding-top: var(--space-xs);
+      }
+
+      .topbar,
+      .section-header,
+      .footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .topbar-meta {
+        text-align: left;
+      }
+
+      .hero-main,
+      .quick-read,
+      .section-header {
+        padding: var(--space-l);
+      }
+
+      h1,.h1 {
+        font-size: 37px;
+        line-height: 44px;
+      }
+
+      h2,.h2 {
+        font-size: 30px;
+        line-height: 36px;
+      }
+
+      .source-line {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        transition-duration: 1ms !important;
+        animation-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-info" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm0 3.8a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zm1.2 9.2h-2.4V9.2h2.4v5.3z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.8a1 1 0 0 1 .88.52l8 14a1 1 0 0 1-.88 1.48H2a1 1 0 0 1-.88-1.48l8-14A1 1 0 0 1 10 1.8zm0 5.2a.8.8 0 0 0-.8.8v4a.8.8 0 0 0 1.6 0V7.8a.8.8 0 0 0-.8-.8zm0 8.4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></symbol>
+    <symbol id="i-tick-circle" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm4.3 6.7-5.3 5.6a.7.7 0 0 1-1 0L5.7 11a.7.7 0 0 1 1-1l2.8 2.8 4.8-5a.7.7 0 0 1 1 1z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5 9l5 5 5-5M3 17h14"/></symbol>
+    <symbol id="i-inspection" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4" y="3" width="12" height="14" rx="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke-linecap="round"/></symbol>
+    <symbol id="i-lab" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2.8h6M8.5 3v4.8l-4.6 7.5A1.8 1.8 0 0 0 5.4 18h9.2a1.8 1.8 0 0 0 1.5-2.7l-4.6-7.5V3"/><path d="M6.5 13h7"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5 2.5h6.8L15 5.7v11.8H5z"/><path d="M11.8 2.5v3.2H15M7.5 9h5M7.5 12h5M7.5 15h3" stroke-linecap="round"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.8V17h2.2L16.4 6.8l-2.2-2.2zM12.9 5.9l2.2 2.2"/></symbol>
+    <symbol id="i-analytics" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M4 16V9M10 16V4M16 16v-6"/><path d="M3 16.5h14" stroke-linejoin="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="7" r="3.4"/><path d="M3.2 17.5a6.8 6.8 0 0 1 13.6 0z"/></symbol>
+  </svg>
+
+  <main class="page">
+    <header class="topbar" aria-label="Page header">
+      <svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA logo">
+        <defs><style>.cls-1{fill:#e4002b}</style></defs>
+        <g id="Layer_2" data-name="Layer 2"><g id="Layer1">
+          <path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/>
+        </g></g>
+      </svg>
+      <div class="topbar-meta">
+        <span>QIMAlabs</span>
+        <span>&middot;</span>
+        <span>Customisable Report Feature</span>
+        <span>&middot;</span>
+        <span>PM Brief</span>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="page-title">
+      <div class="card hero-main">
+        <div class="hero-copy">
+          <p class="overline">Existing Logic Review</p>
+          <h1 id="page-title">How QIMAlabs Already Supports Report Customisation</h1>
+          <p class="body-01">QIMAlabs already has a report generation foundation: report pages, templates, result summary controls, customised sections, online editing, preview, and final report generation. The new customisable report feature should extend these existing capabilities instead of rebuilding the report flow from scratch.</p>
+        </div>
+        <div class="status-row" aria-label="Summary tags">
+          <span class="badge pass">Reusable foundation exists</span>
+          <span class="badge info">Frontend verified</span>
+          <span class="badge major">Backend repository pending</span>
+          <span class="badge neutral">PM-facing summary</span>
+        </div>
+      </div>
+
+      <aside class="card quick-read" aria-labelledby="quick-read-title">
+        <div>
+          <p class="overline">Quick Read</p>
+          <h2 id="quick-read-title" class="h5">What matters for PMs</h2>
+        </div>
+        <div class="quick-items">
+          <div class="quick-item">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-doc"/></svg></span>
+            <div>
+              <h3 class="h6">Reports are already modular</h3>
+              <p class="caption">The system can work with sections, templates, summaries, previews, and final files.</p>
+            </div>
+          </div>
+          <div class="quick-item">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-edit"/></svg></span>
+            <div>
+              <h3 class="h6">A custom section page exists</h3>
+              <p class="caption">Users can edit, download, and trigger semi-auto filling for report sections.</p>
+            </div>
+          </div>
+          <div class="quick-item">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-alert"/></svg></span>
+            <div>
+              <h3 class="h6">The risk is regression</h3>
+              <p class="caption">Standard report flow must stay unchanged when no custom setup is used.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" aria-labelledby="current-flow-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Current End-to-End Flow</p>
+          <h2 id="current-flow-title">How a report is generated today</h2>
+        </div>
+      </div>
+      <div class="flow">
+        <article class="card flow-step">
+          <span class="num">01</span>
+          <h3>Open order report area</h3>
+          <p>User enters Report Generation from an order and sees available reports or First Pages.</p>
+        </article>
+        <article class="card flow-step">
+          <span class="num">02</span>
+          <h3>Load report setup</h3>
+          <p>The system fetches report overview, template, result data, and related order context.</p>
+        </article>
+        <article class="card flow-step">
+          <span class="num">03</span>
+          <h3>Configure content</h3>
+          <p>Users can adjust result summary, test result handling, no-result-table logic, and custom sections.</p>
+        </article>
+        <article class="card flow-step">
+          <span class="num">04</span>
+          <h3>Preview report</h3>
+          <p>QIMAlabs composes template content with order, sample, test, and edited section data.</p>
+        </article>
+        <article class="card flow-step">
+          <span class="num">05</span>
+          <h3>Generate final file</h3>
+          <p>The confirmed report becomes a final Word or PDF artefact for downstream use.</p>
+        </article>
+        <article class="card flow-step">
+          <span class="num">06</span>
+          <h3>Download or send</h3>
+          <p>The final report can enter signature, download, delivery, or client-facing workflows.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="complete-custom-flow-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Complete Customisation Flow</p>
+          <h2 id="complete-custom-flow-title">How a report becomes customisable from setup to delivery</h2>
+        </div>
+      </div>
+      <div class="card custom-flow">
+        <article class="custom-step">
+          <span class="num">01</span>
+          <div>
+            <h3>Program and template setup</h3>
+            <p>AIMS defines which Program can use customised reports, which Template Group applies, which language templates are available, and which section tags exist in the template file.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge info">AIMS</span>
+            <span class="badge neutral">Program setup</span>
+            <span class="badge neutral">Template Group</span>
+          </div>
+        </article>
+
+        <article class="custom-step">
+          <span class="num">02</span>
+          <div>
+            <h3>Order report initialisation</h3>
+            <p>When an order enters report generation, QIMAlabs loads or creates report records, links them to the order or First Page, and checks whether the report should follow standard or customised logic.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge info">QIMAlabs</span>
+            <span class="badge neutral">Report Generation</span>
+            <span class="badge neutral">Order Detail</span>
+          </div>
+        </article>
+
+        <article class="custom-step">
+          <span class="num">03</span>
+          <div>
+            <h3>Template matching</h3>
+            <p>The backend selects the right report template based on Program, Template Group, language, and report context. The template tags decide where standard and custom sections will be inserted.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge major">lab-service-cloud</span>
+            <span class="badge neutral">Template logic</span>
+            <span class="badge neutral">Language rules</span>
+          </div>
+        </article>
+
+        <article class="custom-step">
+          <span class="num">04</span>
+          <div>
+            <h3>Content customisation</h3>
+            <p>Users configure the report in QIMAlabs: adjust result summary text, hide or show test results, edit failure overview, manage custom sections, download section files, or trigger semi-auto filling.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge info">Customize Section</span>
+            <span class="badge info">Result Summary</span>
+            <span class="badge neutral">Test Result Setup</span>
+          </div>
+        </article>
+
+        <article class="custom-step">
+          <span class="num">05</span>
+          <div>
+            <h3>Preview and validation</h3>
+            <p>QIMAlabs combines the selected template, order fields, sample data, test results, result summary settings, and edited custom sections into a preview. Setup problems should be visible before the final report is produced.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge info">Preview</span>
+            <span class="badge neutral">File Service</span>
+            <span class="badge minor">Setup validation</span>
+          </div>
+        </article>
+
+        <article class="custom-step">
+          <span class="num">06</span>
+          <div>
+            <h3>Final report generation and delivery</h3>
+            <p>After confirmation, the system generates the final Word or PDF report. The customised output then follows the existing downstream flow for e-signature, download, report request, or client delivery.</p>
+          </div>
+          <div class="module-tags">
+            <span class="badge pass">Final report</span>
+            <span class="badge neutral">E-signature</span>
+            <span class="badge neutral">Delivery</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="systems-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Systems and Modules Involved</p>
+          <h2 id="systems-title">Where each part of the custom report flow lives</h2>
+        </div>
+      </div>
+      <div class="system-map">
+        <article class="card system-card">
+          <div>
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-inspection"/></svg></span>
+            <h3 class="h5" style="margin-top: var(--space-m);">AIMS</h3>
+          </div>
+          <ul>
+            <li>Program setup</li>
+            <li>Report Template Group</li>
+            <li>Report template management</li>
+            <li>Program report options</li>
+          </ul>
+        </article>
+
+        <article class="card system-card">
+          <div>
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-lab"/></svg></span>
+            <h3 class="h5" style="margin-top: var(--space-m);">QIMAlabs Web</h3>
+          </div>
+          <ul>
+            <li>Report Generation</li>
+            <li>Order Detail and First Page</li>
+            <li>Customize Section</li>
+            <li>Result Summary and Test Result Setup</li>
+          </ul>
+        </article>
+
+        <article class="card system-card">
+          <div>
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-analytics"/></svg></span>
+            <h3 class="h5" style="margin-top: var(--space-m);">QIMAlabs Backend</h3>
+          </div>
+          <ul>
+            <li>Order report APIs</li>
+            <li>Template selection logic</li>
+            <li>Custom section APIs</li>
+            <li>Final report generation</li>
+          </ul>
+        </article>
+
+        <article class="card system-card">
+          <div>
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-doc"/></svg></span>
+            <h3 class="h5" style="margin-top: var(--space-m);">File and Document Service</h3>
+          </div>
+          <ul>
+            <li>Word template storage</li>
+            <li>Section file storage</li>
+            <li>Online editing</li>
+            <li>PDF and Word artefacts</li>
+          </ul>
+        </article>
+
+        <article class="card system-card">
+          <div>
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-edit"/></svg></span>
+            <h3 class="h5" style="margin-top: var(--space-m);">Order and Lab Data</h3>
+          </div>
+          <ul>
+            <li>Order basic information</li>
+            <li>Sample and specimen data</li>
+            <li>Test allocation and result</li>
+            <li>Failure and document review result</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="mermaid-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Rendered Flow Diagram</p>
+          <h2 id="mermaid-title">Custom report flow across systems</h2>
+        </div>
+        <span class="badge info">Rendered directly in HTML</span>
+      </div>
+      <article class="card rendered-flow" aria-label="Rendered custom report system flow">
+        <svg viewBox="0 0 1120 1480" role="img" aria-labelledby="flow-svg-title flow-svg-desc" xmlns="http://www.w3.org/2000/svg">
+          <title id="flow-svg-title">QIMAlabs custom report rendered flow</title>
+          <desc id="flow-svg-desc">A vertical rendered flow diagram showing AIMS setup, QIMAlabs report initialisation, user customisation, preview approval, and final report delivery with fewer crossing lines.</desc>
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#6A8289"/>
+            </marker>
+            <marker id="arrow-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#D67D00"/>
+            </marker>
+          </defs>
+
+          <rect x="16" y="24" width="1088" height="1412" rx="18" fill="#F7F7F7" stroke="rgba(0,0,0,.1)"/>
+          <rect x="76" y="82" width="688" height="204" rx="16" fill="#FDEFEF" stroke="#FBDDDD"/>
+          <rect x="76" y="326" width="688" height="286" rx="16" fill="#FFFFFF" stroke="rgba(0,0,0,.1)"/>
+          <rect x="76" y="652" width="688" height="482" rx="16" fill="#FFFFFF" stroke="rgba(0,0,0,.1)"/>
+          <rect x="76" y="1174" width="688" height="180" rx="16" fill="#EAF6F2" stroke="#CEEAE1"/>
+          <rect x="812" y="326" width="232" height="286" rx="16" fill="#FFFFFF" stroke="rgba(0,0,0,.1)"/>
+          <rect x="812" y="1174" width="232" height="180" rx="16" fill="#FFFFFF" stroke="rgba(0,0,0,.1)"/>
+
+          <text x="104" y="120" class="svg-small svg-muted">1 AIMS setup</text>
+          <text x="104" y="368" class="svg-small svg-muted">2 Backend decision</text>
+          <text x="104" y="690" class="svg-small svg-muted">3 User customisation</text>
+          <text x="104" y="1212" class="svg-small svg-muted">4 Preview and delivery</text>
+          <text x="836" y="368" class="svg-small svg-muted">Side paths</text>
+          <text x="836" y="1212" class="svg-small svg-muted">Revision loop</text>
+
+          <path d="M420 70 L420 1388" stroke="rgba(0,0,0,.08)" stroke-width="6" stroke-linecap="round"/>
+
+          <rect x="360" y="52" width="120" height="40" rx="20" class="svg-node"/>
+          <text x="420" y="78" text-anchor="middle" font-size="16" font-weight="600" class="svg-label">Start</text>
+
+          <rect x="220" y="146" width="400" height="60" rx="10" class="svg-node brand"/>
+          <text x="420" y="170" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Configure Program report setup</text>
+          <text x="420" y="190" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">in AIMS</text>
+
+          <rect x="220" y="226" width="400" height="60" rx="10" class="svg-node brand"/>
+          <text x="420" y="250" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Manage Template Group</text>
+          <text x="420" y="270" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">and language templates</text>
+
+          <rect x="220" y="392" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="416" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">QIMAlabs creates or loads</text>
+          <text x="420" y="436" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">the order report</text>
+
+          <polygon points="420,486 534,556 420,626 306,556" class="svg-node warning"/>
+          <text x="420" y="550" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Use custom</text>
+          <text x="420" y="570" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">report setup</text>
+
+          <rect x="836" y="392" width="184" height="68" rx="10" class="svg-node"/>
+          <text x="928" y="418" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Standard report</text>
+          <text x="928" y="438" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">flow unchanged</text>
+
+          <rect x="836" y="486" width="184" height="68" rx="10" class="svg-node success"/>
+          <text x="928" y="512" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Generate standard</text>
+          <text x="928" y="532" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">final report</text>
+
+          <rect x="220" y="682" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="706" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Match template group</text>
+          <text x="420" y="726" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">and validate language</text>
+
+          <rect x="836" y="682" width="184" height="68" rx="10" class="svg-node warning"/>
+          <text x="928" y="708" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Setup issue</text>
+          <text x="928" y="728" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">fix in AIMS</text>
+
+          <rect x="220" y="782" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="806" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Load sections, tags</text>
+          <text x="420" y="826" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">and report data</text>
+
+          <rect x="220" y="882" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="906" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Open Report Generation</text>
+          <text x="420" y="926" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">for the selected FP</text>
+
+          <rect x="146" y="986" width="170" height="70" rx="10" class="svg-node brand"/>
+          <text x="231" y="1012" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Result Summary</text>
+          <text x="231" y="1032" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">and failure text</text>
+
+          <rect x="335" y="986" width="170" height="70" rx="10" class="svg-node brand"/>
+          <text x="420" y="1012" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Customised</text>
+          <text x="420" y="1032" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Sections</text>
+
+          <rect x="524" y="986" width="170" height="70" rx="10" class="svg-node brand"/>
+          <text x="609" y="1012" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Test Result and</text>
+          <text x="609" y="1032" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">No Result Table</text>
+
+          <rect x="146" y="1094" width="170" height="58" rx="10" class="svg-node"/>
+          <text x="231" y="1118" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Manual edit</text>
+          <text x="231" y="1136" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">online</text>
+
+          <rect x="335" y="1094" width="170" height="58" rx="10" class="svg-node"/>
+          <text x="420" y="1118" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Auto fill</text>
+          <text x="420" y="1136" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">from lab data</text>
+
+          <rect x="524" y="1094" width="170" height="58" rx="10" class="svg-node"/>
+          <text x="609" y="1118" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">Semi auto fill</text>
+          <text x="609" y="1136" text-anchor="middle" font-size="13" font-weight="600" class="svg-label">then review</text>
+
+          <rect x="220" y="1192" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="1216" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Save custom settings</text>
+          <text x="420" y="1236" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">and section files</text>
+
+          <rect x="220" y="1286" width="400" height="60" rx="10" class="svg-node"/>
+          <text x="420" y="1310" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Generate preview</text>
+          <text x="420" y="1330" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">and validate output</text>
+
+          <rect x="836" y="1242" width="184" height="68" rx="10" class="svg-node warning"/>
+          <text x="928" y="1268" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Revise content</text>
+          <text x="928" y="1288" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">if preview fails</text>
+
+          <rect x="220" y="1380" width="400" height="60" rx="10" class="svg-node success"/>
+          <text x="420" y="1404" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Generate final custom report</text>
+          <text x="420" y="1424" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">Word or PDF</text>
+
+          <rect x="700" y="1380" width="220" height="60" rx="10" class="svg-node success"/>
+          <text x="810" y="1404" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">E signature</text>
+          <text x="810" y="1424" text-anchor="middle" font-size="14" font-weight="600" class="svg-label">download or delivery</text>
+
+          <rect x="960" y="1390" width="84" height="40" rx="20" class="svg-node success"/>
+          <text x="1002" y="1416" text-anchor="middle" font-size="16" font-weight="600" class="svg-label">End</text>
+
+          <path d="M420 92 L420 144" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 206 L420 224" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 286 L420 390" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 452 L420 484" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M534 556 L834 426" class="svg-edge" marker-end="url(#arrow)"/>
+          <text x="640" y="508" font-size="12" font-weight="600" class="svg-muted">No</text>
+          <path d="M928 460 L928 484" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M1020 520 L1060 520 L1060 1522 L1046 1522" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 626 L420 680" class="svg-edge" marker-end="url(#arrow)"/>
+          <text x="434" y="654" font-size="12" font-weight="600" class="svg-muted">Yes</text>
+          <path d="M620 712 L834 716" class="svg-edge" marker-end="url(#arrow)"/>
+          <text x="700" y="702" font-size="12" font-weight="600" class="svg-muted">Invalid</text>
+          <path d="M928 682 L928 256 L622 256" class="svg-back-edge" marker-end="url(#arrow-warn)"/>
+          <path d="M420 742 L420 780" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 842 L420 880" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 942 L420 984" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 942 C420 962 231 962 231 984" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 942 C420 962 609 962 609 984" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M231 1056 L231 1092" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 1056 L420 1092" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M609 1056 L609 1092" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M231 1152 L231 1174 L420 1174 L420 1190" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 1152 L420 1190" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M609 1152 L609 1174 L420 1174" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M420 1252 L420 1284" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M620 1316 L834 1276" class="svg-back-edge" marker-end="url(#arrow-warn)"/>
+          <text x="674" y="1298" font-size="12" font-weight="600" class="svg-muted">Revise</text>
+          <path d="M928 1242 L928 912 L1020 912" class="svg-back-edge"/>
+          <path d="M420 1346 L420 1378" class="svg-edge" marker-end="url(#arrow)"/>
+          <text x="434" y="1368" font-size="12" font-weight="600" class="svg-muted">Approved</text>
+          <path d="M620 1410 L698 1410" class="svg-edge" marker-end="url(#arrow)"/>
+          <path d="M920 1410 L958 1410" class="svg-edge" marker-end="url(#arrow)"/>
+        </svg>
+      </article>
+    </section>
+
+    <section class="section" aria-labelledby="reusable-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Reusable Capabilities</p>
+          <h2 id="reusable-title">What can be reused for the new feature</h2>
+        </div>
+      </div>
+      <div class="grid-3">
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-edit"/></svg></span>
+            <span class="badge info">Existing page</span>
+          </div>
+          <div>
+            <h3 class="h5">Customised Section</h3>
+            <p>The existing custom section page can act as the workbench for report-level or First Page-level custom content.</p>
+          </div>
+        </article>
+
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-analytics"/></svg></span>
+            <span class="badge pass">Already supported</span>
+          </div>
+          <div>
+            <h3 class="h5">Manual, Auto, Semi-auto</h3>
+            <p>The current data model already separates user-written sections, system-generated sections, and user-triggered auto-fill sections.</p>
+          </div>
+        </article>
+
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-doc"/></svg></span>
+            <span class="badge neutral">Template-driven</span>
+          </div>
+          <div>
+            <h3 class="h5">Template Group</h3>
+            <p>Program-level template groups can define which template and language should be used for a specific report scenario.</p>
+          </div>
+        </article>
+
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-inspection"/></svg></span>
+            <span class="badge info">Content control</span>
+          </div>
+          <div>
+            <h3 class="h5">Result Summary Rules</h3>
+            <p>Existing fields already control whether certain test results appear in the summary and whether summary text can be customised.</p>
+          </div>
+        </article>
+
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-user"/></svg></span>
+            <span class="badge neutral">Governance</span>
+          </div>
+          <div>
+            <h3 class="h5">Action Permissions</h3>
+            <p>Buttons and actions can be controlled through existing action keys, which helps define who can edit, auto-fill, or generate reports.</p>
+          </div>
+        </article>
+
+        <article class="card logic-card">
+          <div class="logic-card-head">
+            <span class="icon-chip"><svg width="20" height="20"><use href="#i-download"/></svg></span>
+            <span class="badge pass">File ready</span>
+          </div>
+          <div>
+            <h3 class="h5">Online Edit and Files</h3>
+            <p>The current online editing and file download logic can support Word section files and final report artefacts.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="product-logic-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Product Logic</p>
+          <h2 id="product-logic-title">How to think about the feature</h2>
+        </div>
+      </div>
+      <div class="split">
+        <article class="card">
+          <h3 class="h5">Template Group is the setup layer</h3>
+          <ul class="plain-list" style="margin-top: var(--space-l);">
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Defines which Program uses which report template.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Supports language-specific report templates.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Uses tags to decide where sections such as Result Summary or Specimen Description are inserted.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Should become the configuration foundation for the future customisable report feature.</span></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3 class="h5">Customised Section is the execution layer</h3>
+          <ul class="plain-list" style="margin-top: var(--space-l);">
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Lets users manage report-specific custom content.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Allows manual editing, system auto-fill, and semi-auto fill with user confirmation.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Works close to the actual report, which is important for First Page-level isolation.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Can provide the user-facing entry point for custom fields, sections, order, and file editing.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="contracts-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Verified Contracts</p>
+          <h2 id="contracts-title">Existing APIs and data concepts to align with</h2>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>What it means for PMs</th>
+                <th>Examples from current logic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Report loading</td>
+                <td>The page fetches report lists, report overview, and report details before users configure content.</td>
+                <td><code>GET /v1.0/order/{id}/reports</code><br><code>GET /v1.0/order/{id}/report-overview</code></td>
+              </tr>
+              <tr>
+                <td>Final report</td>
+                <td>The system supports preview and final report generation after content is prepared.</td>
+                <td><code>generate-final-report</code><br><code>final-report-preview</code></td>
+              </tr>
+              <tr>
+                <td>Template setup</td>
+                <td>AIMS and QIMAlabs already expose template-related APIs for Program/template management.</td>
+                <td><code>report-templates</code><br><code>program-report-option</code><br><code>report-template/list</code></td>
+              </tr>
+              <tr>
+                <td>Custom section</td>
+                <td>Sections can be prepared for semi-auto editing and then edited or downloaded by users.</td>
+                <td><code>PREPARE_SEMI_AUTO_SECTION_FOR_EDIT</code><br><code>SECTION:SEMI_AUTO_PREPARE_FOR_EDIT</code></td>
+              </tr>
+              <tr>
+                <td>Result summary</td>
+                <td>Some result summary content can already be hidden, reviewed, or customised.</td>
+                <td><code>resultSummaryCustomizedOverview</code><br><code>noNeedShowOnSummaryChecked</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="risk-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Risks and Decisions</p>
+          <h2 id="risk-title">What must be clarified before delivery</h2>
+        </div>
+      </div>
+      <div class="grid-2">
+        <article class="card">
+          <div class="banner warning">
+            <svg width="20" height="20"><use href="#i-alert"/></svg>
+            <div>
+              <strong>Highest product risk</strong>
+              <p>Standard reports must continue to behave exactly as they do today when no custom setup is configured.</p>
+            </div>
+          </div>
+          <ul class="risk-list" style="margin-top: var(--space-l);">
+            <li><svg width="20" height="20"><use href="#i-alert"/></svg><span>Customisation must be isolated per First Page. One FP must not change another FP's report.</span></li>
+            <li><svg width="20" height="20"><use href="#i-alert"/></svg><span>Manual edits and auto-generation need clear overwrite rules.</span></li>
+            <li><svg width="20" height="20"><use href="#i-alert"/></svg><span>Missing template language should raise a clear setup issue, not silently fall back.</span></li>
+            <li><svg width="20" height="20"><use href="#i-alert"/></svg><span>Missing section tags in templates should be visible to users or admins.</span></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="banner info">
+            <svg width="20" height="20"><use href="#i-info"/></svg>
+            <div>
+              <strong>Product decisions needed</strong>
+              <p>The first release should define a narrow and testable scope before expanding to full report layout customisation.</p>
+            </div>
+          </div>
+          <ul class="next-list" style="margin-top: var(--space-l);">
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Decide which sections are P0: Result Summary, Specimen Description, Additional Section, Failure Content, or all of them.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Define who can edit, auto-fill, preview, approve, and generate the final report.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Clarify whether users customise at Program level, order level, FP level, or section level.</span></li>
+            <li><svg width="20" height="20"><use href="#i-tick-circle"/></svg><span>Confirm how customised reports should behave with e-signature, final PDF, and report sending.</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="source-title">
+      <div class="section-header">
+        <div class="section-title">
+          <p class="overline">Source Confidence</p>
+          <h2 id="source-title">What was verified and what still needs engineering follow-up</h2>
+        </div>
+      </div>
+      <div class="source-grid">
+        <article class="card source-block">
+          <h3 class="h5">Verified frontend references</h3>
+          <div class="source-line">
+            <span class="caption">Main route</span>
+            <code>report-generation.routes.ts</code>
+          </div>
+          <div class="source-line">
+            <span class="caption">Custom section UI</span>
+            <code>customize-section.component.ts</code>
+          </div>
+          <div class="source-line">
+            <span class="caption">Custom section service</span>
+            <code>customize-section.service.ts</code>
+          </div>
+          <div class="source-line">
+            <span class="caption">Report service</span>
+            <code>report-generation.service.ts</code>
+          </div>
+        </article>
+
+        <article class="card source-block">
+          <h3 class="h5">Follow-up required</h3>
+          <div class="source-line">
+            <span class="caption">Backend repository</span>
+            <span>The real <code>/lab-service-cloud</code> backend repository was not confirmed in the investigation.</span>
+          </div>
+          <div class="source-line">
+            <span class="caption">Backend details</span>
+            <span>Controller, service, entity, database migration, and async job logic need engineering validation.</span>
+          </div>
+          <div class="source-line">
+            <span class="caption">AIMS setup</span>
+            <span>Program Template Group management should be checked to confirm section order and language handling.</span>
+          </div>
+          <div class="source-line">
+            <span class="caption">Real order test</span>
+            <span>A full order walkthrough is needed from Program setup to final report generation.</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="card footer">
+      <span>Prepared for PM discussion &middot; QIMAlabs customisable report feature</span>
+      <span>Recommended next step: confirm backend ownership and align V1 scope</span>
+    </footer>
+  </main>
+</body>
+</html>
