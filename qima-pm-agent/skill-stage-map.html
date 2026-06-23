@@ -522,6 +522,86 @@
       background: var(--carbon);
     }
 
+    .skill-video-library {
+      margin-top: var(--space-l);
+      padding: var(--space-m);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--mist);
+    }
+
+    .skill-video-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-m);
+      margin-bottom: var(--space-m);
+    }
+
+    .skill-video-head h2 {
+      font-size: var(--fs-h5);
+      line-height: var(--lh-h5);
+    }
+
+    .skill-video-note {
+      max-width: 42ch;
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      text-align: right;
+    }
+
+    .skill-video-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-m);
+    }
+
+    .skill-video-card {
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-1);
+    }
+
+    .skill-video-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      padding: var(--space-m);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .skill-video-name {
+      color: var(--fg-1);
+      font: 700 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    }
+
+    .skill-video-stage {
+      color: var(--fg-2);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      white-space: nowrap;
+    }
+
+    .skill-video-card .stage-video {
+      margin: var(--space-m);
+    }
+
+    .skill-video-card .stage-video-button {
+      min-height: 160px;
+    }
+
+    .skill-video-card .stage-video-preview {
+      height: 160px;
+    }
+
+    .skill-video-desc {
+      padding: 0 var(--space-m) var(--space-m);
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
     .agent-board {
       margin-top: var(--space-l);
       padding: var(--space-m);
@@ -771,6 +851,7 @@
       .stage-grid,
       .agent-grid,
       .agent-grid.secondary,
+      .skill-video-grid,
       .timeline {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -789,12 +870,14 @@
       .section-head,
       .agent-board-head,
       .demo-head,
+      .skill-video-head,
       .topbar {
         align-items: flex-start;
         flex-direction: column;
       }
 
       .section-note,
+      .skill-video-note,
       .agent-board-note {
         text-align: left;
       }
@@ -802,6 +885,7 @@
       .stage-grid,
       .agent-grid,
       .agent-grid.secondary,
+      .skill-video-grid,
       .timeline {
         grid-template-columns: 1fr;
       }
@@ -881,17 +965,6 @@
                 <span class="agent-pill pm" data-icon="P">PM Agent</span>
               </div>
             </div>
-            <div class="stage-video">
-              <button class="stage-video-button" type="button" data-video-open="prd-video">
-                <video class="stage-video-preview" preload="metadata" muted playsinline>
-                  <source src="https://raw.githubusercontent.com/asiainspection/PM-/main/qima-pm-agent/prd.mp4" type="video/mp4">
-                </video>
-                <span class="stage-video-overlay">
-                  <span class="stage-video-icon">▶</span>
-                </span>
-              </button>
-              <div class="stage-video-caption">PRD demo video</div>
-            </div>
             <p class="stage-desc">PM Agent turns raw data into a PRD, early design intent, and prototype views for stakeholder confirmation.</p>
           </div>
         </article>
@@ -910,17 +983,6 @@
                 <span class="agent-pill dev" data-icon="D">Developer Agent</span>
                 <span class="agent-pill qa" data-icon="Q">QA Agent</span>
               </div>
-            </div>
-            <div class="stage-video">
-              <button class="stage-video-button" type="button" data-video-open="ticket-breakdown-video">
-                <video class="stage-video-preview" preload="metadata" muted playsinline>
-                  <source src="https://asiainspection.github.io/PM-/qima-pm-agent/ticket-breakdown.mp4" type="video/mp4">
-                </video>
-                <span class="stage-video-overlay">
-                  <span class="stage-video-icon">▶</span>
-                </span>
-              </button>
-              <div class="stage-video-caption">Ticket breakdown demo</div>
             </div>
             <p class="stage-desc">PM Agent iterates PRD and ticket breakdown; Developer Agent checks feasibility and workload; QA Agent reviews testability and validation risk before sprint commitment.</p>
           </div>
@@ -1176,6 +1238,56 @@
             </div>
             <span class="agent-status future">Planned</span>
             <p class="agent-desc">SQL assistance, dashboards, reporting and data pipeline support across QIMA platforms.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="skill-video-library" aria-label="Skill video library">
+        <div class="skill-video-head">
+          <div>
+            <div class="overline">Skill Video Library</div>
+            <h2>Demo videos mapped to PM Agent skills</h2>
+          </div>
+          <p class="skill-video-note">Each skill can have one demo video. Add more cards here as the demo library grows.</p>
+        </div>
+
+        <div class="skill-video-grid">
+          <article class="skill-video-card">
+            <div class="skill-video-card-head">
+              <span class="skill-video-name">write-prd</span>
+              <span class="skill-video-stage">Stage 2 · PRD / Design</span>
+            </div>
+            <div class="stage-video">
+              <button class="stage-video-button" type="button" data-video-open="prd-video">
+                <video class="stage-video-preview" preload="metadata" muted playsinline>
+                  <source src="https://raw.githubusercontent.com/asiainspection/PM-/main/qima-pm-agent/prd.mp4" type="video/mp4">
+                </video>
+                <span class="stage-video-overlay">
+                  <span class="stage-video-icon">▶</span>
+                </span>
+              </button>
+              <div class="stage-video-caption">PRD demo video</div>
+            </div>
+            <p class="skill-video-desc">Turns raw materials into a stakeholder-readable PRD and early design direction.</p>
+          </article>
+
+          <article class="skill-video-card">
+            <div class="skill-video-card-head">
+              <span class="skill-video-name">ticket-breakdown</span>
+              <span class="skill-video-stage">Stage 3-4 · Grooming / Planning</span>
+            </div>
+            <div class="stage-video">
+              <button class="stage-video-button" type="button" data-video-open="ticket-breakdown-video">
+                <video class="stage-video-preview" preload="metadata" muted playsinline>
+                  <source src="https://asiainspection.github.io/PM-/qima-pm-agent/ticket-breakdown.mp4" type="video/mp4">
+                </video>
+                <span class="stage-video-overlay">
+                  <span class="stage-video-icon">▶</span>
+                </span>
+              </button>
+              <div class="stage-video-caption">Ticket breakdown demo</div>
+            </div>
+            <p class="skill-video-desc">Uses PRD context to break work into Epic and User Stories for downstream planning.</p>
           </article>
         </div>
       </section>
