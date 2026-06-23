@@ -530,6 +530,110 @@
       background: var(--mist);
     }
 
+    .real-example {
+      margin-top: var(--space-l);
+      padding: var(--space-l);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-surface);
+      box-shadow: var(--shadow-1);
+    }
+
+    .real-example-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-l);
+      margin-bottom: var(--space-l);
+    }
+
+    .real-example-title {
+      max-width: 760px;
+    }
+
+    .real-example-title h2 {
+      margin-top: var(--space-xs);
+      font-size: var(--fs-h5);
+      line-height: var(--lh-h5);
+    }
+
+    .real-example-summary {
+      max-width: 78ch;
+      color: var(--fg-2);
+      font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    }
+
+    .real-example-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+    }
+
+    .real-example-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 10px;
+      border: 1px solid rgba(158, 20, 27, 0.18);
+      border-radius: var(--radius-md);
+      background: var(--qima-red-bg);
+      color: var(--qima-red-900);
+      font: 700 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      text-decoration: none;
+    }
+
+    .real-example-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: var(--space-m);
+    }
+
+    .real-example-panel {
+      padding: var(--space-m);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      background: var(--mist);
+    }
+
+    .real-example-panel h3 {
+      margin-bottom: var(--space-s);
+      color: var(--fg-1);
+      font: 700 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    }
+
+    .real-example-list {
+      display: grid;
+      gap: var(--space-xs);
+      list-style: none;
+    }
+
+    .real-example-list li {
+      position: relative;
+      padding-left: 16px;
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
+    .real-example-list li::before {
+      content: "";
+      position: absolute;
+      top: 7px;
+      left: 0;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--qima-red);
+    }
+
+    .ticket-placeholder {
+      padding: var(--space-s);
+      border: 1px dashed var(--cloud);
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    }
+
     .skill-video-head {
       display: flex;
       align-items: flex-end;
@@ -850,6 +954,7 @@
       .stage-grid,
       .agent-grid,
       .agent-grid.secondary,
+      .real-example-grid,
       .skill-video-grid,
       .timeline {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -869,6 +974,7 @@
       .section-head,
       .agent-board-head,
       .demo-head,
+      .real-example-head,
       .skill-video-head,
       .topbar {
         align-items: flex-start;
@@ -884,6 +990,7 @@
       .stage-grid,
       .agent-grid,
       .agent-grid.secondary,
+      .real-example-grid,
       .skill-video-grid,
       .timeline {
         grid-template-columns: 1fr;
@@ -1238,6 +1345,37 @@
             <span class="agent-status future">Planned</span>
             <p class="agent-desc">SQL assistance, dashboards, reporting and data pipeline support across QIMA platforms.</p>
           </article>
+        </div>
+      </section>
+
+      <section class="real-example" aria-label="Real example: customize report">
+        <div class="real-example-head">
+          <div class="real-example-title">
+            <div class="overline">Real Example</div>
+            <h2>Customize Report · QIMAlabs customized client report function</h2>
+          </div>
+          <div class="real-example-links">
+            <a class="real-example-link" href="https://qima.atlassian.net/wiki/spaces/~712020ecbf716a59e94d2a8609e98257794ace/pages/4659380230/PRD+QIMAlabs+Customized+Client+Report+Function" target="_blank" rel="noopener">AI-written PRD</a>
+            <a class="real-example-link" href="https://qima.atlassian.net/browse/SP-29273" target="_blank" rel="noopener">Epic SP-29273</a>
+          </div>
+        </div>
+
+        <p class="real-example-summary">This example covers a customized client report capability for QIMAlabs: clients need report formats that better match their own templates, stakeholder preferences, and downstream sharing needs. The AI workflow starts from raw demand materials, turns them into a PRD, then supports Epic and User Story preparation for grooming and planning.</p>
+
+        <div class="real-example-grid">
+          <div class="real-example-panel">
+            <h3>How AI improves the workflow</h3>
+            <ul class="real-example-list">
+              <li>Converts scattered meeting notes, SOPs, examples, and report-template requests into a structured PRD.</li>
+              <li>Helps PMs clarify missing context through conversational questions before handoff.</li>
+              <li>Accelerates grooming by breaking the approved PRD into Epic and User Stories.</li>
+              <li>Supports ticket refinement after PM, developer, and QA alignment.</li>
+            </ul>
+          </div>
+          <div class="real-example-panel">
+            <h3>PRD tickets</h3>
+            <div class="ticket-placeholder">Jira ticket list could not be loaded in this run because the Atlassian MCP search/JQL connection timed out. Source Epic: SP-29273.</div>
+          </div>
         </div>
       </section>
 
