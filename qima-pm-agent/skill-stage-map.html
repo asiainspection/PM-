@@ -585,7 +585,7 @@
 
     .real-example-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: var(--space-m);
     }
 
@@ -602,37 +602,19 @@
       font: 700 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
     }
 
-    .real-example-list {
-      display: grid;
-      gap: var(--space-xs);
-      list-style: none;
-    }
-
-    .real-example-list li {
-      position: relative;
-      padding-left: 16px;
+    .real-example-panel p {
       color: var(--fg-2);
       font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
     }
 
-    .real-example-list li::before {
-      content: "";
-      position: absolute;
-      top: 7px;
-      left: 0;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--qima-red);
+    .real-example-panel a {
+      color: var(--elderberry);
+      font-weight: 700;
+      text-decoration: none;
     }
 
-    .ticket-placeholder {
-      padding: var(--space-s);
-      border: 1px dashed var(--cloud);
-      border-radius: var(--radius-md);
-      background: var(--bg-surface);
-      color: var(--fg-2);
-      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    .real-example-panel a:hover {
+      text-decoration: underline;
     }
 
     .skill-video-head {
@@ -1355,23 +1337,24 @@
             <div class="overline">Real Example</div>
             <h2>Customize Report · QIMAlabs customized client report function</h2>
           </div>
-          <div class="real-example-links">
-            <a class="real-example-link" href="https://asiainspection.github.io/PM-/qima-pm-agent/qimalabs-customize-report-logic.html" target="_blank" rel="noopener">Codebase understanding</a>
-          </div>
         </div>
 
         <div class="real-example-grid">
           <div class="real-example-panel">
-            <h3>How AI improves the workflow</h3>
-            <ul class="real-example-list">
-              <li>Turns raw demand materials into a structured PRD.</li>
-              <li>Breaks the PRD into Epic and User Stories for grooming.</li>
-              <li>Refines tickets after PM, developer, and QA alignment.</li>
-            </ul>
+            <h3>Raw data to PRD</h3>
+            <p>Turns scattered meeting notes, SOPs, examples, and report-template requests into a structured <a href="https://qima.atlassian.net/wiki/spaces/~712020ecbf716a59e94d2a8609e98257794ace/pages/4659380230/PRD+QIMAlabs+Customized+Client+Report+Function" target="_blank" rel="noopener">AI-written PRD</a>.</p>
           </div>
           <div class="real-example-panel">
-            <h3>PRD tickets</h3>
-            <div class="ticket-placeholder">Jira ticket list could not be loaded in this run because the Atlassian MCP search/JQL connection timed out. Source Epic: SP-29273.</div>
+            <h3>Codebase understanding</h3>
+            <p>Maps the current report logic and technical context before drafting requirements. See <a href="https://asiainspection.github.io/PM-/qima-pm-agent/qimalabs-customize-report-logic.html" target="_blank" rel="noopener">codebase understanding</a>.</p>
+          </div>
+          <div class="real-example-panel">
+            <h3>Epic and stories</h3>
+            <p>Breaks the approved PRD into planning-ready work under <a href="https://qima.atlassian.net/browse/SP-29273" target="_blank" rel="noopener">Epic SP-29273</a>.</p>
+          </div>
+          <div class="real-example-panel">
+            <h3>Ticket refinement</h3>
+            <p>Refines tickets after PM, developer, and QA alignment so the team can enter planning with clearer scope.</p>
           </div>
         </div>
       </section>
