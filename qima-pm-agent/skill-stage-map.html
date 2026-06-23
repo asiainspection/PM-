@@ -567,8 +567,8 @@
     .skill-video-card-head {
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-m);
+      flex-direction: column;
+      gap: 4px;
       padding: var(--space-m);
       border-bottom: 1px solid var(--border-default);
     }
@@ -581,7 +581,6 @@
     .skill-video-stage {
       color: var(--fg-2);
       font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
-      white-space: nowrap;
     }
 
     .skill-video-card .stage-video {
