@@ -532,7 +532,9 @@
 
     .real-example {
       margin-top: var(--space-l);
-      padding: var(--space-l);
+      margin-right: calc(-1 * var(--space-l));
+      margin-left: calc(-1 * var(--space-l));
+      padding: var(--space-xl) var(--space-xl);
       border: 1px solid var(--border-default);
       border-radius: var(--radius-lg);
       background: var(--bg-surface);
@@ -558,10 +560,10 @@
     }
 
     .real-example-summary {
-      max-width: 78ch;
+      max-width: 140ch;
       margin-top: var(--space-xs);
       color: var(--fg-2);
-      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
     }
 
     .real-example-links {
