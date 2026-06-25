@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QIMAlabs Access Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --qima-red: #e4002b;
+      --qima-red-bg: #fdefef;
+      --primary-pool: #4169e1;
+      --primary-pool-dark: #1e46bd;
+      --primary-pool-bg: #eef2ff;
+      --white: #ffffff;
+      --mist: #f7f7f7;
+      --seal: #f0f0f0;
+      --cloud: #dedede;
+      --pearl: #bfbfbf;
+      --ash: #979797;
+      --stone: #737373;
+      --slate: #3e3e3e;
+      --carbon: #191919;
+      --cherry-050: #fdefef;
+      --cherry-500: #e5353d;
+      --cherry-900: #9e141b;
+      --orange-050: #fcf2e6;
+      --orange-500: #f58f00;
+      --orange-900: #b26309;
+      --lemon-050: #fff9e7;
+      --lemon-900: #bd8a00;
+      --kiwi-050: #eaf6f2;
+      --kiwi-500: #00a876;
+      --kiwi-900: #006648;
+      --border: rgba(0, 0, 0, 0.1);
+      --shadow-0: 0 1px 2px rgba(25, 25, 25, 0.08);
+      --shadow-1: 0 2px 4px rgba(25, 25, 25, 0.1);
+      --shadow-2: 0 4px 12px rgba(25, 25, 25, 0.15);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-cjk: 'Noto Sans SC', 'Inter', sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, Menlo, monospace;
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    *:not(textarea)::-webkit-scrollbar-track { box-shadow: inset 0 0 2px var(--mist); border-radius: 16px; }
+    *:not(textarea)::-webkit-scrollbar { width: 4px; height: 4px; }
+    *:not(textarea)::-webkit-scrollbar-thumb {
+      border-radius: 16px;
+      background-color: var(--cloud);
+      transition: background-color .25s ease-in-out;
+    }
+    *:not(textarea)::-webkit-scrollbar-thumb:hover { background-color: #b3b3b3; }
+    body {
+      min-height: 100vh;
+      font: 400 14px/1.5 var(--font-cjk);
+      color: var(--carbon);
+      background: var(--mist);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 4.5em;
+      min-height: 4.5em;
+      max-height: 4.5em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 0 1.25em;
+      background: var(--white);
+      box-shadow: inset 0 -0.0625em var(--cloud);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand svg { width: 10.125em; height: 1.25em; }
+    .system-switcher,
+    .icon-btn {
+      height: 2em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--stone);
+    }
+    .system-switcher { padding: 0 10px; white-space: nowrap; }
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .icon-btn { width: 2em; transition: background 200ms var(--ease), color 200ms var(--ease); }
+    .icon-btn:hover,
+    .system-switcher:hover { background: var(--seal); color: var(--carbon); }
+    .avatar {
+      width: 2em;
+      height: 2em;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--orange-050);
+      color: var(--orange-900);
+      font-weight: 700;
+    }
+
+    .layout { min-height: 100vh; }
+    .sidebar {
+      position: fixed;
+      top: 4.5em;
+      left: 0;
+      z-index: 30;
+      width: 4.75em;
+      min-width: 4.75em;
+      max-width: 4.75em;
+      height: calc(100vh - 4.5em);
+      padding: 0.5em;
+      border-right: 0;
+      box-shadow: inset -0.0625em 0 var(--cloud);
+      background: var(--white);
+      overflow-y: auto;
+    }
+    .nav { display: grid; gap: 6px; }
+    .nav button {
+      width: 100%;
+      min-height: 3.75em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      padding: 12px;
+      border: 0;
+      border-radius: 0.5em;
+      background: transparent;
+      color: var(--stone);
+      text-align: center;
+    }
+    .nav button svg { width: 20px; height: 20px; }
+    .nav button { font-size: 0; }
+    .nav button:hover,
+    .nav button.active { background: var(--primary-pool-bg); color: var(--primary-pool); }
+    .main {
+      width: calc(100vw - 4.75em);
+      min-width: calc(100vw - 4.75em);
+      max-width: calc(100vw - 4.75em);
+      height: calc(100vh - 4.5em);
+      margin-top: 4.5em;
+      margin-left: 4.75em;
+      padding: 1.5em;
+      overflow: auto;
+      transition: .2s ease-in-out;
+    }
+    .page { display: none; max-width: none; margin: 0; }
+    .page.active { display: block; }
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 1em;
+    }
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--stone);
+      font: 600 11px/12px var(--font-sans);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: 1.625em; font-style: normal; font-weight: 400; letter-spacing: normal; line-height: 1.2307692308em; color: var(--carbon); }
+    .subtitle { max-width: 760px; margin-top: 8px; color: var(--stone); font: 400 15px/24px var(--font-cjk); }
+    .actions { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--carbon);
+      font: 600 13px/18px var(--font-sans);
+      transition: background 200ms var(--ease), border-color 200ms var(--ease), color 200ms var(--ease);
+    }
+    .btn:hover { background: var(--seal); }
+    .btn.primary { border-color: var(--primary-pool); background: var(--primary-pool); color: var(--white); }
+    .btn.primary:hover { background: var(--primary-pool-dark); }
+    .btn.danger { border-color: var(--cherry-500); background: var(--cherry-050); color: var(--cherry-900); }
+    .btn.disabled { opacity: .45; pointer-events: none; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .grid { display: grid; gap: 12px; }
+    .grid > *, .card, .page { min-width: 0; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: minmax(0, 1fr) 380px; }
+    .grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      box-shadow: none;
+    }
+    #users > .card,
+    #page-permissions > .card { padding: 0; }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .card-title { font: 600 16px/20px var(--font-cjk); letter-spacing: -0.01em; }
+    .card-kicker { margin-top: 4px; color: var(--stone); font: 400 12px/16px var(--font-cjk); }
+    .metric { min-height: 132px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric label { display: flex; align-items: center; gap: 8px; color: var(--stone); font-weight: 500; }
+    .metric strong { display: block; margin-top: 16px; font: 400 34px/40px var(--font-sans); letter-spacing: -0.02em; }
+    .metric footer { padding-top: 12px; border-top: 1px solid var(--border); color: var(--stone); font-size: 12px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: 999px;
+      font: 600 12px/16px var(--font-sans);
+      white-space: nowrap;
+    }
+    .badge.pool { background: var(--primary-pool-bg); color: var(--primary-pool-dark); }
+    .badge.pass { background: var(--kiwi-050); color: var(--kiwi-900); }
+    .badge.warn { background: var(--orange-050); color: var(--orange-900); }
+    .badge.fail { background: var(--cherry-050); color: var(--cherry-900); }
+    .badge.minor { background: var(--lemon-050); color: var(--lemon-900); }
+    .badge.neutral { background: var(--seal); color: var(--slate); }
+    .muted { color: var(--stone); }
+    .mono { font-family: var(--font-mono); }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+    .filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .control {
+      height: 36px;
+      min-width: 148px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--carbon);
+      caret-color: var(--primary-pool);
+    }
+    .control:hover,
+    .field input:hover,
+    .field select:hover,
+    .field textarea:hover,
+    .qima-pagination select:hover,
+    .qima-pagination input:hover {
+      border-color: var(--primary-pool);
+      box-shadow: inset 0 0 0 1px var(--primary-pool);
+    }
+    .control:focus,
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus,
+    .qima-pagination select:focus,
+    .qima-pagination input:focus {
+      outline: 0;
+      border-color: var(--primary-pool);
+      box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.25), inset 0 0 0 1px var(--primary-pool);
+    }
+    .control.search-input { min-width: 280px; }
+    .table-wrap { overflow: auto; border: 0; border-radius: 0; background: var(--white); }
+    table { width: 100%; border-collapse: collapse; font: 400 13px/20px var(--font-cjk); }
+    table.compact { table-layout: fixed; }
+    table.compact th, table.compact td { padding: 12px; }
+    table.compact .file {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    table.compact .num { width: 68px; }
+    table.compact .service { width: 132px; }
+    table.compact .status { width: 104px; }
+    th {
+      height: 2.8125em;
+      padding: 12px;
+      text-align: left;
+      color: var(--stone);
+      background: var(--mist);
+      border-bottom: 1px solid var(--border);
+      font: 600 12px/16px var(--font-sans);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #f2f5fd; color: #153184; }
+
+    #users-table tbody tr.user-row { cursor: pointer; }
+    #users-table .select-col { width: 2.5em; padding-left: 12px; padding-right: 8px; text-align: center; }
+    #users-table .row-check,
+    #select-all-users {
+      width: 1.25em;
+      height: 1.25em;
+      min-width: 1.25em;
+      max-width: 1.25em;
+      min-height: 1.25em;
+      max-height: 1.25em;
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-grid;
+      place-items: center;
+      margin: 0;
+      border: 1px solid var(--primary-pool);
+      border-radius: 4px;
+      background: var(--white);
+      cursor: pointer;
+    }
+    #users-table .row-check::before,
+    #select-all-users::before {
+      content: "";
+      width: 0.55em;
+      height: 0.3em;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translateY(-1px) scale(0);
+    }
+    #users-table .row-check:checked,
+    #select-all-users:checked,
+    #select-all-users:indeterminate {
+      background: var(--primary-pool);
+      border-color: var(--primary-pool);
+    }
+    #users-table .row-check:checked::before,
+    #select-all-users:checked::before {
+      transform: rotate(-45deg) translateY(-1px) scale(1);
+    }
+    #select-all-users:indeterminate::before {
+      width: 0.6em;
+      height: 0;
+      border-left: 0;
+      border-bottom: 2px solid #fff;
+      transform: scale(1);
+    }
+    #users-table tr:has(.row-check:checked) { background: var(--primary-pool-bg); }
+    #users-table tr:has(.row-check:checked):hover { background: #e3e9ff; }
+    #users-table tr.row-dirty { background: var(--lemon-050); }
+    #users-table tr.row-dirty:hover { background: #fff4cc; }
+    #users-table .role-tags,
+    .permission-table .role-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    #users-table .role-tag,
+    .permission-table .role-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--primary-pool-bg);
+      color: var(--primary-pool-dark);
+      font: 600 11px/16px var(--font-sans);
+    }
+    #users-table .cell-muted { color: var(--stone); }
+    .role-permission-workspace {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: calc(100vh - 14.25em);
+      background: var(--white);
+    }
+    .role-panel {
+      border-right: 1px solid var(--border);
+      background: #fbfbfb;
+    }
+    .role-panel__header {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .role-panel__title { font: 600 14px/20px var(--font-cjk); }
+    .role-panel__header .btn {
+      min-height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+    .role-list {
+      max-height: calc(100vh - 17.25em);
+      overflow: auto;
+      padding: 10px 8px;
+    }
+    .role-group { margin-bottom: 10px; }
+    .role-group__title {
+      margin: 8px 6px 4px;
+      color: var(--ash);
+      font: 600 11px/16px var(--font-sans);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .role-item {
+      width: 100%;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--slate);
+      text-align: left;
+      font: 500 13px/18px var(--font-cjk);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .role-item:hover { background: var(--seal); }
+    .role-item.active {
+      background: var(--primary-pool-bg);
+      color: var(--primary-pool-dark);
+      box-shadow: inset 3px 0 0 var(--primary-pool);
+    }
+    .role-item .role-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-grid;
+      place-items: center;
+      color: var(--primary-pool);
+      font-size: 12px;
+    }
+    .role-item.custom .role-icon { color: var(--orange-900); }
+    .role-item span:last-child { min-width: 0; }
+    .permission-board {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+    }
+    .role-summary {
+      min-height: 72px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #f8faff 0%, var(--white) 100%);
+    }
+    .role-summary h2 { font: 600 18px/24px var(--font-cjk); }
+    .role-summary p { max-width: 720px; margin-top: 4px; color: var(--stone); font: 400 13px/20px var(--font-cjk); }
+    .permission-toolbar {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+    .permission-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      gap: 12px;
+      padding: 12px;
+      background: var(--mist);
+      overflow: auto;
+    }
+    .permission-column {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      box-shadow: var(--shadow-0);
+    }
+    .permission-column__title {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfbfb;
+      color: var(--carbon);
+      font: 600 13px/18px var(--font-cjk);
+    }
+    .permission-tree {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 12px;
+      padding: 12px;
+    }
+    .permission-page {
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fbfbfb;
+      overflow: hidden;
+    }
+    .permission-page__title {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+      color: var(--carbon);
+      font: 600 13px/18px var(--font-cjk);
+    }
+    .permission-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px 8px;
+      padding: 8px;
+    }
+    .permission-node {
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 4px;
+      color: var(--slate);
+      font: 400 13px/18px var(--font-cjk);
+      cursor: pointer;
+    }
+    .permission-node:hover { background: #f2f5fd; }
+    .permission-node.active { background: var(--primary-pool-bg); color: var(--primary-pool-dark); }
+    .permission-node.child {
+      align-items: flex-start;
+      color: var(--stone);
+    }
+    .permission-node .expand {
+      width: 10px;
+      flex: 0 0 10px;
+      color: var(--ash);
+      font-size: 10px;
+    }
+    .permission-check {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      accent-color: var(--primary-pool);
+      margin-top: 1px;
+    }
+    .table-hint {
+      margin-top: 12px;
+      color: var(--ash);
+      font: 400 12px/16px var(--font-sans);
+    }
+    #users .eyebrow,
+    #users .table-hint { display: none; }
+    #users .page-header {
+      align-items: center;
+      min-height: 2.25em;
+    }
+    #users .table-wrap {
+      max-height: calc(100vh - 18.25em);
+    }
+    #page-permissions .page-header {
+      align-items: center;
+      min-height: 2.25em;
+    }
+    #page-permissions .table-wrap {
+      max-height: calc(100vh - 18.25em);
+    }
+    .qima-pagination {
+      min-height: 3em;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1.25em;
+      padding: 0 1em;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      color: var(--stone);
+      font: 400 13px/20px var(--font-sans);
+    }
+    .qima-pagination select,
+    .qima-pagination input {
+      height: 2.25em;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--carbon);
+    }
+    .qima-pagination select { min-width: 5em; padding: 0 0.5em; }
+    .qima-pagination input { width: 3.5em; padding: 0 0.5em; text-align: center; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(25, 25, 25, 0.45);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 200ms var(--ease), visibility 200ms var(--ease);
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .modal {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 48px);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      box-shadow: 0 12px 32px rgba(25, 25, 25, 0.18);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 200ms var(--ease);
+    }
+    .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 20px 0;
+    }
+    .modal-header h2 {
+      margin-top: 4px;
+      font: 600 20px/28px var(--font-cjk);
+      letter-spacing: -0.02em;
+    }
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      font-size: 22px;
+      line-height: 1;
+    }
+    .modal-body {
+      padding: 16px 20px;
+      overflow: auto;
+    }
+    .modal-note {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 4px;
+      background: var(--primary-pool-bg);
+      color: var(--primary-pool-dark);
+      font-weight: 600;
+    }
+    .modal-body .form-grid { grid-template-columns: 1fr 1fr; }
+    .modal-body .field.full-width { grid-column: 1 / -1; }
+    .role-checklist {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--mist);
+    }
+    .role-checklist label {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--slate);
+      cursor: pointer;
+      font: 600 13px/18px var(--font-cjk);
+      transition: background 160ms var(--ease), border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+    }
+    .role-checklist label span {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .role-checklist label:hover {
+      border-color: rgba(65, 105, 225, 0.36);
+      background: var(--primary-pool-bg);
+    }
+    .role-checklist label:has(input:checked) {
+      border-color: rgba(65, 105, 225, 0.48);
+      background: var(--primary-pool-bg);
+      color: var(--primary-pool-dark);
+      box-shadow: inset 0 0 0 1px rgba(65, 105, 225, 0.14);
+    }
+    .role-checklist input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      min-height: 18px;
+      max-width: 18px;
+      max-height: 18px;
+      flex: none;
+      appearance: none;
+      -webkit-appearance: none;
+      display: grid;
+      place-items: center;
+      margin: 0;
+      padding: 0;
+      border: 1.5px solid var(--pearl);
+      border-radius: 5px;
+      background: var(--white);
+      cursor: pointer;
+    }
+    .role-checklist input[type="checkbox"]::before {
+      content: "";
+      width: 9px;
+      height: 5px;
+      border-left: 2px solid var(--white);
+      border-bottom: 2px solid var(--white);
+      transform: rotate(-45deg) translateY(-1px) scale(0);
+      transition: transform 120ms var(--ease);
+    }
+    .role-checklist input[type="checkbox"]:checked {
+      border-color: var(--primary-pool);
+      background: var(--primary-pool);
+    }
+    .role-checklist input[type="checkbox"]:checked::before { transform: rotate(-45deg) translateY(-1px) scale(1); }
+    .role-checklist input[type="checkbox"]:focus-visible {
+      outline: 2px solid rgba(65, 105, 225, 0.42);
+      outline-offset: 2px;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 0 20px 20px;
+    }
+    .modal-delete { margin-right: auto; }
+
+    .save-toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 50;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 1px solid rgba(0, 166, 118, 0.25);
+      border-radius: 4px;
+      background: var(--kiwi-050);
+      color: var(--kiwi-900);
+      font-weight: 600;
+      box-shadow: var(--shadow-2);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 200ms var(--ease), transform 200ms var(--ease);
+    }
+    .save-toast.show { opacity: 1; transform: translateY(0); }
+
+    .tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
+    .tab {
+      height: 44px;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--stone);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--primary-pool-dark); border-bottom-color: var(--primary-pool); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .step {
+      min-height: 72px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--mist);
+    }
+    .step.active { border-color: rgba(65, 105, 225, 0.45); background: var(--primary-pool-bg); }
+    .step.blocked { background: var(--seal); opacity: .72; }
+    .step strong { display: block; margin-bottom: 4px; font: 600 13px/18px var(--font-cjk); }
+    .step span { color: var(--stone); font-size: 12px; }
+
+    .import-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field label { color: var(--slate); font-weight: 600; font-size: 13px; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 36px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--carbon);
+      caret-color: var(--primary-pool);
+    }
+    .field textarea { min-height: 84px; resize: vertical; }
+    .field.error input { border-color: var(--cherry-500); background: var(--cherry-050); }
+    .help { color: var(--stone); font-size: 12px; }
+    .error-text { color: var(--cherry-900); font-size: 12px; }
+    .result-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .result-box { padding: 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--mist); }
+    .result-box span { display: block; color: var(--stone); font-size: 12px; }
+    .result-box strong { display: block; margin-top: 4px; font: 500 24px/32px var(--font-sans); }
+    .impact-list { display: grid; gap: 8px; margin-top: 16px; }
+    .impact-list div { padding: 10px 12px; border-radius: 8px; background: var(--white); border: 1px solid var(--border); }
+
+    .summary { display: grid; gap: 12px; }
+    .summary-row { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .summary-row:last-child { padding-bottom: 0; border-bottom: 0; }
+    .summary-row label { color: var(--stone); }
+    .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: 999px; background: var(--primary-pool-bg); color: var(--primary-pool-dark); font: 600 12px/16px var(--font-cjk); }
+    .tag.gray { background: var(--seal); color: var(--slate); }
+
+    svg.icon { width: 18px; height: 18px; flex: none; }
+    @media (max-width: 1180px) {
+      .grid.three, .grid.two, .grid.four, .import-grid, .form-grid, .result-grid { grid-template-columns: 1fr; }
+      .stepper { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 860px) {
+      .topbar { height: auto; min-height: 72px; flex-wrap: wrap; padding: 16px; }
+      .brand { min-width: 0; width: 100%; }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+      .nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .main { padding: 16px; }
+      .page-header { flex-direction: column; }
+      .actions { justify-content: flex-start; }
+      .stepper { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; line-height: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-menu" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l6 6 6-6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.8a1 1 0 0 1 .88.52l8 14a1 1 0 0 1-.88 1.48H2a1 1 0 0 1-.88-1.48l8-14A1 1 0 0 1 10 1.8zm0 5.2a.8.8 0 0 0-.8.8v4a.8.8 0 0 0 1.6 0V7.8a.8.8 0 0 0-.8-.8zm0 8.4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm0 3.8a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zm1.2 9.2h-2.4V9.2h2.4v5.3z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5 2.8h6.5L16 7.3v9.9H5z"/><path d="M11.5 3v4.5H16M7.5 11h5M7.5 14h4" stroke-linecap="round"/></symbol>
+    <symbol id="i-user" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="7" r="3.4"/><path d="M3.2 17.5a6.8 6.8 0 0 1 13.6 0z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4" y="8.4" width="12" height="8.2" rx="1.4"/><path d="M7.2 8.4V6.3a2.8 2.8 0 0 1 5.6 0v2.1"/><path d="M10 11.2v2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-download" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5 9l5 5 5-5M3 17h14"/></symbol>
+  </svg>
+
+  <header class="app-header topbar">
+    <div class="app-header__logo brand">
+      <button class="icon-btn" type="button" aria-label="Collapse navigation" title="Menu"><svg class="icon"><use href="#i-menu"/></svg></button>
+      <svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA">
+        <path fill="#e4002b" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/>
+      </svg>
+    </div>
+    <button class="system-switcher" type="button">QIMAlabs &middot; PROD <svg class="icon"><use href="#i-chevron-down"/></svg></button>
+    <div class="top-actions">
+      <div class="avatar">A</div>
+    </div>
+  </header>
+
+  <div class="app-main layout">
+    <aside class="app-aside app-aside--collapsed sidebar">
+      <nav class="app-aside__container nav" aria-label="QIMAlabs access navigation">
+        <button class="active" data-page="users" type="button" title="User Access" aria-label="User Access"><svg class="icon"><use href="#i-user"/></svg>User Access</button>
+        <button data-page="page-permissions" type="button" title="Page Permissions" aria-label="Page Permissions"><svg class="icon"><use href="#i-lock"/></svg>Page Permissions</button>
+        <button data-page="import" type="button" title="Import Center" aria-label="Import Center"><svg class="icon"><use href="#i-download"/></svg>Import Center</button>
+        <button data-page="audit" type="button" title="Audit Log" aria-label="Audit Log"><svg class="icon"><use href="#i-doc"/></svg>Audit Log</button>
+      </nav>
+    </aside>
+
+    <main class="main-content main-content--collapsed main">
+      <section class="page" id="import">
+        <div class="page-header">
+          <div>
+            <div class="eyebrow">Validation-first import</div>
+            <h1>批量导入中心</h1>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" data-tab="user-role" type="button">User Role</button>
+            <button class="tab" data-tab="role-permission" type="button">Role Permission</button>
+            <button class="tab" data-tab="user-team" type="button">User Team</button>
+          </div>
+          <div class="stepper">
+            <div class="step active"><strong>1. Upload</strong><span>Excel / CSV</span></div>
+            <div class="step active"><strong>2. Validate</strong><span>Check data</span></div>
+            <div class="step"><strong>3. Import</strong><span>Submit file</span></div>
+          </div>
+
+          <div class="tab-panel active" id="user-role">
+            <div class="import-grid">
+              <div>
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">User Role Import</div>
+                  </div>
+                  <span class="badge pool">POST /v1.0/data-import/user-role</span>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Environment</label><select><option>PROD</option><option>UAT</option><option>DEV</option></select></div>
+                  <div class="field"><label>Template</label><button class="btn" type="button">Download user-role template</button></div>
+                  <div class="field"><label>Upload file</label><input type="file"></div>
+                  <div class="field"><label>Change reason</label><input value="June QIMAlabs role update"></div>
+                </div>
+                <div class="result-grid">
+                  <div class="result-box"><span>Total rows</span><strong>546</strong></div>
+                  <div class="result-box"><span>Valid rows</span><strong>528</strong></div>
+                  <div class="result-box"><span>Warnings</span><strong>15</strong></div>
+                  <div class="result-box"><span>Errors</span><strong>3</strong></div>
+                </div>
+                <div class="actions" style="justify-content:flex-start;margin-top:16px;">
+                  <button class="btn" type="button">Validate</button>
+                  <button class="btn primary" type="button">Import</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="role-permission">
+            <div class="import-grid">
+              <div>
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Role Permission Import</div>
+                  </div>
+                  <span class="badge pool">POST /v1.0/data-import/role-resource</span>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Environment</label><select><option>PROD</option><option>UAT</option><option>DEV</option></select></div>
+                  <div class="field"><label>Template</label><button class="btn" type="button">Download role-resource template</button></div>
+                  <div class="field error"><label>Upload file</label><input value="Permission(Sheet1).csv"><div class="error-text">3 Permission Keys are not recognised by Auth2 resources.</div></div>
+                  <div class="field"><label>Change reason</label><input value="Refresh ReportGeneration permission matrix"></div>
+                </div>
+                <div class="result-grid">
+                  <div class="result-box"><span>Total keys</span><strong>42</strong></div>
+                  <div class="result-box"><span>Valid</span><strong>39</strong></div>
+                  <div class="result-box"><span>Warnings</span><strong>4</strong></div>
+                  <div class="result-box"><span>Errors</span><strong>3</strong></div>
+                </div>
+                <div class="actions" style="justify-content:flex-start;margin-top:16px;">
+                  <button class="btn" type="button">Validate</button>
+                  <button class="btn primary" type="button">Import</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="user-team">
+            <div class="import-grid">
+              <div>
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">User Team Import</div>
+                  </div>
+                  <span class="badge pool">POST /v1.0/data-import/team-user</span>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Environment</label><select><option>PROD</option><option>UAT</option><option>DEV</option></select></div>
+                  <div class="field"><label>Template</label><button class="btn" type="button">Download team-user template</button></div>
+                  <div class="field"><label>Upload file</label><input type="file"></div>
+                  <div class="field"><label>Change reason</label><input value="Update To Do List team visibility"></div>
+                </div>
+                <div class="actions" style="justify-content:flex-start;margin-top:16px;">
+                  <button class="btn" type="button">Validate</button>
+                  <button class="btn primary" type="button">Import</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page active" id="users">
+        <div class="page-header">
+          <div>
+            <div class="eyebrow">QIMAlabs access</div>
+            <h1>用户权限</h1>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button">Refresh</button>
+            <button class="btn" id="batch-assign-button" type="button" disabled>Batch assign roles</button>
+            <button class="btn danger" id="batch-delete-button" type="button" disabled>Batch delete</button>
+            <button class="btn primary" id="add-user-button" type="button">Add user</button>
+            <button class="btn" data-page="import" type="button">Go to import</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-toolbar">
+            <div class="filters">
+              <input class="control search-input" value="" placeholder="Search user name or email">
+              <select class="control"><option>All roles</option><option>First-Page Approve</option><option>Department approver</option><option>Result table editor</option></select>
+            </div>
+            <button class="btn primary" type="button">Search</button>
+          </div>
+          <div class="table-wrap">
+            <table id="users-table">
+              <thead><tr><th class="select-col"><input id="select-all-users" type="checkbox" aria-label="Select all users"></th><th>User name</th><th>Email address</th><th>Role in QIMAlabs</th><th>Update time</th><th>Location</th></tr></thead>
+              <tbody>
+                <tr class="user-row"><td data-field="name">Kyle Yao</td><td data-field="email">kyle.yao@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
+                <tr class="user-row"><td data-field="name">Rebecca Cheng</td><td data-field="email">rebecca.cheng@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
+                <tr class="user-row"><td data-field="name">Pearl Tse</td><td data-field="email">pearl.tse@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Grace Chen</td><td data-field="email">grace.chen@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Samuel Tam</td><td data-field="email">samuel.tam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Wilfred Kan</td><td data-field="email">wilfred.kan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Aiko Chan</td><td data-field="email">aiko.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Hong Lam</td><td data-field="email">hong.lam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Jessie Ye</td><td data-field="email">jessie.ye@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Bonnie Wong</td><td data-field="email">bonnie.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Hugo Ma</td><td data-field="email">hugo.ma@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Tom Lee</td><td data-field="email">tom.lee@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Ryan Xie</td><td data-field="email">ryan.xie@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Christy Wong</td><td data-field="email">christy.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Christy Yu</td><td data-field="email">christy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Rain Chan</td><td data-field="email">rain.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Sandy Yu</td><td data-field="email">sandy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Ken Chung</td><td data-field="email">ken.chung@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Benny Fan</td><td data-field="email">benny.fan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Kerry Liu</td><td data-field="email">kerry.liu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                <tr class="user-row"><td data-field="name">Kenneth Chan</td><td data-field="email">kenneth.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="qima-pagination" aria-label="Pagination">
+            <span>Entries per page</span>
+            <select aria-label="Entries per page"><option>25</option><option>50</option><option>100</option></select>
+            <span>Page</span>
+            <input type="number" min="1" value="1" aria-label="Current page">
+            <span>of 1 page</span>
+          </div>
+          <p class="table-hint">Select users for batch role assignment, or click any row to edit one user.</p>
+        </div>
+      </section>
+
+      <section class="page" id="page-permissions">
+        <div class="page-header">
+          <div>
+            <div class="eyebrow">Auth2 resource configuration</div>
+            <h1>页面权限</h1>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button">Refresh</button>
+            <button class="btn" data-page="import" type="button">Import role permissions</button>
+            <button class="btn primary" type="button">Save permissions</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="role-permission-workspace">
+            <aside class="role-panel" aria-label="Roles">
+              <div class="role-panel__header">
+                <div class="role-panel__title">Roles</div>
+                <button class="btn" id="add-role-button" type="button">Add role</button>
+              </div>
+              <div class="role-list" id="role-list">
+                <div class="role-group" data-role-group="Test Assignment">
+                  <div class="role-group__title">Test Assignment</div>
+                  <button class="role-item active" type="button" data-role-name="Test Assignment Admin"><span class="role-icon">●</span>Test Assignment Admin</button>
+                  <button class="role-item" type="button" data-role-name="Test Assignment Editor"><span class="role-icon">●</span>Test Assignment Editor</button>
+                  <button class="role-item" type="button" data-role-name="Test Assignment Viewer"><span class="role-icon">●</span>Test Assignment Viewer</button>
+                </div>
+                <div class="role-group" data-role-group="Report Generation">
+                  <div class="role-group__title">Report Generation</div>
+                  <button class="role-item" type="button" data-role-name="Report Generation Admin"><span class="role-icon">●</span>Report Generation Admin</button>
+                  <button class="role-item" type="button" data-role-name="First-Page Approve"><span class="role-icon">●</span>First-Page Approve</button>
+                  <button class="role-item" type="button" data-role-name="First-Page Viewer"><span class="role-icon">●</span>First-Page Viewer</button>
+                  <button class="role-item" type="button" data-role-name="First-Page-Editor"><span class="role-icon">●</span>First-Page-Editor</button>
+                  <button class="role-item" type="button" data-role-name="Result table editor"><span class="role-icon">●</span>Result table editor</button>
+                  <button class="role-item" type="button" data-role-name="Result table viewer"><span class="role-icon">●</span>Result table viewer</button>
+                  <button class="role-item" type="button" data-role-name="Result table approver"><span class="role-icon">●</span>Result table approver</button>
+                  <button class="role-item" type="button" data-role-name="Department approver"><span class="role-icon">●</span>Department approver</button>
+                </div>
+                <div class="role-group" data-role-group="Template">
+                  <div class="role-group__title">Template</div>
+                  <button class="role-item custom" type="button" data-role-name="Template Viewer"><span class="role-icon">●</span>Template Viewer</button>
+                  <button class="role-item custom" type="button" data-role-name="Result Table Template Editor"><span class="role-icon">●</span>Result Table Template Editor</button>
+                </div>
+                <div class="role-group" data-role-group="Custom roles">
+                  <div class="role-group__title">Custom roles</div>
+                </div>
+              </div>
+            </aside>
+
+            <section class="permission-board" aria-label="Permission tree">
+              <div class="role-summary">
+                <div>
+                  <h2 id="permission-role-title">Test Assignment Admin</h2>
+                  <p>Configure which QIMAlabs pages and actions this role can access.</p>
+                </div>
+                <div class="actions">
+                  <button class="btn" type="button">View users</button>
+                </div>
+              </div>
+
+              <div class="permission-toolbar">
+                <div class="filters">
+                  <input class="control search-input" placeholder="Search function permission">
+                  <select class="control"><option>All modules</option><option>Test Assignment</option><option>Report Generation</option><option>Common Pages & Template</option></select>
+                </div>
+                <div class="actions">
+                  <button class="btn" type="button">Expand all</button>
+                  <button class="btn" type="button">Collapse all</button>
+                </div>
+              </div>
+
+              <div class="permission-columns">
+                <div class="permission-column">
+                  <div class="permission-column__title"><input class="permission-check" type="checkbox" checked>Test Assignment</div>
+                  <div class="permission-tree">
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>TestAssignmentList</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>list</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>ConfirmParameters</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>edit</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>unlock</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>EditSpecimen</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>addSpecimen</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>addSpecimenVersion</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>edit/save/next</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>Reset</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>unlock</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>GenerateBreakdownList</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>addBreakdownVersion</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>FullScreen</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>viewSpecimen</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>ChangeTableView</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>ReGenBreakdownV1</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>exportBreakdownChecklist</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>unlock</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>edit/save/next</span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="permission-column">
+                  <div class="permission-column__title"><input class="permission-check" type="checkbox" checked>Report Generation</div>
+                  <div class="permission-tree">
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>ReportGeneration</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>report page/order page/search</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>report generation admin</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>First page</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>first page view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>first page add/edit</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>first page approver</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>Result Table</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>add/edit</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>approver</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>unlock</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>department approver</span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="permission-column">
+                  <div class="permission-column__title"><input class="permission-check" type="checkbox" checked>Common Pages & Template</div>
+                  <div class="permission-tree">
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>info</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>log</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>instruction</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>edit</span></label>
+                      </div>
+                    </div>
+                    <div class="permission-page">
+                      <div class="permission-page__title"><input class="permission-check" type="checkbox" checked>Template</div>
+                      <div class="permission-actions">
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>view</span></label>
+                        <label class="permission-node child"><input class="permission-check" type="checkbox" checked><span>add/edit</span></label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="audit">
+        <div class="page-header">
+          <div>
+            <div class="eyebrow">Audit trail</div>
+            <h1>审计日志</h1>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button">Export logs</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-toolbar">
+            <div class="filters">
+              <select class="control"><option>Last 30 days</option></select>
+              <select class="control"><option>All import types</option></select>
+              <select class="control"><option>All services</option></select>
+              <select class="control"><option>All status</option></select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Time</th><th>Operator</th><th>Action</th><th>Service</th><th>Endpoint / Source</th><th>Status</th><th>Summary</th></tr></thead>
+              <tbody>
+                <tr><td>2026-06-17 10:31</td><td>IT Admin</td><td>Import User Role</td><td>auth2-service-cloud</td><td class="mono">/data-import/user-role</td><td><span class="badge pass">Success</span></td><td>128 users updated, 0 failed</td></tr>
+                <tr><td>2026-06-17 10:18</td><td>IT Admin</td><td>Validate Role Permission</td><td>auth2-service-cloud</td><td class="mono">Permission(Sheet1).csv</td><td><span class="badge fail">Failed</span></td><td>3 unknown Permission Keys</td></tr>
+                <tr><td>2026-06-16 16:42</td><td>Lab Ops</td><td>Import User Team</td><td>lab-service-cloud</td><td class="mono">/data-import/team-user</td><td><span class="badge warn">Partial</span></td><td>528 bindings updated, 3 failed</td></tr>
+                <tr><td>2026-06-16 15:40</td><td>IT Admin</td><td>Clear Resources Cache</td><td>auth2-service-cloud</td><td class="mono">resources cache</td><td><span class="badge pass">Success</span></td><td>Cache cleared after successful import</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="user-edit-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="user-edit-title">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow" id="user-edit-mode">Edit user access</div>
+          <h2 id="user-edit-title">User name</h2>
+        </div>
+        <button class="icon-btn modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="edit-name">User name</label>
+            <input id="edit-name" type="text">
+          </div>
+          <div class="field">
+            <label for="edit-email">Email address</label>
+            <input id="edit-email" type="email">
+          </div>
+          <div class="field">
+            <label for="edit-location">Location</label>
+            <select id="edit-location"></select>
+          </div>
+          <div class="field full-width">
+            <label>Role in QIMAlabs</label>
+            <div class="role-checklist" id="edit-roles"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn danger modal-delete" type="button" data-action="delete">Delete user</button>
+        <button class="btn" type="button" data-action="cancel">Cancel</button>
+        <button class="btn primary" type="button" data-action="save">Save changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="batch-role-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="batch-role-title">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow">Batch permission update</div>
+          <h2 id="batch-role-title">Batch assign roles</h2>
+        </div>
+        <button class="icon-btn modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-note" id="batch-role-summary">0 users selected</div>
+        <div class="field full-width">
+          <label>Grant roles to selected users</label>
+          <div class="role-checklist" id="batch-roles"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" type="button" data-action="cancel">Cancel</button>
+        <button class="btn primary" type="button" data-action="apply">Apply roles</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="add-role-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="add-role-title">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow">Role management</div>
+          <h2 id="add-role-title">Add role</h2>
+        </div>
+        <button class="icon-btn modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field full-width">
+            <label for="add-role-name">Role name</label>
+            <input id="add-role-name" type="text" placeholder="e.g. Test Assignment Reviewer">
+          </div>
+          <div class="field full-width">
+            <label for="add-role-group">Module group</label>
+            <select id="add-role-group">
+              <option value="Test Assignment">Test Assignment</option>
+              <option value="Report Generation">Report Generation</option>
+              <option value="Template">Template</option>
+              <option value="Custom roles">Custom roles</option>
+            </select>
+          </div>
+          <div class="field full-width">
+            <label for="add-role-description">Description</label>
+            <textarea id="add-role-description" placeholder="Describe what this role can access"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" type="button" data-action="cancel">Cancel</button>
+        <button class="btn primary" type="button" data-action="save">Create role</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="save-toast" id="save-toast" role="status" aria-live="polite">Permission updated</div>
+
+  <script>
+    const navButtons = document.querySelectorAll('[data-page]');
+    const pages = document.querySelectorAll('.page');
+    const sidebarButtons = document.querySelectorAll('.nav button[data-page]');
+    function showPage(id) {
+      pages.forEach((page) => page.classList.toggle('active', page.id === id));
+      sidebarButtons.forEach((button) => button.classList.toggle('active', button.dataset.page === id));
+      if (window.location.hash !== `#${id}`) window.history.replaceState(null, '', `#${id}`);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    navButtons.forEach((button) => button.addEventListener('click', () => showPage(button.dataset.page)));
+
+    const initialPage = window.location.hash.replace('#', '');
+    if (initialPage && document.getElementById(initialPage)) showPage(initialPage);
+
+    const tabs = document.querySelectorAll('.tab[data-tab]');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((item) => item.classList.toggle('active', item === tab));
+        panels.forEach((panel) => panel.classList.toggle('active', panel.id === tab.dataset.tab));
+      });
+    });
+
+    const permissionRoleTitle = document.getElementById('permission-role-title');
+    const roleList = document.getElementById('role-list');
+    const addRoleButton = document.getElementById('add-role-button');
+    const addRoleModal = document.getElementById('add-role-modal');
+    const addRoleName = document.getElementById('add-role-name');
+    const addRoleGroup = document.getElementById('add-role-group');
+    const addRoleDescription = document.getElementById('add-role-description');
+
+    function selectPermissionRole(roleItem) {
+      roleList.querySelectorAll('.role-item[data-role-name]').forEach((item) => {
+        item.classList.toggle('active', item === roleItem);
+      });
+      permissionRoleTitle.textContent = roleItem.dataset.roleName;
+    }
+
+    roleList.addEventListener('click', (event) => {
+      const roleItem = event.target.closest('.role-item[data-role-name]');
+      if (roleItem) selectPermissionRole(roleItem);
+    });
+
+    function openAddRoleModal() {
+      addRoleName.value = '';
+      addRoleGroup.value = 'Custom roles';
+      addRoleDescription.value = '';
+      addRoleModal.classList.add('open');
+      addRoleModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      addRoleName.focus();
+    }
+
+    function closeAddRoleModal() {
+      addRoleModal.classList.remove('open');
+      addRoleModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function saveAddRoleModal() {
+      const roleName = addRoleName.value.trim();
+      const groupName = addRoleGroup.value;
+      if (!roleName) {
+        showToast('Role name is required');
+        return;
+      }
+
+      const exists = [...roleList.querySelectorAll('.role-item[data-role-name]')]
+        .some((item) => item.dataset.roleName.toLowerCase() === roleName.toLowerCase());
+      if (exists) {
+        showToast('Role name already exists');
+        return;
+      }
+
+      const group = roleList.querySelector(`.role-group[data-role-group="${groupName}"]`);
+      if (!group) {
+        showToast('Module group not found');
+        return;
+      }
+
+      const roleItem = document.createElement('button');
+      roleItem.type = 'button';
+      roleItem.className = `role-item${groupName === 'Custom roles' ? ' custom' : ''}`;
+      roleItem.dataset.roleName = roleName;
+      roleItem.innerHTML = `<span class="role-icon">●</span>${roleName}`;
+      group.appendChild(roleItem);
+      selectPermissionRole(roleItem);
+      showToast(`Created role ${roleName}`);
+      closeAddRoleModal();
+    }
+
+    addRoleButton.addEventListener('click', openAddRoleModal);
+    addRoleModal.addEventListener('click', (event) => {
+      if (event.target === addRoleModal) closeAddRoleModal();
+    });
+    addRoleModal.querySelector('.modal-close').addEventListener('click', closeAddRoleModal);
+    addRoleModal.querySelector('[data-action="cancel"]').addEventListener('click', closeAddRoleModal);
+    addRoleModal.querySelector('[data-action="save"]').addEventListener('click', saveAddRoleModal);
+
+    const ROLE_OPTIONS = [
+      'First-Page Approve',
+      'First-Page Viewer',
+      'First-Page-Editor',
+      'Department approver',
+      'Result table editor',
+      'Result table viewer',
+      'Result table approver',
+      'Report preparation admin',
+      'Report preparation viewer'
+    ];
+    const LOCATION_OPTIONS = ['—', 'KT', 'HK', 'SH', 'HZ', 'DG', 'BD', 'BI', 'DE', 'IN', 'VN', 'Life science'];
+    const usersTable = document.getElementById('users-table');
+    const selectAllUsers = document.getElementById('select-all-users');
+    const batchAssignButton = document.getElementById('batch-assign-button');
+    const batchDeleteButton = document.getElementById('batch-delete-button');
+    const addUserButton = document.getElementById('add-user-button');
+    const userEditModal = document.getElementById('user-edit-modal');
+    const batchRoleModal = document.getElementById('batch-role-modal');
+    const batchRoleSummary = document.getElementById('batch-role-summary');
+    const editMode = document.getElementById('user-edit-mode');
+    const editTitle = document.getElementById('user-edit-title');
+    const editName = document.getElementById('edit-name');
+    const editEmail = document.getElementById('edit-email');
+    const editLocation = document.getElementById('edit-location');
+    const editRoles = document.getElementById('edit-roles');
+    const batchRoles = document.getElementById('batch-roles');
+    const saveToast = document.getElementById('save-toast');
+    let activeRow = null;
+    let isCreatingUser = false;
+    let toastTimer = null;
+
+    LOCATION_OPTIONS.forEach((location) => {
+      const option = document.createElement('option');
+      option.value = location;
+      option.textContent = location;
+      editLocation.appendChild(option);
+    });
+
+    function buildRoleChecklist(container) {
+      ROLE_OPTIONS.forEach((role) => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = role;
+        label.appendChild(checkbox);
+        const roleName = document.createElement('span');
+        roleName.textContent = role;
+        label.appendChild(roleName);
+        container.appendChild(label);
+      });
+    }
+
+    buildRoleChecklist(editRoles);
+    buildRoleChecklist(batchRoles);
+
+    function formatToday() {
+      const now = new Date();
+      return `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+    }
+
+    function showToast(message) {
+      saveToast.textContent = message;
+      saveToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => saveToast.classList.remove('show'), 2200);
+    }
+
+    function getCellValue(row, field) {
+      const cell = row.querySelector(`[data-field="${field}"]`);
+      if (!cell) return '';
+      if (field === 'roles') {
+        return [...cell.querySelectorAll('.role-tag')].map((tag) => tag.textContent.trim());
+      }
+      return cell.textContent.trim();
+    }
+
+    function renderRoleTags(roles) {
+      if (!roles.length) return '<span class="cell-muted">No role assigned</span>';
+      return `<span class="role-tags">${roles.map((role) => `<span class="role-tag">${role}</span>`).join('')}</span>`;
+    }
+
+    function setCellValue(row, field, value) {
+      const cell = row.querySelector(`[data-field="${field}"]`);
+      if (!cell) return;
+      if (field === 'roles') {
+        cell.innerHTML = renderRoleTags(value);
+        return;
+      }
+      cell.textContent = value;
+    }
+
+    function createSelectionCell() {
+      const cell = document.createElement('td');
+      cell.className = 'select-col';
+      cell.innerHTML = '<input class="row-check" type="checkbox" aria-label="Select user">';
+      return cell;
+    }
+
+    function getUserRows() {
+      return [...usersTable.querySelectorAll('tbody .user-row')];
+    }
+
+    function getSelectedUserRows() {
+      return getUserRows().filter((row) => row.querySelector('.row-check')?.checked);
+    }
+
+    function updateBatchSelectionState() {
+      const rows = getUserRows();
+      const selectedRows = getSelectedUserRows();
+      batchAssignButton.disabled = selectedRows.length === 0;
+      batchDeleteButton.disabled = selectedRows.length === 0;
+      batchAssignButton.textContent = selectedRows.length
+        ? `Batch assign roles (${selectedRows.length})`
+        : 'Batch assign roles';
+      batchDeleteButton.textContent = selectedRows.length
+        ? `Batch delete (${selectedRows.length})`
+        : 'Batch delete';
+      selectAllUsers.checked = rows.length > 0 && selectedRows.length === rows.length;
+      selectAllUsers.indeterminate = selectedRows.length > 0 && selectedRows.length < rows.length;
+    }
+
+    function initializeUserSelection() {
+      getUserRows().forEach((row) => {
+        if (!row.querySelector('.row-check')) row.prepend(createSelectionCell());
+      });
+      updateBatchSelectionState();
+    }
+
+    function createUserRow({ name, email, roles, updated, location }) {
+      const row = document.createElement('tr');
+      row.className = 'user-row row-dirty';
+      row.innerHTML = `
+        <td class="select-col"><input class="row-check" type="checkbox" aria-label="Select user"></td>
+        <td data-field="name"></td>
+        <td data-field="email"></td>
+        <td data-field="roles"></td>
+        <td class="cell-muted" data-field="updated"></td>
+        <td data-field="location"></td>
+      `;
+      setCellValue(row, 'name', name);
+      setCellValue(row, 'email', email);
+      setCellValue(row, 'roles', roles);
+      setCellValue(row, 'updated', updated);
+      setCellValue(row, 'location', location);
+      return row;
+    }
+
+    function resetRoleSelection(container, roles = []) {
+      container.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+        checkbox.checked = roles.includes(checkbox.value);
+      });
+    }
+
+    function showUserModal() {
+      userEditModal.classList.add('open');
+      userEditModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      editName.focus();
+    }
+
+    function openAddUserModal() {
+      activeRow = null;
+      isCreatingUser = true;
+      editMode.textContent = 'Add user access';
+      editTitle.textContent = 'New user';
+      editName.value = '';
+      editEmail.value = '';
+      editLocation.value = '—';
+      resetRoleSelection(editRoles);
+      userEditModal.querySelector('[data-action="delete"]').style.display = 'none';
+      showUserModal();
+    }
+
+    function openUserModal(row) {
+      activeRow = row;
+      isCreatingUser = false;
+      const name = getCellValue(row, 'name');
+      const email = getCellValue(row, 'email');
+      const location = getCellValue(row, 'location');
+      const roles = getCellValue(row, 'roles');
+
+      editMode.textContent = 'Edit user access';
+      editTitle.textContent = name;
+      editName.value = name;
+      editEmail.value = email;
+      editLocation.value = LOCATION_OPTIONS.includes(location) ? location : '—';
+      resetRoleSelection(editRoles, roles);
+      userEditModal.querySelector('[data-action="delete"]').style.display = '';
+      showUserModal();
+    }
+
+    function closeUserModal() {
+      userEditModal.classList.remove('open');
+      userEditModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      activeRow = null;
+      isCreatingUser = false;
+    }
+
+    function saveUserModal() {
+      const name = editName.value.trim();
+      const email = editEmail.value.trim();
+      const location = editLocation.value;
+      const roles = [...editRoles.querySelectorAll('input:checked')].map((input) => input.value);
+
+      if (!name || !email) {
+        showToast('Name and email are required');
+        return;
+      }
+
+      if (isCreatingUser) {
+        const row = createUserRow({
+          name,
+          email,
+          location,
+          roles,
+          updated: formatToday()
+        });
+        usersTable.querySelector('tbody').prepend(row);
+        updateBatchSelectionState();
+        showToast(`Added user ${name}`);
+        closeUserModal();
+        return;
+      }
+
+      if (!activeRow) return;
+      const original = {
+        name: getCellValue(activeRow, 'name'),
+        email: getCellValue(activeRow, 'email'),
+        location: getCellValue(activeRow, 'location'),
+        roles: getCellValue(activeRow, 'roles')
+      };
+      const changed = name !== original.name
+        || email !== original.email
+        || location !== original.location
+        || roles.join('|') !== original.roles.join('|');
+
+      setCellValue(activeRow, 'name', name);
+      setCellValue(activeRow, 'email', email);
+      setCellValue(activeRow, 'location', location);
+      setCellValue(activeRow, 'roles', roles);
+      if (changed) {
+        const updated = formatToday();
+        setCellValue(activeRow, 'updated', updated);
+        activeRow.classList.add('row-dirty');
+        showToast(`Updated permissions for ${name}`);
+      }
+
+      closeUserModal();
+    }
+
+    function deleteActiveUser() {
+      if (!activeRow) return;
+      const name = getCellValue(activeRow, 'name');
+      const confirmed = window.confirm(`Delete ${name} from user permissions?`);
+      if (!confirmed) return;
+      activeRow.remove();
+      updateBatchSelectionState();
+      showToast(`Deleted user ${name}`);
+      closeUserModal();
+    }
+
+    function openBatchRoleModal() {
+      const selectedRows = getSelectedUserRows();
+      if (!selectedRows.length) {
+        showToast('Select users first');
+        return;
+      }
+      resetRoleSelection(batchRoles);
+      batchRoleSummary.textContent = `${selectedRows.length} user${selectedRows.length > 1 ? 's' : ''} selected. Selected roles will be granted in addition to existing roles.`;
+      batchRoleModal.classList.add('open');
+      batchRoleModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      batchRoles.querySelector('input[type="checkbox"]')?.focus();
+    }
+
+    function closeBatchRoleModal() {
+      batchRoleModal.classList.remove('open');
+      batchRoleModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function applyBatchRoles() {
+      const selectedRows = getSelectedUserRows();
+      const selectedRoles = [...batchRoles.querySelectorAll('input:checked')].map((input) => input.value);
+      if (!selectedRows.length) {
+        showToast('Select users first');
+        closeBatchRoleModal();
+        return;
+      }
+      if (!selectedRoles.length) {
+        showToast('Select at least one role');
+        return;
+      }
+
+      selectedRows.forEach((row) => {
+        const mergedRoles = [...getCellValue(row, 'roles')];
+        selectedRoles.forEach((role) => {
+          if (!mergedRoles.includes(role)) mergedRoles.push(role);
+        });
+        setCellValue(row, 'roles', mergedRoles);
+        setCellValue(row, 'updated', formatToday());
+        row.classList.add('row-dirty');
+      });
+
+      showToast(`Granted roles to ${selectedRows.length} user${selectedRows.length > 1 ? 's' : ''}`);
+      closeBatchRoleModal();
+    }
+
+    function deleteSelectedUsers() {
+      const selectedRows = getSelectedUserRows();
+      if (!selectedRows.length) {
+        showToast('Select users first');
+        return;
+      }
+
+      const confirmed = window.confirm(`Delete ${selectedRows.length} selected user${selectedRows.length > 1 ? 's' : ''} from user permissions?`);
+      if (!confirmed) return;
+
+      selectedRows.forEach((row) => row.remove());
+      updateBatchSelectionState();
+      showToast(`Deleted ${selectedRows.length} user${selectedRows.length > 1 ? 's' : ''}`);
+    }
+
+    if (usersTable) {
+      initializeUserSelection();
+      usersTable.addEventListener('click', (event) => {
+        if (event.target.closest('input, button, label')) return;
+        const row = event.target.closest('.user-row');
+        if (row) openUserModal(row);
+      });
+      usersTable.addEventListener('change', (event) => {
+        if (event.target === selectAllUsers) {
+          getUserRows().forEach((row) => {
+            const checkbox = row.querySelector('.row-check');
+            if (checkbox) checkbox.checked = selectAllUsers.checked;
+          });
+          updateBatchSelectionState();
+        }
+        if (event.target.classList.contains('row-check')) updateBatchSelectionState();
+      });
+    }
+
+    batchAssignButton.addEventListener('click', openBatchRoleModal);
+    batchDeleteButton.addEventListener('click', deleteSelectedUsers);
+    addUserButton.addEventListener('click', openAddUserModal);
+    userEditModal.addEventListener('click', (event) => {
+      if (event.target === userEditModal) closeUserModal();
+    });
+    userEditModal.querySelector('.modal-close').addEventListener('click', closeUserModal);
+    userEditModal.querySelector('[data-action="delete"]').addEventListener('click', deleteActiveUser);
+    userEditModal.querySelector('[data-action="cancel"]').addEventListener('click', closeUserModal);
+    userEditModal.querySelector('[data-action="save"]').addEventListener('click', saveUserModal);
+    batchRoleModal.addEventListener('click', (event) => {
+      if (event.target === batchRoleModal) closeBatchRoleModal();
+    });
+    batchRoleModal.querySelector('.modal-close').addEventListener('click', closeBatchRoleModal);
+    batchRoleModal.querySelector('[data-action="cancel"]').addEventListener('click', closeBatchRoleModal);
+    batchRoleModal.querySelector('[data-action="apply"]').addEventListener('click', applyBatchRoles);
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && userEditModal.classList.contains('open')) closeUserModal();
+      if (event.key === 'Escape' && batchRoleModal.classList.contains('open')) closeBatchRoleModal();
+      if (event.key === 'Escape' && addRoleModal.classList.contains('open')) closeAddRoleModal();
+    });
+  </script>
+</body>
+</html>
