@@ -788,19 +788,125 @@
     .tab.active { color: var(--primary-pool-dark); border-bottom-color: var(--primary-pool); }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
-
-    .stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
-    .step {
+    .users-tab-panel { display: none; }
+    .users-tab-panel.active { display: block; }
+    #users > .card > .tabs { padding: 0 12px; margin-bottom: 0; }
+    #users .users-actions-users,
+    #users .users-actions-teams { display: none; }
+    #users[data-users-view="users-list"] .users-actions-users { display: flex; }
+    #users[data-users-view="user-teams"] .users-actions-teams { display: flex; }
+    #users-table .team-tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: var(--seal);
+      color: var(--slate);
+      font: 600 11px/16px var(--font-sans);
+    }
+    .team-workspace {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      min-height: calc(100vh - 18.25em);
+      background: var(--white);
+    }
+    .team-panel {
+      border-right: 1px solid var(--border);
+      background: #fbfbfb;
+    }
+    .team-panel__header {
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .team-panel__title { font: 600 14px/20px var(--font-cjk); }
+    .team-panel__header .btn { min-height: 30px; padding: 0 10px; font-size: 12px; }
+    .team-list {
+      max-height: calc(100vh - 21.25em);
+      overflow: auto;
+      padding: 10px 8px;
+    }
+    .team-item {
+      width: 100%;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--slate);
+      text-align: left;
+      font: 500 13px/18px var(--font-cjk);
+      cursor: pointer;
+    }
+    .team-item:hover { background: var(--seal); }
+    .team-item.active {
+      background: var(--primary-pool-bg);
+      color: var(--primary-pool-dark);
+      box-shadow: inset 3px 0 0 var(--primary-pool);
+    }
+    .team-item__count {
+      min-width: 24px;
+      height: 20px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--stone);
+      font: 600 11px/16px var(--font-sans);
+    }
+    .team-board {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .team-summary {
       min-height: 72px;
-      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #f8faff 0%, var(--white) 100%);
+    }
+    .team-summary h2 { font: 600 18px/24px var(--font-cjk); }
+    .team-summary p { max-width: 720px; margin-top: 4px; color: var(--stone); font: 400 13px/20px var(--font-cjk); }
+    .team-members-wrap { overflow: auto; }
+    #team-members-table tbody tr { cursor: default; }
+    .member-checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      max-height: 320px;
+      overflow: auto;
+      padding: 4px;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 4px;
       background: var(--mist);
     }
-    .step.active { border-color: rgba(65, 105, 225, 0.45); background: var(--primary-pool-bg); }
-    .step.blocked { background: var(--seal); opacity: .72; }
-    .step strong { display: block; margin-bottom: 4px; font: 600 13px/18px var(--font-cjk); }
-    .step span { color: var(--stone); font-size: 12px; }
+    .member-checklist label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--slate);
+      font: 400 13px/18px var(--font-cjk);
+      cursor: pointer;
+    }
+    .member-checklist label:hover { background: #f2f5fd; }
 
     .import-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
     .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -838,7 +944,6 @@
     svg.icon { width: 18px; height: 18px; flex: none; }
     @media (max-width: 1180px) {
       .grid.three, .grid.two, .grid.four, .import-grid, .form-grid, .result-grid { grid-template-columns: 1fr; }
-      .stepper { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
     @media (max-width: 860px) {
       .topbar { height: auto; min-height: 72px; flex-wrap: wrap; padding: 16px; }
@@ -849,7 +954,6 @@
       .main { padding: 16px; }
       .page-header { flex-direction: column; }
       .actions { justify-content: flex-start; }
-      .stepper { grid-template-columns: 1fr; }
       h1 { font-size: 28px; line-height: 36px; }
     }
   </style>
@@ -904,11 +1008,6 @@
             <button class="tab active" data-tab="user-role" type="button">User Role</button>
             <button class="tab" data-tab="role-permission" type="button">Role Permission</button>
             <button class="tab" data-tab="user-team" type="button">User Team</button>
-          </div>
-          <div class="stepper">
-            <div class="step active"><strong>1. Upload</strong><span>Excel / CSV</span></div>
-            <div class="step active"><strong>2. Validate</strong><span>Check data</span></div>
-            <div class="step"><strong>3. Import</strong><span>Submit file</span></div>
           </div>
 
           <div class="tab-panel active" id="user-role">
@@ -994,65 +1093,108 @@
         </div>
       </section>
 
-      <section class="page active" id="users">
+      <section class="page active" id="users" data-users-view="users-list">
         <div class="page-header">
           <div>
             <div class="eyebrow">QIMAlabs access</div>
             <h1>用户权限</h1>
           </div>
-          <div class="actions">
+          <div class="actions users-actions-users">
             <button class="btn" type="button">Refresh</button>
             <button class="btn" id="batch-assign-button" type="button" disabled>Batch assign roles</button>
             <button class="btn danger" id="batch-delete-button" type="button" disabled>Batch delete</button>
             <button class="btn primary" id="add-user-button" type="button">Add user</button>
             <button class="btn" data-page="import" type="button">Go to import</button>
           </div>
+          <div class="actions users-actions-teams">
+            <button class="btn" type="button">Refresh</button>
+            <button class="btn" id="add-team-members-button" type="button">Add members</button>
+            <button class="btn primary" id="add-team-button" type="button">Add team</button>
+          </div>
         </div>
 
         <div class="card">
-          <div class="table-toolbar">
-            <div class="filters">
-              <input class="control search-input" value="" placeholder="Search user name or email">
-              <select class="control"><option>All roles</option><option>First-Page Approve</option><option>Department approver</option><option>Result table editor</option></select>
+          <div class="tabs">
+            <button class="tab active" data-users-tab="users-list" type="button">Users</button>
+            <button class="tab" data-users-tab="user-teams" type="button">User Teams</button>
+          </div>
+
+          <div class="users-tab-panel active" id="users-list">
+            <div class="table-toolbar">
+              <div class="filters">
+                <input class="control search-input" id="user-search-input" value="" placeholder="Search user name or email">
+                <select class="control" id="user-role-filter"><option value="">All roles</option><option>First-Page Approve</option><option>First-Page Viewer</option><option>First-Page-Editor</option><option>Department approver</option><option>Result table editor</option></select>
+                <select class="control" id="user-team-filter"><option value="">All teams</option></select>
+                <select class="control" id="user-location-filter"><option value="">All locations</option></select>
+              </div>
+              <button class="btn primary" id="user-search-button" type="button">Search</button>
             </div>
-            <button class="btn primary" type="button">Search</button>
+            <div class="table-wrap">
+              <table id="users-table">
+                <thead><tr><th class="select-col"><input id="select-all-users" type="checkbox" aria-label="Select all users"></th><th>User name</th><th>Email address</th><th>Role in QIMAlabs</th><th>User team</th><th>Update time</th><th>Location</th></tr></thead>
+                <tbody>
+                  <tr class="user-row"><td data-field="name">Kyle Yao</td><td data-field="email">kyle.yao@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">HK Operations</span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
+                  <tr class="user-row"><td data-field="name">Rebecca Cheng</td><td data-field="email">rebecca.cheng@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">HK Operations</span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
+                  <tr class="user-row"><td data-field="name">Pearl Tse</td><td data-field="email">pearl.tse@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Grace Chen</td><td data-field="email">grace.chen@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Samuel Tam</td><td data-field="email">samuel.tam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Wilfred Kan</td><td data-field="email">wilfred.kan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Aiko Chan</td><td data-field="email">aiko.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Hong Lam</td><td data-field="email">hong.lam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Jessie Ye</td><td data-field="email">jessie.ye@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Bonnie Wong</td><td data-field="email">bonnie.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Hugo Ma</td><td data-field="email">hugo.ma@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Tom Lee</td><td data-field="email">tom.lee@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Ryan Xie</td><td data-field="email">ryan.xie@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Christy Wong</td><td data-field="email">christy.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Christy Yu</td><td data-field="email">christy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Rain Chan</td><td data-field="email">rain.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Sandy Yu</td><td data-field="email">sandy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td data-field="team"><span class="team-tag">Result Table Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Ken Chung</td><td data-field="email">ken.chung@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Result table editor</span></span></td><td data-field="team"><span class="team-tag">Result Table Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Benny Fan</td><td data-field="email">benny.fan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td data-field="team"><span class="team-tag">Result Table Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Kerry Liu</td><td data-field="email">kerry.liu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td data-field="team"><span class="team-tag">Result Table Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                  <tr class="user-row"><td data-field="name">Kenneth Chan</td><td data-field="email">kenneth.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Department approver</span></span></td><td data-field="team"><span class="team-tag">KT Report Team</span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="qima-pagination" aria-label="Pagination">
+              <span>Entries per page</span>
+              <select aria-label="Entries per page"><option>25</option><option>50</option><option>100</option></select>
+              <span>Page</span>
+              <input type="number" min="1" value="1" aria-label="Current page">
+              <span>of 1 page</span>
+            </div>
+            <p class="table-hint">Select users for batch role assignment, or click any row to edit one user.</p>
           </div>
-          <div class="table-wrap">
-            <table id="users-table">
-              <thead><tr><th class="select-col"><input id="select-all-users" type="checkbox" aria-label="Select all users"></th><th>User name</th><th>Email address</th><th>Role in QIMAlabs</th><th>Update time</th><th>Location</th></tr></thead>
-              <tbody>
-                <tr class="user-row"><td data-field="name">Kyle Yao</td><td data-field="email">kyle.yao@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
-                <tr class="user-row"><td data-field="name">Rebecca Cheng</td><td data-field="email">rebecca.cheng@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/4/2025</td><td data-field="location">—</td></tr>
-                <tr class="user-row"><td data-field="name">Pearl Tse</td><td data-field="email">pearl.tse@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Grace Chen</td><td data-field="email">grace.chen@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Samuel Tam</td><td data-field="email">samuel.tam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Wilfred Kan</td><td data-field="email">wilfred.kan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Aiko Chan</td><td data-field="email">aiko.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Hong Lam</td><td data-field="email">hong.lam@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Jessie Ye</td><td data-field="email">jessie.ye@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Bonnie Wong</td><td data-field="email">bonnie.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Hugo Ma</td><td data-field="email">hugo.ma@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Tom Lee</td><td data-field="email">tom.lee@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Ryan Xie</td><td data-field="email">ryan.xie@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Christy Wong</td><td data-field="email">christy.wong@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Approve</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Christy Yu</td><td data-field="email">christy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Rain Chan</td><td data-field="email">rain.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Sandy Yu</td><td data-field="email">sandy.yu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Ken Chung</td><td data-field="email">ken.chung@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page Viewer</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Benny Fan</td><td data-field="email">benny.fan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Kerry Liu</td><td data-field="email">kerry.liu@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Result table editor</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-                <tr class="user-row"><td data-field="name">Kenneth Chan</td><td data-field="email">kenneth.chan@qima.com</td><td data-field="roles"><span class="role-tags"><span class="role-tag">First-Page-Editor</span><span class="role-tag">Department approver</span></span></td><td class="cell-muted" data-field="updated">11/5/2025</td><td data-field="location">KT</td></tr>
-              </tbody>
-            </table>
+
+          <div class="users-tab-panel" id="user-teams">
+            <div class="team-workspace">
+              <aside class="team-panel" aria-label="User teams">
+                <div class="team-panel__header">
+                  <div class="team-panel__title">User Teams</div>
+                  <button class="btn" id="add-team-button-side" type="button">Add team</button>
+                </div>
+                <div class="team-list" id="team-list"></div>
+              </aside>
+              <section class="team-board" aria-label="Team members">
+                <div class="team-summary">
+                  <div>
+                    <h2 id="team-title">KT Report Team</h2>
+                    <p id="team-description">Lab data scope team for KT report generation workflows.</p>
+                  </div>
+                  <div class="actions">
+                    <span class="badge pool" id="team-member-count">0 members</span>
+                  </div>
+                </div>
+                <div class="team-members-wrap">
+                  <table id="team-members-table">
+                    <thead><tr><th>User name</th><th>Email address</th><th>Location</th><th>Role in QIMAlabs</th></tr></thead>
+                    <tbody id="team-members-body"></tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
           </div>
-          <div class="qima-pagination" aria-label="Pagination">
-            <span>Entries per page</span>
-            <select aria-label="Entries per page"><option>25</option><option>50</option><option>100</option></select>
-            <span>Page</span>
-            <input type="number" min="1" value="1" aria-label="Current page">
-            <span>of 1 page</span>
-          </div>
-          <p class="table-hint">Select users for batch role assignment, or click any row to edit one user.</p>
         </div>
       </section>
 
@@ -1298,6 +1440,10 @@
             <label for="edit-location">Location</label>
             <select id="edit-location"></select>
           </div>
+          <div class="field">
+            <label for="edit-team">User team</label>
+            <select id="edit-team"></select>
+          </div>
           <div class="field full-width">
             <label>Role in QIMAlabs</label>
             <div class="role-checklist" id="edit-roles"></div>
@@ -1372,6 +1518,57 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="add-team-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="add-team-title">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow">User team management</div>
+          <h2 id="add-team-title">Add team</h2>
+        </div>
+        <button class="icon-btn modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field full-width">
+            <label for="add-team-name">Team name</label>
+            <input id="add-team-name" type="text" placeholder="e.g. KT Report Team">
+          </div>
+          <div class="field full-width">
+            <label for="add-team-description">Description</label>
+            <textarea id="add-team-description" placeholder="Describe the team data scope"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" type="button" data-action="cancel">Cancel</button>
+        <button class="btn primary" type="button" data-action="save">Create team</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="add-team-members-modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="add-team-members-title">
+      <div class="modal-header">
+        <div>
+          <div class="eyebrow">User team management</div>
+          <h2 id="add-team-members-title">Add members</h2>
+        </div>
+        <button class="icon-btn modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-note" id="add-team-members-summary">Select users to add to the team.</div>
+        <div class="field full-width">
+          <label>Users</label>
+          <div class="member-checklist" id="team-member-checklist"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" type="button" data-action="cancel">Cancel</button>
+        <button class="btn primary" type="button" data-action="save">Add to team</button>
+      </div>
+    </div>
+  </div>
+
   <div class="save-toast" id="save-toast" role="status" aria-live="polite">Permission updated</div>
 
   <script>
@@ -1389,12 +1586,23 @@
     const initialPage = window.location.hash.replace('#', '');
     if (initialPage && document.getElementById(initialPage)) showPage(initialPage);
 
-    const tabs = document.querySelectorAll('.tab[data-tab]');
-    const panels = document.querySelectorAll('.tab-panel');
+    const tabs = document.querySelectorAll('#import .tab[data-tab]');
+    const panels = document.querySelectorAll('#import .tab-panel');
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
         tabs.forEach((item) => item.classList.toggle('active', item === tab));
         panels.forEach((panel) => panel.classList.toggle('active', panel.id === tab.dataset.tab));
+      });
+    });
+
+    const usersPage = document.getElementById('users');
+    const usersTabs = document.querySelectorAll('#users .tab[data-users-tab]');
+    const usersPanels = document.querySelectorAll('.users-tab-panel');
+    usersTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        usersTabs.forEach((item) => item.classList.toggle('active', item === tab));
+        usersPanels.forEach((panel) => panel.classList.toggle('active', panel.id === tab.dataset.usersTab));
+        usersPage.dataset.usersView = tab.dataset.usersTab;
       });
     });
 
@@ -1486,7 +1694,32 @@
       'Report preparation viewer'
     ];
     const LOCATION_OPTIONS = ['—', 'KT', 'HK', 'SH', 'HZ', 'DG', 'BD', 'BI', 'DE', 'IN', 'VN', 'Life science'];
+    const TEAMS = [
+      { name: 'KT Report Team', description: 'Lab data scope team for KT report generation workflows.' },
+      { name: 'HK Operations', description: 'Hong Kong lab operations and first-page approval team.' },
+      { name: 'Result Table Team', description: 'Users focused on result table editing and approval.' }
+    ];
+    let activeTeamName = TEAMS[0].name;
     const usersTable = document.getElementById('users-table');
+    const userSearchInput = document.getElementById('user-search-input');
+    const userRoleFilter = document.getElementById('user-role-filter');
+    const userTeamFilter = document.getElementById('user-team-filter');
+    const userLocationFilter = document.getElementById('user-location-filter');
+    const userSearchButton = document.getElementById('user-search-button');
+    const teamList = document.getElementById('team-list');
+    const teamTitle = document.getElementById('team-title');
+    const teamDescription = document.getElementById('team-description');
+    const teamMemberCount = document.getElementById('team-member-count');
+    const teamMembersBody = document.getElementById('team-members-body');
+    const addTeamButton = document.getElementById('add-team-button');
+    const addTeamButtonSide = document.getElementById('add-team-button-side');
+    const addTeamMembersButton = document.getElementById('add-team-members-button');
+    const addTeamModal = document.getElementById('add-team-modal');
+    const addTeamName = document.getElementById('add-team-name');
+    const addTeamDescription = document.getElementById('add-team-description');
+    const addTeamMembersModal = document.getElementById('add-team-members-modal');
+    const addTeamMembersSummary = document.getElementById('add-team-members-summary');
+    const teamMemberChecklist = document.getElementById('team-member-checklist');
     const selectAllUsers = document.getElementById('select-all-users');
     const batchAssignButton = document.getElementById('batch-assign-button');
     const batchDeleteButton = document.getElementById('batch-delete-button');
@@ -1499,6 +1732,7 @@
     const editName = document.getElementById('edit-name');
     const editEmail = document.getElementById('edit-email');
     const editLocation = document.getElementById('edit-location');
+    const editTeam = document.getElementById('edit-team');
     const editRoles = document.getElementById('edit-roles');
     const batchRoles = document.getElementById('batch-roles');
     const saveToast = document.getElementById('save-toast');
@@ -1512,6 +1746,200 @@
       option.textContent = location;
       editLocation.appendChild(option);
     });
+
+    function getTeamNames() {
+      return TEAMS.map((team) => team.name);
+    }
+
+    function populateTeamOptions(select, includeEmpty = false) {
+      const current = select.value;
+      select.innerHTML = '';
+      if (includeEmpty) {
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '—';
+        emptyOption.textContent = '—';
+        select.appendChild(emptyOption);
+      }
+      getTeamNames().forEach((teamName) => {
+        const option = document.createElement('option');
+        option.value = teamName;
+        option.textContent = teamName;
+        select.appendChild(option);
+      });
+      if ([...select.options].some((option) => option.value === current)) {
+        select.value = current;
+      }
+    }
+
+    function populateUserFilters() {
+      userTeamFilter.innerHTML = '<option value="">All teams</option>';
+      getTeamNames().forEach((teamName) => {
+        const option = document.createElement('option');
+        option.value = teamName;
+        option.textContent = teamName;
+        userTeamFilter.appendChild(option);
+      });
+      userLocationFilter.innerHTML = '<option value="">All locations</option>';
+      LOCATION_OPTIONS.filter((location) => location !== '—').forEach((location) => {
+        const option = document.createElement('option');
+        option.value = location;
+        option.textContent = location;
+        userLocationFilter.appendChild(option);
+      });
+    }
+
+    populateTeamOptions(editTeam, true);
+    populateUserFilters();
+
+    function countUsersInTeam(teamName) {
+      return getUserRows().filter((row) => getCellValue(row, 'team') === teamName).length;
+    }
+
+    function renderTeamList() {
+      teamList.innerHTML = '';
+      TEAMS.forEach((team) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `team-item${team.name === activeTeamName ? ' active' : ''}`;
+        button.dataset.teamName = team.name;
+        button.innerHTML = `<span>${team.name}</span><span class="team-item__count">${countUsersInTeam(team.name)}</span>`;
+        teamList.appendChild(button);
+      });
+    }
+
+    function renderTeamMembers() {
+      const team = TEAMS.find((item) => item.name === activeTeamName);
+      if (!team) return;
+      teamTitle.textContent = team.name;
+      teamDescription.textContent = team.description;
+      const members = getUserRows().filter((row) => getCellValue(row, 'team') === team.name);
+      teamMemberCount.textContent = `${members.length} member${members.length === 1 ? '' : 's'}`;
+      teamMembersBody.innerHTML = members.map((row) => `
+        <tr>
+          <td>${getCellValue(row, 'name')}</td>
+          <td>${getCellValue(row, 'email')}</td>
+          <td>${getCellValue(row, 'location')}</td>
+          <td>${getCellValue(row, 'roles').join(', ') || '—'}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" class="cell-muted">No members in this team yet.</td></tr>';
+      renderTeamList();
+    }
+
+    function selectTeam(teamName) {
+      activeTeamName = teamName;
+      renderTeamMembers();
+    }
+
+    teamList.addEventListener('click', (event) => {
+      const teamItem = event.target.closest('.team-item[data-team-name]');
+      if (teamItem) selectTeam(teamItem.dataset.teamName);
+    });
+
+    function openAddTeamModal() {
+      addTeamName.value = '';
+      addTeamDescription.value = '';
+      addTeamModal.classList.add('open');
+      addTeamModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      addTeamName.focus();
+    }
+
+    function closeAddTeamModal() {
+      addTeamModal.classList.remove('open');
+      addTeamModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function saveAddTeamModal() {
+      const name = addTeamName.value.trim();
+      const description = addTeamDescription.value.trim();
+      if (!name) {
+        showToast('Team name is required');
+        return;
+      }
+      if (TEAMS.some((team) => team.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Team name already exists');
+        return;
+      }
+      TEAMS.push({ name, description: description || 'Custom user team.' });
+      populateTeamOptions(editTeam, true);
+      populateUserFilters();
+      activeTeamName = name;
+      renderTeamMembers();
+      showToast(`Created team ${name}`);
+      closeAddTeamModal();
+    }
+
+    function openAddTeamMembersModal() {
+      const team = TEAMS.find((item) => item.name === activeTeamName);
+      if (!team) {
+        showToast('Select a team first');
+        return;
+      }
+      addTeamMembersSummary.textContent = `Add users to ${team.name}. Selected users will move into this team.`;
+      teamMemberChecklist.innerHTML = '';
+      getUserRows().forEach((row) => {
+        const name = getCellValue(row, 'name');
+        const email = getCellValue(row, 'email');
+        const currentTeam = getCellValue(row, 'team');
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = email;
+        checkbox.checked = currentTeam === team.name;
+        label.appendChild(checkbox);
+        const text = document.createElement('span');
+        text.textContent = `${name} · ${currentTeam}`;
+        label.appendChild(text);
+        teamMemberChecklist.appendChild(label);
+      });
+      addTeamMembersModal.classList.add('open');
+      addTeamMembersModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddTeamMembersModal() {
+      addTeamMembersModal.classList.remove('open');
+      addTeamMembersModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    function saveAddTeamMembersModal() {
+      const selectedEmails = [...teamMemberChecklist.querySelectorAll('input:checked')].map((input) => input.value);
+      if (!selectedEmails.length) {
+        showToast('Select at least one user');
+        return;
+      }
+      getUserRows().forEach((row) => {
+        const email = getCellValue(row, 'email');
+        if (selectedEmails.includes(email)) {
+          setCellValue(row, 'team', activeTeamName);
+          row.classList.add('row-dirty');
+        }
+      });
+      renderTeamMembers();
+      applyUserFilters();
+      showToast(`Added ${selectedEmails.length} user${selectedEmails.length > 1 ? 's' : ''} to ${activeTeamName}`);
+      closeAddTeamMembersModal();
+    }
+
+    addTeamButton.addEventListener('click', openAddTeamModal);
+    addTeamButtonSide.addEventListener('click', openAddTeamModal);
+    addTeamMembersButton.addEventListener('click', openAddTeamMembersModal);
+    addTeamModal.addEventListener('click', (event) => {
+      if (event.target === addTeamModal) closeAddTeamModal();
+    });
+    addTeamModal.querySelector('.modal-close').addEventListener('click', closeAddTeamModal);
+    addTeamModal.querySelector('[data-action="cancel"]').addEventListener('click', closeAddTeamModal);
+    addTeamModal.querySelector('[data-action="save"]').addEventListener('click', saveAddTeamModal);
+    addTeamMembersModal.addEventListener('click', (event) => {
+      if (event.target === addTeamMembersModal) closeAddTeamMembersModal();
+    });
+    addTeamMembersModal.querySelector('.modal-close').addEventListener('click', closeAddTeamMembersModal);
+    addTeamMembersModal.querySelector('[data-action="cancel"]').addEventListener('click', closeAddTeamMembersModal);
+    addTeamMembersModal.querySelector('[data-action="save"]').addEventListener('click', saveAddTeamMembersModal);
+
+    renderTeamMembers();
 
     function buildRoleChecklist(container) {
       ROLE_OPTIONS.forEach((role) => {
@@ -1548,12 +1976,21 @@
       if (field === 'roles') {
         return [...cell.querySelectorAll('.role-tag')].map((tag) => tag.textContent.trim());
       }
+      if (field === 'team') {
+        const tag = cell.querySelector('.team-tag');
+        return tag ? tag.textContent.trim() : '—';
+      }
       return cell.textContent.trim();
     }
 
     function renderRoleTags(roles) {
       if (!roles.length) return '<span class="cell-muted">No role assigned</span>';
       return `<span class="role-tags">${roles.map((role) => `<span class="role-tag">${role}</span>`).join('')}</span>`;
+    }
+
+    function renderTeamTag(team) {
+      if (!team || team === '—') return '<span class="cell-muted">—</span>';
+      return `<span class="team-tag">${team}</span>`;
     }
 
     function setCellValue(row, field, value) {
@@ -1563,7 +2000,31 @@
         cell.innerHTML = renderRoleTags(value);
         return;
       }
+      if (field === 'team') {
+        cell.innerHTML = renderTeamTag(value);
+        return;
+      }
       cell.textContent = value;
+    }
+
+    function applyUserFilters() {
+      const query = userSearchInput.value.trim().toLowerCase();
+      const role = userRoleFilter.value;
+      const team = userTeamFilter.value;
+      const location = userLocationFilter.value;
+      getUserRows().forEach((row) => {
+        const name = getCellValue(row, 'name').toLowerCase();
+        const email = getCellValue(row, 'email').toLowerCase();
+        const roles = getCellValue(row, 'roles');
+        const userTeam = getCellValue(row, 'team');
+        const userLocation = getCellValue(row, 'location');
+        const matchesQuery = !query || name.includes(query) || email.includes(query);
+        const matchesRole = !role || roles.includes(role);
+        const matchesTeam = !team || userTeam === team;
+        const matchesLocation = !location || userLocation === location;
+        row.hidden = !(matchesQuery && matchesRole && matchesTeam && matchesLocation);
+      });
+      updateBatchSelectionState();
     }
 
     function createSelectionCell() {
@@ -1603,7 +2064,7 @@
       updateBatchSelectionState();
     }
 
-    function createUserRow({ name, email, roles, updated, location }) {
+    function createUserRow({ name, email, roles, updated, location, team }) {
       const row = document.createElement('tr');
       row.className = 'user-row row-dirty';
       row.innerHTML = `
@@ -1611,12 +2072,14 @@
         <td data-field="name"></td>
         <td data-field="email"></td>
         <td data-field="roles"></td>
+        <td data-field="team"></td>
         <td class="cell-muted" data-field="updated"></td>
         <td data-field="location"></td>
       `;
       setCellValue(row, 'name', name);
       setCellValue(row, 'email', email);
       setCellValue(row, 'roles', roles);
+      setCellValue(row, 'team', team || '—');
       setCellValue(row, 'updated', updated);
       setCellValue(row, 'location', location);
       return row;
@@ -1643,6 +2106,7 @@
       editName.value = '';
       editEmail.value = '';
       editLocation.value = '—';
+      editTeam.value = '—';
       resetRoleSelection(editRoles);
       userEditModal.querySelector('[data-action="delete"]').style.display = 'none';
       showUserModal();
@@ -1654,6 +2118,7 @@
       const name = getCellValue(row, 'name');
       const email = getCellValue(row, 'email');
       const location = getCellValue(row, 'location');
+      const team = getCellValue(row, 'team');
       const roles = getCellValue(row, 'roles');
 
       editMode.textContent = 'Edit user access';
@@ -1661,6 +2126,7 @@
       editName.value = name;
       editEmail.value = email;
       editLocation.value = LOCATION_OPTIONS.includes(location) ? location : '—';
+      editTeam.value = getTeamNames().includes(team) ? team : '—';
       resetRoleSelection(editRoles, roles);
       userEditModal.querySelector('[data-action="delete"]').style.display = '';
       showUserModal();
@@ -1678,6 +2144,7 @@
       const name = editName.value.trim();
       const email = editEmail.value.trim();
       const location = editLocation.value;
+      const team = editTeam.value;
       const roles = [...editRoles.querySelectorAll('input:checked')].map((input) => input.value);
 
       if (!name || !email) {
@@ -1690,11 +2157,14 @@
           name,
           email,
           location,
+          team,
           roles,
           updated: formatToday()
         });
         usersTable.querySelector('tbody').prepend(row);
         updateBatchSelectionState();
+        renderTeamMembers();
+        applyUserFilters();
         showToast(`Added user ${name}`);
         closeUserModal();
         return;
@@ -1705,22 +2175,27 @@
         name: getCellValue(activeRow, 'name'),
         email: getCellValue(activeRow, 'email'),
         location: getCellValue(activeRow, 'location'),
+        team: getCellValue(activeRow, 'team'),
         roles: getCellValue(activeRow, 'roles')
       };
       const changed = name !== original.name
         || email !== original.email
         || location !== original.location
+        || team !== original.team
         || roles.join('|') !== original.roles.join('|');
 
       setCellValue(activeRow, 'name', name);
       setCellValue(activeRow, 'email', email);
       setCellValue(activeRow, 'location', location);
+      setCellValue(activeRow, 'team', team);
       setCellValue(activeRow, 'roles', roles);
       if (changed) {
         const updated = formatToday();
         setCellValue(activeRow, 'updated', updated);
         activeRow.classList.add('row-dirty');
         showToast(`Updated permissions for ${name}`);
+        renderTeamMembers();
+        applyUserFilters();
       }
 
       closeUserModal();
@@ -1733,6 +2208,8 @@
       if (!confirmed) return;
       activeRow.remove();
       updateBatchSelectionState();
+      renderTeamMembers();
+      applyUserFilters();
       showToast(`Deleted user ${name}`);
       closeUserModal();
     }
@@ -1796,11 +2273,21 @@
 
       selectedRows.forEach((row) => row.remove());
       updateBatchSelectionState();
+      renderTeamMembers();
+      applyUserFilters();
       showToast(`Deleted ${selectedRows.length} user${selectedRows.length > 1 ? 's' : ''}`);
     }
 
     if (usersTable) {
       initializeUserSelection();
+      applyUserFilters();
+      userSearchButton.addEventListener('click', applyUserFilters);
+      userSearchInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') applyUserFilters();
+      });
+      userRoleFilter.addEventListener('change', applyUserFilters);
+      userTeamFilter.addEventListener('change', applyUserFilters);
+      userLocationFilter.addEventListener('change', applyUserFilters);
       usersTable.addEventListener('click', (event) => {
         if (event.target.closest('input, button, label')) return;
         const row = event.target.closest('.user-row');
@@ -1838,6 +2325,8 @@
       if (event.key === 'Escape' && userEditModal.classList.contains('open')) closeUserModal();
       if (event.key === 'Escape' && batchRoleModal.classList.contains('open')) closeBatchRoleModal();
       if (event.key === 'Escape' && addRoleModal.classList.contains('open')) closeAddRoleModal();
+      if (event.key === 'Escape' && addTeamModal.classList.contains('open')) closeAddTeamModal();
+      if (event.key === 'Escape' && addTeamMembersModal.classList.contains('open')) closeAddTeamMembersModal();
     });
   </script>
 </body>
