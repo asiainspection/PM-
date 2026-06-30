@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QIMAlabs Certificate Generation — Order Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /*
+      Certificate generation page.
+      Visual baseline: prototypes/qimalabs-report-generation-order-detail.html
+      Tokens/components reused verbatim; only certificate-specific components
+      (.cert-table, .citation-table, .importer-card, .remark-box) are added and
+      built exclusively from the same :root tokens below.
+    */
+    :root {
+      --qima-red: #e4002b;
+      --pool-050: #f2f5fd; --pool-100: #e6ecfb; --pool-200: #d3dcf8;
+      --pool-500: #4169e1; --pool-600: #1e46bd; --pool-900: #153184;
+      --cherry-100: #fdefef; --cherry-500: #e5353d; --cherry-900: #9e141b;
+      --orange-100: #fcf2e6; --orange-500: #f58f00; --orange-900: #b26309;
+      --lemon-100: #fff9e7; --lemon-500: #ffca0f; --lemon-900: #bd8a00;
+      --kiwi-100: #eaf6f2; --kiwi-500: #00a876; --kiwi-900: #006648;
+      --carbon: #191919; --cloud: #f7f7f7; --mist: #f0f0f0;
+      --pearl: #dedede; --seal: #737373; --smoke: #b3b3b3; --white: #fff;
+      --decorative-grapes: #a2005d;
+      --space-min: 2px; --space-base: 4px; --space-xs: 8px; --space-s: 12px;
+      --space-m: 16px; --space-l: 24px; --space-xl: 36px; --space-xxl: 48px;
+      --radius-min: 4px; --radius-base: 6px; --radius-xs: 8px;
+      --radius-s: 12px; --radius-m: 16px; --radius-l: 20px;
+      --dur-quick: 250ms; --ease: ease-in-out;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-cjk: 'Noto Sans SC', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font: 400 14px/1.5 var(--font-sans);
+      color: var(--carbon);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+
+    /* === App shell (identical to report-generation prototype) === */
+    .topbar {
+      height: 31px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-xs);
+      border-bottom: 1px solid var(--pearl);
+      background: var(--white);
+    }
+    .topbar__left { display: flex; align-items: center; gap: var(--space-s); }
+    .topbar__right { display: flex; align-items: center; gap: var(--space-s); color: var(--seal); }
+    .qima-logo { display: inline-flex; align-items: baseline; gap: 3px; font-family: var(--font-sans); }
+    .qima-logo strong { color: var(--qima-red); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
+    .qima-logo span { color: #1f2547; font-size: 11px; font-weight: 700; }
+    .topbar__icon {
+      width: 18px; height: 18px; display: grid; place-items: center;
+      color: var(--seal); border: 0; background: transparent;
+    }
+    .topbar__avatar {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--orange-500); color: var(--white);
+      display: grid; place-items: center; font-size: 9px; font-weight: 700;
+    }
+
+    .app {
+      height: calc(100vh - 31px);
+      display: grid;
+      grid-template-columns: 36px 252px minmax(0, 1fr);
+    }
+
+    .rail {
+      display: flex; flex-direction: column; align-items: center; gap: var(--space-xs);
+      padding-top: var(--space-s);
+      border-right: 1px solid var(--pearl); background: var(--cloud);
+    }
+    .rail__item {
+      width: 24px; height: 24px; display: grid; place-items: center;
+      border: 1px solid transparent; border-radius: var(--radius-min);
+      color: var(--seal); background: transparent;
+      transition: background var(--dur-quick) var(--ease), color var(--dur-quick) var(--ease);
+    }
+    .rail__item:hover { background: var(--mist); color: var(--carbon); }
+    .rail__item.is-active { background: var(--pool-100); color: var(--pool-900); }
+
+    .step-nav {
+      position: relative;
+      border-right: 1px solid var(--pearl); background: var(--white);
+    }
+    .step-nav__back {
+      height: 36px;
+      display: flex; align-items: center; gap: var(--space-xs);
+      padding: 0 var(--space-m);
+      border-bottom: 1px solid var(--pearl);
+      color: var(--carbon); font-size: 12px; white-space: nowrap;
+    }
+    .step-nav__back .muted { color: var(--seal); }
+    .step-nav__back strong { color: var(--carbon); }
+    .step-nav__back a { color: var(--pool-500); text-decoration: none; }
+    .step-nav__back a:hover { text-decoration: underline; }
+    .step-nav__list { padding: var(--space-xs) 0; }
+    .step-nav__item {
+      min-height: 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--space-m) 0 calc(var(--space-s));
+      border-left: 3px solid transparent;
+      color: var(--carbon); font: 500 12px/16px var(--font-sans);
+    }
+    .step-nav__item.is-active {
+      color: var(--pool-900); background: var(--pool-050); border-left-color: var(--pool-500); font-weight: 600;
+    }
+    .step-nav__item .step-nav__sub {
+      display: block; padding: var(--space-base) var(--space-m) var(--space-xs);
+      color: var(--seal); font: 400 11px/16px var(--font-sans);
+    }
+    .step-nav__item.is-active .step-nav__sub { color: var(--pool-900); }
+    .step-nav__actions { color: var(--pool-500); font-size: 12px; }
+    .step-nav__grip {
+      position: absolute; top: 60px; right: -11px; z-index: 5;
+      width: 22px; height: 22px; display: grid; place-items: center;
+      border: 1px solid var(--pearl); border-radius: 50%;
+      background: var(--white); color: var(--smoke);
+    }
+
+    /* main content */
+    .main {
+      overflow: auto; background: var(--white);
+      padding: var(--space-l) var(--space-l) var(--space-xxl) var(--space-m);
+    }
+    .main__title {
+      margin-bottom: var(--space-m);
+      font: 700 16px/22px var(--font-cjk); color: var(--carbon);
+    }
+    .main__subtitle {
+      margin: calc(var(--space-min) * -1) 0 var(--space-l);
+      color: var(--seal); font: 400 12px/18px var(--font-sans);
+      max-width: 640px;
+    }
+
+    .section { margin-bottom: var(--space-m); }
+    .section__head {
+      min-height: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-xs);
+    }
+    .section__title {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      font: 700 13px/18px var(--font-cjk); color: var(--carbon);
+    }
+    .section__title svg { color: var(--pool-500); }
+    .section__head-actions { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; justify-content: flex-end; }
+
+    /* qima-button (reused recipe) */
+    .qima-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-xs);
+      height: 36px; padding: 0 var(--space-m); border-radius: var(--radius-xs);
+      border: 1px solid transparent; background: var(--white); color: var(--carbon);
+      font: 600 12px/16px var(--font-sans);
+      transition: background-color var(--dur-quick) var(--ease), color var(--dur-quick) var(--ease), border-color var(--dur-quick) var(--ease);
+    }
+    .qima-btn:hover { transform: translateY(-1px); }
+    .qima-btn--primary { background: var(--pool-500); color: var(--white); }
+    .qima-btn--primary:hover { background: var(--pool-600); }
+    .qima-btn--secondary { background: var(--white); color: var(--pool-900); border-color: var(--pool-500); }
+    .qima-btn--secondary:hover { background: var(--pool-050); }
+    .qima-btn--tertiary { background: transparent; color: var(--pool-900); border-color: transparent; }
+    .qima-btn--tertiary:hover { background: var(--pool-050); }
+    .qima-btn--disabled,
+    .qima-btn:disabled {
+      background: var(--mist); color: var(--smoke); border-color: var(--pearl);
+      cursor: not-allowed; transform: none;
+    }
+    .qima-btn-icon {
+      width: 28px; height: 28px; padding: 0; border: 1px solid var(--pearl);
+      border-radius: var(--radius-min); background: var(--white); color: var(--seal);
+      display: inline-grid; place-items: center;
+      transition: background var(--dur-quick) var(--ease), color var(--dur-quick) var(--ease);
+    }
+    .qima-btn-icon:hover { background: var(--pool-050); color: var(--pool-900); }
+
+    /* qima-badge (reused recipe) */
+    .qima-badge {
+      display: inline-flex; align-items: center; height: 20px; padding: 0 var(--space-xs);
+      border: 1px solid transparent; border-radius: 16px;
+      font: 700 11px/16px var(--font-sans); text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--white);
+    }
+    .qima-badge--grapes { background: var(--decorative-grapes); }
+    .qima-badge--pool { background: var(--pool-500); }
+    .qima-badge--soft { text-transform: none; letter-spacing: 0; font-weight: 600; }
+
+    /* status-badge (reused recipe — 24px, 6px dot) */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 var(--space-xs);
+      border-radius: var(--radius-min); font: 600 12px/16px var(--font-sans); white-space: nowrap;
+    }
+    .status-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+    .status-badge--pool { background: var(--pool-100); color: var(--pool-900); }
+    .status-badge--kiwi { background: var(--kiwi-100); color: var(--kiwi-900); }
+    .status-badge--orange { background: var(--orange-100); color: var(--orange-900); }
+    .status-badge--cherry { background: var(--cherry-100); color: var(--cherry-900); }
+    .status-badge--lemon { background: var(--lemon-100); color: var(--lemon-900); }
+    .status-badge--mist { background: var(--mist); color: var(--seal); }
+
+    /* info-grid (reused recipe) */
+    .info-grid {
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: var(--space-m) var(--space-l);
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      background: var(--white);
+    }
+    .info-item label {
+      display: block; margin-bottom: var(--space-base);
+      color: var(--seal); font: 400 12px/16px var(--font-sans);
+    }
+    .info-item strong {
+      display: block; color: var(--carbon);
+      font: 600 13px/18px var(--font-cjk); overflow-wrap: anywhere;
+    }
+    .info-item strong.missing { color: var(--orange-900); }
+
+    /* department head + style chip (reused recipes) */
+    .department-head {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-s);
+      padding: var(--space-xs) 0; border-top: 1px solid rgba(0,0,0,0.1);
+      font: 700 13px/18px var(--font-cjk); color: var(--carbon);
+    }
+    .department-head__left { display: flex; align-items: center; gap: var(--space-xs); flex-wrap: wrap; }
+    .department-count {
+      min-width: 20px; height: 20px; padding: 0 var(--space-xs);
+      display: inline-grid; place-items: center;
+      border-radius: 999px; background: var(--pool-050); color: var(--pool-900);
+      font: 700 11px/16px var(--font-sans);
+    }
+    .style-chip {
+      display: inline-flex; align-items: center; height: 20px; padding: 0 var(--space-xs);
+      border-radius: 16px; background: var(--pool-050); color: var(--pool-900);
+      font: 600 11px/16px var(--font-sans);
+    }
+
+    /* ============================================================
+       Certificate-specific components — built from the SAME tokens
+       above (no new colors/spacing/radius introduced).
+       ============================================================ */
+
+    /* Overview table of certificate records */
+    .cert-table {
+      width: 100%; border-collapse: collapse;
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs); overflow: hidden;
+      background: var(--white);
+    }
+    .cert-table thead th {
+      text-align: left; padding: var(--space-s) var(--space-m);
+      background: var(--cloud); color: var(--seal);
+      font: 600 12px/16px var(--font-sans);
+      border-bottom: 1px solid rgba(0,0,0,0.1); white-space: nowrap;
+    }
+    .cert-table tbody td {
+      padding: var(--space-s) var(--space-m);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      vertical-align: middle; font-size: 12px; color: var(--seal);
+    }
+    .cert-table tbody tr:last-child td { border-bottom: 0; }
+    .cert-table tbody tr:hover { background: var(--pool-050); }
+    .cert-table .cert-name { color: var(--carbon); font: 600 13px/18px var(--font-cjk); }
+    .cert-table .cert-name span { display: block; color: var(--seal); font: 400 12px/16px var(--font-sans); font-weight: 400; }
+
+    /* Importer card (default party) */
+    .importer-card {
+      max-width: 520px; padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      background: var(--cloud);
+    }
+    .importer-card h4 {
+      margin-bottom: var(--space-base); color: var(--pool-900);
+      font: 600 12px/16px var(--font-sans);
+    }
+    .importer-card p { color: var(--seal); font: 400 12px/16px var(--font-cjk); }
+
+    /* Remark box (lab-shared preset) */
+    .remark-box {
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      background: var(--white); overflow: hidden; margin-bottom: var(--space-s);
+    }
+    .remark-box__head {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-s);
+      padding: var(--space-s) var(--space-m);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .remark-box__title { font: 700 13px/18px var(--font-cjk); color: var(--carbon); }
+    .remark-box__body { padding: var(--space-s) var(--space-m); }
+    .remark-box__body label {
+      display: block; margin-bottom: var(--space-base);
+      color: var(--seal); font: 500 12px/16px var(--font-sans);
+    }
+    .remark-box__body textarea {
+      width: 100%; min-height: 84px; resize: vertical;
+      padding: var(--space-s); border: 1px solid var(--pearl); border-radius: var(--radius-min);
+      background: var(--white); color: var(--carbon);
+      font: 400 12px/18px var(--font-cjk);
+    }
+    .remark-box__helper { margin-top: var(--space-xs); color: var(--smoke); font: 400 11px/16px var(--font-sans); }
+
+    /* Citation mapping table (per department) */
+    .citation-table {
+      width: 100%; border-collapse: collapse; background: var(--white);
+    }
+    .citation-table thead th {
+      text-align: left; padding: var(--space-xs) var(--space-m);
+      background: var(--cloud); color: var(--seal);
+      font: 600 11px/16px var(--font-sans);
+      border-bottom: 1px solid rgba(0,0,0,0.1); white-space: nowrap;
+    }
+    .citation-table tbody td {
+      padding: var(--space-xs) var(--space-m);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font: 400 12px/16px var(--font-sans); color: var(--carbon);
+      vertical-align: middle;
+    }
+    .citation-table tbody tr:last-child td { border-bottom: 0; }
+    .citation-table .code { font-family: 'DM Mono', monospace; color: var(--pool-900); font-weight: 500; }
+    .citation-table .muted { color: var(--seal); }
+    .citation-table .src { color: var(--seal); font-size: 11px; }
+    .citation-table .remove { color: var(--cherry-500); font-weight: 600; text-decoration: none; font-size: 11px; }
+    .citation-table .remove:hover { text-decoration: underline; }
+    .citation-wrap {
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs); overflow: hidden;
+      margin-bottom: var(--space-xs);
+    }
+
+    .dept-row-head {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-s);
+      padding: var(--space-s) 0;
+    }
+    .dept-row-head__title { font: 700 13px/18px var(--font-cjk); color: var(--carbon); }
+    .dept-row-head__hint { color: var(--seal); font: 400 12px/16px var(--font-sans); }
+    .dept-row-head__actions { display: flex; align-items: center; gap: var(--space-xs); }
+
+    .empty-note {
+      padding: var(--space-m); border: 1px dashed var(--pearl); border-radius: var(--radius-xs);
+      background: var(--cloud); color: var(--seal); font: 400 12px/18px var(--font-sans);
+    }
+
+    @media (max-width: 1180px) {
+      .info-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .rail, .step-nav { display: none; }
+      .main { padding: var(--space-m); }
+      .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .section__head { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-doc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M5 2.8h6.5L16 7.3v9.9H5z"/><path d="M11.5 3v4.5H16M7.5 11h5M7.5 14h4" stroke-linecap="round"/></symbol>
+    <symbol id="i-lab" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 3h4M9 3v4.5l-4.8 8A1.4 1.4 0 0 0 5.4 17h9.2a1.4 1.4 0 0 0 1.2-2.1L11 7.5V3"/><path d="M6.5 13h7" stroke-linecap="round"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1.2"/><rect x="11" y="3" width="6" height="4" rx="1.2"/><rect x="11" y="9" width="6" height="8" rx="1.2"/><rect x="3" y="11" width="6" height="6" rx="1.2"/></symbol>
+    <symbol id="i-download" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5 9l5 5 5-5M3 17h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="9" cy="9" r="5.5"/><path d="M13 13l4 4"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8l6 6 6-6"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l4 4M4 16l1-4L15 2l3 3L8 15l-4 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M10 2.5l6 2v5c0 4-2.6 6.8-6 8-3.4-1.2-6-4-6-8v-5z"/><path d="M7.5 10l1.8 1.8L12.8 8" stroke-linecap="round"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 6a6 6 0 1 0 1.5 4"/><path d="M16 3v3.5h-3.5"/></symbol>
+  </svg>
+
+  <!-- Lean topbar (QIMA labs) -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button class="topbar__icon" aria-label="Menu"><svg width="16" height="16"><use href="#i-grid"/></svg></button>
+      <div class="qima-logo"><strong>QIMA</strong><span>labs</span></div>
+    </div>
+    <div class="topbar__right">
+      <button class="topbar__icon" aria-label="Apps"><svg width="16" height="16"><use href="#i-grid"/></svg></button>
+      <button class="topbar__icon" aria-label="Search"><svg width="16" height="16"><use href="#i-search"/></svg></button>
+      <div class="topbar__avatar">LQ</div>
+    </div>
+  </header>
+
+  <div class="app">
+    <!-- icon rail -->
+    <aside class="rail" aria-label="Primary navigation">
+      <button class="rail__item" aria-label="Console"><svg width="16" height="16"><use href="#i-lab"/></svg></button>
+      <button class="rail__item is-active" aria-label="Report generation"><svg width="16" height="16"><use href="#i-doc"/></svg></button>
+      <button class="rail__item" aria-label="Dashboard"><svg width="16" height="16"><use href="#i-grid"/></svg></button>
+    </aside>
+
+    <!-- step nav -->
+    <aside class="step-nav" aria-label="Order detail steps">
+      <div class="step-nav__back">
+        <span>← <a href="https://asiainspection.github.io/PM-/qimalabs-order-detail/qimalabs-order-detail-2026-06-30.html">Back</a></span>
+        <span class="muted">/</span>
+        <strong>T-25671808-07-R</strong>
+        <span>↗</span>
+        <svg width="13" height="13"><use href="#i-search"/></svg>
+      </div>
+      <div class="step-nav__list">
+        <div class="step-nav__item">1. Report <span>›</span></div>
+        <div class="step-nav__item is-active">
+          2. Certificate <span class="step-nav__actions">☷ ＋</span>
+          <span class="step-nav__sub">Order level · 5 records</span>
+        </div>
+        <div class="step-nav__item">3. eFiling <span class="step-nav__actions">▽ ⌄</span></div>
+      </div>
+      <button class="step-nav__grip" aria-label="Collapse">‹</button>
+    </aside>
+
+    <!-- main content -->
+    <main class="main">
+      <h1 class="main__title">T-25671808-07-R — Certificate</h1>
+      <p class="main__subtitle">Order-level certificate overview. CPC and GCC use admin information and citation mapping; COC, DOC, and VOC use admin information only.</p>
+
+      <!-- Certificate overview -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Certificate overview</div>
+          <div class="section__head-actions">
+            <span class="qima-badge qima-badge--grapes qima-badge--soft">CPSC eFiling auto-sync</span>
+            <span class="status-badge status-badge--kiwi">Auto-sync after report sent + certificate confirmed</span>
+            <button class="qima-btn qima-btn--primary"><svg width="13" height="13"><use href="#i-plus"/></svg> Add certificate</button>
+          </div>
+        </div>
+        <table class="cert-table">
+          <thead>
+            <tr>
+              <th>Certificate record</th>
+              <th>Linked report(s)</th>
+              <th>Admin info</th>
+              <th>Citation</th>
+              <th>File</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="cert-name">CPC<span>Combined product set</span></span></td>
+              <td>All reports</td>
+              <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
+              <td><span class="status-badge status-badge--orange">Pending</span></td>
+              <td><span class="status-badge status-badge--orange">Not available</span></td>
+            </tr>
+            <tr>
+              <td><span class="cert-name">GCC<span>General Certificate of Conformity</span></span></td>
+              <td>T-25671808-07-R17</td>
+              <td><span class="status-badge status-badge--orange">Incomplete</span></td>
+              <td><span class="status-badge status-badge--mist">Not started</span></td>
+              <td><span class="status-badge status-badge--orange">Not available</span></td>
+            </tr>
+            <tr>
+              <td><span class="cert-name">COC<span>Certificate of Compliance</span></span></td>
+              <td>All reports</td>
+              <td><span class="status-badge status-badge--orange">Incomplete</span></td>
+              <td><span class="status-badge status-badge--mist">N/A</span></td>
+              <td><span class="status-badge status-badge--orange">Not available</span></td>
+            </tr>
+            <tr>
+              <td><span class="cert-name">DOC<span>Declaration of Conformity</span></span></td>
+              <td>T-25671808-07-R17</td>
+              <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
+              <td><span class="status-badge status-badge--mist">N/A</span></td>
+              <td><span class="status-badge status-badge--kiwi">Ready to send</span></td>
+            </tr>
+            <tr>
+              <td><span class="cert-name">VOC<span>Volatile organic compound report</span></span></td>
+              <td>T-25671808-07-OTTO</td>
+              <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
+              <td><span class="status-badge status-badge--mist">N/A</span></td>
+              <td><span class="status-badge status-badge--kiwi">Ready to send</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- CPC — selected record detail: Admin information -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-doc"/></svg> CPC details — Admin information</div>
+          <div class="section__head-actions">
+            <span class="status-badge status-badge--orange">Citation pending</span>
+            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-edit"/></svg> Edit admin info</button>
+          </div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><label>Template selection</label><strong>DGN-CS-SS-007 CPC Template (FUN.COM) — Ver.1.8</strong></div>
+          <div class="info-item"><label>Test mapping criteria</label><strong>Pass + N/A test</strong></div>
+          <div class="info-item"><label>Citation mapping criteria</label><strong>All test need to show</strong></div>
+          <div class="info-item"><label>File name</label><strong>T-25671808-07-CPC-Style-B</strong></div>
+          <div class="info-item"><label>Admin status</label><strong>Confirmed</strong></div>
+          <div class="info-item" style="grid-column: 1 / -1;">
+            <label>Default importer</label>
+            <div class="importer-card">
+              <h4>US importer</h4>
+              <p>Scholastic Inc.<br>557 Broadway, New York, NY 10012, USA</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CPC — Product groups -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-grid"/></svg> Product</div>
+          <button class="qima-btn-icon" aria-label="Collapse"><svg width="14" height="14"><use href="#i-chevron"/></svg></button>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><label>Product ID system mapping field</label><strong>Product reference number</strong></div>
+          <div class="info-item"><label>Factory / Manufacture address</label><strong>14FL, 5th Bldg, 188 Binkang Road, Hangzhou, Zhejiang, China (CN)</strong></div>
+        </div>
+        <div class="info-grid" style="margin-top: var(--space-xs);">
+          <div class="info-item"><label>Product group 1 — Product ID value</label><strong>W06YJUK00007-A</strong></div>
+          <div class="info-item"><label>Product group 1 — Product name</label><strong>GARMENT / Style A</strong></div>
+          <div class="info-item"><label>Product group 1 — Manufacture date</label><strong>13-05-2026</strong></div>
+          <div class="info-item"><label>Product group 2 — Product ID value</label><strong>W06YJUK00007-B</strong></div>
+          <div class="info-item"><label>Product group 2 — Product name</label><strong>GARMENT / Style B</strong></div>
+          <div class="info-item"><label>Product group 2 — Manufacture date</label><strong>13-05-2026</strong></div>
+        </div>
+        <div class="info-grid" style="margin-top: var(--space-xs);">
+          <div class="info-item"><label>Associated report</label><strong>All reports</strong></div>
+        </div>
+      </section>
+
+      <!-- CPC — Citation confirmation by department -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-lab"/></svg> Citation confirmation by department</div>
+          <div class="section__head-actions">
+            <span class="status-badge status-badge--orange">2 pending</span>
+            <button class="qima-btn qima-btn--primary">Confirm · Chemical</button>
+            <button class="qima-btn qima-btn--primary">Confirm · Physical</button>
+          </div>
+        </div>
+
+        <!-- Remark -->
+        <div class="remark-box">
+          <div class="remark-box__head">
+            <div class="remark-box__title">Remark</div>
+            <span class="style-chip">Lab shared</span>
+          </div>
+          <div class="remark-box__body">
+            <label for="remark-cpc">Remark text</label>
+            <textarea id="remark-cpc">Tests were conducted at QIMA Dongguan laboratory under CPSC accepted accreditation. Lab registration and CPSC ID appear in the certificate header.
+
+Total lead content in accessible substrate materials was tested per CPSC-CH-E1001-08.3 and CPSC-CH-E1002-08.3 as applicable. Mechanical and physical tests were performed in accordance with ASTM F963-23 applicable sections.</textarea>
+            <p class="remark-box__helper">Lab shared · preset from Program.</p>
+          </div>
+        </div>
+
+        <!-- Chemical department -->
+        <div class="department-head">
+          <div class="department-head__left">
+            Chemical
+            <span class="department-count">4</span>
+            <span class="status-badge status-badge--orange">Pending</span>
+            <span style="color:var(--seal);font:400 12px/16px var(--font-sans);">Default mapping: test level</span>
+          </div>
+          <button class="qima-btn qima-btn--tertiary">Auto map</button>
+        </div>
+        <div class="citation-wrap">
+          <table class="citation-table">
+            <thead>
+              <tr>
+                <th>Citation code</th>
+                <th>Product</th>
+                <th>Regulation</th>
+                <th>Include in certificate</th>
+                <th>Source</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="code">1278a</td>
+                <td>Lead Content in Children's Metal Jewelry</td>
+                <td class="muted">CPSIA section 101</td>
+                <td>Yes</td>
+                <td class="src">Auto mapped</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+              <tr>
+                <td class="code">1307</td>
+                <td>Phthalates</td>
+                <td class="muted">16 CFR part 1307</td>
+                <td>Yes</td>
+                <td class="src">Auto mapped</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+              <tr>
+                <td class="muted">--</td>
+                <td>Client requirement test</td>
+                <td class="muted">No CPSC citation</td>
+                <td>Customer-specific</td>
+                <td class="src">Program default</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+              <tr>
+                <td class="muted">--</td>
+                <td>Additional performed chemical test</td>
+                <td class="muted">No CPSC citation</td>
+                <td>Customer-specific</td>
+                <td class="src">Manual add</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Physical department -->
+        <div class="department-head">
+          <div class="department-head__left">
+            Physical
+            <span class="department-count">3</span>
+            <span class="status-badge status-badge--orange">Pending</span>
+            <span style="color:var(--seal);font:400 12px/16px var(--font-sans);">Required mapping: parameter level</span>
+          </div>
+          <button class="qima-btn qima-btn--tertiary">Auto map</button>
+        </div>
+        <div class="citation-wrap">
+          <table class="citation-table">
+            <thead>
+              <tr>
+                <th>Citation code</th>
+                <th>Product</th>
+                <th>Regulation</th>
+                <th>Parameter</th>
+                <th>Mapping level</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="code">1501</td>
+                <td>Small parts</td>
+                <td class="muted">16 CFR part 1501</td>
+                <td>Small parts cylinder</td>
+                <td class="src">Parameter</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+              <tr>
+                <td class="code">ASTM F963</td>
+                <td>Mechanical hazards</td>
+                <td class="muted">ASTM F963-23</td>
+                <td>4.1 Material Quality</td>
+                <td class="src">Parameter</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+              <tr>
+                <td class="code">ASTM F963</td>
+                <td>Mechanical hazards</td>
+                <td class="muted">ASTM F963-23</td>
+                <td>4.5 Sound Producing Toys</td>
+                <td class="src">Parameter</td>
+                <td><a class="remove" href="#">Remove</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section__head-actions" style="justify-content: flex-start; margin-top: var(--space-s);">
+          <button class="qima-btn qima-btn--disabled" disabled>Generate disabled until admin and all departments confirm</button>
+        </div>
+      </section>
+
+      <!-- CPSC eFiling -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-refresh"/></svg> CPSC eFiling</div>
+          <span class="qima-badge qima-badge--pool qima-badge--soft">Enabled · SCHOLASTIC</span>
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><label>Auto-sync status</label><strong>Pending auto-sync</strong></div>
+          <div class="info-item"><label>Program</label><strong>SCHOLASTIC · DG CPC v1.8</strong></div>
+          <div class="info-item"><label>Sync rule</label><strong>After report sent + certificate confirmed</strong></div>
+          <div class="info-item"><label>Selected record</label><strong>All records</strong></div>
+          <div class="info-item" style="display:flex;align-items:flex-end;">
+            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-refresh"/></svg> Sync CPSC eFiling data</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Readiness checklist -->
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Readiness checklist</div>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>1. Admin information</label>
+            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Per certificate record. Confirm admin before citation work starts.</span>
+          </div>
+          <div class="info-item">
+            <label>2. Citation + remark by department</label>
+            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">CPC and GCC only. COC, DOC, and VOC skip citation mapping.</span>
+          </div>
+          <div class="info-item">
+            <label>3. Generate certificate</label>
+            <strong><span class="status-badge status-badge--cherry">Blocked</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Available when admin and all department citations are confirmed for the selected record.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
