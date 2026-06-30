@@ -143,13 +143,34 @@
     .main__subtitle {
       margin: calc(var(--space-min) * -1) 0 var(--space-l);
       color: var(--seal); font: 400 12px/18px var(--font-sans);
-      max-width: 640px;
+      max-width: 720px;
+    }
+    .page-header {
+      margin-bottom: var(--space-l);
+      padding-bottom: var(--space-s);
+      border-bottom: 1px solid var(--pearl);
+    }
+    .page-header .main__title { margin-bottom: var(--space-xs); }
+    .page-header .main__subtitle { margin: 0; }
+    .page-eyebrow {
+      display: block; margin-bottom: var(--space-base);
+      color: var(--seal); font: 600 11px/12px var(--font-sans);
+      letter-spacing: 0.06em; text-transform: uppercase;
     }
     .page-view { display: none; }
     .page-view.is-active { display: block; }
 
     /* section wrapper */
-    .section { margin-bottom: var(--space-m); }
+    .section { margin-bottom: var(--space-l); }
+    .section__lede {
+      margin: 0 0 var(--space-s);
+      color: var(--seal); font: 400 12px/18px var(--font-sans);
+      max-width: 720px;
+    }
+    .section__meta {
+      display: flex; align-items: center; gap: var(--space-xs);
+      flex-wrap: wrap; justify-content: flex-end;
+    }
     .section__head {
       min-height: 24px;
       display: flex; align-items: center; justify-content: space-between;
@@ -298,15 +319,22 @@
     }
 
     /* Certificate page components (content from v4 reference, same tokens) */
+    .cert-table-scroll {
+      overflow-x: auto;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: var(--radius-xs);
+      background: var(--white);
+      -webkit-overflow-scrolling: touch;
+    }
     .cert-table {
-      width: 100%; border-collapse: collapse;
-      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs); overflow: hidden;
+      width: 100%; min-width: 760px;
+      border-collapse: collapse;
       background: var(--white);
     }
     .cert-table thead th {
       text-align: left; padding: var(--space-s) var(--space-m);
-      background: var(--cloud); color: var(--seal);
-      font: 600 12px/16px var(--font-sans);
+      background: var(--mist); color: var(--carbon);
+      font: 600 13px/16px var(--font-sans);
       border-bottom: 1px solid rgba(0,0,0,0.1); white-space: nowrap;
     }
     .cert-table tbody td {
@@ -315,9 +343,22 @@
       vertical-align: middle; font-size: 12px; color: var(--seal);
     }
     .cert-table tbody tr:last-child td { border-bottom: 0; }
-    .cert-table tbody tr:hover { background: var(--pool-050); }
+    .cert-table tbody tr[data-record] {
+      cursor: pointer;
+      transition: background var(--dur-quick) var(--ease), box-shadow var(--dur-quick) var(--ease);
+    }
+    .cert-table tbody tr[data-record]:hover { background: var(--pool-050); }
+    .cert-table tbody tr.is-selected {
+      background: var(--pool-050);
+      box-shadow: inset 3px 0 0 var(--pool-500);
+    }
+    .cert-table tbody tr.is-selected:hover { background: var(--pool-100); }
     .cert-table .cert-name { color: var(--carbon); font: 600 13px/18px var(--font-cjk); }
-    .cert-table .cert-name span { display: block; color: var(--seal); font: 400 12px/16px var(--font-sans); font-weight: 400; }
+    .cert-table .cert-name span { display: block; color: var(--seal); font: 400 12px/16px var(--font-sans); font-weight: 400; margin-top: 1px; }
+    .cert-table .cert-row-action {
+      width: 28px; text-align: right; color: var(--pool-500); font-size: 14px; font-weight: 600;
+    }
+    .cert-table tbody tr[data-record]:hover .cert-row-action { color: var(--pool-600); }
     .importer-card {
       max-width: 520px; padding: var(--space-s) var(--space-m);
       border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
@@ -342,18 +383,19 @@
       background: var(--white); color: var(--carbon); font: 400 12px/18px var(--font-cjk);
     }
     .remark-box__helper { margin-top: var(--space-xs); color: var(--smoke); font: 400 11px/16px var(--font-sans); }
-    .citation-table { width: 100%; border-collapse: collapse; background: var(--white); }
+    .citation-table { width: 100%; min-width: 680px; border-collapse: collapse; background: var(--white); }
     .citation-table thead th {
-      text-align: left; padding: var(--space-xs) var(--space-m);
-      background: var(--cloud); color: var(--seal);
-      font: 600 11px/16px var(--font-sans);
+      text-align: left; padding: var(--space-s) var(--space-m);
+      background: var(--mist); color: var(--carbon);
+      font: 600 12px/16px var(--font-sans);
       border-bottom: 1px solid rgba(0,0,0,0.1); white-space: nowrap;
     }
     .citation-table tbody td {
-      padding: var(--space-xs) var(--space-m);
+      padding: var(--space-s) var(--space-m);
       border-bottom: 1px solid rgba(0,0,0,0.06);
       font: 400 12px/16px var(--font-sans); color: var(--carbon); vertical-align: middle;
     }
+    .citation-table tbody tr:hover { background: var(--pool-050); }
     .citation-table tbody tr:last-child td { border-bottom: 0; }
     .citation-table .code { font-family: 'DM Mono', monospace; color: var(--pool-900); font-weight: 500; }
     .citation-table .muted { color: var(--seal); }
@@ -361,36 +403,59 @@
     .citation-table .remove { color: var(--cherry-500); font-weight: 600; text-decoration: none; font-size: 11px; }
     .citation-table .remove:hover { text-decoration: underline; }
     .citation-wrap {
-      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs); overflow: hidden;
-      margin-bottom: var(--space-xs);
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      overflow-x: auto; margin-bottom: var(--space-s);
+      -webkit-overflow-scrolling: touch;
     }
     .cert-subview { display: none; }
     .cert-subview.is-active { display: block; }
     .step-nav__records {
       padding: var(--space-xs) var(--space-s) var(--space-s);
       border-top: 1px solid var(--pearl);
+      max-height: calc(100vh - 280px);
+      overflow-y: auto;
     }
     .step-nav__records[hidden] { display: none; }
+    .step-nav__records-label {
+      display: block; padding: var(--space-xs) var(--space-xs) var(--space-base);
+      color: var(--seal); font: 600 10px/12px var(--font-sans);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
     .record-mini {
       width: 100%; text-align: left;
       padding: var(--space-xs) var(--space-s);
-      border: 1px solid var(--pearl); border-radius: var(--radius-min);
+      border: 1px solid var(--pearl); border-left: 3px solid transparent;
+      border-radius: var(--radius-min);
       background: var(--white); margin-bottom: var(--space-xs);
       cursor: pointer; color: var(--carbon);
+      transition: background var(--dur-quick) var(--ease), border-color var(--dur-quick) var(--ease);
     }
-    .record-mini:hover { background: var(--cloud); }
-    .record-mini.is-active { border-color: var(--pool-500); background: var(--pool-050); }
+    .record-mini:hover { background: var(--cloud); border-color: var(--pearl); }
+    .record-mini.is-active {
+      border-color: var(--pool-200); border-left-color: var(--pool-500);
+      background: var(--pool-050);
+    }
+    .record-mini__row {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs);
+    }
     .record-mini strong { display: block; font: 600 12px/16px var(--font-sans); }
-    .record-mini span { color: var(--seal); font: 400 11px/16px var(--font-sans); }
-    .cert-table tbody tr[data-record] { cursor: pointer; }
-    .cert-table tbody tr.is-selected { background: var(--pool-050); }
+    .record-mini span { display: block; margin-top: 2px; color: var(--seal); font: 400 11px/15px var(--font-sans); }
+    .record-mini__dot {
+      width: 6px; height: 6px; border-radius: 50%; flex: none;
+    }
+    .record-mini__dot--kiwi { background: var(--kiwi-500); }
+    .record-mini__dot--orange { background: var(--orange-500); }
+    .record-mini__dot--mist { background: var(--smoke); }
     .detail-back {
       display: inline-flex; align-items: center; gap: var(--space-xs);
-      margin-bottom: var(--space-m); padding: 0;
-      color: var(--pool-500); font: 500 12px/16px var(--font-sans);
-      cursor: pointer; border: 0; background: transparent;
+      margin-bottom: var(--space-s); padding: var(--space-xs) var(--space-s);
+      color: var(--pool-900); font: 600 12px/16px var(--font-sans);
+      cursor: pointer; border: 1px solid var(--pool-200);
+      border-radius: var(--radius-min); background: var(--pool-050);
+      transition: background var(--dur-quick) var(--ease), border-color var(--dur-quick) var(--ease);
     }
-    .detail-back:hover { text-decoration: underline; }
+    .detail-back:hover { background: var(--pool-100); border-color: var(--pool-500); }
+    .detail-back svg { color: var(--pool-500); flex: none; }
     .admin-panel {
       border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
       background: var(--white); overflow: hidden;
@@ -399,26 +464,65 @@
       display: flex; align-items: center; justify-content: space-between;
       padding: var(--space-s) var(--space-m);
       border-bottom: 1px solid rgba(0,0,0,0.06);
+      background: var(--cloud);
     }
     .admin-panel__title { font: 700 13px/18px var(--font-cjk); color: var(--carbon); }
     .admin-panel__group-title {
-      margin: var(--space-s) var(--space-m) var(--space-xs);
-      font: 600 12px/16px var(--font-sans); color: var(--pool-900);
+      margin: 0; padding: var(--space-xs) var(--space-m);
+      font: 600 11px/16px var(--font-sans); color: var(--pool-900);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      background: var(--pool-050);
+      border-top: 1px solid rgba(0,0,0,0.06);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
     }
+    .admin-panel__group-title:first-of-type { border-top: 0; }
     .admin-panel__foot {
       display: flex; align-items: center; gap: var(--space-s);
       padding: var(--space-s) var(--space-m);
       border-top: 1px solid rgba(0,0,0,0.06);
-    }
-    .product-group-card {
-      margin: 0 var(--space-m) var(--space-xs);
-      padding: var(--space-s) var(--space-m);
-      border: 1px solid rgba(0,0,0,0.08); border-radius: var(--radius-xs);
       background: var(--cloud);
     }
+    .product-group-card {
+      margin: var(--space-s) var(--space-m) var(--space-xs);
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.08); border-left: 3px solid var(--pool-500);
+      border-radius: var(--radius-xs);
+      background: var(--white);
+    }
     .product-group-card h4 {
-      margin-bottom: var(--space-xs);
+      margin-bottom: var(--space-s);
       font: 600 12px/16px var(--font-sans); color: var(--pool-900);
+    }
+    .checklist-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-s);
+    }
+    .checklist-card {
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      background: var(--white);
+    }
+    .checklist-card label {
+      display: block; margin-bottom: var(--space-xs);
+      color: var(--seal); font: 600 11px/16px var(--font-sans);
+    }
+    .checklist-card p {
+      margin-top: var(--space-xs);
+      color: var(--seal); font: 400 12px/16px var(--font-sans);
+    }
+    .department-head--citation {
+      margin-top: var(--space-s);
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+      border-bottom: 0; background: var(--cloud);
+    }
+    .department-head--citation + .citation-wrap {
+      border-radius: 0 0 var(--radius-xs) var(--radius-xs);
+      margin-top: 0;
+    }
+    .citation-section-actions {
+      display: flex; align-items: center; gap: var(--space-xs);
+      flex-wrap: wrap; margin-top: var(--space-s);
     }
     .generate-ready {
       margin-top: var(--space-s);
@@ -435,12 +539,14 @@
 
     @media (max-width: 1180px) {
       .info-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .checklist-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 900px) {
       .app { grid-template-columns: 1fr; }
       .rail, .step-nav { display: none; }
       .main { padding: var(--space-m); }
       .info-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .checklist-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -490,12 +596,31 @@
         <div class="step-nav__item" data-view="test">4. Test <span class="step-nav__actions">▽ ⌄</span></div>
       </div>
       <div class="step-nav__records" id="cert-record-nav" hidden>
-        <button type="button" class="record-mini is-active" data-cert-nav="overview"><strong>Certificate</strong><span>5 records · overview</span></button>
-        <button type="button" class="record-mini" data-cert-nav="cpc"><strong>CPC</strong><span>Citation pending</span></button>
-        <button type="button" class="record-mini" data-cert-nav="gcc"><strong>GCC</strong><span>Admin incomplete</span></button>
-        <button type="button" class="record-mini" data-cert-nav="coc"><strong>COC</strong><span>Admin incomplete</span></button>
-        <button type="button" class="record-mini" data-cert-nav="doc"><strong>DOC</strong><span>Ready to send</span></button>
-        <button type="button" class="record-mini" data-cert-nav="voc"><strong>VOC</strong><span>Ready to send</span></button>
+        <span class="step-nav__records-label">Certificate records</span>
+        <button type="button" class="record-mini is-active" data-cert-nav="overview">
+          <div class="record-mini__row"><strong>Overview</strong></div>
+          <span>5 records · summary table</span>
+        </button>
+        <button type="button" class="record-mini" data-cert-nav="cpc">
+          <div class="record-mini__row"><strong>CPC</strong><span class="record-mini__dot record-mini__dot--orange" aria-hidden="true"></span></div>
+          <span>Citation pending</span>
+        </button>
+        <button type="button" class="record-mini" data-cert-nav="gcc">
+          <div class="record-mini__row"><strong>GCC</strong><span class="record-mini__dot record-mini__dot--orange" aria-hidden="true"></span></div>
+          <span>Admin incomplete</span>
+        </button>
+        <button type="button" class="record-mini" data-cert-nav="coc">
+          <div class="record-mini__row"><strong>COC</strong><span class="record-mini__dot record-mini__dot--orange" aria-hidden="true"></span></div>
+          <span>Admin incomplete</span>
+        </button>
+        <button type="button" class="record-mini" data-cert-nav="doc">
+          <div class="record-mini__row"><strong>DOC</strong><span class="record-mini__dot record-mini__dot--kiwi" aria-hidden="true"></span></div>
+          <span>Ready to send</span>
+        </button>
+        <button type="button" class="record-mini" data-cert-nav="voc">
+          <div class="record-mini__row"><strong>VOC</strong><span class="record-mini__dot record-mini__dot--kiwi" aria-hidden="true"></span></div>
+          <span>Ready to send</span>
+        </button>
       </div>
       <button class="step-nav__grip" aria-label="Collapse">‹</button>
     </aside>
@@ -639,19 +764,25 @@
 
       <!-- Certificate overview -->
       <div class="cert-subview is-active" id="cert-overview">
-      <h1 class="main__title">Certificate</h1>
-      <p class="main__subtitle">Order-level certificate overview. CPC and GCC use admin + citation mapping; COC, DOC, and VOC use admin information only.</p>
+      <header class="page-header">
+        <span class="page-eyebrow">Order 17A-002052 · Certificate</span>
+        <h1 class="main__title">Certificate</h1>
+        <p class="main__subtitle">Order-level certificate overview. CPC and GCC use admin + citation mapping; COC, DOC, and VOC use admin information only.</p>
+      </header>
 
       <section class="section">
         <div class="section__head">
           <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Certificate overview</div>
           <div class="section__head-actions">
-            <span class="qima-badge qima-badge--grapes qima-badge--soft">CPSC eFiling auto-sync</span>
-            <span class="status-badge status-badge--kiwi">Auto-sync after report sent + certificate confirmed</span>
+            <div class="section__meta">
+              <span class="qima-badge qima-badge--grapes qima-badge--soft">CPSC eFiling auto-sync</span>
+              <span class="status-badge status-badge--kiwi">Auto-sync after report sent + certificate confirmed</span>
+            </div>
             <button class="qima-btn qima-btn--primary"><svg width="13" height="13"><use href="#i-plus"/></svg> Add certificate</button>
           </div>
         </div>
-        <p style="margin:0 0 var(--space-s);color:var(--seal);font:400 12px/18px var(--font-sans);">This order has 5 certificate records from AIMS (CPC, GCC, COC, DOC, VOC).</p>
+        <p class="section__lede">This order has 5 certificate records from AIMS (CPC, GCC, COC, DOC, VOC). Select a row or use the record list in the step nav to open record details.</p>
+        <div class="cert-table-scroll">
         <table class="cert-table">
           <thead>
             <tr>
@@ -660,6 +791,7 @@
               <th>Admin info</th>
               <th>Citation</th>
               <th>File</th>
+              <th aria-hidden="true"></th>
             </tr>
           </thead>
           <tbody>
@@ -669,6 +801,7 @@
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
               <td><span class="status-badge status-badge--orange">Pending</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
+              <td class="cert-row-action">›</td>
             </tr>
             <tr data-record="gcc" role="button" tabindex="0">
               <td><span class="cert-name">GCC<span>General Certificate of Conformity</span></span></td>
@@ -676,6 +809,7 @@
               <td><span class="status-badge status-badge--orange">Incomplete</span></td>
               <td><span class="status-badge status-badge--mist">Not started</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
+              <td class="cert-row-action">›</td>
             </tr>
             <tr data-record="coc" role="button" tabindex="0">
               <td><span class="cert-name">COC<span>Certificate of Compliance</span></span></td>
@@ -683,6 +817,7 @@
               <td><span class="status-badge status-badge--orange">Incomplete</span></td>
               <td><span class="status-badge status-badge--mist">N/A</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
+              <td class="cert-row-action">›</td>
             </tr>
             <tr data-record="doc" role="button" tabindex="0">
               <td><span class="cert-name">DOC<span>Declaration of Conformity</span></span></td>
@@ -690,6 +825,7 @@
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
               <td><span class="status-badge status-badge--mist">N/A</span></td>
               <td><span class="status-badge status-badge--kiwi">Ready to send</span></td>
+              <td class="cert-row-action">›</td>
             </tr>
             <tr data-record="voc" role="button" tabindex="0">
               <td><span class="cert-name">VOC<span>Volatile organic compound report</span></span></td>
@@ -697,9 +833,11 @@
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
               <td><span class="status-badge status-badge--mist">N/A</span></td>
               <td><span class="status-badge status-badge--kiwi">Ready to send</span></td>
+              <td class="cert-row-action">›</td>
             </tr>
           </tbody>
         </table>
+        </div>
       </section>
 
       <section class="section">
@@ -722,31 +860,34 @@
         <div class="section__head">
           <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Readiness checklist</div>
         </div>
-        <div class="info-grid">
-          <div class="info-item">
+        <div class="checklist-grid">
+          <article class="checklist-card">
             <label>1. Admin information</label>
-            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Per certificate record. Confirm admin before citation work starts.</span>
-          </div>
-          <div class="info-item">
+            <span class="status-badge status-badge--orange">Pending</span>
+            <p>Per certificate record. Confirm admin before citation work starts.</p>
+          </article>
+          <article class="checklist-card">
             <label>2. Citation + remark by department</label>
-            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">CPC and GCC only. COC, DOC, and VOC skip citation mapping.</span>
-          </div>
-          <div class="info-item">
+            <span class="status-badge status-badge--orange">Pending</span>
+            <p>CPC and GCC only. COC, DOC, and VOC skip citation mapping.</p>
+          </article>
+          <article class="checklist-card">
             <label>3. Generate certificate</label>
-            <strong><span class="status-badge status-badge--cherry">Blocked</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Available when admin and all department citations are confirmed for the selected record.</span>
-          </div>
+            <span class="status-badge status-badge--cherry">Blocked</span>
+            <p>Available when admin and all department citations are confirmed for the selected record.</p>
+          </article>
         </div>
       </section>
       </div>
 
       <!-- CPC detail (from v4 reference) -->
       <div class="cert-subview" id="cert-cpc-detail">
-      <button type="button" class="detail-back" data-cert-nav="overview">← Back to certificate overview</button>
-      <h1 class="main__title">CPC details</h1>
-      <p class="main__subtitle">CPC uses admin information and citation mapping. Confirm admin, then each department confirms citation rows.</p>
+      <button type="button" class="detail-back" data-cert-nav="overview"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l-6 6 6 6"/></svg> Back to certificate overview</button>
+      <header class="page-header">
+        <span class="page-eyebrow">CPC · Combined product set</span>
+        <h1 class="main__title">CPC details</h1>
+        <p class="main__subtitle">CPC uses admin information and citation mapping. Confirm admin, then each department confirms citation rows.</p>
+      </header>
 
       <section class="section">
         <div class="section__head">
@@ -814,7 +955,7 @@
             <button class="qima-btn qima-btn--primary">Confirm · Physical</button>
           </div>
         </div>
-        <p style="margin:0 0 var(--space-s);color:var(--seal);font:400 12px/18px var(--font-sans);">Review shared remark and citation mapping below. Each lab confirms from the section header after checking remark text and its department rows.</p>
+        <p class="section__lede">Review shared remark and citation mapping below. Each lab confirms from the section header after checking remark text and its department rows.</p>
         <div class="remark-box">
           <div class="remark-box__head">
             <div class="remark-box__title">Remark</div>
@@ -828,7 +969,7 @@ Total lead content in accessible substrate materials was tested per CPSC-CH-E100
             <p class="remark-box__helper">Lab shared · preset from Program.</p>
           </div>
         </div>
-        <div class="department-head">
+        <div class="department-head department-head--citation">
           <div class="department-head__left">
             Chemical
             <span class="department-count">4</span>
@@ -885,7 +1026,7 @@ Total lead content in accessible substrate materials was tested per CPSC-CH-E100
             </tbody>
           </table>
         </div>
-        <div class="department-head">
+        <div class="department-head department-head--citation">
           <div class="department-head__left">
             Physical
             <span class="department-count">3</span>
@@ -934,7 +1075,7 @@ Total lead content in accessible substrate materials was tested per CPSC-CH-E100
             </tbody>
           </table>
         </div>
-        <div class="section__head-actions" style="justify-content: flex-start; margin-top: var(--space-s);">
+        <div class="citation-section-actions">
           <button class="qima-btn qima-btn--disabled" disabled>Generate disabled until admin and all departments confirm</button>
         </div>
         <div class="generate-ready" hidden id="generate-ready-cpc" aria-hidden="true">
