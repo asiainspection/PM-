@@ -364,6 +364,74 @@
       border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs); overflow: hidden;
       margin-bottom: var(--space-xs);
     }
+    .cert-subview { display: none; }
+    .cert-subview.is-active { display: block; }
+    .step-nav__records {
+      padding: var(--space-xs) var(--space-s) var(--space-s);
+      border-top: 1px solid var(--pearl);
+    }
+    .step-nav__records[hidden] { display: none; }
+    .record-mini {
+      width: 100%; text-align: left;
+      padding: var(--space-xs) var(--space-s);
+      border: 1px solid var(--pearl); border-radius: var(--radius-min);
+      background: var(--white); margin-bottom: var(--space-xs);
+      cursor: pointer; color: var(--carbon);
+    }
+    .record-mini:hover { background: var(--cloud); }
+    .record-mini.is-active { border-color: var(--pool-500); background: var(--pool-050); }
+    .record-mini strong { display: block; font: 600 12px/16px var(--font-sans); }
+    .record-mini span { color: var(--seal); font: 400 11px/16px var(--font-sans); }
+    .cert-table tbody tr[data-record] { cursor: pointer; }
+    .cert-table tbody tr.is-selected { background: var(--pool-050); }
+    .detail-back {
+      display: inline-flex; align-items: center; gap: var(--space-xs);
+      margin-bottom: var(--space-m); padding: 0;
+      color: var(--pool-500); font: 500 12px/16px var(--font-sans);
+      cursor: pointer; border: 0; background: transparent;
+    }
+    .detail-back:hover { text-decoration: underline; }
+    .admin-panel {
+      border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-xs);
+      background: var(--white); overflow: hidden;
+    }
+    .admin-panel__head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--space-s) var(--space-m);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .admin-panel__title { font: 700 13px/18px var(--font-cjk); color: var(--carbon); }
+    .admin-panel__group-title {
+      margin: var(--space-s) var(--space-m) var(--space-xs);
+      font: 600 12px/16px var(--font-sans); color: var(--pool-900);
+    }
+    .admin-panel__foot {
+      display: flex; align-items: center; gap: var(--space-s);
+      padding: var(--space-s) var(--space-m);
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .product-group-card {
+      margin: 0 var(--space-m) var(--space-xs);
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid rgba(0,0,0,0.08); border-radius: var(--radius-xs);
+      background: var(--cloud);
+    }
+    .product-group-card h4 {
+      margin-bottom: var(--space-xs);
+      font: 600 12px/16px var(--font-sans); color: var(--pool-900);
+    }
+    .generate-ready {
+      margin-top: var(--space-s);
+      padding: var(--space-s) var(--space-m);
+      border: 1px solid var(--kiwi-100); border-radius: var(--radius-xs);
+      background: var(--kiwi-100);
+    }
+    .generate-ready__head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-s);
+    }
+    .generate-ready__title { font: 700 13px/18px var(--font-cjk); color: var(--carbon); }
+    .generate-ready__copy { color: var(--seal); font: 400 12px/18px var(--font-sans); margin-bottom: var(--space-s); }
 
     @media (max-width: 1180px) {
       .info-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -420,6 +488,14 @@
         <div class="step-nav__item is-active" data-view="first-page">2. First page <span class="step-nav__actions">☷ ＋</span></div>
         <div class="step-nav__item" data-view="certificate">3. Certificate <span class="step-nav__actions">☷ ＋</span><span class="step-nav__sub">Order level · 5 records</span></div>
         <div class="step-nav__item" data-view="test">4. Test <span class="step-nav__actions">▽ ⌄</span></div>
+      </div>
+      <div class="step-nav__records" id="cert-record-nav" hidden>
+        <button type="button" class="record-mini is-active" data-cert-nav="overview"><strong>Certificate</strong><span>5 records · overview</span></button>
+        <button type="button" class="record-mini" data-cert-nav="cpc"><strong>CPC</strong><span>Citation pending</span></button>
+        <button type="button" class="record-mini" data-cert-nav="gcc"><strong>GCC</strong><span>Admin incomplete</span></button>
+        <button type="button" class="record-mini" data-cert-nav="coc"><strong>COC</strong><span>Admin incomplete</span></button>
+        <button type="button" class="record-mini" data-cert-nav="doc"><strong>DOC</strong><span>Ready to send</span></button>
+        <button type="button" class="record-mini" data-cert-nav="voc"><strong>VOC</strong><span>Ready to send</span></button>
       </div>
       <button class="step-nav__grip" aria-label="Collapse">‹</button>
     </aside>
@@ -560,8 +636,11 @@
       </div>
 
       <div class="page-view" id="view-certificate">
-      <h1 class="main__title">T-25671808-07-R — Certificate</h1>
-      <p class="main__subtitle">Order-level certificate overview. CPC and GCC use admin information and citation mapping; COC, DOC, and VOC use admin information only.</p>
+
+      <!-- Certificate overview -->
+      <div class="cert-subview is-active" id="cert-overview">
+      <h1 class="main__title">Certificate</h1>
+      <p class="main__subtitle">Order-level certificate overview. CPC and GCC use admin + citation mapping; COC, DOC, and VOC use admin information only.</p>
 
       <section class="section">
         <div class="section__head">
@@ -572,6 +651,7 @@
             <button class="qima-btn qima-btn--primary"><svg width="13" height="13"><use href="#i-plus"/></svg> Add certificate</button>
           </div>
         </div>
+        <p style="margin:0 0 var(--space-s);color:var(--seal);font:400 12px/18px var(--font-sans);">This order has 5 certificate records from AIMS (CPC, GCC, COC, DOC, VOC).</p>
         <table class="cert-table">
           <thead>
             <tr>
@@ -583,35 +663,35 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr data-record="cpc" role="button" tabindex="0">
               <td><span class="cert-name">CPC<span>Combined product set</span></span></td>
               <td>All reports</td>
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
               <td><span class="status-badge status-badge--orange">Pending</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
             </tr>
-            <tr>
+            <tr data-record="gcc" role="button" tabindex="0">
               <td><span class="cert-name">GCC<span>General Certificate of Conformity</span></span></td>
               <td>T-25671808-07-R17</td>
               <td><span class="status-badge status-badge--orange">Incomplete</span></td>
               <td><span class="status-badge status-badge--mist">Not started</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
             </tr>
-            <tr>
+            <tr data-record="coc" role="button" tabindex="0">
               <td><span class="cert-name">COC<span>Certificate of Compliance</span></span></td>
               <td>All reports</td>
               <td><span class="status-badge status-badge--orange">Incomplete</span></td>
               <td><span class="status-badge status-badge--mist">N/A</span></td>
               <td><span class="status-badge status-badge--orange">Not available</span></td>
             </tr>
-            <tr>
+            <tr data-record="doc" role="button" tabindex="0">
               <td><span class="cert-name">DOC<span>Declaration of Conformity</span></span></td>
               <td>T-25671808-07-R17</td>
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
               <td><span class="status-badge status-badge--mist">N/A</span></td>
               <td><span class="status-badge status-badge--kiwi">Ready to send</span></td>
             </tr>
-            <tr>
+            <tr data-record="voc" role="button" tabindex="0">
               <td><span class="cert-name">VOC<span>Volatile organic compound report</span></span></td>
               <td>T-25671808-07-OTTO</td>
               <td><span class="status-badge status-badge--kiwi">Confirmed</span></td>
@@ -624,47 +704,104 @@
 
       <section class="section">
         <div class="section__head">
-          <div class="section__title"><svg width="16" height="16"><use href="#i-doc"/></svg> CPC details — Admin information</div>
-          <div class="section__head-actions">
-            <span class="status-badge status-badge--orange">Citation pending</span>
-            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-edit"/></svg> Edit admin info</button>
-          </div>
+          <div class="section__title"><svg width="16" height="16"><use href="#i-refresh"/></svg> CPSC eFiling</div>
+          <span class="qima-badge qima-badge--pool qima-badge--soft">Enabled · SCHOLASTIC</span>
         </div>
         <div class="info-grid">
-          <div class="info-item"><label>Template selection</label><strong>DGN-CS-SS-007 CPC Template (FUN.COM) — Ver.1.8</strong></div>
-          <div class="info-item"><label>Test mapping criteria</label><strong>Pass + N/A test</strong></div>
-          <div class="info-item"><label>Citation mapping criteria</label><strong>All test need to show</strong></div>
-          <div class="info-item"><label>File name</label><strong>T-25671808-07-CPC-Style-B</strong></div>
-          <div class="info-item"><label>Admin status</label><strong>Confirmed</strong></div>
-          <div class="info-item" style="grid-column: 1 / -1;">
-            <label>Default importer</label>
-            <div class="importer-card">
-              <h4>US importer</h4>
-              <p>Scholastic Inc.<br>557 Broadway, New York, NY 10012, USA</p>
-            </div>
+          <div class="info-item"><label>Auto-sync status</label><strong>Pending auto-sync</strong></div>
+          <div class="info-item"><label>Program</label><strong>SCHOLASTIC · DG CPC v1.8</strong></div>
+          <div class="info-item"><label>Sync rule</label><strong>After report sent + certificate confirmed</strong></div>
+          <div class="info-item"><label>Selected record</label><strong>All records</strong></div>
+          <div class="info-item" style="display:flex;align-items:flex-end;">
+            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-refresh"/></svg> Sync CPSC eFiling data</button>
           </div>
         </div>
       </section>
 
       <section class="section">
         <div class="section__head">
-          <div class="section__title"><svg width="16" height="16"><use href="#i-grid"/></svg> Product</div>
-          <button class="qima-btn-icon" aria-label="Collapse"><svg width="14" height="14"><use href="#i-chevron"/></svg></button>
+          <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Readiness checklist</div>
         </div>
         <div class="info-grid">
-          <div class="info-item"><label>Product ID system mapping field</label><strong>Product reference number</strong></div>
-          <div class="info-item"><label>Factory / Manufacture address</label><strong>14FL, 5th Bldg, 188 Binkang Road, Hangzhou, Zhejiang, China (CN)</strong></div>
+          <div class="info-item">
+            <label>1. Admin information</label>
+            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Per certificate record. Confirm admin before citation work starts.</span>
+          </div>
+          <div class="info-item">
+            <label>2. Citation + remark by department</label>
+            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">CPC and GCC only. COC, DOC, and VOC skip citation mapping.</span>
+          </div>
+          <div class="info-item">
+            <label>3. Generate certificate</label>
+            <strong><span class="status-badge status-badge--cherry">Blocked</span></strong>
+            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Available when admin and all department citations are confirmed for the selected record.</span>
+          </div>
         </div>
-        <div class="info-grid" style="margin-top: var(--space-xs);">
-          <div class="info-item"><label>Product group 1 — Product ID value</label><strong>W06YJUK00007-A</strong></div>
-          <div class="info-item"><label>Product group 1 — Product name</label><strong>GARMENT / Style A</strong></div>
-          <div class="info-item"><label>Product group 1 — Manufacture date</label><strong>13-05-2026</strong></div>
-          <div class="info-item"><label>Product group 2 — Product ID value</label><strong>W06YJUK00007-B</strong></div>
-          <div class="info-item"><label>Product group 2 — Product name</label><strong>GARMENT / Style B</strong></div>
-          <div class="info-item"><label>Product group 2 — Manufacture date</label><strong>13-05-2026</strong></div>
+      </section>
+      </div>
+
+      <!-- CPC detail (from v4 reference) -->
+      <div class="cert-subview" id="cert-cpc-detail">
+      <button type="button" class="detail-back" data-cert-nav="overview">← Back to certificate overview</button>
+      <h1 class="main__title">CPC details</h1>
+      <p class="main__subtitle">CPC uses admin information and citation mapping. Confirm admin, then each department confirms citation rows.</p>
+
+      <section class="section">
+        <div class="section__head">
+          <div class="section__title"><svg width="16" height="16"><use href="#i-doc"/></svg> Admin information</div>
+          <div class="section__head-actions">
+            <span class="status-badge status-badge--orange">Citation pending</span>
+            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-edit"/></svg> Edit admin info</button>
+          </div>
         </div>
-        <div class="info-grid" style="margin-top: var(--space-xs);">
-          <div class="info-item"><label>Associated report</label><strong>All reports</strong></div>
+        <div class="admin-panel">
+          <div class="admin-panel__group-title">Output &amp; template</div>
+          <div class="info-grid" style="border:0;border-radius:0;">
+            <div class="info-item"><label>Template selection</label><strong>DGN-CS-SS-007 CPC Template (FUN.COM) — Ver.1.8</strong></div>
+            <div class="info-item"><label>Test mapping criteria</label><strong>Pass + N/A test</strong></div>
+            <div class="info-item"><label>Citation mapping criteria</label><strong>All test need to show</strong></div>
+            <div class="info-item"><label>File name</label><strong>T-25671808-07-CPC-Style-B</strong></div>
+            <div class="info-item" style="grid-column: 1 / -1;">
+              <label>Default importer</label>
+              <div class="importer-card">
+                <h4>US importer</h4>
+                <p>Scholastic Inc.<br>557 Broadway, New York, NY 10012, USA</p>
+              </div>
+            </div>
+          </div>
+          <div class="admin-panel__group-title">Product</div>
+          <div class="info-grid" style="border:0;border-radius:0;margin-bottom:var(--space-xs);">
+            <div class="info-item" style="grid-column:1/-1;"><label>Product ID system mapping field</label><strong>Product reference number</strong></div>
+          </div>
+          <article class="product-group-card">
+            <h4>Product group 1</h4>
+            <div class="info-grid" style="border:0;border-radius:0;padding:0;background:transparent;">
+              <div class="info-item"><label>Product ID value</label><strong>W06YJUK00007-A</strong></div>
+              <div class="info-item"><label>Product name</label><strong>GARMENT / Style A</strong></div>
+              <div class="info-item"><label>Manufacture date</label><strong>13-05-2026</strong></div>
+            </div>
+          </article>
+          <article class="product-group-card">
+            <h4>Product group 2</h4>
+            <div class="info-grid" style="border:0;border-radius:0;padding:0;background:transparent;">
+              <div class="info-item"><label>Product ID value</label><strong>W06YJUK00007-B</strong></div>
+              <div class="info-item"><label>Product name</label><strong>GARMENT / Style B</strong></div>
+              <div class="info-item"><label>Manufacture date</label><strong>13-05-2026</strong></div>
+            </div>
+          </article>
+          <div class="info-grid" style="border:0;border-radius:0;">
+            <div class="info-item" style="grid-column:1/-1;"><label>Factory / Manufacture address</label><strong>14FL, 5th Bldg, 188 Binkang Road, Hangzhou, Zhejiang, China (CN)</strong></div>
+          </div>
+          <div class="admin-panel__group-title">Report link</div>
+          <div class="info-grid" style="border:0;border-radius:0;">
+            <div class="info-item"><label>Associated report</label><strong>All reports</strong></div>
+          </div>
+          <div class="admin-panel__foot">
+            <button class="qima-btn qima-btn--disabled" disabled>Confirmed · Admin</button>
+            <span class="status-badge status-badge--kiwi">Confirmed</span>
+          </div>
         </div>
       </section>
 
@@ -677,6 +814,7 @@
             <button class="qima-btn qima-btn--primary">Confirm · Physical</button>
           </div>
         </div>
+        <p style="margin:0 0 var(--space-s);color:var(--seal);font:400 12px/18px var(--font-sans);">Review shared remark and citation mapping below. Each lab confirms from the section header after checking remark text and its department rows.</p>
         <div class="remark-box">
           <div class="remark-box__head">
             <div class="remark-box__title">Remark</div>
@@ -799,58 +937,56 @@ Total lead content in accessible substrate materials was tested per CPSC-CH-E100
         <div class="section__head-actions" style="justify-content: flex-start; margin-top: var(--space-s);">
           <button class="qima-btn qima-btn--disabled" disabled>Generate disabled until admin and all departments confirm</button>
         </div>
+        <div class="generate-ready" hidden id="generate-ready-cpc" aria-hidden="true">
+          <div class="generate-ready__head">
+            <div class="generate-ready__title">Ready to generate certificate files</div>
+            <span class="status-badge status-badge--kiwi">Ready</span>
+          </div>
+          <p class="generate-ready__copy">Admin information and all department citation confirmations are complete. Open generation to create Word and PDF files for this certificate record.</p>
+          <button class="qima-btn qima-btn--primary">Generate certificate files</button>
+        </div>
       </section>
+      </div>
 
-      <section class="section">
-        <div class="section__head">
-          <div class="section__title"><svg width="16" height="16"><use href="#i-refresh"/></svg> CPSC eFiling</div>
-          <span class="qima-badge qima-badge--pool qima-badge--soft">Enabled · SCHOLASTIC</span>
-        </div>
-        <div class="info-grid">
-          <div class="info-item"><label>Auto-sync status</label><strong>Pending auto-sync</strong></div>
-          <div class="info-item"><label>Program</label><strong>SCHOLASTIC · DG CPC v1.8</strong></div>
-          <div class="info-item"><label>Sync rule</label><strong>After report sent + certificate confirmed</strong></div>
-          <div class="info-item"><label>Selected record</label><strong>All records</strong></div>
-          <div class="info-item" style="display:flex;align-items:flex-end;">
-            <button class="qima-btn qima-btn--secondary"><svg width="13" height="13"><use href="#i-refresh"/></svg> Sync CPSC eFiling data</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section__head">
-          <div class="section__title"><svg width="16" height="16"><use href="#i-shield"/></svg> Readiness checklist</div>
-        </div>
-        <div class="info-grid">
-          <div class="info-item">
-            <label>1. Admin information</label>
-            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Per certificate record. Confirm admin before citation work starts.</span>
-          </div>
-          <div class="info-item">
-            <label>2. Citation + remark by department</label>
-            <strong><span class="status-badge status-badge--orange">Pending</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">CPC and GCC only. COC, DOC, and VOC skip citation mapping.</span>
-          </div>
-          <div class="info-item">
-            <label>3. Generate certificate</label>
-            <strong><span class="status-badge status-badge--cherry">Blocked</span></strong>
-            <span style="display:block;margin-top:var(--space-base);color:var(--seal);font:400 12px/16px var(--font-sans);">Available when admin and all department citations are confirmed for the selected record.</span>
-          </div>
-        </div>
-      </section>
       </div>
     </main>
   </div>
   <script>
     (function () {
       var navItems = document.querySelectorAll('.step-nav__item[data-view]');
+      var certRecordNav = document.getElementById('cert-record-nav');
+      var certOverview = document.getElementById('cert-overview');
+      var certCpcDetail = document.getElementById('cert-cpc-detail');
       var views = {
         overview: document.getElementById('view-first-page'),
         'first-page': document.getElementById('view-first-page'),
         certificate: document.getElementById('view-certificate'),
         test: document.getElementById('view-first-page')
       };
+
+      function showCertSubview(key) {
+        if (!certOverview || !certCpcDetail) return;
+        var isOverview = key === 'overview';
+        certOverview.classList.toggle('is-active', isOverview);
+        certCpcDetail.classList.toggle('is-active', key === 'cpc');
+        document.querySelectorAll('.record-mini[data-cert-nav]').forEach(function (btn) {
+          btn.classList.toggle('is-active', btn.getAttribute('data-cert-nav') === key);
+        });
+        document.querySelectorAll('.cert-table tbody tr[data-record]').forEach(function (row) {
+          row.classList.toggle('is-selected', !isOverview && row.getAttribute('data-record') === key);
+        });
+      }
+
+      function openCertificateSubview(key) {
+        navItems.forEach(function (n) { n.classList.remove('is-active'); });
+        var certNav = document.querySelector('.step-nav__item[data-view="certificate"]');
+        if (certNav) certNav.classList.add('is-active');
+        document.querySelectorAll('.page-view').forEach(function (v) { v.classList.remove('is-active'); });
+        views.certificate.classList.add('is-active');
+        if (certRecordNav) certRecordNav.hidden = false;
+        showCertSubview(key || 'overview');
+      }
+
       navItems.forEach(function (item) {
         item.addEventListener('click', function () {
           var viewKey = item.getAttribute('data-view');
@@ -860,8 +996,29 @@ Total lead content in accessible substrate materials was tested per CPSC-CH-E100
           item.classList.add('is-active');
           document.querySelectorAll('.page-view').forEach(function (v) { v.classList.remove('is-active'); });
           target.classList.add('is-active');
+          if (certRecordNav) certRecordNav.hidden = viewKey !== 'certificate';
+          if (viewKey === 'certificate') showCertSubview('overview');
         });
       });
+
+      document.querySelectorAll('.record-mini[data-cert-nav], .detail-back[data-cert-nav]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var key = btn.getAttribute('data-cert-nav');
+          if (key === 'cpc' || key === 'overview') {
+            openCertificateSubview(key);
+          }
+        });
+      });
+
+      document.querySelectorAll('.cert-table tbody tr[data-record="cpc"]').forEach(function (row) {
+        row.addEventListener('click', function () { openCertificateSubview('cpc'); });
+        row.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCertificateSubview('cpc'); }
+        });
+      });
+
+      if (location.hash === '#cpc-detail') openCertificateSubview('cpc');
+      else if (location.hash === '#certificate') openCertificateSubview('overview');
     })();
   </script>
 </body>
