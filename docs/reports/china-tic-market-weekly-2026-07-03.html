@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TIC Weekly Market Intelligence | QIMA | 2026-07-03</title>
+  <style>
+    :root {
+      --qima-red: #e4002b;
+      --ink: #171923;
+      --muted: #5b6475;
+      --line: #e7eaf0;
+      --soft: #f7f8fb;
+      --blue: #2454ff;
+      --green: #13966a;
+      --amber: #b7791f;
+      --purple: #7c3aed;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--ink);
+      background: #f3f5f9;
+      line-height: 1.62;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 64px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, .10);
+    }
+    header {
+      position: relative;
+      padding: 34px 40px 28px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 85% 15%, rgba(255,255,255,.22), transparent 26%),
+        linear-gradient(135deg, #111827 0%, #3a0d17 46%, var(--qima-red) 100%);
+      overflow: hidden;
+    }
+    header:after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      bottom: -120px;
+      width: 360px;
+      height: 360px;
+      border: 36px solid rgba(255,255,255,.10);
+      border-radius: 50%;
+    }
+    .brand { display: flex; align-items: center; gap: 18px; position: relative; z-index: 1; }
+    .brand img { width: 154px; background: #fff; border-radius: 12px; padding: 12px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: #fff;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.28);
+    }
+    h1 { margin: 24px 0 10px; max-width: 900px; font-size: 38px; line-height: 1.16; position: relative; z-index: 1; }
+    .subtitle { max-width: 980px; color: rgba(255,255,255,.86); font-size: 16px; position: relative; z-index: 1; }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .meta span { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.24); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+    main { padding: 30px 40px 42px; }
+    section { margin: 34px 0 42px; }
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+    h2 .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--qima-red); box-shadow: 0 0 0 6px rgba(228,0,43,.10); }
+    h3 { margin: 22px 0 10px; font-size: 18px; }
+    .lead { font-size: 17px; color: #303744; }
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.04);
+    }
+    .card.tint { background: linear-gradient(180deg, #fff, #fbfcff); }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3143a7;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .tag.red { background: #fff1f2; color: #b91c1c; }
+    .tag.green { background: #ecfdf5; color: #047857; }
+    .tag.amber { background: #fffbeb; color: #92400e; }
+    .tag.purple { background: #f5f3ff; color: #6d28d9; }
+    .bullets { padding-left: 20px; margin: 8px 0 0; }
+    .bullets li { margin: 7px 0; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; background: #fff; }
+    th, td { padding: 12px 13px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { background: #f8fafc; font-size: 13px; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    .small { font-size: 13px; color: var(--muted); }
+    .source { font-size: 12px; vertical-align: super; font-weight: 800; margin-left: 2px; }
+    .quote {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      color: #273244;
+    }
+    footer {
+      padding: 22px 40px 30px;
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+    footer a { color: #bfdbfe; }
+    .news-grid { display: grid; gap: 14px; }
+    .news-card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+    .news-card.featured { border-color: #fecaca; background: linear-gradient(180deg, #fff, #fff7f8); }
+    .news-top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+    .news-headline { font-size: 17px; font-weight: 800; margin: 0 0 8px; line-height: 1.35; }
+    .news-body {
+      font-size: 14px;
+      color: #334155;
+      margin: 0 0 10px;
+      padding: 10px 12px;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .news-body strong {
+      color: #111827;
+      font-weight: 900;
+    }
+    .news-body strong:not(:first-child) {
+      display: block;
+      margin-top: 6px;
+    }
+    .news-meta { font-size: 12px; color: var(--muted); }
+    .news-link { font-size: 13px; font-weight: 700; }
+    .appendix { opacity: .96; }
+    .appendix summary { cursor: pointer; font-weight: 800; margin-bottom: 12px; }
+    details.appendix-box { border: 1px dashed var(--line); border-radius: 16px; padding: 14px 16px; background: #fafbfd; }
+    @media print {
+      body { background: #fff; }
+      .page { width: 100%; margin: 0; border: 0; box-shadow: none; }
+      a { color: #111827; text-decoration: underline; }
+      section { break-inside: avoid; }
+    }
+    @media (max-width: 900px) {
+      header, main, footer { padding-left: 20px; padding-right: 20px; }
+      .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="brand">
+        <img src="../assets/logo.svg" alt="QIMA logo">
+        <span class="badge">Weekly TIC Market Intelligence</span>
+      </div>
+      <h1>TIC 行业周报：竞品数字化产品与 AI 动态</h1>
+      <p class="subtitle">English edition for QIMA PM and business teams. Focus: what digital products, systems, platforms and AI-enabled offers competitors are selling.</p>
+      <div class="meta">
+        <span>Report date: 2026-07-03 UTC</span>
+        <span>Research coverage: Tracks A-E, 43 web searches</span>
+        <span>Evidence standard: key claims linked to [Sx]</span>
+      </div>
+    </header>
+
+    <main>
+      <section id="competitor-news-radar">
+        <h2><span class="dot"></span>Competitor News Radar: Digital Products, Platforms and AI Offers</h2>
+        <p class="lead">Priority is given to platform-direct compliance, ESG supply-chain SaaS, industrial cybersecurity, AI governance and QC/inspection SaaS that competes with QIMAone or QIMA service budgets.</p>
+        <div class="news-grid">
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag red">平台直连</span><span class="tag purple">Amazon DV / Intertek</span><span class="news-meta">MYC + CPSC eFiling</span></div>
+            <h3 class="news-headline">Amazon DV and CPSC eFiling are turning certificates into platform-submitted compliance data</h3>
+            <p class="news-body"><strong>Who:</strong> Amazon-approved TIC providers including SGS, Intertek, Eurofins, CQC, UL Solutions and others; Intertek is also commercializing InterLink 2.0 for CPSC eFiling. <strong>Product:</strong> Amazon Direct Validation digital compliance channel, plus InterLink 2.0 for digitized CPC/GCC certificate data and CSV/API-ready eFiling with the CPSC Product Registry. <strong>Scenario:</strong> Sellers in toys, furniture/CSU, lithium batteries, power banks and related high-risk categories can no longer rely on self-uploaded compliance files; they initiate requests in Seller Central/MYC, select an approved TIC and the TIC submits results directly to Amazon. <strong>QIMA relevance:</strong> This is a direct competitive battleground for consumer-product labs: sales should position QIMA around reliable evidence intake, TRF/status tracking and direct-result submission, without claiming raw LIMS/sample-image synchronization unless proven.<a href="#s1" class="source">[S1]</a><a href="#s2" class="source">[S2]</a><a href="#s3" class="source">[S3]</a><a href="#s4" class="source">[S4]</a></p>
+            <a class="news-link" href="https://www.intertek.com.hk/regulatory-updates/2025/amazon-policy-update-tic-direct-validation-is-here--intertek-helps-you-stay-compliant/" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag green">ESG SaaS</span><span class="tag purple">LRQA EiQ</span><span class="news-meta">Supply chain intelligence</span></div>
+            <h3 class="news-headline">LRQA EiQ is selling supply-chain ESG risk intelligence, not just audit services</h3>
+            <p class="news-body"><strong>Who:</strong> LRQA and its EiQ supply-chain intelligence platform. <strong>Product:</strong> EiQ due-diligence SaaS, including Sentinel adverse-media screening, supplier segmentation, geography/product risk ratings and audit-derived datasets. <strong>Scenario:</strong> Brands use EiQ to monitor ESG risk, forced-labor signals, supplier incidents and CSRD/CSDDD due-diligence exposure in near real time. Hillhouse's minority investment in LRQA adds a capital signal that connected risk-management products may accelerate. <strong>QIMA relevance:</strong> EiQ competes for the same buyer problem as QIMAone ESG modules: supplier risk visibility, audit prioritization and evidence-based due diligence.<a href="#s6" class="source">[S6]</a><a href="#s7" class="source">[S7]</a></p>
+            <a class="news-link" href="https://www.lrqa.com/en/eiq/" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag amber">软硬一体</span><span class="tag purple">Kiwa x Siemens</span><span class="news-meta">OT cyber / NIS2 / CRA</span></div>
+            <h3 class="news-headline">Kiwa x Siemens BeLux packages OT cybersecurity, IEC 62443 and EU digital-product rules as an ecosystem offer</h3>
+            <p class="news-body"><strong>Who:</strong> Kiwa and Siemens BeLux. <strong>Product:</strong> A strategic partnership combining Siemens OT cybersecurity/digitalization expertise with Kiwa testing, inspection, certification and conformity-assessment capabilities; not a standalone SKU. <strong>Scenario:</strong> Industrial organizations, machine builders and system integrators need implementation, training, independent assessment and certification pathways for NIS2, CRA, RED-DA, AI Act, ISO 27001 and IEC/ISA 62443. <strong>QIMA relevance:</strong> Connected consumer products, smart-home devices, energy storage and e-mobility suppliers will increasingly need cyber pre-checks bundled with product compliance and factory assurance.<a href="#s11" class="source">[S11]</a><a href="#s12" class="source">[S12]</a></p>
+            <a class="news-link" href="https://www.kiwa.com/en/news/kiwa-and-siemens-belux-announce-partnership/" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card featured">
+            <div class="news-top"><span class="tag red">QC SaaS</span><span class="tag green">Inspectorio</span><span class="news-meta">NRF 2026</span></div>
+            <h3 class="news-headline">Inspectorio's Supply Chain Network Intelligence reframes QC SaaS as a real-time AI sourcing network</h3>
+            <p class="news-body"><strong>Who:</strong> Inspectorio. <strong>Product:</strong> Supply Chain Network Intelligence (SCNI), layered on its quality, compliance, traceability and production-management platform with Paramo AI agents/copilots. <strong>Scenario:</strong> Retailers and brands see network profiles, sourcing insights, compliance/quality trends, purchase-order risk, chain-of-custody data and benchmarked supplier recommendations in one network. <strong>QIMA relevance:</strong> This is one of the clearest QIMAone competitors: the value proposition has moved from digital inspection forms to AI-supported supply-chain decision intelligence.<a href="#s15" class="source">[S15]</a><a href="#s16" class="source">[S16]</a></p>
+            <a class="news-link" href="https://www.businesswire.com/news/home/20260107759938/en/Inspectorio-Unveils-Next-Generation-Supply-Chain-Network-Intelligence-for-Global-Brands-Retailers-and-Suppliers" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag green">ESG SaaS</span><span class="tag purple">Bureau Veritas</span><span class="news-meta">AITrack Scope 3</span></div>
+            <h3 class="news-headline">Bureau Veritas AITrack adds supplier engagement for Scope 3 and product-footprint evidence</h3>
+            <p class="news-body"><strong>Who:</strong> Bureau Veritas AITrack. <strong>Product:</strong> Supply Chain Engagement, an AITrack solution for collecting, validating and integrating supplier LCA, EPD and product carbon-footprint data. <strong>Scenario:</strong> Sustainability, procurement and product teams need supplier-specific Scope 3 data, automated campaigns, documentation quality grading and audit-ready carbon evidence instead of generic surveys. <strong>QIMA relevance:</strong> BV is turning sustainability assurance into a platform workflow; QIMA should package supplier emissions evidence, verification and corrective actions as a repeatable product.<a href="#s8" class="source">[S8]</a></p>
+            <a class="news-link" href="https://group.bureauveritas.com/newsroom/aitrack-bureau-veritas-launches-supply-chain-engagement-solution" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag purple">新平台</span><span class="tag red">SGS</span><span class="news-meta">FoodNexus / Agroknow</span></div>
+            <h3 class="news-headline">SGS FoodNexus combines Digicomply and Agroknow into a food-risk intelligence platform</h3>
+            <p class="news-body"><strong>Who:</strong> SGS, SGS Digicomply and Agroknow/FOODAKAI. <strong>Product:</strong> SGS FoodNexus, a digital food-risk and regulatory-compliance intelligence platform with SaaS and Data-as-a-Service channels. <strong>Scenario:</strong> Food companies monitor regulatory changes, recalls, border rejections, supplier and ingredient risks, audit readiness and testing priorities; AI supports plain-language risk/regulatory questions and predictive hazard detection. <strong>QIMA relevance:</strong> SGS is shifting from lab testing to recurring food-intelligence subscriptions; QIMA can mirror this with risk signals that trigger audits, testing and supplier CAPA.<a href="#s22" class="source">[S22]</a></p>
+            <a class="news-link" href="https://sgs.com/en/services/sgs-nexus" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag purple">AI 治理</span><span class="tag green">BV x AWS</span><span class="news-meta">AI Act audit</span></div>
+            <h3 class="news-headline">Bureau Veritas x AWS turns EU AI Act readiness into an independent AI systems audit</h3>
+            <p class="news-body"><strong>Who:</strong> Bureau Veritas and Amazon Web Services. <strong>Product:</strong> Independent AI assessment for European enterprises using AWS AI Risk Intelligence (AIRI). <strong>Scenario:</strong> Enterprises receive pre-audit, document review, on-site audit, direct testing and an independent maturity report across security, robustness, privacy, governance, fairness, explainability, controllability and transparency; AIRI automates parts of review/testing. <strong>QIMA relevance:</strong> TIC firms are using cloud partners to industrialize AI compliance audits; QIMA can start with lightweight AI-governance readiness checks in product and supply-chain contexts.<a href="#s24" class="source">[S24]</a></p>
+            <a class="news-link" href="https://group.bureauveritas.com/newsroom/bureau-veritas-launches-independent-ai-assessment-offering-european-enterprises-developed" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag red">QC SaaS</span><span class="tag green">TradeBeyond / Pivot88</span><span class="news-meta">Quality + lab tracking</span></div>
+            <h3 class="news-headline">TradeBeyond/Pivot88 links sourcing, inspections, lab tracking and AI PO-line risk scores</h3>
+            <p class="news-body"><strong>Who:</strong> TradeBeyond and Pivot88, acquired by TradeBeyond in 2023. <strong>Product:</strong> TradeBeyond extended supply-chain platform plus Pivot88 quality, compliance, traceability, lab-tracking and AI risk functionality. <strong>Scenario:</strong> Retailers connect product development, PO lines, supplier records, quality inspections, digital test request forms, lab reports and corrective actions; AI scores order-line risk to target inspections and predict failures. <strong>QIMA relevance:</strong> This ecosystem can make third-party inspections a software-orchestrated commodity unless QIMA integrates tightly and adds independent assurance value.<a href="#s17" class="source">[S17]</a><a href="#s18" class="source">[S18]</a></p>
+            <a class="news-link" href="https://www.pivot88.com/quality" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag amber">验货平台</span><span class="tag green">SafetyCulture</span><span class="news-meta">iAuditor / API</span></div>
+            <h3 class="news-headline">SafetyCulture sells inspection digitization with APIs that plug field data into enterprise systems</h3>
+            <p class="news-body"><strong>Who:</strong> SafetyCulture, formerly iAuditor. <strong>Product:</strong> Mobile inspections, checklists, actions, reporting, integrations and Public API/data feeds. <strong>Scenario:</strong> Customers digitize supplier, warehouse, logistics and operational inspections, then export inspection data, attachments and actions to BI, ERP, risk or custom workflow systems. <strong>QIMA relevance:</strong> SafetyCulture is not a traditional TIC lab, but it competes for internal-audit and light inspection digitization budgets; QIMA should emphasize independence, global inspector coverage and compliance expertise.<a href="#s19" class="source">[S19]</a></p>
+            <a class="news-link" href="https://developer.safetyculture.com/reference/introduction" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag amber">验货平台</span><span class="tag green">The Inspection Company</span><span class="news-meta">Quality Platform</span></div>
+            <h3 class="news-headline">The Inspection Company wraps Hong Kong inspection services in an Online Quality Platform</h3>
+            <p class="news-body"><strong>Who:</strong> The Inspection Company, a Hong Kong inspection and audit provider; the full name is used here to avoid confusion with the TIC industry acronym. <strong>Product:</strong> Online Quality Platform with booking, mobile inspection app, geo tracking, online reports and KPI dashboards. <strong>Scenario:</strong> Importers schedule inspections across Asian factories, upload order files, monitor booking status and receive reports; inspectors collect checklists/photos offline and sync to the platform. <strong>QIMA relevance:</strong> This is a lightweight platformized inspection competitor for SME importers and brands that might otherwise buy QIMA inspection services or QIMAone-lite workflows.<a href="#s20" class="source">[S20]</a></p>
+            <a class="news-link" href="https://www.the-inspection-company.com/quality-platform" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag red">QC SaaS</span><span class="tag purple">Checkfirst</span><span class="news-meta">InspectAI / ScheduleAI / VerifyAI</span></div>
+            <h3 class="news-headline">Checkfirst is selling AI workflow tools to TIC and certification teams</h3>
+            <p class="news-body"><strong>Who:</strong> Checkfirst. <strong>Product:</strong> InspectAI for digital field inspections, ScheduleAI for audit/inspector scheduling and VerifyAI for document review automation. <strong>Scenario:</strong> TICC teams replace paper checklists with offline-capable mobile inspection, AI photo verification, command-center dashboards, API integration, qualification-aware scheduling and AI extraction of certificates/COAs/batch records. <strong>QIMA relevance:</strong> Checkfirst is a build/partner/buy signal for QIMA internal productivity: image completeness checks, report consistency, certificate extraction and scheduling can improve margin while retaining human accountability.<a href="#s21" class="source">[S21]</a></p>
+            <a class="news-link" href="https://www.checkfirst.ai/solution" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag green">ESG SaaS</span><span class="tag purple">Sourcemap</span><span class="news-meta">n-tier mapping / CSDDD</span></div>
+            <h3 class="news-headline">Sourcemap sells verified n-tier mapping and chain-of-custody evidence for due diligence</h3>
+            <p class="news-body"><strong>Who:</strong> Sourcemap. <strong>Product:</strong> n-tier supply-chain mapping, transaction traceability, supplier watchlist monitoring and due-diligence reporting. <strong>Scenario:</strong> Brands cascade supplier data requests from Tier 1 to Tier N, connect ERP/PO and transaction evidence, screen against watchlists and generate audit-ready documentation for CSDDD, EUDR, forced labor, Scope 3 and customs inquiries. <strong>QIMA relevance:</strong> Sourcemap overlaps with QIMA ESG, sourcing and audit evidence packages; QIMA should decide where to integrate, partner or offer independent validation on top of platform data.<a href="#s23" class="source">[S23]</a></p>
+            <a class="news-link" href="https://www.sourcemap.com/solutions/n-tier-risk-mapping" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag purple">AI 治理</span><span class="tag amber">TÜV Rheinland</span><span class="news-meta">ISO/IEC 42001</span></div>
+            <h3 class="news-headline">TÜV Rheinland Japan expands AI management-system certification capacity</h3>
+            <p class="news-body"><strong>Who:</strong> TÜV Rheinland Japan. <strong>Product:</strong> ISO/IEC 42001 Artificial Intelligence Management System certification as an accredited third-party certification body in Japan. <strong>Scenario:</strong> Organizations seeking responsible AI governance can use third-party audits to demonstrate transparency, accountability and AI risk management; TÜV Rheinland also markets ISO 42001 training and implementation support in other regions. <strong>QIMA relevance:</strong> TÜV Rheinland is occupying the formal AI certification lane; QIMA can differentiate with practical AI/product export readiness and supplier evidence checks before formal certification.<a href="#s25" class="source">[S25]</a></p>
+            <a class="news-link" href="https://www.tuv.com/press/en/press-releases/building-trust-in-ai-tuv-rheinland-japan-iso-iec-42001.html" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+
+          <article class="news-card">
+            <div class="news-top"><span class="tag amber">中国本土</span><span class="tag green">CQC / CTI / Pony</span><span class="news-meta">DV + AI labs + LIMS/CRM evidence</span></div>
+            <h3 class="news-headline">China scan: CQC gains more Amazon DV categories; CTI explores AI/light-off labs; Pony evidence remains internal-platform oriented</h3>
+            <p class="news-body"><strong>Who:</strong> CQC, CTI and Pony Testing. <strong>Product:</strong> CQC announced Amazon Direct Validation qualifications for laser products and lithium-ion batteries; CTI disclosed automation+AI use cases and a Dynaflow partnership for AI-driven light-off labs; Pony public evidence points to CRM/ERP/LIMS/iLab integration and report/certificate portals rather than an external SaaS product. <strong>Scenario:</strong> China labs are strengthening platform compliance channels and lab automation for export categories, petrochemical/marine-fuel testing and service operations. <strong>QIMA relevance:</strong> Local competitors are closing capability gaps; QIMA should lean on cross-border buyer relationships, platform integrations and transparent evidence workflows.<a href="#s5" class="source">[S5]</a><a href="#s27" class="source">[S27]</a><a href="#s28" class="source">[S28]</a></p>
+            <a class="news-link" href="https://www.cqc.com.cn/www/col602/90978.html" target="_blank" rel="noreferrer">Read source -></a>
+          </article>
+        </div>
+      </section>
+
+      <section id="competitor-ai-dynamics">
+        <h2><span class="dot"></span>Competitor AI Dynamics</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Company / product</th><th>Where AI is used</th><th>Customer scenario</th><th>QIMA implication</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>LRQA EiQ</strong></td><td>AI, proprietary audit data, machine learning and Sentinel adverse-media scans for supplier risk signals.<a href="#s6" class="source">[S6]</a></td><td>CSRD/CSDDD due diligence, forced-labor monitoring, supplier segmentation and risk alerts.</td><td>QIMAone needs richer external risk signals and explainable supplier scoring.</td></tr>
+              <tr><td><strong>Amazon DV / Intertek InterLink</strong></td><td>AI is not the core claim; the differentiator is structured certificate data and platform-direct submission to Amazon/CPSC.<a href="#s1" class="source">[S1]</a><a href="#s2" class="source">[S2]</a></td><td>MYC/Seller Central TRF workflows, CPC/GCC eFiling and high-risk product category compliance.</td><td>Prioritize data quality, status tracking and evidence packaging before AI messaging.</td></tr>
+              <tr><td><strong>Kiwa x Siemens</strong></td><td>AI Act is in the compliance scope; main value is OT cybersecurity implementation plus independent assessment.<a href="#s11" class="source">[S11]</a></td><td>Manufacturers, machine builders and system integrators preparing for NIS2/CRA/IEC 62443.</td><td>Develop IoT/connected-product cyber readiness checks with human expert review.</td></tr>
+              <tr><td><strong>Inspectorio SCNI / Paramo</strong></td><td>AI agents/copilots validate documents, surface anomalies, predict risks and recommend workflows.<a href="#s15" class="source">[S15]</a><a href="#s16" class="source">[S16]</a></td><td>Quality, compliance, production, sourcing and multi-tier traceability management.</td><td>QIMAone should move from workflow tracking to actionable decision intelligence.</td></tr>
+              <tr><td><strong>Checkfirst InspectAI</strong></td><td>AI photo verification, document extraction/review, and scheduling/rescheduling optimization.<a href="#s21" class="source">[S21]</a></td><td>Field inspection, auditor allocation, COA/certificate review and standardized reporting.</td><td>Good reference for internal efficiency tooling and potential partnership.</td></tr>
+              <tr><td><strong>SafetyCulture</strong></td><td>The verified differentiator is automation/API integration; public AI claims were not the strongest evidence in this scan.<a href="#s19" class="source">[S19]</a></td><td>Mobile inspections, data feeds, corrective actions and ERP/BI sync.</td><td>Competes with self-service inspection digitization, not independent TIC assurance.</td></tr>
+              <tr><td><strong>SGS FoodNexus</strong></td><td>FOODAKAI uses machine learning for predictive risk detection; platform includes AI-powered plain-language insights.<a href="#s22" class="source">[S22]</a></td><td>Food regulatory monitoring, supplier oversight, audit readiness and testing prioritization.</td><td>QIMA can build risk-triggered testing/audit propositions in food and consumer goods.</td></tr>
+              <tr><td><strong>BV x AWS AI assessment</strong></td><td>AWS AIRI automates document review and direct testing across eight AI risk pillars.<a href="#s24" class="source">[S24]</a></td><td>EU AI Act readiness and independent AI maturity audits for European enterprises.</td><td>Start with readiness scoring and gap reports before full certification claims.</td></tr>
+              <tr><td><strong>Intertek AI²</strong></td><td>End-to-end AI assurance across governance, transparency, security and safety; links to EU AI Act and ISO/IEC 42001.<a href="#s29" class="source">[S29]</a></td><td>AI-enabled products, operational AI and regulated AI system deployment.</td><td>Intertek has strong brand positioning; QIMA should specialize around product/supply-chain use cases.</td></tr>
+              <tr><td><strong>Sourcemap</strong></td><td>AI-powered watchlist/newsfeed monitoring, OCR, automated risk heat maps and supplier evidence checks.<a href="#s23" class="source">[S23]</a></td><td>CSDDD, forced labor, EUDR, customs inquiries and Scope 3 documentation.</td><td>QIMA ESG should connect mapping evidence with independent on-site validation.</td></tr>
+              <tr><td><strong>TradeBeyond / Pivot88</strong></td><td>Applied AI for supply-chain mapping, compliance document scanning and PO-line quality-failure risk scoring.<a href="#s17" class="source">[S17]</a><a href="#s18" class="source">[S18]</a></td><td>Retail quality, lab tracking, inspection planning and traceability.</td><td>QIMA should integrate inspection services into clients' PLM/QMS/SCM systems.</td></tr>
+              <tr><td><strong>CTI / Pony Testing</strong></td><td>CTI reports AI-assisted lab workflows and light-off laboratory exploration; Pony evidence shows digital operations platforms, not external AI SaaS.<a href="#s27" class="source">[S27]</a><a href="#s28" class="source">[S28]</a></td><td>Lab automation, data review, report generation and internal service efficiency.</td><td>Chinese labs are using AI to reduce turnaround and labor intensity; QIMA must keep delivery speed visible.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="executive-summary">
+        <h2><span class="dot"></span>Executive Summary</h2>
+        <div class="card tint">
+          <ol class="bullets">
+            <li><strong>Competitor digitization is becoming the product, not the back office.</strong> Amazon DV/InterLink, LRQA EiQ, BV AITrack, Inspectorio SCNI, SGS FoodNexus, TradeBeyond/Pivot88 and Sourcemap all sell data workflows, risk intelligence or platform evidence rather than only lab capacity.<a href="#s1" class="source">[S1]</a><a href="#s6" class="source">[S6]</a><a href="#s8" class="source">[S8]</a><a href="#s15" class="source">[S15]</a></li>
+            <li><strong>AI is monetized in three lanes:</strong> supply-chain risk intelligence (EiQ, Inspectorio, Sourcemap, TradeBeyond), AI-governance assurance (Intertek AI², BV x AWS, TÜV Rheinland ISO/IEC 42001) and inspection/lab productivity (Checkfirst, CTI).</li>
+            <li><strong>QIMA's direct competitors include SaaS and inspection platforms, not only TIC labs.</strong> SafetyCulture, The Inspection Company, Checkfirst, IFS Cloud and IFS Supply Chain Solutions compete for workflow digitization budgets that can precede or replace third-party inspection spend.<a href="#s19" class="source">[S19]</a><a href="#s20" class="source">[S20]</a><a href="#s21" class="source">[S21]</a><a href="#s26" class="source">[S26]</a></li>
+            <li><strong>The near-term buyer demand is audit-ready, platform-consumable evidence.</strong> Sales teams should frame QIMA around direct-submission readiness, API/CSV-ready certificate fields, photo/report integrity, supplier risk triggers and CAPA evidence packs.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="qima-implications">
+        <h2><span class="dot"></span>QIMA Implications</h2>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Product actions for PM</h3>
+            <ol class="bullets">
+              <li><strong>Amazon DV / MYC readiness pack:</strong> standardize category-specific intake for toys, lithium batteries, power banks, laser products, furniture/CSU and e-mobility accessories; include TRF ID, standards/version checks, report validity and submission-status tracking.</li>
+              <li><strong>CPSC eFiling data pack:</strong> make CPC/GCC certificate data, importer/product identifiers, lab evidence and supporting files exportable in CSV/API-ready formats, matching InterLink-style messaging.<a href="#s2" class="source">[S2]</a></li>
+              <li><strong>ESG supplier risk lite:</strong> add supplier segmentation, country/category risk, audit history, adverse-media flags and CAPA progress into QIMAone before attempting a full EiQ/Sourcemap competitor build.</li>
+              <li><strong>OT / IoT cyber pre-check:</strong> offer an IEC 62443/CRA/NIS2 readiness checklist for connected consumer products, energy-storage devices, smart-home goods and e-mobility accessories.</li>
+              <li><strong>Inspection AI copilot:</strong> test AI for missing-photo checks, report consistency, certificate field extraction and scheduling recommendations; retain human final judgment in line with TIC Council's human-in-the-loop principle.<a href="#s13" class="source">[S13]</a></li>
+            </ol>
+          </div>
+          <div class="card">
+            <h3>Sales actions for business teams</h3>
+            <ul class="bullets">
+              <li><strong>For Amazon sellers:</strong> sell the outcome as listing continuity: sample/report intake, standards review, TIC submission and status feedback.</li>
+              <li><strong>For retailers and brands:</strong> position QIMAone against Inspectorio/TradeBeyond as the place where quality, compliance, traceability and supplier risk connect to independent field evidence.</li>
+              <li><strong>For ESG/procurement:</strong> turn CSRD/CSDDD from advisory language into an execution bundle: supplier mapping, risk ranking, audit trigger, CAPA and evidence archive.</li>
+              <li><strong>For industrial/electronics clients:</strong> use Kiwa x Siemens and BV Cybersecurity examples to show that cyber compliance is entering product launch and supplier approval gates.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="evidence-pack">
+        <h2><span class="dot"></span>Article Evidence Pack</h2>
+        <p class="lead">Five core evidence blocks from Tracks A/B/C/E. Priority is given to official pages, product pages or wire/announcement channels.</p>
+        <div class="grid cols-1 evidence">
+          <article class="card">
+            <h3>Amazon DV and Intertek InterLink 2.0</h3>
+            <p><strong>Sources:</strong> Intertek HK Amazon DV update, Intertek CPSC eFiling page, SGS Amazon DV announcement, Eurofins Amazon DV page and CQC Amazon DV announcement.<a href="#s1" class="source">[S1]</a><a href="#s2" class="source">[S2]</a><a href="#s3" class="source">[S3]</a><a href="#s5" class="source">[S5]</a></p>
+            <div class="quote"><strong>Extract:</strong> Amazon DV requires testing/validation through approved TIC bodies and direct submission of results to Amazon; Intertek states InterLink 2.0 digitizes certificate data and can support CSV/API eFiling with the CPSC Product Registry.</div>
+            <p><strong>Supports:</strong> Platform-direct compliance is now a visible TIC product capability.</p>
+          </article>
+          <article class="card">
+            <h3>LRQA EiQ and BV AITrack supply-chain SaaS</h3>
+            <p><strong>Sources:</strong> LRQA EiQ product pages and BV AITrack Supply Chain Engagement announcement.<a href="#s6" class="source">[S6]</a><a href="#s8" class="source">[S8]</a></p>
+            <div class="quote"><strong>Extract:</strong> EiQ uses AI, proprietary data and analytics for end-to-end due diligence; BV AITrack collects and validates supplier-specific LCA/EPD/PCF data into Scope 3 inventories.</div>
+            <p><strong>Supports:</strong> ESG assurance is being packaged as SaaS plus verified data workflows.</p>
+          </article>
+          <article class="card">
+            <h3>Kiwa x Siemens BeLux industrial cybersecurity</h3>
+            <p><strong>Sources:</strong> Kiwa official partnership news and Bureau Veritas cybersecurity service pages for market context.<a href="#s11" class="source">[S11]</a><a href="#s12" class="source">[S12]</a></p>
+            <div class="quote"><strong>Extract:</strong> Kiwa brings CRA, ISO 27001, IEC/ISA 62443, RED-DA, AI certification, functional safety and conformity-assessment expertise; Siemens contributes industrial digitalization and OT cybersecurity capabilities.</div>
+            <p><strong>Supports:</strong> Industrial cyber is becoming a TIC-plus-technology-partner service bundle.</p>
+          </article>
+          <article class="card">
+            <h3>Inspectorio SCNI and TradeBeyond/Pivot88 QC SaaS</h3>
+            <p><strong>Sources:</strong> Business Wire Inspectorio SCNI release; PRNewswire TradeBeyond/Pivot88 acquisition; Pivot88 quality page.<a href="#s15" class="source">[S15]</a><a href="#s17" class="source">[S17]</a><a href="#s18" class="source">[S18]</a></p>
+            <div class="quote"><strong>Extract:</strong> Inspectorio combines quality, compliance and chain-of-custody data with AI-driven recommendations; Pivot88 provides quality, lab tracking, inspections and AI-driven risk insights inside the TradeBeyond ecosystem.</div>
+            <p><strong>Supports:</strong> QC SaaS competitors are attacking QIMA's quality and inspection workflow budget.</p>
+          </article>
+          <article class="card">
+            <h3>Checkfirst InspectAI and SafetyCulture API</h3>
+            <p><strong>Sources:</strong> Checkfirst solution/press pages and SafetyCulture developer documentation.<a href="#s21" class="source">[S21]</a><a href="#s19" class="source">[S19]</a></p>
+            <div class="quote"><strong>Extract:</strong> InspectAI supports AI image verification, digital checklists and offline inspection; SafetyCulture exposes inspection data and workflows through API and data feeds.</div>
+            <p><strong>Supports:</strong> Field inspection data capture is becoming API-first and AI-assisted.</p>
+          </article>
+        </div>
+      </section>
+
+      <details class="appendix-box appendix" id="market-regulation-trends">
+        <summary>Appendix: Market / Regulation Trends (directional background only)</summary>
+        <section style="margin-top:14px;">
+          <h2><span class="dot"></span>Market / Regulation Trends</h2>
+          <div class="grid cols-2">
+            <div class="card">
+              <h3>TIC Council / IAF: AI can support assurance, but human accountability remains central</h3>
+              <p>TIC Council's 2026 materials call for trusted assurance as AI governance fragments globally and outline a framework for responsible digitalization of assurance services. The council supports AI, IoT, digital twins and data-driven assurance, while keeping independence, impartiality, competence, confidentiality and human oversight as non-negotiable. IAF/ILAC's transition into Global Accreditation Cooperation in 2026 and IAF's AIQI participation show that accreditation infrastructure is also moving toward AI assurance and global recognition.<a href="#s13" class="source">[S13]</a><a href="#s14" class="source">[S14]</a></p>
+            </div>
+            <div class="card">
+              <h3>L8 market research: numbers differ, but all point toward ESG, cyber and AI-enabled assurance</h3>
+              <p>MarketsandMarkets' March 2026 summary estimates the TIC market at USD 254.41bn in 2026 and USD 306.13bn by 2031, CAGR 3.8%. Mordor's 2026 report uses a higher 2026 base of USD 275.56bn and USD 345.39bn by 2031, CAGR 4.62%. These are free summaries/press-style pages with different scopes, so use them only as directional appendix evidence, not as competitor-news proof.<a href="#s30" class="source">[S30]</a><a href="#s31" class="source">[S31]</a></p>
+            </div>
+          </div>
+          <div class="grid cols-3" style="margin-top:16px;">
+            <div class="card"><h3>CPSC eFiling</h3><p>CPSC eFiling makes certificate data electronic for regulated consumer products; Intertek explicitly positions InterLink 2.0 for digitized CPC/GCC workflows and CSV/API routes.<a href="#s2" class="source">[S2]</a></p></div>
+            <div class="card"><h3>CRA / NIS2 / IEC 62443</h3><p>Cybersecurity compliance is moving from advisory to conformity-assessment pathways, especially for products with digital elements and industrial systems. BV, TÜV bodies and Kiwa/Siemens are all positioning around this demand.<a href="#s11" class="source">[S11]</a><a href="#s12" class="source">[S12]</a></p></div>
+            <div class="card"><h3>Accreditation continuity</h3><p>Global Accreditation Cooperation's 2026 launch simplifies the former IAF/ILAC recognition architecture; this matters for cross-border acceptance of digital and AI-enabled conformity-assessment results.<a href="#s14" class="source">[S14]</a></p></div>
+          </div>
+        </section>
+      </details>
+
+      <section id="open-questions">
+        <h2><span class="dot"></span>Open Questions / Research Coverage Notes</h2>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>This week's coverage</h3>
+            <p>Completed 43 web searches before writing the report, covering Tracks A-E. Brands and sources scanned include SGS, Intertek, Bureau Veritas, Eurofins, UL Solutions, TÜV Rheinland, TÜV SÜD, LRQA, Kiwa, DNV, CQC, CTI, Pony Testing, Inspectorio, TradeBeyond, Pivot88, Sourcemap, SafetyCulture, The Inspection Company, Checkfirst/InspectAI, IFS Cloud, IFS Supply Chain Solutions, TIC Council, IAF, MarketsandMarkets and Mordor.</p>
+          </div>
+          <div class="card">
+            <h3>Items to re-check next week</h3>
+            <ul class="bullets">
+              <li>TÜV Rheinland and UL Solutions have Amazon-related public evidence, but category-by-category DV scope is best confirmed in Seller Central/MYC provider lists. Treat public list articles as leads, not final proof.</li>
+              <li>Pony Testing public evidence confirms internal CRM/ERP/LIMS/iLab integration and report portals; no official external SaaS/LIMS product sale was confirmed in this scan. <strong>Unverified, further confirmation required.</strong></li>
+              <li>Amazon lithium-battery/power-bank DV scope and exact approved-provider lists are dynamic; CQC has official evidence for laser products and lithium-ion batteries, while many other provider/category claims remain partly platform-private.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="sources">
+        <h2><span class="dot"></span>Sources</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Source</th><th>Use in report</th></tr></thead>
+            <tbody>
+              <tr id="s1"><td>[S1]</td><td><a href="https://www.intertek.com.hk/regulatory-updates/2025/amazon-policy-update-tic-direct-validation-is-here--intertek-helps-you-stay-compliant/">Intertek HK: Amazon Policy Update - TIC Direct Validation is Here</a></td><td>Amazon DV workflow, MYC, seller self-upload restrictions and direct TIC submission.</td></tr>
+              <tr id="s2"><td>[S2]</td><td><a href="https://www.intertek.com/interlink2/">Intertek InterLink 2.0</a>; <a href="https://www.intertek.com/interlink2/cpsc-efiling/">Intertek CPSC eFiling</a></td><td>Digital total quality platform, CPSC eFiling, certificate data, CSV/API support.</td></tr>
+              <tr id="s3"><td>[S3]</td><td><a href="https://www.sgs.com/en-gb/news/2025/10/approved-as-an-amazon-tic-direct-validation-organization-for-toy-sellers">SGS: Approved as an Amazon TIC Direct Validation Organization for Toy Sellers</a></td><td>Amazon DV, toys, US/Canada/Europe, direct submission by TIC.</td></tr>
+              <tr id="s4"><td>[S4]</td><td><a href="https://www.eurofins.com/toys-hardlines/services/regulatory-and-compliance/amazon-direct-validation-for-toys-furniture/">Eurofins: Amazon Direct Validation Services</a>; <a href="https://www.ul.com/services/amazon-compliance-services-provider-electronics">UL Solutions: Amazon Compliance Services Provider for Electronics</a></td><td>Amazon-approved TIC providers, toys/furniture and electronics/lithium-battery compliance.</td></tr>
+              <tr id="s5"><td>[S5]</td><td><a href="https://www.cqc.com.cn/www/col602/90978.html">CQC: Amazon laser products and lithium-ion battery Direct Validation qualification</a>; <a href="https://www.ccic.com/xwzx/jgdt/art/2026/art_9f7a640f8166481e887354fabe85c7c4.html">CCIC repost of CQC announcement</a></td><td>CQC Amazon DV categories and China local provider signal.</td></tr>
+              <tr id="s6"><td>[S6]</td><td><a href="https://www.lrqa.com/en/eiq/">LRQA EiQ product page</a>; <a href="https://www.eiq.com/supplier-incident-monitoring">EiQ supplier incident monitoring</a></td><td>EiQ platform, AI, Sentinel adverse-media monitoring, supply-chain ESG due diligence.</td></tr>
+              <tr id="s7"><td>[S7]</td><td><a href="https://www.lrqa.com/en/latest-news/lrqa-announces-investment-from-hillhouse/">LRQA announces minority investment from Hillhouse</a>; <a href="https://www.eiq.com/articles/eiq-establishes-executive-leadership-team-scale-supply-chain-intelligence-and-resilience">EiQ establishes executive leadership team</a></td><td>Capital/product acceleration context for LRQA/EiQ.</td></tr>
+              <tr id="s8"><td>[S8]</td><td><a href="https://group.bureauveritas.com/newsroom/aitrack-bureau-veritas-launches-supply-chain-engagement-solution">Bureau Veritas: AITrack launches Supply Chain Engagement</a>; <a href="https://group.bureauveritas.com/aitrack/supply-chain-engagement">AITrack Supply Chain Engagement product page</a></td><td>BV ESG SaaS, supplier LCA/EPD/PCF collection and validation.</td></tr>
+              <tr id="s9"><td>[S9]</td><td><a href="https://www.dnv.com/veracity/">DNV Veracity</a>; <a href="https://www.dnv.com/services/sustainability-assessment-of-supply-chain/">DNV sustainability assessment of supply chain</a></td><td>DNV digital platform and ESG supply-chain context.</td></tr>
+              <tr id="s10"><td>[S10]</td><td><a href="https://www.tuev-nord.de/en/services/audit-and-expertise/product-certification/functional-safety/secure-industry-40/certification-according-to-iec-62443/">TÜV NORD IEC 62443 certification</a>; <a href="https://www.tuvsud.com/en-us/industries/manufacturing/machinery-and-robotics/iec-62443-industrial-security">TÜV SÜD IEC 62443 industrial security</a></td><td>TÜV OT cybersecurity and IEC 62443 market context.</td></tr>
+              <tr id="s11"><td>[S11]</td><td><a href="https://www.kiwa.com/en/news/kiwa-and-siemens-belux-announce-partnership/">Kiwa and Siemens BeLux partnership</a></td><td>Industrial cybersecurity, NIS2, CRA, IEC/ISA 62443 and ecosystem service package.</td></tr>
+              <tr id="s12"><td>[S12]</td><td><a href="https://cybersecurity.bureauveritas.com/services/integrated-approach/nis2">Bureau Veritas Cybersecurity: NIS2 services</a>; <a href="https://cybersecurity.bureauveritas.com/industries/industrial">BV Cybersecurity industrial services</a></td><td>OT/IT/IoT cybersecurity service packaging and NIS2 context.</td></tr>
+              <tr id="s13"><td>[S13]</td><td><a href="https://www.tic-council.org/news-and-events/news/press-release-ai-governance-fragments-globally-industry-calls-trusted-assurance-secure-adoption">TIC Council: AI governance fragments globally</a>; <a href="https://www.tic-council.org/news-and-events/news/press-release-tic-council-outlines-a-framework-for-digitalisation-of-assurance-services">TIC Council: framework for digitalisation of assurance services</a>; <a href="https://www.tic-council.org/news-and-events/news/implementation-nis2-directive-cannot-wait-safeguarding-europes-critical-infrastructure">TIC Council: NIS2 implementation cannot wait</a></td><td>TIC Council mandatory scan, AI governance, digital assurance and NIS2 background.</td></tr>
+              <tr id="s14"><td>[S14]</td><td><a href="https://iaf.nu/en/news/iaf-joins-the-artificial-intelligence-quality-infrastructure-aiqi-consortium/">IAF joins AIQI Consortium</a>; <a href="https://iaf.nu/en/news/global-accreditation-cooperation-incorporated-launch-unifies-international-accreditation-organisations-and-strengthens-worldwide-trust/">Global Accreditation Cooperation launch</a></td><td>IAF/accreditation background, AI quality infrastructure and global recognition.</td></tr>
+              <tr id="s15"><td>[S15]</td><td><a href="https://www.businesswire.com/news/home/20260107759938/en/Inspectorio-Unveils-Next-Generation-Supply-Chain-Network-Intelligence-for-Global-Brands-Retailers-and-Suppliers">Business Wire: Inspectorio unveils Supply Chain Network Intelligence</a></td><td>Inspectorio SCNI, real-time AI sourcing network, quality/compliance data.</td></tr>
+              <tr id="s16"><td>[S16]</td><td><a href="https://inspectorio.com/">Inspectorio homepage</a>; <a href="https://www.inspectorio.com/paramo">Inspectorio Paramo</a>; <a href="https://inspectorio.com/platform/artificial-intelligence">Inspectorio Artificial Intelligence</a></td><td>Paramo AI, document validation, risk insights and compliance automation.</td></tr>
+              <tr id="s17"><td>[S17]</td><td><a href="https://www.tradebeyond.com/news/tradebeyond-acquires-pivot88-to-jointly-empower-tomorrows-supply-chaintradebeyond-acquires-pivot88">TradeBeyond acquires Pivot88</a>; <a href="https://www.prnewswire.com/news-releases/tradebeyond-acquires-pivot88-301925459.html">PRNewswire: TradeBeyond acquires Pivot88</a></td><td>TradeBeyond/Pivot88 acquisition, AI-powered quality, compliance and traceability.</td></tr>
+              <tr id="s18"><td>[S18]</td><td><a href="https://www.pivot88.com/">Pivot88 homepage</a>; <a href="https://www.pivot88.com/quality">Pivot88 Quality</a>; <a href="https://www.pivot88.com/ai">Pivot88 AI</a></td><td>Quality inspections, lab tracking, digital reports, AI supply-chain mapping and risk scoring.</td></tr>
+              <tr id="s19"><td>[S19]</td><td><a href="https://developer.safetyculture.com/reference/introduction">SafetyCulture API documentation</a>; <a href="https://safetyculture.com/enterprise/supply-chain-management">SafetyCulture supply-chain management</a>; <a href="https://integrations.safetyculture.com/integrations/safetyculture-public-api">SafetyCulture Public API</a></td><td>Mobile inspections, API/data feeds, enterprise integrations and supply-chain inspection workflows.</td></tr>
+              <tr id="s20"><td>[S20]</td><td><a href="https://www.the-inspection-company.com/quality-platform">The Inspection Company Quality Platform</a>; <a href="https://www.the-inspection-company.com/quality-platform/inspection-mobile-app/online-booking-app">Online Booking App</a>; <a href="https://www.the-inspection-company.com/quality-platform/inspection-mobile-app/inspection-general-app">Inspection General App</a></td><td>Online booking, mobile inspection, geo tracking and inspection reports.</td></tr>
+              <tr id="s21"><td>[S21]</td><td><a href="https://www.checkfirst.ai/solution">Checkfirst AI audit solutions</a>; <a href="https://www.checkfirst.ai/press-release/checkfirst-launches-revolutionary-digital-inspection-platform-for-the-tic-industry">Checkfirst launches InspectAI</a>; <a href="https://www.checkfirst.ai/press-release/checkfirst-and-outspection-transform-the-ticc-industry-with-cutting-edge-ai-solutions">Checkfirst InspectAI AI tool</a></td><td>InspectAI, ScheduleAI, VerifyAI, AI photo verification and TICC workflow automation.</td></tr>
+              <tr id="s22"><td>[S22]</td><td><a href="https://sgs.com/en/services/sgs-nexus">SGS FoodNexus product page</a>; <a href="https://www.sgs.com/en/news/2026/03/sgs-launches-new-global-food-intelligence-platform-to-help-industry-predict-safety">SGS: new global food intelligence platform</a></td><td>SGS FoodNexus, Digicomply, Agroknow/FOODAKAI, AI insights and DaaS.</td></tr>
+              <tr id="s23"><td>[S23]</td><td><a href="https://www.sourcemap.com/solutions/n-tier-risk-mapping">Sourcemap n-tier risk mapping</a>; <a href="https://www.sourcemap.com/solutions/csddd">Sourcemap CSDDD</a>; <a href="https://www.sourcemap.com/solutions/supply-due-diligence">Sourcemap supply-chain due diligence</a></td><td>n-tier mapping, CSDDD, watchlist monitoring, ERP/PO traceability and audit-ready evidence.</td></tr>
+              <tr id="s24"><td>[S24]</td><td><a href="https://group.bureauveritas.com/newsroom/bureau-veritas-launches-independent-ai-assessment-offering-european-enterprises-developed">Bureau Veritas launches independent AI assessment with AWS</a>; <a href="https://www.businesswire.com/news/home/20260401410180/en/Bureau-Veritas-Launches-an-Independent-AI-Assessment-Offering-for-European-Enterprises-Developed-in-Partnership-with-Amazon-Web-Services-AWS">Business Wire version</a></td><td>BV AI systems audit, AWS AIRI, EU AI Act, eight risk pillars.</td></tr>
+              <tr id="s25"><td>[S25]</td><td><a href="https://www.tuv.com/press/en/press-releases/building-trust-in-ai-tuv-rheinland-japan-iso-iec-42001.html">TÜV Rheinland Japan ISO/IEC 42001 accreditation</a>; <a href="https://academy-in.tuv.com/product/iso-42001-foundation-training-certification-course-on-ai-management-system-24643">TÜV Rheinland Academy ISO 42001 training</a></td><td>TÜV Rheinland AI governance and ISO/IEC 42001 certification/training.</td></tr>
+              <tr id="s26"><td>[S26]</td><td><a href="https://www.ifs-erp.com/en/blog/iso-standards-in-ifs-cloud">IFS Cloud integrated compliance</a>; <a href="https://ifs-web-prod.ifs-certification.com/en/ifs-portfolio/supply-chain-solutions/esg-compliance-check">IFS ESG Compliance Check</a>; <a href="https://www.ifs-certification.com/images/ifs_documents/IFS_Supply_Chain_Processes_Check_v1_program_EN.pdf">IFS Supply Chain Processes Check</a></td><td>IFS Cloud/QMS distinction from IFS Certification and supply-chain process checks.</td></tr>
+              <tr id="s27"><td>[S27]</td><td><a href="https://money.finance.sina.com.cn/corp/view/vCB_AllBulletinDetail.php?id=12038048&amp;stockid=300012">CTI 2025 ESG report via Sina Finance</a>; <a href="https://www.dynaflow.cn/newsdetails/104.html">Dynaflow and CTI strategic cooperation for AI-driven light-off laboratory</a></td><td>CTI AI lab automation, data review and light-off laboratory exploration.</td></tr>
+              <tr id="s28"><td>[S28]</td><td><a href="https://m.pmway.com/renews/show-1825.html">Pony Testing chooses PMWay CRM</a>; <a href="http://pmway.com/typicalcases/show-56.html">PMWay Pony Testing case study</a></td><td>Pony CRM/ERP/LIMS/iLab integration evidence; no confirmed external SaaS sale.</td></tr>
+              <tr id="s29"><td>[S29]</td><td><a href="https://www.intertek.com/news/2025/intertek-launches-ai2/">Intertek launches AI²</a>; <a href="https://www.intertek.com/ai/">Intertek AI² product page</a></td><td>Intertek AI governance/assurance programme and SupplyTek context.</td></tr>
+              <tr id="s30"><td>[S30]</td><td><a href="https://www.marketsandmarkets.com/Market-Reports/testing-inspection-certification-market-5352498.html">MarketsandMarkets TIC market report page</a>; <a href="https://www.marketsandmarkets.com/PressReleases/testing-inspection-certification.asp">MarketsandMarkets press release</a></td><td>L8 market-size and digitalization appendix only.</td></tr>
+              <tr id="s31"><td>[S31]</td><td><a href="https://www.mordorintelligence.com/industry-reports/testing-inspection-and-certification-market">Mordor Intelligence TIC industry report</a></td><td>L8 market-size and ESG/digitalization appendix only.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>QIMA PM & Business Teams - Weekly TIC Market Intelligence.</strong><br>
+      Generated with a competitor-news-first lens. Market and regulatory trend data is kept in the collapsed appendix and used only as directional context.
+    </footer>
+  </div>
+</body>
+</html>
