@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PM Agent 反馈总结</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --qima-red: #E4002B;
+      --qima-red-dark: #C71A21;
+      --qima-red-900: #9E141B;
+      --qima-red-bg: #FDEFEF;
+      --white: #FFFFFF;
+      --mist: #F7F7F7;
+      --seal: #F0F0F0;
+      --cloud: #DEDEDE;
+      --pearl: #BFBFBF;
+      --ash: #979797;
+      --stone: #737373;
+      --slate: #3E3E3E;
+      --carbon: #191919;
+      --cherry-050: #FDEFEF;
+      --cherry-900: #9E141B;
+      --orange-050: #FCF2E6;
+      --orange-500: #F58F00;
+      --orange-900: #B26309;
+      --lemon-050: #FFF9E7;
+      --lemon-900: #BD8A00;
+      --kiwi-050: #EAF6F2;
+      --kiwi-500: #00A876;
+      --kiwi-600: #008A61;
+      --kiwi-900: #006648;
+      --fg-1: var(--carbon);
+      --fg-2: var(--stone);
+      --fg-3: var(--ash);
+      --fg-link: var(--qima-red);
+      --bg-app: var(--mist);
+      --bg-surface: var(--white);
+      --bg-sunken: var(--seal);
+      --border-default: rgba(0, 0, 0, 0.1);
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --space-xxs: 4px;
+      --space-xs: 8px;
+      --space-s: 12px;
+      --space-m: 16px;
+      --space-l: 24px;
+      --space-xl: 36px;
+      --space-xxl: 48px;
+      --shadow-1: 0 2px 4px rgba(25, 25, 25, 0.1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, Menlo, monospace;
+      --font-cjk: 'Noto Sans SC', 'Inter', sans-serif;
+      --fs-h2: 37px; --lh-h2: 44px;
+      --fs-h3: 30px; --lh-h3: 36px;
+      --fs-h4: 26px; --lh-h4: 32px;
+      --fs-h5: 22px; --lh-h5: 28px;
+      --fs-h6: 18px; --lh-h6: 24px;
+      --fs-body-01: 16px; --lh-body-01: 20px;
+      --fs-body-02: 14px; --lh-body-02: 20px;
+      --fs-caption: 12px; --lh-caption: 16px;
+      --fs-overline: 11px; --lh-overline: 12px;
+      --tracking-tight: -0.02em;
+      --dur-base: 200ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: var(--font-cjk);
+      font-size: var(--fs-body-02);
+      line-height: var(--lh-body-02);
+      color: var(--fg-1);
+      background: var(--bg-app);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--fg-link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, .mono { font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-mono); color: var(--fg-2); }
+
+    .page {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: var(--space-xs) var(--space-xs) var(--space-xxl);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-m) var(--space-m);
+      margin-bottom: var(--space-s);
+    }
+
+    .topbar-meta {
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      color: var(--fg-2);
+      text-align: right;
+    }
+
+    .hero {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+      padding: var(--space-xl) var(--space-l);
+      margin-bottom: var(--space-s);
+    }
+
+    .overline {
+      font: 600 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-2);
+      margin-bottom: var(--space-xs);
+    }
+
+    h1 {
+      font: 400 var(--fs-h2)/var(--lh-h2) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+      color: var(--fg-1);
+      margin-bottom: var(--space-s);
+    }
+
+    .hero-desc {
+      font: 400 var(--fs-body-01)/var(--lh-body-01) var(--font-sans);
+      color: var(--fg-2);
+      max-width: 72ch;
+      margin-bottom: var(--space-l);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-s);
+    }
+
+    .kpi {
+      background: var(--bg-sunken);
+      border-radius: var(--radius-md);
+      padding: var(--space-m);
+    }
+
+    .kpi-value {
+      font: 600 28px/32px var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+      color: var(--qima-red);
+      margin-bottom: var(--space-xxs);
+    }
+
+    .kpi-label {
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      color: var(--fg-2);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-s);
+    }
+
+    .nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 var(--space-s);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-pill);
+      font: 500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      color: var(--fg-1);
+      transition: background var(--dur-base) var(--ease-standard);
+    }
+
+    .nav a:hover {
+      background: var(--qima-red-bg);
+      text-decoration: none;
+    }
+
+    .section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+      padding: var(--space-l);
+      margin-bottom: var(--space-s);
+    }
+
+    h2 {
+      font: 400 var(--fs-h4)/var(--lh-h4) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+      margin-bottom: var(--space-xxs);
+    }
+
+    .section-desc {
+      color: var(--fg-2);
+      margin-bottom: var(--space-l);
+      max-width: 72ch;
+    }
+
+    .tbl-wrap {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font: 400 13px/20px var(--font-sans);
+    }
+
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      font: 500 12px/16px var(--font-sans);
+      color: var(--fg-2);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--border-default);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-default);
+      vertical-align: top;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: var(--qima-red-bg); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      border-radius: var(--radius-pill);
+      font: 500 12px/16px var(--font-sans);
+      white-space: nowrap;
+    }
+
+    .badge.suggestion { background: var(--orange-050); color: var(--orange-900); }
+    .badge.pass { background: var(--kiwi-050); color: var(--kiwi-900); }
+    .badge.info { background: var(--qima-red-bg); color: var(--qima-red-900); }
+    .badge.planned { background: var(--lemon-050); color: var(--lemon-900); }
+    .badge.neutral { background: var(--seal); color: var(--slate); }
+
+    .gain {
+      font: 600 13px/20px var(--font-sans);
+      color: var(--kiwi-600);
+    }
+
+    .feedback-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-s);
+    }
+
+    .feedback-item {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-m);
+      padding: var(--space-m);
+      background: var(--bg-app);
+      border-bottom: 1px solid var(--border-default);
+    }
+
+    .feedback-title {
+      font: 500 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .feedback-meta {
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      color: var(--fg-2);
+      margin-top: 2px;
+    }
+
+    .feedback-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .feedback-col {
+      padding: var(--space-m);
+    }
+
+    .feedback-col + .feedback-col {
+      border-left: 1px solid var(--border-default);
+      background: var(--kiwi-050);
+    }
+
+    .col-label {
+      font: 600 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--fg-2);
+      margin-bottom: var(--space-xs);
+    }
+
+    .feedback-col p {
+      font: 400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+      color: var(--fg-1);
+    }
+
+    .feedback-col p + p { margin-top: var(--space-xs); }
+
+    .feedback-col ul {
+      margin-top: var(--space-xs);
+      padding-left: 20px;
+    }
+
+    .feedback-col li {
+      margin-bottom: var(--space-xxs);
+      color: var(--fg-1);
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-s);
+      margin-top: var(--space-m);
+    }
+
+    .roadmap-item {
+      background: var(--bg-sunken);
+      border-radius: var(--radius-md);
+      padding: var(--space-m);
+    }
+
+    .roadmap-item h3 {
+      font: 500 var(--fs-body-01)/var(--lh-body-01) var(--font-sans);
+      margin-bottom: var(--space-xs);
+    }
+
+    .roadmap-item p {
+      color: var(--fg-2);
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: var(--space-l) var(--space-m);
+      color: var(--fg-2);
+      font: 400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .page { padding: var(--space-m); }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .feedback-body { grid-template-columns: 1fr; }
+      .feedback-col + .feedback-col {
+        border-left: 0;
+        border-top: 1px solid var(--border-default);
+      }
+      .roadmap { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; line-height: 34px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .nav a { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-doc" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="4" y="3" width="12" height="14" rx="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke-linecap="round"/></symbol>
+    <symbol id="i-analytics" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><path d="M3 17V9M8 17V5M13 17V11M18 17V3"/></symbol>
+    <symbol id="i-info" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm0 3.8a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zm1.2 9.2h-2.4V9.2h2.4v5.3z"/></symbol>
+    <symbol id="i-tick-circle" viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zm4.3 6.7-5.3 5.6a.7.7 0 0 1-1 0L5.7 11a.7.7 0 0 1 1-1l2.8 2.8 4.8-5a.7.7 0 0 1 1 1z"/></symbol>
+  </svg>
+
+  <div class="page">
+    <header class="topbar">
+      <svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA">
+        <defs><style>.cls-1{fill:#e4002b}</style></defs>
+        <g><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g>
+      </svg>
+      <div class="topbar-meta">
+        更新于 2026-07-03<br>
+        <a href="https://qima.atlassian.net/wiki/spaces/IT/pages/4740087828/PM+Agent+Feedback+Bug+Reports">Confluence 原文</a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="overline">QIMA PM Agent · 内测反馈</div>
+      <h1>PM Agent 反馈总结与回应</h1>
+      <p class="hero-desc">
+        本文汇总内测期间产品经理提交的反馈与效率调研数据，并附上团队对各项建议的回应与后续计划。
+      </p>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-value">7</div>
+          <div class="kpi-label">效率调研案例</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">5</div>
+          <div class="kpi-label">建议反馈条目</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">0</div>
+          <div class="kpi-label">Bug 报告</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value">5–10×</div>
+          <div class="kpi-label">典型提效幅度</div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="nav" aria-label="页面导航">
+      <a href="#efficiency"><svg width="16" height="16"><use href="#i-analytics"/></svg> 效率调研</a>
+      <a href="#feedback"><svg width="16" height="16"><use href="#i-doc"/></svg> 反馈与回应</a>
+      <a href="#roadmap"><svg width="16" height="16"><use href="#i-info"/></svg> 后续计划</a>
+    </nav>
+
+    <section class="section" id="efficiency">
+      <div class="overline">Section 01</div>
+      <h2>效率调研：使用前 vs 使用后</h2>
+      <p class="section-desc">基于真实需求的耗时对比，仅统计 PRD 撰写与 Ticket 拆分相关时间。</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>汇报人</th>
+              <th>需求类型</th>
+              <th>使用前</th>
+              <th>使用后</th>
+              <th>提效</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Suki Yuan</td>
+              <td>CPSC 自动化 UI 设计</td>
+              <td>沟通 5h + Lyon 4h</td>
+              <td>3h</td>
+              <td class="gain">约 78%</td>
+            </tr>
+            <tr>
+              <td>Suki Yuan</td>
+              <td>80+ 模板分析与总结</td>
+              <td>2–3 人天</td>
+              <td>2h</td>
+              <td class="gain">约 90%+</td>
+            </tr>
+            <tr>
+              <td>Suki Yuan</td>
+              <td>PRD 撰写</td>
+              <td>1–2 人天</td>
+              <td>2h</td>
+              <td class="gain">约 85%+</td>
+            </tr>
+            <tr>
+              <td>Matt Cai</td>
+              <td>食品认证邮件功能调研</td>
+              <td>30 分钟</td>
+              <td>5 分钟</td>
+              <td class="gain">6×</td>
+            </tr>
+            <tr>
+              <td>Matt Cai</td>
+              <td>预付款处理方式调研</td>
+              <td>2–4 小时</td>
+              <td>30 分钟</td>
+              <td class="gain">4–8×</td>
+            </tr>
+            <tr>
+              <td>Matt Cai</td>
+              <td>导出预付款订单数据</td>
+              <td>1–2 小时</td>
+              <td>10 分钟</td>
+              <td class="gain">6–12×</td>
+            </tr>
+            <tr>
+              <td>Eric Wang</td>
+              <td>按发票重组订单研究 + HTML 原型</td>
+              <td>3–4 人天</td>
+              <td>1.5 小时</td>
+              <td class="gain">约 95%+</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" id="feedback">
+      <div class="overline">Section 02</div>
+      <h2>反馈与团队回应</h2>
+      <p class="section-desc">左侧为内测用户原始反馈，右侧为团队回应与当前状态。</p>
+
+      <div class="feedback-list">
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#1 安装依赖过多</div>
+              <div class="feedback-meta">Eric Wang · 建议</div>
+            </div>
+            <span class="badge pass">已确认必要</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <p>安装 Agent 需要较多前置条件：</p>
+              <ul>
+                <li>Cursor Pro 计划</li>
+                <li>GitHub Access Token</li>
+                <li>在 QIMA 和 PM 组织中添加 GitHub scope</li>
+              </ul>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p>公司 Cursor Plan、GitHub 权限以及 <code class="mono">gh</code> CLI 确实是必要依赖，无法省略。</p>
+              <p>其余配置项将由团队提供<strong>一键配置</strong>能力，降低用户上手门槛。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#2 PRD 版式为窄版</div>
+              <div class="feedback-meta">Suki Yuan · 建议</div>
+            </div>
+            <span class="badge planned">受限于 Jira</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <p>自动生成的 Confluence 页面默认为 Narrow width，期望改为 Wide width。</p>
+              <p>PRD 中的需求拆分可结合设计规范进一步细化。</p>
+              <p><a href="https://qima.atlassian.net/wiki/spaces/IT/pages/4730716170">AI 生成版</a> · <a href="https://qima.atlassian.net/wiki/spaces/IT/pages/4742152228">人工优化版</a></p>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p>已尝试修改，但目前受 Jira / Confluence API 限制，暂无法实现 Wide width。</p>
+              <p>将持续关注 Atlassian 平台更新，待新功能可用时第一时间适配。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#3 UI 设计风格不符 QIMAlabs</div>
+              <div class="feedback-meta">Suki Yuan · 建议</div>
+            </div>
+            <span class="badge info">持续优化中</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <p>PM Agent 生成的设计应遵循 QIMAlabs 风格，当前 AI 输出与手工设计存在明显差距。</p>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p>目前市面上仅 Opus 4.8 能较好还原 QIMAlabs 风格，但仍存在局限；高质量前端 UI 生成成本较高。</p>
+              <p>团队正在优化 Design Skill，目前可做到近似还原，每次仍需设计手动调整细节。</p>
+              <p>已确立协作模式：<strong>PM 产出原型框架 → 设计优化交互与 UI 细节</strong>，设计时间节省约一半。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#4 MCP 集成：QCP 与 Microsoft 365</div>
+              <div class="feedback-meta">Eric Wang · 建议</div>
+            </div>
+            <span class="badge planned">已排期 / 转交 IT</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <p>需要稳定连接 QCP（目前有时报错）和 Microsoft 365。邮件沟通与会议决策是最大的上下文来源。</p>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p><strong>Microsoft 365</strong>：已提上日程，将在后续版本支持 Cursor 直连。</p>
+              <p><strong>QCP</strong>：连接问题将反馈给 IT 团队处理。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#5 User Story 拆分逻辑</div>
+              <div class="feedback-meta">Eric Wang · 建议 · <a href="https://qima.atlassian.net/browse/SP-33395">SP-33395</a></div>
+            </div>
+            <span class="badge info">工作流重构中</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <ul>
+                <li>Epic 拆分方式与 Dev Grooming 习惯不一致</li>
+                <li>错误包含 NetSuite 团队（不了解团队结构）</li>
+                <li>QA 工作量未合理纳入各 Ticket</li>
+                <li>Story Points 高估（实际 Backend 3 + Frontend 2 + QA 1）</li>
+                <li>建议参考 Dev Tech Design 工作流</li>
+              </ul>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p>整体工作流正在经历较大变革，需要与开发者协作，找到最适合 Agent 的 User Story 拆分方式。</p>
+              <p><strong>Agent 侧改进方向：</strong></p>
+              <ul>
+                <li>补充足够上下文，明确 NetSuite 团队工作不在内部范围</li>
+                <li>让 PM 更容易审核 AI 产出的 Ticket：边界清晰、逻辑连贯、目标明确、预期落地结果具体</li>
+                <li>确保 Dev Agent 能基于高质量 Ticket 直接进入开发</li>
+              </ul>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="overline">Section 03</div>
+      <h2>后续计划一览</h2>
+      <p class="section-desc">基于反馈梳理的优先级与责任分工。</p>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <span class="badge pass" style="margin-bottom:8px">短期</span>
+          <h3>一键安装配置</h3>
+          <p>在保留必要依赖的前提下，自动化其余配置步骤，降低 PM 上手成本。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge info" style="margin-bottom:8px">进行中</span>
+          <h3>Design Skill 优化</h3>
+          <p>提升 QIMAlabs 风格近似度；PM + 设计协作模式已验证，设计时间节省约 50%。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge planned" style="margin-bottom:8px">已排期</span>
+          <h3>Microsoft 365 集成</h3>
+          <p>支持 Cursor 直连邮件与会议上下文，解决最大信息来源的接入问题。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge neutral" style="margin-bottom:8px">转交 IT</span>
+          <h3>QCP 连接稳定性</h3>
+          <p>将 QCP MCP 连接报错问题反馈给 IT 团队排查与修复。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge planned" style="margin-bottom:8px">待平台更新</span>
+          <h3>Confluence Wide Width</h3>
+          <p>关注 Jira / Confluence API 更新，待支持后切换 PRD 默认版式。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge info" style="margin-bottom:8px">协作推进</span>
+          <h3>Ticket 拆分工作流</h3>
+          <p>与 Dev 团队协作定义 Agent 友好的 Story 拆分规范，补充团队边界上下文。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      数据来源：<a href="https://qima.atlassian.net/wiki/spaces/IT/pages/4740087828/PM+Agent+Feedback+Bug+Reports">PM Agent Feedback &amp; Bug Reports</a>
+      &middot; 生成于 Cursor-QIMA-PM-Agent 项目
+    </footer>
+  </div>
+</body>
+</html>
