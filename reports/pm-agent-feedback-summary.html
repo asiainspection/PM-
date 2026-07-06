@@ -396,7 +396,7 @@
         <g><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g>
       </svg>
       <div class="topbar-meta">
-        更新于 2026-07-03<br>
+        更新于 2026-07-06<br>
         <a href="https://qima.atlassian.net/wiki/spaces/IT/pages/4740087828/PM+Agent+Feedback+Bug+Reports">Confluence 原文</a>
       </div>
     </header>
@@ -413,7 +413,7 @@
           <div class="kpi-label">效率调研案例</div>
         </div>
         <div class="kpi">
-          <div class="kpi-value">5</div>
+          <div class="kpi-value">6</div>
           <div class="kpi-label">建议反馈条目</div>
         </div>
         <div class="kpi">
@@ -632,6 +632,42 @@
             </div>
           </div>
         </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#6 Ticket 创建默认设置</div>
+              <div class="feedback-meta">Genja · 建议</div>
+            </div>
+            <span class="badge pass">已落地</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">用户反馈</div>
+              <p>创建 Ticket 时，Agent 应默认以英文询问用户的偏好与描述，而非直接按猜测写入 Jira。</p>
+              <p><strong>需确认的偏好字段：</strong></p>
+              <ul>
+                <li><strong>Space</strong>：通常为 Services Platform</li>
+                <li><strong>SP Team</strong>：PM 所属团队</li>
+                <li><strong>Sprint</strong>：Backlog / Current Sprint / Next Sprint</li>
+                <li><strong>Is BAU</strong>：是否为日常运维类需求</li>
+              </ul>
+              <p><strong>理由：</strong>不同 PM 的 Jira 上下文（团队、Sprint、Space）各不相同，Agent 若静默使用默认值，容易创建到错误的 Space 或 Sprint，增加 PM 审核与修正成本。</p>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">团队回应</div>
+              <p>已加入 Agent 的 <strong>Fallback 机制</strong>：当 Agent 检测不到用户意图或缺少必要 Jira 上下文时，会主动以<strong>英文</strong>向用户确认以下信息：</p>
+              <ul>
+                <li>Space（默认提示：Services Platform）</li>
+                <li>SP Team（PM 所属团队）</li>
+                <li>Sprint（Backlog / Current Sprint / Next Sprint）</li>
+                <li>Is BAU</li>
+                <li>Preference 与需求描述（Description）</li>
+              </ul>
+              <p>只有在用户明确提供或确认偏好后，Agent 才会执行 Jira 写入，避免静默猜测导致的字段错误。</p>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -664,6 +700,11 @@
           <span class="badge planned" style="margin-bottom:8px">待平台更新</span>
           <h3>Confluence Wide Width</h3>
           <p>关注 Jira / Confluence API 更新，待支持后切换 PRD 默认版式。</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge pass" style="margin-bottom:8px">已落地</span>
+          <h3>Ticket 创建 Fallback</h3>
+          <p>Agent 无法识别意图时，以英文主动询问 Space、SP Team、Sprint、Is BAU 及需求描述，确认后再写入 Jira。</p>
         </div>
         <div class="roadmap-item">
           <span class="badge info" style="margin-bottom:8px">协作推进</span>
