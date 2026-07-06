@@ -409,7 +409,7 @@
           <div class="kpi-label">Efficiency survey cases</div>
         </div>
         <div class="kpi">
-          <div class="kpi-value">6</div>
+          <div class="kpi-value">7</div>
           <div class="kpi-label">Suggestion items</div>
         </div>
         <div class="kpi">
@@ -662,6 +662,30 @@
             </div>
           </div>
         </article>
+
+        <article class="feedback-item">
+          <div class="feedback-header">
+            <div>
+              <div class="feedback-title">#7 Humans and AI cannot edit the PRD simultaneously</div>
+              <div class="feedback-meta">Eric Wang · Suggestion</div>
+            </div>
+            <span class="badge planned">Under review</span>
+          </div>
+          <div class="feedback-body">
+            <div class="feedback-col">
+              <div class="col-label">Feedback</div>
+              <p>When humans and AI edit at the same time, the AI overwrites the human edits.</p>
+              <p>That is, while waiting for the AI to work, humans cannot edit this PRD.</p>
+              <p><strong>Why it matters:</strong> PMs often want to refine the PRD while the agent is still generating or updating content. Concurrent edits create a blocking workflow and risk losing manual changes.</p>
+            </div>
+            <div class="feedback-col">
+              <div class="col-label">Team response</div>
+              <p>Acknowledged. Confluence writes via the agent currently replace the full page body, so any in-flight human edits can be overwritten.</p>
+              <p><strong>Interim guidance:</strong> Allow the agent to complete its write before opening the PRD for manual edits.</p>
+              <p><strong>Under evaluation:</strong> Draft-first publishing, merge-safe section updates, and clearer in-agent status signalling so PMs know when it is safe to edit.</p>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -699,6 +723,11 @@
           <span class="badge pass" style="margin-bottom:8px">Shipped</span>
           <h3>Ticket creation fallback</h3>
           <p>When intent is unclear, agent asks in English for Space, SP team, Sprint, Is BAU, and description before writing to Jira.</p>
+        </div>
+        <div class="roadmap-item">
+          <span class="badge planned" style="margin-bottom:8px">Under review</span>
+          <h3>PRD concurrent editing</h3>
+          <p>Evaluate draft-first writes and merge-safe updates so PMs can edit without being blocked or overwritten while the agent works.</p>
         </div>
         <div class="roadmap-item">
           <span class="badge info" style="margin-bottom:8px">Collaboration</span>
