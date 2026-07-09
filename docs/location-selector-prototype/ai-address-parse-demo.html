@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Address Parse — myQIMA Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand-red: #e4002b;
+      --pool-050: #f2f5fd;
+      --pool-100: #e6ecfb;
+      --pool-500: #4169e1;
+      --pool-600: #1e46bd;
+      --pool-900: #153184;
+      --kiwi-100: #eaf6f2;
+      --kiwi-500: #00a876;
+      --kiwi-900: #006648;
+      --orange-100: #fcf2e6;
+      --orange-500: #f58f00;
+      --carbon: #191919;
+      --seal: #737373;
+      --smoke: #b3b3b3;
+      --pearl: #dedede;
+      --mist: #f0f0f0;
+      --cloud: #f7f7f7;
+      --white: #ffffff;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --font: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); font-size: 14px; line-height: 1.5; color: var(--carbon); background: var(--cloud); min-height: 100vh; }
+
+    .page { max-width: 920px; margin: 0 auto; padding: 24px 20px 48px; }
+    .page-header { margin-bottom: 20px; }
+    .page-header h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+    .page-header p { color: var(--seal); font-size: 13px; }
+    .ref { font-size: 12px; margin-top: 8px; }
+    .ref a { color: var(--pool-600); }
+
+    .demo-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 860px) { .demo-layout { grid-template-columns: 1fr; } }
+
+    .samples { background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-lg); padding: 16px; }
+    .samples h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--seal); margin-bottom: 10px; }
+    .samples p { font-size: 12px; color: var(--seal); margin-bottom: 12px; }
+    .sample-btn { width: 100%; text-align: left; border: 1px solid var(--pearl); background: var(--white); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font: inherit; font-size: 12px; color: var(--carbon); transition: border-color .15s, background .15s; }
+    .sample-btn:hover { border-color: var(--pool-500); background: var(--pool-050); }
+    .sample-btn strong { display: block; font-size: 11px; color: var(--seal); margin-bottom: 4px; font-weight: 600; }
+
+    .qima-panel { background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 1px 2px rgba(25,25,25,.04); }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--pool-100); color: var(--pool-900); font-weight: 600; font-size: 14px; }
+    .panel-header .chev { color: var(--seal); font-size: 12px; }
+    .panel-body { padding: 0; }
+
+    .parse-zone { padding: 16px; border-bottom: 1px solid var(--pearl); background: var(--pool-050); }
+    .parse-zone label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+    .parse-zone .hint { font-size: 12px; color: var(--seal); margin-bottom: 10px; }
+    .parse-input { width: 100%; min-height: 72px; padding: 10px 12px; border: 1px solid var(--pearl); border-radius: var(--radius-md); font: inherit; font-size: 13px; resize: vertical; background: var(--white); }
+    .parse-input:focus { outline: none; border-color: var(--pool-500); box-shadow: 0 0 0 3px var(--pool-100); }
+    .parse-actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; padding: 8px 16px; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s; }
+    .btn-primary { background: var(--pool-500); color: var(--white); }
+    .btn-primary:hover:not(:disabled) { background: var(--pool-600); }
+    .btn-primary:disabled { background: var(--mist); color: var(--smoke); cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: var(--seal); border-color: var(--pearl); }
+    .btn-ghost:hover { background: var(--cloud); }
+    .parse-status { font-size: 12px; color: var(--seal); display: flex; align-items: center; gap: 8px; }
+    .spinner { width: 14px; height: 14px; border: 2px solid var(--pearl); border-top-color: var(--pool-500); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-grid { padding: 8px 0; }
+    .form-row { display: grid; grid-template-columns: 200px 1fr; gap: 12px; align-items: start; padding: 12px 16px; border-bottom: 1px solid var(--mist); }
+    .form-row:last-child { border-bottom: none; }
+    .form-row label { font-size: 13px; font-weight: 500; padding-top: 10px; color: var(--carbon); }
+    .form-row label .opt { font-weight: 400; color: var(--seal); }
+    .form-row label .req { color: var(--brand-red); }
+    .control { position: relative; }
+    .control select, .control input, .control textarea {
+      width: 100%; padding: 10px 36px 10px 12px; border: 1px solid var(--pearl); border-radius: var(--radius-md);
+      font: inherit; font-size: 13px; background: var(--white); color: var(--carbon); appearance: none;
+    }
+    .control textarea { min-height: 80px; resize: vertical; padding-right: 12px; }
+    .control select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23737373' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+    .control select:focus, .control input:focus, .control textarea:focus { outline: none; border-color: var(--pool-500); box-shadow: 0 0 0 3px var(--pool-100); }
+    .control.filled select, .control.filled input, .control.filled textarea { border-color: var(--kiwi-500); background-color: var(--kiwi-100); }
+    .control.filled select { background-color: var(--kiwi-100); }
+    .field-meta { font-size: 11px; color: var(--seal); margin-top: 4px; }
+    .field-meta code { font-size: 10px; background: var(--mist); padding: 1px 5px; border-radius: 3px; }
+
+    .resolve-bar { margin: 0 16px 16px; padding: 10px 12px; background: var(--cloud); border: 1px solid var(--pearl); border-radius: var(--radius-md); font-size: 12px; color: var(--seal); display: none; }
+    .resolve-bar.visible { display: block; }
+    .resolve-bar strong { color: var(--carbon); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; margin-left: 6px; }
+    .badge-kiwi { background: var(--kiwi-100); color: var(--kiwi-900); }
+    .badge-orange { background: var(--orange-100); color: var(--orange-900); }
+
+    .snackbar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--carbon); color: var(--white); padding: 12px 20px; border-radius: var(--radius-md); font-size: 13px; opacity: 0; transition: transform .25s, opacity .25s; z-index: 100; max-width: 90vw; }
+    .snackbar.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .snackbar.success { background: var(--kiwi-900); }
+    .snackbar.warn { background: var(--orange-500); }
+
+    .proto-note { margin-top: 16px; padding: 12px 14px; background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-md); font-size: 12px; color: var(--seal); line-height: 1.55; }
+    .proto-note strong { color: var(--carbon); }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header class="page-header">
+    <h1>AI Address Parse — Demo</h1>
+    <p>Paste a full address, click <strong>Detect</strong>, and GEO fields auto-populate from master data. User can review and edit before save.</p>
+    <p class="ref">Reference: <a href="https://qima.atlassian.net/browse/SP-18336" target="_blank" rel="noopener">SP-18336</a> (CPSC eFiling — AI parse via ai-service) · Pattern for unified Location ID model</p>
+  </header>
+
+  <div class="demo-layout">
+    <aside class="samples">
+      <h2>Try a sample</h2>
+      <p>Click to paste into the parser, then hit Detect.</p>
+      <button type="button" class="sample-btn" data-sample="cn-baoan">
+        <strong>China · District level</strong>
+        广东省深圳市宝安区西乡街道固戍社区航空路某工业园A栋3楼
+      </button>
+      <button type="button" class="sample-btn" data-sample="cn-shenzhen">
+        <strong>China · City level</strong>
+        深圳市南山区科技园南区科苑路15号
+      </button>
+      <button type="button" class="sample-btn" data-sample="us-springfield">
+        <strong>US · Ambiguous city</strong>
+        742 Evergreen Terrace, Springfield, IL 62704, United States
+      </button>
+      <button type="button" class="sample-btn" data-sample="hk">
+        <strong>Hong Kong</strong>
+        Flat 12, 88 Nathan Road, Tsim Sha Tsui, Kowloon, Hong Kong
+      </button>
+      <button type="button" class="sample-btn" data-sample="low-confidence">
+        <strong>Low confidence</strong>
+        baoan somewhere near the factory gate
+      </button>
+    </aside>
+
+    <div>
+      <div class="qima-panel">
+        <div class="panel-header">
+          <span>Address</span>
+          <span class="chev">⌃</span>
+        </div>
+        <div class="panel-body">
+          <div class="parse-zone">
+            <label for="rawAddress">Paste full address</label>
+            <p class="hint">Paste from email, supplier card, or eFiling document. AI extracts country, province, city, district, street, and postcode — then matches to QIMA GEO master data.</p>
+            <textarea id="rawAddress" class="parse-input" placeholder="e.g. 广东省深圳市宝安区航城街道固戍社区航空路68号…"></textarea>
+            <div class="parse-actions">
+              <button type="button" class="btn btn-primary" id="detectBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="2"/></svg>
+                Detect
+              </button>
+              <button type="button" class="btn btn-ghost" id="clearBtn">Clear all</button>
+              <span class="parse-status" id="parseStatus"></span>
+            </div>
+          </div>
+
+          <div class="resolve-bar" id="resolveBar"></div>
+
+          <div class="form-grid">
+            <div class="form-row">
+              <label>Country / Region <span class="req">*</span></label>
+              <div class="control" data-field="country">
+                <select id="country"><option value="">Select country</option></select>
+                <div class="field-meta" id="meta-country"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>State / Province <span class="req">*</span></label>
+              <div class="control" data-field="province">
+                <select id="province"><option value="">Select state / province</option></select>
+                <div class="field-meta" id="meta-province"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>City <span class="req">*</span></label>
+              <div class="control" data-field="city">
+                <select id="city"><option value="">Select city</option></select>
+                <div class="field-meta" id="meta-city"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>District <span class="opt">(optional)</span></label>
+              <div class="control" data-field="district">
+                <select id="district"><option value="">Select district</option></select>
+                <div class="field-meta" id="meta-district"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Address <span class="req">*</span></label>
+              <div class="control" data-field="address">
+                <textarea id="address" placeholder="Street, building, floor…"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Address in local language <span class="opt">(optional)</span></label>
+              <div class="control" data-field="localAddress">
+                <textarea id="localAddress" placeholder="Enter your address in local language"></textarea>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>Postcode <span class="opt">(optional)</span></label>
+              <div class="control" data-field="postcode">
+                <input type="text" id="postcode" placeholder="Postcode">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proto-note">
+        <strong>Prototype notes</strong> — Detect simulates <code>ai-service</code> address parsing (see SP-18336). Production flow: raw text → AI extract components → fuzzy match to <code>PARM_GEO_PLANET</code> IDs → populate dropdowns. User edits remain allowed. Stored value = single <strong>Location ID</strong> at finest matched level + free-text street line.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="snackbar" id="snackbar" role="status"></div>
+
+<script>
+(function () {
+  const SAMPLES = {
+    'cn-baoan': '广东省深圳市宝安区西乡街道固戍社区航空路某工业园A栋3楼',
+    'cn-shenzhen': '深圳市南山区科技园南区科苑路15号',
+    'us-springfield': '742 Evergreen Terrace, Springfield, IL 62704, United States',
+    'hk': 'Flat 12, 88 Nathan Road, Tsim Sha Tsui, Kowloon, Hong Kong',
+    'low-confidence': 'baoan somewhere near the factory gate'
+  };
+
+  const PARSE_RESULTS = {
+    'cn-baoan': {
+      country: { id: 'CN', label: 'China' },
+      province: { id: 'CN-GD', label: 'Guangdong' },
+      city: { id: 'CN-GD-SZ', label: 'Shenzhen' },
+      district: { id: 'CN-GD-SZ-BA', label: "Bao'an" },
+      address: '航空路某工业园A栋3楼, 西乡街道固戍社区',
+      localAddress: '广东省深圳市宝安区西乡街道固戍社区航空路某工业园A栋3楼',
+      postcode: '518126',
+      confidence: 0.94,
+      locationId: 'CN-GD-SZ-BA',
+      placetype: 'District'
+    },
+    'cn-shenzhen': {
+      country: { id: 'CN', label: 'China' },
+      province: { id: 'CN-GD', label: 'Guangdong' },
+      city: { id: 'CN-GD-SZ', label: 'Shenzhen' },
+      district: { id: 'CN-GD-SZ-NS', label: 'Nanshan' },
+      address: '科技园南区科苑路15号',
+      localAddress: '深圳市南山区科技园南区科苑路15号',
+      postcode: '518057',
+      confidence: 0.91,
+      locationId: 'CN-GD-SZ-NS',
+      placetype: 'District'
+    },
+    'us-springfield': {
+      country: { id: 'US', label: 'United States' },
+      province: { id: 'US-IL', label: 'Illinois' },
+      city: { id: 'US-IL-SF', label: 'Springfield' },
+      district: null,
+      address: '742 Evergreen Terrace',
+      localAddress: '',
+      postcode: '62704',
+      confidence: 0.88,
+      locationId: 'US-IL-SF',
+      placetype: 'City'
+    },
+    'hk': {
+      country: { id: 'HK', label: 'Hong Kong' },
+      province: { id: 'HK-KLN', label: 'Kowloon' },
+      city: { id: 'HK-KLN-TST', label: 'Tsim Sha Tsui' },
+      district: null,
+      address: 'Flat 12, 88 Nathan Road',
+      localAddress: '九龍尖沙咀彌敦道88號12室',
+      postcode: '',
+      confidence: 0.86,
+      locationId: 'HK-KLN-TST',
+      placetype: 'City'
+    },
+    'low-confidence': {
+      country: { id: 'CN', label: 'China' },
+      province: { id: 'CN-GD', label: 'Guangdong' },
+      city: { id: 'CN-GD-SZ', label: 'Shenzhen' },
+      district: { id: 'CN-GD-SZ-BA', label: "Bao'an" },
+      address: 'near the factory gate',
+      localAddress: 'baoan somewhere near the factory gate',
+      postcode: '',
+      confidence: 0.52,
+      locationId: 'CN-GD-SZ-BA',
+      placetype: 'District',
+      lowConfidence: true
+    }
+  };
+
+  const els = {
+    raw: document.getElementById('rawAddress'),
+    detect: document.getElementById('detectBtn'),
+    clear: document.getElementById('clearBtn'),
+    status: document.getElementById('parseStatus'),
+    resolve: document.getElementById('resolveBar'),
+    snackbar: document.getElementById('snackbar'),
+    country: document.getElementById('country'),
+    province: document.getElementById('province'),
+    city: document.getElementById('city'),
+    district: document.getElementById('district'),
+    address: document.getElementById('address'),
+    localAddress: document.getElementById('localAddress'),
+    postcode: document.getElementById('postcode')
+  };
+
+  function showSnackbar(msg, type) {
+    els.snackbar.textContent = msg;
+    els.snackbar.className = 'snackbar visible' + (type ? ' ' + type : '');
+    clearTimeout(showSnackbar._t);
+    showSnackbar._t = setTimeout(() => { els.snackbar.className = 'snackbar'; }, 3200);
+  }
+
+  function setSelect(select, option) {
+    select.innerHTML = '';
+    if (!option) {
+      select.innerHTML = '<option value="">—</option>';
+      select.value = '';
+      return;
+    }
+    const opt = document.createElement('option');
+    opt.value = option.id;
+    opt.textContent = option.label;
+    opt.selected = true;
+    select.appendChild(opt);
+  }
+
+  function setMeta(field, id, label) {
+    const meta = document.getElementById('meta-' + field);
+    if (!id) { meta.textContent = ''; return; }
+    meta.innerHTML = 'Matched master data ID: <code>' + id + '</code>';
+  }
+
+  function highlightFilled() {
+    document.querySelectorAll('.control').forEach(c => {
+      const input = c.querySelector('select, input, textarea');
+      c.classList.toggle('filled', input && input.value.trim() !== '');
+    });
+  }
+
+  function clearForm() {
+    ['country','province','city','district'].forEach(f => {
+      const sel = els[f];
+      sel.innerHTML = '<option value="">' + (f === 'country' ? 'Select country' : f === 'province' ? 'Select state / province' : f === 'city' ? 'Select city' : 'Select district') + '</option>';
+      setMeta(f, '', '');
+    });
+    els.address.value = '';
+    els.localAddress.value = '';
+    els.postcode.value = '';
+    els.resolve.classList.remove('visible');
+    els.status.textContent = '';
+    document.querySelectorAll('.control').forEach(c => c.classList.remove('filled'));
+  }
+
+  function applyResult(result) {
+    setSelect(els.country, result.country);
+    setSelect(els.province, result.province);
+    setSelect(els.city, result.city);
+    setSelect(els.district, result.district);
+    els.address.value = result.address || '';
+    els.localAddress.value = result.localAddress || '';
+    els.postcode.value = result.postcode || '';
+    setMeta('country', result.country?.id, result.country?.label);
+    setMeta('province', result.province?.id, result.province?.label);
+    setMeta('city', result.city?.id, result.city?.label);
+    setMeta('district', result.district?.id, result.district?.label);
+    highlightFilled();
+
+    const conf = Math.round((result.confidence || 0) * 100);
+    const badge = result.lowConfidence
+      ? '<span class="badge badge-orange">Review suggested · ' + conf + '%</span>'
+      : '<span class="badge badge-kiwi">Matched · ' + conf + '%</span>';
+    els.resolve.innerHTML = '<strong>Resolved Location ID:</strong> <code>' + result.locationId + '</code> (' + result.placetype + ')' + badge +
+      ' — Parents derived from hierarchy; user may edit fields before save.';
+    els.resolve.classList.add('visible');
+  }
+
+  function matchSample(text) {
+    const t = text.trim().toLowerCase();
+    if (t.includes('宝安') || t.includes('baoan') || t.includes('bao\'an')) {
+      return t.length < 40 || t.includes('somewhere') ? PARSE_RESULTS['low-confidence'] : PARSE_RESULTS['cn-baoan'];
+    }
+    if (t.includes('南山') || (t.includes('深圳') && t.includes('科技园'))) return PARSE_RESULTS['cn-shenzhen'];
+    if (t.includes('springfield') || t.includes('62704') || t.includes('illinois')) return PARSE_RESULTS['us-springfield'];
+    if (t.includes('nathan') || t.includes('kowloon') || t.includes('hong kong')) return PARSE_RESULTS['hk'];
+    if (t.includes('深圳') || t.includes('shenzhen')) return PARSE_RESULTS['cn-shenzhen'];
+    if (t.includes('广东') || t.includes('guangdong')) return PARSE_RESULTS['cn-baoan'];
+    return PARSE_RESULTS['low-confidence'];
+  }
+
+  async function runDetect() {
+    const text = els.raw.value.trim();
+    if (!text) {
+      showSnackbar('Paste an address first', 'warn');
+      return;
+    }
+    els.detect.disabled = true;
+    els.status.innerHTML = '<span class="spinner"></span> Parsing with AI and matching GEO master data…';
+
+    await new Promise(r => setTimeout(r, 1100));
+
+    const result = matchSample(text);
+    applyResult(result);
+    els.status.textContent = 'Done — review populated fields';
+    els.detect.disabled = false;
+
+    if (result.lowConfidence) {
+      showSnackbar('Low confidence match — please verify district and street', 'warn');
+    } else {
+      showSnackbar('Address parsed and GEO fields populated', 'success');
+    }
+  }
+
+  document.querySelectorAll('.sample-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.sample;
+      els.raw.value = SAMPLES[key] || '';
+      els.raw.focus();
+    });
+  });
+
+  els.detect.addEventListener('click', runDetect);
+  els.clear.addEventListener('click', () => {
+    els.raw.value = '';
+    clearForm();
+    showSnackbar('Form cleared');
+  });
+
+  // Pre-fill like screenshot for first paint
+  els.country.innerHTML = '<option value="CN" selected>China</option>';
+  els.province.innerHTML = '<option value="CN-GD" selected>Guangdong</option>';
+  els.city.innerHTML = '<option value="CN-GD-SZ" selected>Shenzhen</option>';
+  els.address.value = 'baoan somewhere';
+})();
+</script>
+</body>
+</html>
