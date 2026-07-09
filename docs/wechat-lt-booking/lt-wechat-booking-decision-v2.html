@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeChat LT Booking — Decision Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#E4002B;--red-d:#C71A21;--red-bg:#FEF2F2;
+  --green:#00875A;--green-bg:#F0FBF6;--green-b:#B7E4CF;
+  --purple:#5B4FCF;--purple-bg:#F4F3FF;--purple-b:#C4BFFF;
+  --amber:#92610A;--amber-bg:#FFFBEB;--amber-b:#FCD34D;
+  --ink:#0F0F0F;--ink-2:#3D3D3D;--ink-3:#6B6B6B;--ink-4:#9A9A9A;
+  --surface:#FFFFFF;--bg:#F5F5F5;--line:rgba(0,0,0,.08);--line-s:rgba(0,0,0,.14);
+  --r:10px;--r-s:6px;
+  --sh:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.06);
+  --sh-s:0 1px 2px rgba(0,0,0,.05);
+  --f:'Inter',-apple-system,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{font-family:var(--f);font-size:14px;line-height:1.5;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;}
+
+/* ── Topbar ── */
+.topbar{position:sticky;top:0;z-index:30;height:52px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:16px;}
+.topbar-sep{width:1px;height:18px;background:var(--line-s);}
+.topbar-title{font:500 13px/1 var(--f);color:var(--ink-3);letter-spacing:.01em;}
+.topbar-right{margin-left:auto;display:flex;gap:6px;align-items:center;}
+.pill{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font:500 11px/1 var(--f);letter-spacing:.01em;}
+.pill-red{background:var(--red-bg);color:var(--red-d);border:1px solid #FECACA;}
+.pill-grey{background:var(--bg);color:var(--ink-3);border:1px solid var(--line-s);}
+
+/* ── Layout ── */
+.wrap{max-width:1160px;margin:0 auto;padding:20px 28px 80px;}
+.gap{display:flex;flex-direction:column;gap:10px;}
+
+/* ── Hero ── */
+.hero{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);box-shadow:var(--sh);padding:36px 36px 36px 44px;overflow:hidden;position:relative;}
+.hero::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--red);pointer-events:none;}
+.hero-grid{display:grid;grid-template-columns:1.7fr 1fr;gap:32px;align-items:center;}
+.hero-tag{font:600 10px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-4);margin-bottom:14px;}
+.hero h1{font:600 28px/1.25 var(--f);letter-spacing:-.02em;color:var(--ink);margin-bottom:12px;}
+.hero-sub{font:400 14px/1.6 var(--f);color:var(--ink-3);max-width:50ch;}
+.hero-right{background:var(--red-bg);border:1px solid #FECACA;border-radius:var(--r-s);padding:20px 22px;}
+.hero-decision-label{font:600 10px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;color:var(--red-d);opacity:.7;margin-bottom:10px;}
+.hero-decision{font:600 22px/1.2 var(--f);color:var(--red);letter-spacing:-.01em;margin-bottom:10px;}
+.hero-note{font:400 13px/1.55 var(--f);color:var(--ink-3);}
+
+/* ── Card ── */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--line);box-shadow:var(--sh);padding:24px;}
+.card-warn{border-color:#FECACA;background:#FFFAFA;}
+
+/* ── Section label ── */
+.sec{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;}
+.sec-n{font:500 11px/1 'Courier New',monospace;color:var(--red);padding-top:1px;}
+.sec-h{font:600 18px/1.2 var(--f);letter-spacing:-.01em;color:var(--ink);}
+
+/* ── Grids ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* ── KPI tiles ── */
+.kpi{border-radius:var(--r-s);border:1px solid var(--line);padding:16px 18px;background:var(--surface);display:flex;flex-direction:column;gap:5px;}
+.kpi-lbl{font:600 10px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);}
+.kpi-val{font:600 28px/1.1 var(--f);letter-spacing:-.025em;color:var(--ink);}
+.kpi-val .u{font-size:16px;font-weight:400;color:var(--ink-3);}
+.kpi-foot{font:400 11px/1.45 var(--f);color:var(--ink-3);}
+.kpi.k-red{background:var(--red);border-color:var(--red);}
+.kpi.k-red .kpi-lbl{color:rgba(255,255,255,.6);}
+.kpi.k-red .kpi-val,.kpi.k-red .kpi-foot{color:#fff;}
+.kpi.k-red .kpi-val .u{color:rgba(255,255,255,.75);}
+.kpi.k-green{background:var(--green-bg);border-color:var(--green-b);}
+.kpi.k-green .kpi-val{color:var(--green);}
+.kpi.k-green .kpi-val .u{color:var(--green);}
+
+/* ── Option cards ── */
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.opt{border-radius:var(--r-s);border:1.5px solid var(--line-s);padding:18px;background:var(--surface);}
+.opt-tag{font:600 10px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;}
+.opt-title{font:600 15px/1.3 var(--f);color:var(--ink);margin-bottom:7px;}
+.opt-body{font:400 12px/1.55 var(--f);color:var(--ink-3);}
+.opt-foot{margin-top:10px;font:500 11px/1 var(--f);color:var(--ink-3);display:flex;align-items:center;gap:5px;}
+.opt-foot::before{content:'→';color:var(--ink-4);}
+
+/* ── Before / After ── */
+.ba{border-radius:var(--r-s);border:1.5px solid;padding:16px;}
+.ba.bad{border-color:#FECACA;background:#FFFAFA;}
+.ba.good{border-color:var(--green-b);background:var(--green-bg);}
+.ba-head{font:600 10px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;}
+.ba.bad .ba-head{color:var(--red-d);}
+.ba.good .ba-head{color:var(--green);}
+.ba ul{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.ba li{display:flex;gap:9px;font:400 13px/1.45 var(--f);align-items:flex-start;}
+.ba li .ic{flex:none;font-size:13px;line-height:1.45;}
+
+/* ── Finding cards ── */
+.findings{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.find{border-radius:var(--r-s);border:1px solid var(--line);padding:16px;background:var(--surface);}
+.find.hi{border-color:var(--green-b);background:var(--green-bg);}
+.find-n{font:500 10px/1 'Courier New',monospace;color:var(--ink-4);margin-bottom:8px;}
+.find.hi .find-n{color:var(--green);}
+.find-val{font:700 26px/1 var(--f);letter-spacing:-.02em;color:var(--red);margin-bottom:5px;}
+.find.hi .find-val{color:var(--green);}
+.find-h{font:600 13px/1.3 var(--f);color:var(--ink);margin-bottom:5px;}
+.find-b{font:400 12px/1.5 var(--f);color:var(--ink-3);}
+
+/* ── Banners ── */
+.banner{border-radius:var(--r-s);padding:12px 14px;font:400 13px/1.5 var(--f);}
+.banner b,.banner strong{font-weight:600;}
+.b-red{background:var(--red-bg);border:1px solid #FECACA;color:var(--ink-2);}
+.b-green{background:var(--green-bg);border:1px solid var(--green-b);color:var(--ink-2);}
+.b-grey{background:var(--bg);border:1px solid var(--line-s);color:var(--ink-3);}
+.b-purple{background:var(--purple-bg);border:1px solid var(--purple-b);color:var(--ink-2);}
+
+/* ── Bar chart ── */
+.bars{display:flex;flex-direction:column;gap:9px;}
+.bar-r{display:grid;grid-template-columns:130px 1fr 60px;align-items:center;gap:10px;}
+.bar-r .rl{font:400 12px/1 var(--f);color:var(--ink-3);}
+.bar-track{background:var(--bg);border-radius:999px;height:16px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:999px;background:var(--red);}
+.bar-r .rv{font:600 12px/1 var(--f);text-align:right;color:var(--ink-2);}
+
+/* ── Strategic callout ── */
+.strat{border-radius:var(--r);border:1.5px solid var(--purple-b);background:var(--purple-bg);padding:22px 24px;}
+.strat-head{font:700 10px/1 var(--f);letter-spacing:.1em;text-transform:uppercase;color:var(--purple);margin-bottom:8px;}
+.strat-title{font:600 17px/1.3 var(--f);color:var(--ink);margin-bottom:10px;}
+.strat-body{font:400 13px/1.6 var(--f);color:var(--ink-3);margin-bottom:14px;max-width:76ch;}
+.strat-qs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sq{background:var(--surface);border:1px solid var(--purple-b);border-radius:var(--r-s);padding:12px 14px;}
+.sq-t{font:600 13px/1.3 var(--f);color:var(--ink);margin-bottom:4px;}
+.sq-d{font:400 12px/1.5 var(--f);color:var(--ink-3);}
+
+/* ── Table ── */
+.tbl{border-radius:var(--r-s);border:1px solid var(--line);overflow:hidden;}
+table{width:100%;border-collapse:collapse;font:400 13px/1.45 var(--f);}
+thead th{padding:10px 14px;font:600 10px/1 var(--f);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--bg);border-bottom:1px solid var(--line);text-align:left;}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+td b{font-weight:600;}
+
+/* ── WeChat ecosystem ── */
+.wc-reason{border-radius:var(--r-s);border:1px solid var(--line);padding:14px 16px;background:var(--surface);}
+.wc-reason-n{font:700 11px/1 var(--f);color:var(--red);margin-bottom:5px;}
+.wc-reason-t{font:600 13px/1.3 var(--f);color:var(--ink);margin-bottom:5px;}
+.wc-reason-b{font:400 12px/1.55 var(--f);color:var(--ink-3);}
+
+/* ── Competitor ── */
+.comp-card{border-radius:var(--r-s);border:1px solid var(--line);padding:14px;background:var(--surface);display:flex;flex-direction:column;gap:10px;}
+.comp-name{font:700 13px/1.2 var(--f);color:var(--ink);}
+.comp-desc{font:400 12px/1.5 var(--f);color:var(--ink-3);}
+.comp-img{border-radius:8px;overflow:hidden;border:1px solid var(--line-s);background:var(--bg);aspect-ratio:9/18;max-width:200px;display:flex;align-items:center;justify-content:center;}
+.comp-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.comp-img-ph{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px;text-align:center;color:var(--ink-4);}
+.comp-img-ph span{font:400 11px/1.4 var(--f);}
+.comp-img-ph b{font:600 11px/1 var(--f);color:var(--ink-3);}
+
+/* ── Misc ── */
+.divider{height:1px;background:var(--line);margin:16px 0;}
+.foot{font:400 11px/1.5 var(--f);color:var(--ink-4);margin-top:12px;}
+.label-xs{font:600 10px/1 var(--f);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:10px;}
+
+@media(max-width:900px){
+  .hero-grid,.g2,.g3,.g4,.options,.findings,.strat-qs{grid-template-columns:1fr;}
+  .hero-right{border-top:1px solid #FECACA;margin-top:4px;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <svg width="68" height="15" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#E4002B" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/>
+  </svg>
+  <div class="topbar-sep"></div>
+  <span class="topbar-title">WeChat LT Booking — Decision Brief</span>
+  <div class="topbar-right">
+    <span class="pill pill-red">Decision Required</span>
+    <span class="pill pill-grey">July 2026</span>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="gap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid">
+    <div>
+      <div class="hero-tag">China E-commerce · Lab Testing</div>
+      <h1>WeChat self-serve booking for China e-commerce sellers</h1>
+      <p class="hero-sub">$904K revenue YTD, +249% order growth — every booking still processed manually by a SIC acting as a human relay. The relay cannot scale. A WeChat mini-program removes it.</p>
+    </div>
+    <div class="hero-right">
+      <div class="hero-decision-label">Decision needed</div>
+      <div class="hero-decision">Spike · Build · Redirect</div>
+      <p class="hero-note">We need your direction on which path to take, and alignment on whether the China market is a strategic priority for QIMA right now.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 01 PATHS FORWARD -->
+<div class="card">
+  <div class="sec"><span class="sec-n">01</span><span class="sec-h">Paths forward</span></div>
+  <div class="options" style="margin-bottom:0;">
+    <div class="opt">
+      <div class="opt-tag">Option A</div>
+      <div class="opt-title">Spike first</div>
+      <div class="opt-body">2–3 week technical spike to validate AI photo recognition accuracy and seller account binding before committing to full build. Lower upfront risk — but leaves the relay running longer.</div>
+      <div class="opt-foot">Validate before committing</div>
+    </div>
+    <div class="opt">
+      <div class="opt-tag">Option B</div>
+      <div class="opt-title">Build now — Q3 launch</div>
+      <div class="opt-body">Simple form as baseline; AI as enhancement layer. SIC account binding resolved in build. Pilot with high-frequency TEMU sellers. Survey and competitive pressure support moving directly to build.</div>
+      <div class="opt-foot">Move fast, iterate post-launch</div>
+    </div>
+    <div class="opt">
+      <div class="opt-tag">Option C</div>
+      <div class="opt-title">Adjust direction</div>
+      <div class="opt-body">Deprioritise China e-commerce tooling if the China market is not a current strategic priority. Redirect SIC capacity differently. Revisit when market strategy is confirmed.</div>
+      <div class="opt-foot">Depends on China strategy decision</div>
+    </div>
+  </div>
+</div>
+
+<!-- WECHAT ECOSYSTEM + COMPETITIVE THREAT -->
+<div class="card card-warn">
+  <div class="sec"><span class="sec-n">⚠</span><span class="sec-h">WeChat is an ecosystem — and competitors are already inside it</span></div>
+
+  <div class="g3" style="margin-bottom:16px;">
+    <div class="kpi">
+      <div class="kpi-lbl">WeChat monthly active users</div>
+      <div class="kpi-val">1.4<span class="u">B</span></div>
+      <div class="kpi-foot">Payments, contracts, customer service, ordering — not just messaging</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">QIMA China customers on WeCom</div>
+      <div class="kpi-val">17,864</div>
+      <div class="kpi-foot">The channel already exists. The self-serve workflow doesn't.</div>
+    </div>
+    <div class="kpi k-red">
+      <div class="kpi-lbl">Competitors with live WeChat ordering</div>
+      <div class="kpi-val">2 already</div>
+      <div class="kpi-foot">SGS and Weipu (Microspectrum) — both shipping today</div>
+    </div>
+  </div>
+
+  <div class="label-xs">Why WeChat — three reasons that matter for this project</div>
+  <div class="g3" style="margin-bottom:16px;">
+    <div class="wc-reason">
+      <div class="wc-reason-n">01</div>
+      <div class="wc-reason-t">Where sellers already work</div>
+      <div class="wc-reason-b">China e-commerce sellers run their entire business in WeChat — customer service, supplier coordination, logistics, payments. A mini-program lives inside WeChat: zero context switch, frictionless adoption. A browser link requires them to leave.</div>
+    </div>
+    <div class="wc-reason">
+      <div class="wc-reason-n">02</div>
+      <div class="wc-reason-t">Official account = owned broadcast channel</div>
+      <div class="wc-reason-b">The mini-program drives follows to QIMA's official WeChat account — currently massively underutilised vs. our WeCom reach. Once followed, QIMA can push order updates, service news, and marketing directly into the seller's feed.</div>
+    </div>
+    <div class="wc-reason">
+      <div class="wc-reason-n">03</div>
+      <div class="wc-reason-t">Sharing is viral by design</div>
+      <div class="wc-reason-b">Sellers share mini-program cards directly into group chats — any seller in the group opens it in one tap. This is how adoption scales organically in China. No email or link can do this. The channel is self-distributing.</div>
+    </div>
+  </div>
+
+  <div class="label-xs">Competitor screenshots — both live today</div>
+  <div class="g2">
+    <div class="comp-card">
+      <div>
+        <div class="comp-name">SGS — Official Online Inquiry & Quotation Platform</div>
+        <div class="comp-desc">WeChat mini-program · "Submit a test request, get a quote in 2 hours" · Covers: plastics, metals, cookware, packaging, toys, baby products, furniture, chemicals, real estate, factory audit</div>
+      </div>
+      <div class="comp-img">
+        <img src="comp-sgs.png" alt="SGS WeChat mini-program" onerror="this.style.display='none';this.nextSibling.style.display='flex';">
+        <div class="comp-img-ph" style="display:none;">
+          <span>📱</span>
+          <span>Save screenshot as<br><b>comp-sgs.png</b><br>in this folder</span>
+        </div>
+      </div>
+    </div>
+    <div class="comp-card">
+      <div>
+        <div class="comp-name">Weipu (Microspectrum) — Full E-commerce Ordering Platform</div>
+        <div class="comp-desc">WeChat mini-program · Prices listed (¥595–¥3,000+) · Shopping cart, order history, report download, AI smart matching · Covers: cosmetics, disinfectants + expanding</div>
+      </div>
+      <div class="comp-img">
+        <img src="comp-weipu.png" alt="Weipu WeChat mini-program" onerror="this.style.display='none';this.nextSibling.style.display='flex';">
+        <div class="comp-img-ph" style="display:none;">
+          <span>📱</span>
+          <span>Save screenshot as<br><b>comp-weipu.png</b><br>in this folder</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="banner b-red" style="margin-top:12px;">Both competitors are past prototype stage — these are live, polished products in our customers' hands. <strong>QIMA is not competing against a concept. Every quarter we delay is market share ceded.</strong></div>
+</div>
+
+<!-- STRATEGIC ALIGNMENT -->
+<div class="strat">
+  <div class="strat-head">Strategic alignment needed</div>
+  <div class="strat-title">Is the China market a strategic priority for QIMA?</div>
+  <p class="strat-body">This is a product decision nested inside a strategy decision. Building a WeChat mini-program signals that QIMA is committing to serve China e-commerce sellers as a distinct segment — with dedicated tooling, not just Sales effort.</p>
+  <div class="strat-qs">
+    <div class="sq">
+      <div class="sq-t">Is China e-commerce a strategic growth segment?</div>
+      <div class="sq-d">$904K YTD, +249% order growth — is this a segment QIMA actively wants to invest in, or a tail we're servicing reactively?</div>
+    </div>
+    <div class="sq">
+      <div class="sq-t">Should we build dedicated China tooling?</div>
+      <div class="sq-d">A WeChat mini-program is China-specific. It won't serve global clients. Does that conflict with a platform-first approach?</div>
+    </div>
+    <div class="sq">
+      <div class="sq-t">Act now or accept the competitive gap?</div>
+      <div class="sq-d">SGS and Weipu are already live. If QIMA doesn't move in H2 2026, we cede this channel. Is that acceptable?</div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 BUSINESS CASE -->
+<div class="card">
+  <div class="sec"><span class="sec-n">02</span><span class="sec-h">Business case</span></div>
+  <div class="banner b-grey" style="margin-bottom:12px;"><strong>Total LT YTD 2026 (all channels):</strong> 76,799 orders · $26,974K revenue — China e-commerce (TEMU + Amazon) = 5.2% of orders and 3.4% of total LT revenue, growing at +249% YoY order volume</div>
+  <div class="g4" style="margin-bottom:16px;">
+    <div class="kpi k-red">
+      <div class="kpi-lbl">E-commerce LT Revenue · YTD</div>
+      <div class="kpi-val">$904<span class="u">K</span></div>
+      <div class="kpi-foot">TEMU ~$790K · Amazon ~$114K · run-rate ≈ $1.8M/yr</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">E-commerce orders · YTD</div>
+      <div class="kpi-val">3,993</div>
+      <div class="kpi-foot">TEMU 2,393 · Amazon 1,600</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Active sellers</div>
+      <div class="kpi-val">2,130<span class="u">+</span></div>
+      <div class="kpi-foot">TEMU 2,030 · Amazon 100+ · all via SIC relay</div>
+    </div>
+    <div class="kpi k-green">
+      <div class="kpi-lbl">Revenue upside</div>
+      <div class="kpi-val">~$600<span class="u">K</span></div>
+      <div class="kpi-foot">1 SIC freed → $600K/yr in new revenue</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="label-xs">Relay cost — scales with volume</div>
+      <div class="bars">
+        <div class="bar-r"><span class="rl">SIC time consumed/day</span><div class="bar-track"><div class="bar-fill" style="width:50%;"></div></div><span class="rv">8 hrs</span></div>
+        <div class="bar-r"><span class="rl">Cost / month</span><div class="bar-track"><div class="bar-fill" style="width:28%;"></div></div><span class="rv">$1,392</span></div>
+        <div class="bar-r"><span class="rl">Cost / year (today)</span><div class="bar-track"><div class="bar-fill" style="width:38%;"></div></div><span class="rv">$16.7K</span></div>
+        <div class="bar-r"><span class="rl">Cost / year (2× volume)</span><div class="bar-track"><div class="bar-fill" style="width:76%;background:var(--red-d);"></div></div><span class="rv">~$33K+</span></div>
+      </div>
+      <p class="foot">16 SIC × 0.5 hr/day × 21.75 days × $8/hr. Grows linearly with +249% YoY order volume.</p>
+    </div>
+    <div>
+      <div class="label-xs">How the $600K upside is calculated</div>
+      <div class="banner b-grey" style="margin-bottom:0;">Each SIC generates ~<strong>$600K revenue/year</strong>. The relay consumes ~0.5 hr/day per SIC — equivalent to ~1 full FTE across 16 people. Freeing that capacity redirects SIC time from data entry to new client acquisition. <strong>1 FTE equivalent × $600K = ~$600K incremental revenue potential.</strong></div>
+      <p class="foot">Assumption: SIC output is time-constrained, not market-constrained. To be validated post-launch.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 03 THE PROBLEM -->
+<div class="card">
+  <div class="sec"><span class="sec-n">03</span><span class="sec-h">The problem — friction starts before the first order</span></div>
+  <div class="g2" style="margin-bottom:12px;">
+    <div class="ba bad">
+      <div class="ba-head">Current state</div>
+      <ul>
+        <li><span class="ic">🖥️</span>SIC directs seller to QIMA.com to register — desktop form, painful on mobile</li>
+        <li><span class="ic">⏳</span>SIC manually qualifies customer before account activates — seller waits</li>
+        <li><span class="ic">🆘</span>Seller tries to order and asks SIC step-by-step how to use myQIMA — SIC becomes help desk</li>
+        <li><span class="ic">⌨️</span>Or: seller sends info and SIC re-keys it into myQIMA — SIC becomes data entry</li>
+        <li><span class="ic">🕐</span>1–3+ days from intent to confirmed booking</li>
+      </ul>
+    </div>
+    <div class="ba good">
+      <div class="ba-head">Future state — mini-program</div>
+      <ul>
+        <li><span class="ic">📲</span>SIC shares mini-program card in WeCom group — seller opens in one tap, stays in WeChat</li>
+        <li><span class="ic">🔑</span>Existing myQIMA account → one-tap WeChat auth, go straight to booking</li>
+        <li><span class="ic">📝</span>New seller → registers inside mini-program (not QIMA.com). For WeChat registrations, qualification can be skipped — eliminating the wait before first booking.</li>
+        <li><span class="ic">📷</span>Upload product photo → AI fills category, name, tracking number</li>
+        <li><span class="ic">⚡</span>Order flows automatically into AIMS — same-day, zero SIC relay</li>
+      </ul>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="banner b-grey"><strong>Why not myQIMA?</strong> Desktop-first, complex form. Sellers work on mobile in WeChat. Forcing a browser switch kills adoption. Survey: 0% are fully unwilling to self-serve — they're blocked by complexity, not intent.</div>
+    <div class="banner b-grey"><strong>Why not AIMS?</strong> Moves the relay, doesn't remove it. Sellers still send fragmented info on WeChat — someone still has to collect, chase fields, and match accounts.</div>
+  </div>
+</div>
+
+<!-- 04 SELLER EVIDENCE -->
+<div class="card">
+  <div class="sec"><span class="sec-n">04</span><span class="sec-h">Seller evidence</span></div>
+  <p style="font:400 13px/1.5 var(--f);color:var(--ink-3);margin-bottom:14px;">Survey · 25 valid responses · QIMA lab customers · July 7 2026 · directional signal, consistent across categories and frequency segments.</p>
+  <div class="findings" style="margin-bottom:12px;">
+    <div class="find">
+      <div class="find-n">Finding 01</div>
+      <div class="find-val">0%</div>
+      <div class="find-h">Fully unwilling to self-serve</div>
+      <div class="find-b">48% rely on SIC today — but the barrier is <strong>fear of errors (88%)</strong> and <strong>unclear classification (72%)</strong>, not lack of interest. Demand exists; the tool doesn't.</div>
+    </div>
+    <div class="find hi">
+      <div class="find-n">Finding 02</div>
+      <div class="find-val">40% → 52%</div>
+      <div class="find-h">AI directly drives adoption</div>
+      <div class="find-b">Without AI: 40% willing, ~50% wait-and-see. With AI photo recognition: <strong>52% willing, wait-and-see drops to 32%</strong>. AI addresses both stated blockers head-on.</div>
+    </div>
+    <div class="find">
+      <div class="find-n">Finding 03</div>
+      <div class="find-val">92%</div>
+      <div class="find-h">Progress tracking is non-negotiable</div>
+      <div class="find-b">92% want order status; 80% want report download. <strong>100% want at least one.</strong> Must-haves on day one. Start with toys — 60% of submissions.</div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="banner b-red"><strong>Speed gap:</strong> 52% of relay orders wait 1–3+ days. Self-service users complete same-day 85.7% of the time — speed alone is a strong adoption argument.</div>
+    <div class="banner b-red"><strong>Best seed users:</strong> High-frequency sellers: 54.6% willing. Same-day completers: 71.4% willing. Target these first at launch.</div>
+  </div>
+</div>
+
+<!-- 05 SUCCESS METRICS -->
+<div class="card">
+  <div class="sec"><span class="sec-n">05</span><span class="sec-h">Success metrics</span></div>
+  <div class="g3" style="margin-bottom:0;">
+    <div class="kpi k-red">
+      <div class="kpi-lbl">Business Outcome</div>
+      <div class="kpi-val" style="font-size:20px;line-height:1.3;">Self-serve cohort orders more</div>
+      <div class="kpi-foot">Target: ≥15% higher order frequency vs. relay cohort · by Mar 31, 2027</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Product Outcome · Adoption</div>
+      <div class="kpi-val">≥50%</div>
+      <div class="kpi-foot">of e-commerce LT orders placed self-serve · launch Q3 2026, target met by Mar 31, 2027</div>
+    </div>
+    <div class="kpi k-green">
+      <div class="kpi-lbl">Product Outcome · Speed</div>
+      <div class="kpi-val">1–2 days</div>
+      <div class="kpi-foot">≥80% of self-serve orders confirmed within 1–2 business days · vs. 3+ days today</div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 DECISIONS NEEDED -->
+<div class="card">
+  <div class="sec"><span class="sec-n">06</span><span class="sec-h">What we need from this meeting</span></div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Decision</th><th>Context</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Spike, Build, or Redirect?</b></td>
+          <td>Option A reduces risk but delays. Option B moves fast — survey and competitive data support it. Option C if China strategy is not confirmed.</td>
+          <td><b>Alexis</b></td>
+        </tr>
+        <tr>
+          <td><b>Is China e-commerce a strategic priority?</b></td>
+          <td>A WeChat mini-program is a China-specific investment. Needs leadership alignment on whether this segment warrants dedicated product tooling in 2026.</td>
+          <td><b>Alexis + leadership</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="foot">Sources: QIMA internal LT records (TEMU + Amazon, Jan–Jun 2026); seller survey (n=25, July 7 2026, directional); SIC saving estimate (16 × 0.5 hr/day × 21.75 days × $8/hr); SIC revenue benchmark ($600K/SIC/yr); competitive observation (SGS, Weipu WeChat mini-programs). Run-rate and upside figures to be validated at pilot launch.</p>
+</div>
+
+</div><!-- /gap -->
+</div><!-- /wrap -->
+</body>
+</html>
