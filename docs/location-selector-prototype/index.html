@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Location Selector Prototypes — QIMA PM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; background: #f7f7f7; color: #191919; margin: 0; padding: 32px 20px 48px; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+    p.lead { color: #737373; margin-bottom: 24px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .card { background: #fff; border: 1px solid #dedede; border-radius: 12px; overflow: hidden; }
+    .card img { width: 100%; display: block; border-bottom: 1px solid #dedede; }
+    .card-body { padding: 16px; }
+    .card h2 { font-size: 16px; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: #737373; margin-bottom: 12px; line-height: 1.5; }
+    .btn { display: inline-block; background: #4169e1; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; }
+    .btn:hover { background: #1e46bd; }
+    .meta { margin-top: 24px; font-size: 12px; color: #737373; }
+    .meta a { color: #4169e1; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Location Model — HTML Prototypes</h1>
+    <p class="lead">Interactive demos for Data Foundations location selector and AI address parse (SP-35471 / SP-18336 pattern).</p>
+    <div class="grid">
+      <article class="card">
+        <img src="screenshots/ai-address-parse-demo.png" alt="AI Address Parse demo screenshot">
+        <div class="card-body">
+          <h2>AI Address Parse</h2>
+          <p>Paste a full address, click Detect, auto-populate Country → District from GEO master data.</p>
+          <a class="btn" href="ai-address-parse-demo.html">Open prototype</a>
+        </div>
+      </article>
+      <article class="card">
+        <img src="screenshots/myqima-location-selector--results.png" alt="Location selector results state">
+        <div class="card-body">
+          <h2>Unified Location Selector</h2>
+          <p>Single combobox search with hierarchical results, granularity validation, and Location ID storage.</p>
+          <a class="btn" href="myqima-location-selector-prototype.html">Open prototype</a>
+        </div>
+      </article>
+    </div>
+    <p class="meta">Hosted on <a href="https://github.com/asiainspection/PM-">asiainspection/PM-</a> · GitHub Pages</p>
+  </div>
+</body>
+</html>
