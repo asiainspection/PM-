@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Location Selector — myQIMA Prototype (Play Mode)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand-red: #e4002b;
+      --pool-050: #f2f5fd;
+      --pool-100: #e6ecfb;
+      --pool-500: #4169e1;
+      --pool-600: #1e46bd;
+      --pool-900: #153184;
+      --kiwi-100: #eaf6f2;
+      --kiwi-500: #00a876;
+      --kiwi-900: #006648;
+      --orange-100: #fcf2e6;
+      --orange-500: #f58f00;
+      --orange-900: #b26309;
+      --cherry-100: #fdefef;
+      --cherry-500: #e5353d;
+      --carbon: #191919;
+      --seal: #737373;
+      --smoke: #b3b3b3;
+      --pearl: #dedede;
+      --mist: #f0f0f0;
+      --cloud: #f7f7f7;
+      --white: #ffffff;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(25,25,25,.06);
+      --shadow-md: 0 4px 16px rgba(25,25,25,.08);
+      --font: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: var(--font); font-size: 16px; line-height: 1.5; color: var(--carbon); background: var(--cloud); -webkit-font-smoothing: antialiased; }
+
+    .app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 72px 1fr; min-height: 100vh; }
+    .topbar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: var(--white); border-bottom: 1px solid var(--pearl); position: sticky; top: 0; z-index: 20; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .topbar-title { font-size: 14px; font-weight: 600; color: var(--seal); }
+    .topbar-title span { color: var(--carbon); }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .proto-badge { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--pool-100); color: var(--pool-900); }
+
+    .play-panel { background: var(--white); border-right: 1px solid var(--pearl); padding: 20px 16px; overflow-y: auto; }
+    .play-panel h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--seal); margin-bottom: 12px; }
+    .play-panel p.lead { font-size: 13px; color: var(--seal); margin-bottom: 16px; line-height: 1.5; }
+    .flow-group { margin-bottom: 20px; }
+    .flow-group h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--carbon); }
+    .flow-step { width: 100%; text-align: left; border: 1px solid var(--pearl); background: var(--white); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 6px; cursor: pointer; transition: border-color .15s, background .15s; font: inherit; color: var(--carbon); }
+    .flow-step:hover { border-color: var(--pool-500); background: var(--pool-050); }
+    .flow-step.active { border-color: var(--pool-500); background: var(--pool-100); box-shadow: inset 3px 0 0 var(--pool-500); }
+    .flow-step .num { display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: var(--mist); font-size: 11px; font-weight: 600; line-height: 20px; text-align: center; margin-right: 8px; color: var(--seal); }
+    .flow-step.active .num { background: var(--pool-500); color: var(--white); }
+    .flow-step .label { font-size: 13px; font-weight: 500; }
+    .flow-step .desc { display: block; font-size: 11px; color: var(--seal); margin-top: 2px; margin-left: 28px; }
+
+    .canvas { padding: 24px; overflow: auto; }
+    .canvas-inner { max-width: 1120px; margin: 0 auto; }
+    .state-banner { background: var(--pool-900); color: var(--white); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .state-banner strong { font-weight: 600; }
+    .state-banner .hint { opacity: .85; font-size: 12px; }
+
+    .myqima-shell { display: grid; grid-template-columns: 240px 1fr; background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); min-height: 640px; }
+    .sidebar { background: var(--cloud); border-right: 1px solid var(--pearl); padding: 16px 12px; }
+    .book-now { width: 100%; background: var(--pool-500); color: var(--white); border: none; border-radius: var(--radius-md); padding: 12px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 16px; cursor: default; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; font-size: 14px; color: var(--seal); margin-bottom: 4px; }
+    .nav-item.active { background: var(--pool-100); color: var(--pool-600); font-weight: 500; }
+    .main { padding: 36px; background: var(--cloud); }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: var(--seal); }
+    .qima-card { background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+    .qima-card h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .qima-card .subtitle { font-size: 13px; color: var(--seal); margin-bottom: 20px; }
+
+    .field { margin-bottom: 20px; }
+    .field-label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .field-label .req { color: var(--cherry-500); }
+    .field-hint { font-size: 12px; color: var(--seal); margin-top: 6px; }
+    .field-error { font-size: 12px; color: var(--cherry-500); margin-top: 6px; display: none; }
+    .field-error.visible { display: block; }
+    .field-warning { font-size: 12px; color: var(--orange-900); background: var(--orange-100); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 8px; display: none; }
+    .field-warning.visible { display: block; }
+
+    .location-combobox { position: relative; }
+    .combobox-input-wrap { display: flex; align-items: center; border: 1px solid var(--pearl); border-radius: var(--radius-md); background: var(--white); transition: border-color .15s, box-shadow .15s; }
+    .combobox-input-wrap:focus-within { border-color: var(--pool-500); box-shadow: 0 0 0 3px var(--pool-100); }
+    .combobox-input-wrap.error { border-color: var(--cherry-500); box-shadow: 0 0 0 3px var(--cherry-100); }
+    .combobox-input { flex: 1; border: none; outline: none; padding: 10px 12px; font: inherit; font-size: 14px; background: transparent; min-width: 0; }
+    .combobox-input::placeholder { color: var(--smoke); }
+    .combobox-icon { padding: 0 12px; color: var(--seal); font-size: 12px; }
+    .combobox-clear { border: none; background: none; padding: 0 12px; color: var(--seal); cursor: pointer; font-size: 18px; line-height: 1; display: none; }
+    .combobox-clear.visible { display: block; }
+
+    .selected-chip { display: none; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--pool-200, #d3dcf8); background: var(--pool-050); border-radius: var(--radius-md); margin-top: 8px; }
+    .selected-chip.visible { display: flex; }
+    .selected-chip .path { flex: 1; font-size: 13px; font-weight: 500; }
+    .selected-chip .meta { font-size: 11px; color: var(--seal); }
+
+    .dropdown { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--white); border: 1px solid var(--pearl); border-radius: var(--radius-md); box-shadow: var(--shadow-md); z-index: 10; max-height: 280px; overflow-y: auto; display: none; }
+    .dropdown.visible { display: block; }
+    .dropdown-section { padding: 8px 0; border-bottom: 1px solid var(--mist); }
+    .dropdown-section:last-child { border-bottom: none; }
+    .dropdown-section-title { padding: 4px 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--seal); }
+    .dropdown-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; cursor: pointer; transition: background .1s; }
+    .dropdown-item:hover, .dropdown-item.focused { background: var(--pool-050); }
+    .dropdown-item .text { flex: 1; min-width: 0; }
+    .dropdown-item .primary { font-size: 14px; font-weight: 500; }
+    .dropdown-item .secondary { font-size: 12px; color: var(--seal); margin-top: 2px; }
+    .dropdown-empty { padding: 24px 16px; text-align: center; }
+    .dropdown-empty p { font-size: 14px; color: var(--seal); margin-bottom: 12px; }
+    .dropdown-loading { padding: 16px; text-align: center; font-size: 13px; color: var(--seal); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+    .badge-city { background: var(--pool-100); color: var(--pool-900); }
+    .badge-district { background: var(--kiwi-100); color: var(--kiwi-900); }
+    .badge-country { background: var(--mist); color: var(--seal); }
+    .badge-province { background: var(--orange-100); color: var(--orange-900); }
+    .badge-review { background: var(--orange-100); color: var(--orange-900); }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; padding: 8px 16px; border: 1px solid transparent; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; }
+    .btn-primary { background: var(--pool-500); color: var(--white); }
+    .btn-primary:hover { background: var(--pool-600); }
+    .btn-primary:disabled { background: var(--mist); color: var(--smoke); cursor: not-allowed; }
+    .btn-secondary { background: var(--white); border-color: var(--pearl); color: var(--carbon); }
+    .btn-secondary:hover { background: var(--cloud); }
+    .btn-ghost { background: transparent; color: var(--pool-500); padding: 8px 12px; }
+    .btn-ghost:hover { background: var(--pool-050); }
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--pearl); }
+
+    .snackbar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--carbon); color: var(--white); padding: 12px 20px; border-radius: var(--radius-md); font-size: 14px; box-shadow: var(--shadow-md); opacity: 0; transition: transform .25s cubic-bezier(.2,0,0,1), opacity .25s; z-index: 100; pointer-events: none; }
+    .snackbar.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .snackbar.success { background: var(--kiwi-900); }
+    .snackbar.warning { background: var(--orange-900); }
+
+    .id-pill { display: inline-block; font-family: ui-monospace, monospace; font-size: 11px; background: var(--mist); color: var(--seal); padding: 2px 6px; border-radius: var(--radius-sm); margin-left: 8px; }
+
+    .api-review-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .api-review-table th, .api-review-table td { padding: 10px 12px; border-bottom: 1px solid var(--pearl); text-align: left; vertical-align: top; }
+    .api-review-table th { background: var(--cloud); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--seal); font-weight: 600; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 960px) {
+      .app { grid-template-columns: 1fr; }
+      .play-panel { border-right: none; border-bottom: 1px solid var(--pearl); max-height: 220px; }
+      .myqima-shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="topbar-left">
+      <svg width="72" height="16" viewBox="0 0 411 91.301" aria-label="QIMA"><path fill="#e4002b" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></svg>
+      <div class="topbar-title">Location Selector Prototype · <span>Data Foundations</span></div>
+    </div>
+    <div class="topbar-actions">
+      <span class="proto-badge">Play mode</span>
+      <a class="btn btn-ghost" href="https://www.figma.com/design/EA11uOBAVaPCBCjnn4ZgCy/Location-Selector-Prototype" target="_blank" rel="noopener">Open Figma</a>
+    </div>
+  </header>
+
+  <aside class="play-panel" aria-label="Prototype flows">
+    <h2>Flows</h2>
+    <p class="lead">Click a step to preview the interaction state. Matches R2: single control, any granularity, one Location ID stored.</p>
+
+    <div class="flow-group" data-flow="booking">
+      <h3>A · Booking inspection site</h3>
+      <button type="button" class="flow-step active" data-state="default"><span class="num">1</span><span class="label">Default</span><span class="desc">Empty field, min City level</span></button>
+      <button type="button" class="flow-step" data-state="search"><span class="num">2</span><span class="label">Search typing</span><span class="desc">User types "Shenzhen"</span></button>
+      <button type="button" class="flow-step" data-state="results"><span class="num">3</span><span class="label">Hierarchical results</span><span class="desc">City + districts with placetype</span></button>
+      <button type="button" class="flow-step" data-state="selected"><span class="num">4</span><span class="label">Selected</span><span class="desc">District chosen, ID stored</span></button>
+      <button type="button" class="flow-step" data-state="warning"><span class="num">5</span><span class="label">Granularity warning</span><span class="desc">Country-only selection blocked</span></button>
+    </div>
+
+    <div class="flow-group" data-flow="edge">
+      <h3>B · Edge cases</h3>
+      <button type="button" class="flow-step" data-state="ambiguous"><span class="num">6</span><span class="label">Ambiguous</span><span class="desc">"Springfield" disambiguation</span></button>
+      <button type="button" class="flow-step" data-state="notfound"><span class="num">7</span><span class="label">Not found</span><span class="desc">Flag for data review</span></button>
+      <button type="button" class="flow-step" data-state="loading"><span class="num">8</span><span class="label">Loading</span><span class="desc">Async search in progress</span></button>
+    </div>
+
+    <div class="flow-group" data-flow="api">
+      <h3>C · API fuzzy match (R4)</h3>
+      <button type="button" class="flow-step" data-state="api-review"><span class="num">9</span><span class="label">Review queue</span><span class="desc">Unmatched incoming text</span></button>
+    </div>
+  </aside>
+
+  <main class="canvas">
+    <div class="canvas-inner">
+      <div class="state-banner" id="stateBanner">
+        <div><strong id="stateTitle">Default</strong> — <span id="stateDesc">Inspection location field before interaction.</span></div>
+        <span class="hint" id="stateHint">Use left panel or interact with the control →</span>
+      </div>
+
+      <div class="myqima-shell" id="bookingView">
+        <nav class="sidebar" aria-label="Main navigation">
+          <button type="button" class="book-now">Book Now</button>
+          <div class="nav-item">Bookings</div>
+          <div class="nav-item active">Suppliers &amp; Sites</div>
+          <div class="nav-item">Reports</div>
+        </nav>
+        <div class="main">
+          <div class="page-header">
+            <h1>Book inspection</h1>
+            <p>Step 2 of 4 — Inspection site</p>
+          </div>
+          <div class="qima-card">
+            <h2>Inspection location</h2>
+            <p class="subtitle">Select where the inspection will take place. Minimum precision: <strong>City</strong>. District recommended for large cities.</p>
+
+            <div class="field">
+              <label class="field-label" for="locationInput">Location <span class="req">*</span></label>
+              <div class="location-combobox" id="locationCombobox">
+                <div class="combobox-input-wrap" id="inputWrap">
+                  <input type="text" class="combobox-input" id="locationInput" placeholder="Search country, province, city, or district…" autocomplete="off" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+                  <button type="button" class="combobox-clear" id="clearBtn" aria-label="Clear selection">×</button>
+                  <span class="combobox-icon" id="comboboxIcon">⌄</span>
+                </div>
+                <div class="selected-chip" id="selectedChip">
+                  <div>
+                    <div class="path" id="chipPath"></div>
+                    <div class="meta">Stored as single Location ID <span class="id-pill" id="chipId"></span></div>
+                  </div>
+                  <span class="badge" id="chipBadge"></span>
+                </div>
+                <div class="dropdown" id="dropdown" role="listbox"></div>
+              </div>
+              <p class="field-hint" id="fieldHint">Parents (Country, Province, City) are derived from the selected ID — not stored separately.</p>
+              <p class="field-warning" id="fieldWarning">This use case requires at least <strong>City</strong> level. Please select a more specific location.</p>
+              <p class="field-error" id="fieldError">Location is required before continuing.</p>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary">Back</button>
+              <button type="button" class="btn btn-primary" id="continueBtn">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="myqima-shell hidden" id="apiView">
+        <nav class="sidebar"><button type="button" class="book-now">Book Now</button><div class="nav-item active">Admin</div></nav>
+        <div class="main">
+          <div class="page-header">
+            <h1>Location match review</h1>
+            <p>Incoming API text that could not be auto-matched (R4)</p>
+          </div>
+          <div class="qima-card">
+            <table class="api-review-table">
+              <thead>
+                <tr><th>Source</th><th>Raw text</th><th>Suggested match</th><th>Confidence</th><th>Action</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>API · Order #Q2524474084</td>
+                  <td><code>City = "Shenzhen"</code></td>
+                  <td>China – Guangdong – Shenzhen <span class="badge badge-city">City</span></td>
+                  <td>94%</td>
+                  <td><button type="button" class="btn btn-primary btn-sm" style="padding:4px 10px;font-size:12px">Accept</button></td>
+                </tr>
+                <tr>
+                  <td>API · Factory import</td>
+                  <td><code>Springfield</code></td>
+                  <td>3 candidates — needs review</td>
+                  <td>42%</td>
+                  <td><button type="button" class="btn btn-secondary btn-sm" style="padding:4px 10px;font-size:12px">Review</button></td>
+                </tr>
+                <tr>
+                  <td>API · Customer sync</td>
+                  <td><code>Bao'an District</code></td>
+                  <td>—</td>
+                  <td>0%</td>
+                  <td><button type="button" class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:12px">Flag for data team</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="snackbar" id="snackbar" role="status"></div>
+
+<script>
+(function () {
+  const LOCATIONS = {
+    shenzhen: [
+      { id: 'CN-GD-SZ', path: 'China – Guangdong – Shenzhen', placetype: 'City', primary: 'Shenzhen', secondary: 'Guangdong, China' },
+      { id: 'CN-GD-SZ-FT', path: 'China – Guangdong – Shenzhen – Futian', placetype: 'District', primary: 'Futian', secondary: 'Shenzhen, Guangdong, China' },
+      { id: 'CN-GD-SZ-NS', path: 'China – Guangdong – Shenzhen – Nanshan', placetype: 'District', primary: 'Nanshan', secondary: 'Shenzhen, Guangdong, China' },
+      { id: 'CN-GD-SZ-BA', path: "China – Guangdong – Shenzhen – Bao'an", placetype: 'District', primary: "Bao'an", secondary: 'Shenzhen, Guangdong, China' }
+    ],
+    springfield: [
+      { id: 'US-IL-SF', path: 'United States – Illinois – Springfield', placetype: 'City', primary: 'Springfield', secondary: 'Illinois, United States' },
+      { id: 'US-MO-SF', path: 'United States – Missouri – Springfield', placetype: 'City', primary: 'Springfield', secondary: 'Missouri, United States' },
+      { id: 'US-MA-SF', path: 'United States – Massachusetts – Springfield', placetype: 'City', primary: 'Springfield', secondary: 'Massachusetts, United States' }
+    ],
+    china: [
+      { id: 'CN', path: 'China', placetype: 'Country', primary: 'China', secondary: 'Country' }
+    ]
+  };
+
+  const STATE_META = {
+    default: { title: 'Default', desc: 'Empty field, min City level required.', hint: 'Click the field or step 2 to start search' },
+    search: { title: 'Search typing', desc: 'User types without cascading Country → Province → City.', hint: 'Single combobox replaces rigid dropdowns' },
+    results: { title: 'Hierarchical results', desc: 'Mixed placetype results with full hierarchy context.', hint: 'Click a result to select' },
+    selected: { title: 'Selected', desc: 'One Location ID stored; parents derived from hierarchy.', hint: 'Only ID persisted to backend' },
+    warning: { title: 'Granularity warning', desc: 'Country-only selection below minimum for booking.', hint: 'Warning pattern — configurable per use case (R10)' },
+    ambiguous: { title: 'Ambiguous results', desc: 'Same name in multiple regions — hierarchy disambiguates.', hint: 'Springfield example from requirements' },
+    notfound: { title: 'Not found', desc: 'No master data match — governance fallback (R8).', hint: 'Flag for review vs admin-only creation' },
+    loading: { title: 'Loading', desc: 'Async search against PARM_GEO_PLANET.', hint: 'Skeleton / spinner while fetching' },
+    'api-review': { title: 'API fuzzy match review', desc: 'R4 — match incoming text before storing free text.', hint: 'Admin queue for low-confidence matches' }
+  };
+
+  const badgeClass = { City: 'badge-city', District: 'badge-district', Country: 'badge-country', Province: 'badge-province' };
+
+  const els = {
+    steps: document.querySelectorAll('.flow-step'),
+    stateTitle: document.getElementById('stateTitle'),
+    stateDesc: document.getElementById('stateDesc'),
+    stateHint: document.getElementById('stateHint'),
+    input: document.getElementById('locationInput'),
+    inputWrap: document.getElementById('inputWrap'),
+    dropdown: document.getElementById('dropdown'),
+    clearBtn: document.getElementById('clearBtn'),
+    selectedChip: document.getElementById('selectedChip'),
+    chipPath: document.getElementById('chipPath'),
+    chipId: document.getElementById('chipId'),
+    chipBadge: document.getElementById('chipBadge'),
+    fieldWarning: document.getElementById('fieldWarning'),
+    fieldError: document.getElementById('fieldError'),
+    fieldHint: document.getElementById('fieldHint'),
+    continueBtn: document.getElementById('continueBtn'),
+    bookingView: document.getElementById('bookingView'),
+    apiView: document.getElementById('apiView'),
+    snackbar: document.getElementById('snackbar')
+  };
+
+  let currentState = 'default';
+  let selected = null;
+
+  function showSnackbar(msg, type) {
+    els.snackbar.textContent = msg;
+    els.snackbar.className = 'snackbar visible' + (type ? ' ' + type : '');
+    clearTimeout(showSnackbar._t);
+    showSnackbar._t = setTimeout(() => { els.snackbar.className = 'snackbar'; }, 2800);
+  }
+
+  function renderDropdown(items, emptyMsg, emptyAction) {
+    if (!items.length) {
+      els.dropdown.innerHTML = '<div class="dropdown-empty"><p>' + emptyMsg + '</p>' +
+        (emptyAction ? '<button type="button" class="btn btn-secondary" id="flagBtn">' + emptyAction + '</button>' : '') + '</div>';
+      const flag = document.getElementById('flagBtn');
+      if (flag) flag.addEventListener('click', () => showSnackbar('Flagged for data team review', 'warning'));
+      return;
+    }
+    const cities = items.filter(i => i.placetype === 'City');
+    const districts = items.filter(i => i.placetype === 'District');
+    const others = items.filter(i => !['City', 'District'].includes(i.placetype));
+    let html = '';
+    function section(title, rows) {
+      if (!rows.length) return '';
+      return '<div class="dropdown-section"><div class="dropdown-section-title">' + title + '</div>' +
+        rows.map((item, idx) =>
+          '<div class="dropdown-item" role="option" data-idx="' + idx + '" data-id="' + item.id + '">' +
+          '<div class="text"><div class="primary">' + item.primary + '</div><div class="secondary">' + item.secondary + '</div></div>' +
+          '<span class="badge ' + (badgeClass[item.placetype] || 'badge-country') + '">' + item.placetype + '</span></div>'
+        ).join('') + '</div>';
+    }
+    html += section('Cities', cities);
+    html += section('Districts', districts);
+    html += section('Other', others);
+    els.dropdown.innerHTML = html;
+    els.dropdown.querySelectorAll('.dropdown-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const item = items.find(i => i.id === el.dataset.id);
+        if (item) selectItem(item);
+      });
+    });
+  }
+
+  function selectItem(item) {
+    selected = item;
+    els.input.value = item.path;
+    els.input.readOnly = true;
+    els.clearBtn.classList.add('visible');
+    els.dropdown.classList.remove('visible');
+    els.selectedChip.classList.add('visible');
+    els.chipPath.textContent = item.path;
+    els.chipId.textContent = item.id;
+    els.chipBadge.textContent = item.placetype;
+    els.chipBadge.className = 'badge ' + (badgeClass[item.placetype] || 'badge-country');
+    els.fieldError.classList.remove('visible');
+    els.inputWrap.classList.remove('error');
+    if (item.placetype === 'Country') {
+      els.fieldWarning.classList.add('visible');
+      showSnackbar('Below minimum granularity for booking', 'warning');
+    } else {
+      els.fieldWarning.classList.remove('visible');
+      showSnackbar('Location ID ' + item.id + ' will be stored', 'success');
+    }
+    setActiveStep('selected');
+    applyState('selected', false);
+  }
+
+  function clearSelection() {
+    selected = null;
+    els.input.value = '';
+    els.input.readOnly = false;
+    els.clearBtn.classList.remove('visible');
+    els.selectedChip.classList.remove('visible');
+    els.fieldWarning.classList.remove('visible');
+    els.dropdown.classList.remove('visible');
+  }
+
+  function applyState(state, fromPanel) {
+    currentState = state;
+    const meta = STATE_META[state] || STATE_META.default;
+    els.stateTitle.textContent = meta.title;
+    els.stateDesc.textContent = meta.desc;
+    els.stateHint.textContent = meta.hint;
+
+    const isApi = state === 'api-review';
+    els.bookingView.classList.toggle('hidden', isApi);
+    els.apiView.classList.toggle('hidden', !isApi);
+    if (isApi) return;
+
+    clearSelection();
+    els.fieldError.classList.remove('visible');
+    els.fieldWarning.classList.remove('visible');
+    els.inputWrap.classList.remove('error');
+    els.dropdown.classList.remove('visible');
+
+    switch (state) {
+      case 'default':
+        els.input.placeholder = 'Search country, province, city, or district…';
+        break;
+      case 'search':
+        els.input.value = 'Shenzhen';
+        els.input.focus();
+        els.dropdown.classList.add('visible');
+        els.dropdown.innerHTML = '<div class="dropdown-loading">Searching master data…</div>';
+        setTimeout(() => {
+          if (currentState === 'search') applyState('results', false);
+        }, 400);
+        break;
+      case 'results':
+        els.input.value = 'Shenzhen';
+        els.dropdown.classList.add('visible');
+        renderDropdown(LOCATIONS.shenzhen);
+        break;
+      case 'selected':
+        selectItem(LOCATIONS.shenzhen[1]);
+        break;
+      case 'warning':
+        els.dropdown.classList.add('visible');
+        renderDropdown(LOCATIONS.china);
+        selectItem(LOCATIONS.china[0]);
+        break;
+      case 'ambiguous':
+        els.input.value = 'Springfield';
+        els.dropdown.classList.add('visible');
+        renderDropdown(LOCATIONS.springfield);
+        break;
+      case 'notfound':
+        els.input.value = 'Bao\'an New Industrial Zone';
+        els.dropdown.classList.add('visible');
+        renderDropdown([], 'No locations found for "Bao\'an New Industrial Zone"', 'Flag for data team review');
+        break;
+      case 'loading':
+        els.input.value = 'Futian';
+        els.dropdown.classList.add('visible');
+        els.dropdown.innerHTML = '<div class="dropdown-loading">Searching PARM_GEO_PLANET…</div>';
+        break;
+    }
+
+    if (fromPanel && state === 'selected') {
+      /* selectItem already ran */
+    }
+  }
+
+  function setActiveStep(state) {
+    els.steps.forEach(s => s.classList.toggle('active', s.dataset.state === state));
+  }
+
+  els.steps.forEach(step => {
+    step.addEventListener('click', () => {
+      const state = step.dataset.state;
+      setActiveStep(state);
+      applyState(state, true);
+    });
+  });
+
+  els.input.addEventListener('focus', () => {
+    if (!selected) {
+      setActiveStep('search');
+      applyState('search', false);
+    }
+  });
+
+  els.input.addEventListener('input', () => {
+    const q = els.input.value.toLowerCase();
+    els.dropdown.classList.add('visible');
+    if (q.includes('spring')) {
+      setActiveStep('ambiguous');
+      renderDropdown(LOCATIONS.springfield);
+    } else if (q.includes('shen')) {
+      setActiveStep('results');
+      renderDropdown(LOCATIONS.shenzhen);
+    } else if (q.length > 3 && !q.includes('shen') && !q.includes('spring')) {
+      setActiveStep('notfound');
+      renderDropdown([], 'No locations found for "' + els.input.value + '"', 'Flag for data team review');
+    }
+  });
+
+  els.clearBtn.addEventListener('click', () => {
+    clearSelection();
+    setActiveStep('default');
+    applyState('default', false);
+  });
+
+  els.continueBtn.addEventListener('click', () => {
+    if (!selected) {
+      els.fieldError.classList.add('visible');
+      els.inputWrap.classList.add('error');
+      showSnackbar('Please select a location', 'warning');
+      return;
+    }
+    if (selected.placetype === 'Country') {
+      els.fieldWarning.classList.add('visible');
+      showSnackbar('Select at least City level to continue', 'warning');
+      return;
+    }
+    showSnackbar('Continuing with Location ID ' + selected.id, 'success');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('locationCombobox').contains(e.target)) {
+      els.dropdown.classList.remove('visible');
+    }
+  });
+
+  const urlState = new URLSearchParams(window.location.search).get('state');
+  if (urlState && STATE_META[urlState]) {
+    setActiveStep(urlState);
+    applyState(urlState, true);
+  } else {
+    applyState('default', false);
+  }
+})();
+</script>
+</body>
+</html>
