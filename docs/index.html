@@ -1,145 +1,79 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QIMA TIC 行业周报 | GitHub Pages</title>
-  <meta name="description" content="QIMA PM 与业务团队的中国 TIC 行业周度市场研究报告">
-  <style>
-    :root {
-      --qima-red: #e4002b;
-      --ink: #171923;
-      --muted: #5b6475;
-      --line: #e7eaf0;
-      --blue: #2454ff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
-      color: var(--ink);
-      background: #f3f5f9;
-      line-height: 1.6;
-    }
-    a { color: var(--blue); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .wrap {
-      width: min(960px, calc(100% - 32px));
-      margin: 32px auto 64px;
-    }
-    header {
-      padding: 36px 32px;
-      border-radius: 22px;
-      color: #fff;
-      background:
-        radial-gradient(circle at 85% 15%, rgba(255,255,255,.22), transparent 26%),
-        linear-gradient(135deg, #111827 0%, #3a0d17 46%, var(--qima-red) 100%);
-      box-shadow: 0 24px 60px rgba(15, 23, 42, .12);
-    }
-    .brand { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .brand img { width: 140px; background: #fff; border-radius: 12px; padding: 10px; }
-    .badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255,255,255,.16);
-      border: 1px solid rgba(255,255,255,.28);
-    }
-    h1 { margin: 22px 0 10px; font-size: 34px; line-height: 1.15; }
-    .subtitle { color: rgba(255,255,255,.88); max-width: 760px; }
-    .card {
-      margin-top: 20px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 10px 24px rgba(15,23,42,.04);
-    }
-    h2 { margin: 0 0 14px; font-size: 20px; }
-    .report-list { list-style: none; padding: 0; margin: 0; }
-    .report-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--line);
-      flex-wrap: wrap;
-    }
-    .report-list li:last-child { border-bottom: 0; }
-    .report-title { font-weight: 700; font-size: 16px; }
-    .report-meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 16px;
-      border-radius: 12px;
-      background: var(--qima-red);
-      color: #fff;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .btn:hover { text-decoration: none; filter: brightness(.95); }
-    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
-    .pill {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 14px;
-    }
-    footer { margin-top: 24px; color: var(--muted); font-size: 13px; text-align: center; }
-    @media (max-width: 760px) {
-      .grid { grid-template-columns: 1fr; }
-      h1 { font-size: 28px; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protected Page</title>
+<style>
+*,:before,:after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.lock-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F7F7F7}
+.lock-card{background:#fff;border-radius:16px;box-shadow:0 2px 4px rgba(25,25,25,0.1);border:1px solid rgba(0,0,0,0.1);padding:36px;width:100%;max-width:380px;text-align:center}
+.lock-logo{margin-bottom:24px}
+.lock-logo svg{width:92px;height:20px}
+.lock-card h2{font-size:18px;font-weight:500;color:#191919;margin-bottom:8px;letter-spacing:-0.01em}
+.lock-card p{font-size:14px;line-height:20px;color:#737373;margin-bottom:24px}
+.lock-input{width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font:400 14px/20px 'Inter',sans-serif;color:#191919;background:#fff;outline:none;transition:border-color 200ms cubic-bezier(0.2,0,0,1)}
+.lock-input:focus{border-color:#E4002B}
+.lock-input.shake{animation:shake .4s ease-out;border-color:#E5353D}
+.lock-btn{width:100%;height:44px;margin-top:12px;background:#E4002B;color:#fff;border:none;border-radius:8px;font:500 14px/20px 'Inter',sans-serif;cursor:pointer;transition:background 200ms cubic-bezier(0.2,0,0,1)}
+.lock-btn:hover{background:#C71A21}
+.lock-error{font-size:12px;line-height:16px;color:#E5353D;margin-top:8px;min-height:16px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <img src="assets/logo.svg" alt="QIMA">
-        <span class="badge">GitHub Pages · Weekly Intelligence</span>
-      </div>
-      <h1>中国 TIC 行业周度市场研究</h1>
-      <p class="subtitle">面向 QIMA PM 与业务团队的行业情报站点。每期优先收录竞品最新系统/平台/业务动作与 AI 使用方向，监管与市场背景作为附录参考。</p>
-    </header>
-
-    <section class="card">
-      <h2>最新报告</h2>
-      <ul class="report-list">
-        <li>
-          <div>
-            <div class="report-title">TIC Weekly Market Report</div>
-            <div class="report-meta">报告日期：2026-06-19 · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>
-          </div>
-          <a class="btn" href="reports/china-tic-market-weekly-2026-06-19.html">阅读报告</a>
-        </li>
-        <li>
-          <div>
-            <div class="report-title">中国 TIC 行业周度市场研究报告</div>
-            <div class="report-meta">报告日期：2026-06-17 · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>
-          </div>
-          <a class="btn" href="reports/china-tic-market-weekly-2026-06-17.html">阅读报告</a>
-        </li>
-      </ul>
-    </section>
-
-    <div class="grid">
-      <div class="pill"><strong>更新频率</strong><br>每周五 09:00 UTC 自动同步发布</div>
-      <div class="pill"><strong>内容优先级</strong><br>竞品新闻 &gt; AI 动态 &gt; 监管背景</div>
-      <div class="pill"><strong>部署方式</strong><br>GitHub Actions 自动发布 Pages</div>
-    </div>
-
-    <footer>
-      <p>索引自动生成时间：2026-07-10 10:11 UTC · 最新报告日期：2026-06-19</p>
-      <p>站点由 <code>docs/</code> 目录提供，推送至 GitHub 后自动部署。</p>
-      <p>仓库：<a href="https://github.com/asiainspection/PM-" target="_blank" rel="noreferrer">asiainspection/PM-</a></p>
-    </footer>
+<div class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo"><svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:#e4002b}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer1"><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g></g></svg></div>
+    <h2>Password Required</h2>
+    <p>Enter the password to view this page.</p>
+    <input type="password" class="lock-input" id="pwd" placeholder="Enter password" autofocus>
+    <button class="lock-btn" id="submit">Unlock</button>
+    <div class="lock-error" id="error"></div>
   </div>
+</div>
+<script>
+(function(){
+  var CIPHER='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';
+  var IV_HEX='d905e13b3f212af4ae7a85763588bd1d';
+  var MAX_ATTEMPTS=5;
+  var attempts=0;
+  function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2){b[i/2]=parseInt(h.substring(i,i+2),16);}return b;}
+  function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])});}
+  function decryptData(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher);}
+  function go(){
+    var pwd=document.getElementById('pwd').value;
+    if(!pwd){return;}
+    var raw=atob(CIPHER);
+    var bytes=new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++){bytes[i]=raw.charCodeAt(i);}
+    var salt=bytes.slice(0,16);
+    var cipherBytes=bytes.slice(16);
+    deriveKey(pwd,salt).then(function(key){
+      return decryptData(key,hexToBytes(IV_HEX),cipherBytes);
+    }).then(function(plain){
+      var html=new TextDecoder().decode(plain);
+      document.open();document.write(html);document.close();
+    }).catch(function(){
+      attempts++;
+      var left=MAX_ATTEMPTS-attempts;
+      var el=document.getElementById('error');
+      var inp=document.getElementById('pwd');
+      if(left<=0){
+        el.textContent='Too many attempts. Please reload the page.';
+        document.getElementById('submit').disabled=true;
+        return;
+      }
+      el.textContent='Incorrect password. '+left+' attempt'+(left>1?'s':'')+' remaining.';
+      inp.classList.add('shake');
+      setTimeout(function(){inp.classList.remove('shake');},400);
+      inp.value='';inp.focus();
+    });
+  }
+  document.getElementById('submit').addEventListener('click',go);
+  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter'){go();}});
+})();
+</script>
 </body>
 </html>

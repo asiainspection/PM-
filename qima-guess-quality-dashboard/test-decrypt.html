@@ -1,54 +1,79 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Decrypt Test</title></head>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protected Page</title>
+<style>
+*,:before,:after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.lock-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F7F7F7}
+.lock-card{background:#fff;border-radius:16px;box-shadow:0 2px 4px rgba(25,25,25,0.1);border:1px solid rgba(0,0,0,0.1);padding:36px;width:100%;max-width:380px;text-align:center}
+.lock-logo{margin-bottom:24px}
+.lock-logo svg{width:92px;height:20px}
+.lock-card h2{font-size:18px;font-weight:500;color:#191919;margin-bottom:8px;letter-spacing:-0.01em}
+.lock-card p{font-size:14px;line-height:20px;color:#737373;margin-bottom:24px}
+.lock-input{width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font:400 14px/20px 'Inter',sans-serif;color:#191919;background:#fff;outline:none;transition:border-color 200ms cubic-bezier(0.2,0,0,1)}
+.lock-input:focus{border-color:#E4002B}
+.lock-input.shake{animation:shake .4s ease-out;border-color:#E5353D}
+.lock-btn{width:100%;height:44px;margin-top:12px;background:#E4002B;color:#fff;border:none;border-radius:8px;font:500 14px/20px 'Inter',sans-serif;cursor:pointer;transition:background 200ms cubic-bezier(0.2,0,0,1)}
+.lock-btn:hover{background:#C71A21}
+.lock-error{font-size:12px;line-height:16px;color:#E5353D;margin-top:8px;min-height:16px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+</style>
+</head>
 <body>
-<h3>AES Decrypt Test</h3>
-<p>Password: <input id="pwd" value="QIMA"> <button onclick="go()">Decrypt</button></p>
-<pre id="log"></pre>
+<div class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo"><svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:#e4002b}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer1"><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g></g></svg></div>
+    <h2>Password Required</h2>
+    <p>Enter the password to view this page.</p>
+    <input type="password" class="lock-input" id="pwd" placeholder="Enter password" autofocus>
+    <button class="lock-btn" id="submit">Unlock</button>
+    <div class="lock-error" id="error"></div>
+  </div>
+</div>
 <script>
-var CIPHER = 'ItT4zP7oqWuu8K0Jyqu2P0Bp77NA1ikDhiio6PxJplBIffZPm+YOcBM0WHCHKjolOfcYAcRMqxW+QEdMyhhKmA==';
-var IV_HEX = 'cde1b1ae8cf8c283f085e2995fe23b0d';
-
-function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2)b[i/2]=parseInt(h.substr(i,2),16);return b}
-function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])})}
-function decrypt(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher)}
-
-function log(m){document.getElementById('log').textContent += m + '
-'}
-
-function go(){
-  var pwd = document.getElementById('pwd').value;
-  log('Password: ' + pwd);
-  log('CIPHER length: ' + CIPHER.length);
-  log('IV_HEX: ' + IV_HEX);
-  
-  try {
-    var raw = atob(CIPHER);
-    log('atob decoded length: ' + raw.length);
-    var bytes = new Uint8Array(raw.length);
-    for(var i=0;i<raw.length;i++) bytes[i] = raw.charCodeAt(i);
-    log('bytes length: ' + bytes.length);
-    
-    var salt = bytes.slice(0,16);
-    log('salt hex: ' + Array.from(salt).map(function(b){return b.toString(16).padStart(2,'0')}).join(''));
-    log('iv hex from template: ' + IV_HEX);
-    
-    var cipherBytes = bytes.slice(16);
-    log('cipher bytes length: ' + cipherBytes.length);
-    
-    deriveKey(pwd, salt).then(function(key){
-      log('Key derived OK');
-      return decrypt(key, hexToBytes(IV_HEX), cipherBytes);
+(function(){
+  var CIPHER='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';
+  var IV_HEX='d7b86052e6a3a2b94d689f81c14597b8';
+  var MAX_ATTEMPTS=5;
+  var attempts=0;
+  function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2){b[i/2]=parseInt(h.substring(i,i+2),16);}return b;}
+  function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])});}
+  function decryptData(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher);}
+  function go(){
+    var pwd=document.getElementById('pwd').value;
+    if(!pwd){return;}
+    var raw=atob(CIPHER);
+    var bytes=new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++){bytes[i]=raw.charCodeAt(i);}
+    var salt=bytes.slice(0,16);
+    var cipherBytes=bytes.slice(16);
+    deriveKey(pwd,salt).then(function(key){
+      return decryptData(key,hexToBytes(IV_HEX),cipherBytes);
     }).then(function(plain){
-      var html = new TextDecoder().decode(plain);
-      log('DECRYPTED: ' + html);
-    }).catch(function(e){
-      log('DECRYPT ERROR: ' + e);
+      var html=new TextDecoder().decode(plain);
+      document.open();document.write(html);document.close();
+    }).catch(function(){
+      attempts++;
+      var left=MAX_ATTEMPTS-attempts;
+      var el=document.getElementById('error');
+      var inp=document.getElementById('pwd');
+      if(left<=0){
+        el.textContent='Too many attempts. Please reload the page.';
+        document.getElementById('submit').disabled=true;
+        return;
+      }
+      el.textContent='Incorrect password. '+left+' attempt'+(left>1?'s':'')+' remaining.';
+      inp.classList.add('shake');
+      setTimeout(function(){inp.classList.remove('shake');},400);
+      inp.value='';inp.focus();
     });
-  } catch(e) {
-    log('ERROR: ' + e);
   }
-}
+  document.getElementById('submit').addEventListener('click',go);
+  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter'){go();}});
+})();
 </script>
 </body>
 </html>

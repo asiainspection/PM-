@@ -1,50 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Location Selector Prototypes — QIMA PM</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Inter, system-ui, sans-serif; background: #f7f7f7; color: #191919; margin: 0; padding: 32px 20px 48px; }
-    .wrap { max-width: 960px; margin: 0 auto; }
-    h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
-    p.lead { color: #737373; margin-bottom: 24px; font-size: 14px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-    .card { background: #fff; border: 1px solid #dedede; border-radius: 12px; overflow: hidden; }
-    .card img { width: 100%; display: block; border-bottom: 1px solid #dedede; }
-    .card-body { padding: 16px; }
-    .card h2 { font-size: 16px; margin-bottom: 6px; }
-    .card p { font-size: 13px; color: #737373; margin-bottom: 12px; line-height: 1.5; }
-    .btn { display: inline-block; background: #4169e1; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; }
-    .btn:hover { background: #1e46bd; }
-    .meta { margin-top: 24px; font-size: 12px; color: #737373; }
-    .meta a { color: #4169e1; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Protected Page</title>
+<style>
+*,:before,:after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.lock-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F7F7F7}
+.lock-card{background:#fff;border-radius:16px;box-shadow:0 2px 4px rgba(25,25,25,0.1);border:1px solid rgba(0,0,0,0.1);padding:36px;width:100%;max-width:380px;text-align:center}
+.lock-logo{margin-bottom:24px}
+.lock-logo svg{width:92px;height:20px}
+.lock-card h2{font-size:18px;font-weight:500;color:#191919;margin-bottom:8px;letter-spacing:-0.01em}
+.lock-card p{font-size:14px;line-height:20px;color:#737373;margin-bottom:24px}
+.lock-input{width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font:400 14px/20px 'Inter',sans-serif;color:#191919;background:#fff;outline:none;transition:border-color 200ms cubic-bezier(0.2,0,0,1)}
+.lock-input:focus{border-color:#E4002B}
+.lock-input.shake{animation:shake .4s ease-out;border-color:#E5353D}
+.lock-btn{width:100%;height:44px;margin-top:12px;background:#E4002B;color:#fff;border:none;border-radius:8px;font:500 14px/20px 'Inter',sans-serif;cursor:pointer;transition:background 200ms cubic-bezier(0.2,0,0,1)}
+.lock-btn:hover{background:#C71A21}
+.lock-error{font-size:12px;line-height:16px;color:#E5353D;margin-top:8px;min-height:16px}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Location Model — HTML Prototypes</h1>
-    <p class="lead">Interactive demos for Data Foundations location selector and AI address parse (SP-35471 / SP-18336 pattern).</p>
-    <div class="grid">
-      <article class="card">
-        <img src="screenshots/ai-address-parse-demo.png" alt="AI Address Parse demo screenshot">
-        <div class="card-body">
-          <h2>AI Address Parse</h2>
-          <p>Paste a full address, click Detect, auto-populate Country → District from GEO master data.</p>
-          <a class="btn" href="ai-address-parse-demo.html">Open prototype</a>
-        </div>
-      </article>
-      <article class="card">
-        <img src="screenshots/myqima-location-selector--results.png" alt="Location selector results state">
-        <div class="card-body">
-          <h2>Unified Location Selector</h2>
-          <p>Single combobox search with hierarchical results, granularity validation, and Location ID storage.</p>
-          <a class="btn" href="myqima-location-selector-prototype.html">Open prototype</a>
-        </div>
-      </article>
-    </div>
-    <p class="meta">Hosted on <a href="https://github.com/asiainspection/PM-">asiainspection/PM-</a> · GitHub Pages</p>
+<div class="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo"><svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:#e4002b}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer1"><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g></g></svg></div>
+    <h2>Password Required</h2>
+    <p>Enter the password to view this page.</p>
+    <input type="password" class="lock-input" id="pwd" placeholder="Enter password" autofocus>
+    <button class="lock-btn" id="submit">Unlock</button>
+    <div class="lock-error" id="error"></div>
   </div>
+</div>
+<script>
+(function(){
+  var CIPHER='1iMfAfEE+m0WcAtoPfE2v2bc69DJRWexEDX+IrVP21CpWULOzJnwEuOCTIuZKiN9zg0YkLLKUOROFd3WtaBk/9zqbIQHlKOz9oM3Ght59bCgVBlQJUU7UMSgcfh06zNicsdi1UmkbQW9YR7ODPD4+1hDjsMd7skbq93lFVQ42pmiKRpl1dge3FOs34cCBLY6+nDUzGRog1vbnHLReNo9DPoh75FXXYMwVgg9INNU7RKQ3b9Kwnux9R74MlkR+nuOxmvrev5pXITU7Ka+V4MlI39dsPM5MOXrsFI+KPxZA6fnbeK6o8ge77VxZ1Rlnuow3Z6mpVCBWjnQ2X1jKsb2QxtEbI1QC2mnIM6WTNVt+PFDTzMdzAYXROb8ZSj1g3w/1OyH/EEFJlzl2HQYnXRO2vXssWB3vWqN9GUuJrHZbccWuOu23SyLpb/7/P2erAdYqVJtjR5XmAm7mZBSECo8TJp5Vtd05CXXqv66meM9GXjVKlnfhz9m2jhpH3bIAlML5HYa1OP0+Gq4tZRrrPr9fnghnkPAPUBPpZvyBhuqu6abNdI0W1kioiq3u4BhpSuJ5X5BlTjU8+mIZ4xc7NK2w+aLQzpOI4ZnEMlhD8Q6iKmL6dyDsGO5/Ajp0dTJsXJdkJESDrF8MRFvblfLd+brVI/JlYX+w8VUYGSqgxHK0KcH8Lge5WbqTRLGx1Pz+ISTWMYyEN0QjaHNOGTfk/LEPeF8nnrrCqHsQfBGkKwolNEFhitPEhZAVBN/gYUgUT/eYgfS4RhfHQe3acKQWalui5VGJj/K9DaUQf4zvj9Z6SP5iFzmRNd//fqbQvZjLJxCgQA8j8GI3mTX53bji10u4Hq/JB7Aa/4F/kviDJH9rAJT9Uys03n4Fyhnb9/PU+zqzc9ePfC4khnu+9TFpUiTbCDNMfUxLT95vd/RBVa4TfApYRG4Rrm3ZqtO0WfvynVBBQ6xiJLNOhTh/e5dRTOX7a0FKW/Snj2En0ma828qub4L0GsY2hfbQl0OqOg7Qg2F/akbuekrGoc3ya2D8ZomHfvcG5X3Htd1tNX/95VV5LDWI/w0U07KZyU0lFjDGieaFyzQfNuo8Ax3djg9mPhTW31EoE0OQM3W6SgwwvzUzzsS3d4lGy4DxTt4770AofGPKTWKyfB1Rg1TbgSkg9MqFMMHRpB9LJK7y2kaFVKpA+z5gp4PRy2GajTYzTE0PH4F0Kp9amwySWUsO8+XYJbreW+Ha4N2rFEIjN2twZG/0Uvc4a05ZA7FTzJFKbpT8h0z9kWAbXdFLn/uYHtc+54uAXF+33gYc+s8f0n1GJ4znU616phXbrdjgqO2rQo/OQ+9ceM7s5APzdYLHNbExzb04/MCqQUqJs4N0F2D8sVgd7PzgV0TWjkvrBfY1DvAJv5gU4kAWWC7jfdOzUm8E7LaKPUjY0zIhoz4RltwgkenRf+RS4yrpK7NU8FFgCb54SJ4kkiMxIjF57S+6uhZoASb0BAzFfESRMpeEs6KJJ+2Ub0/lLPEKOrpE/CCMXut1nvfLmhQ19V7HNZGg0KRdtHSWp3hp90GwDe54NKtIRTop656N0ESrhO2Y8zX0unchvgfaze9Tez17YUsbR1oM8fSL4G0SFiEHEE88JVWFkwI0RI9HwFplBrbD2YYxfZmy94qDxnJO3BHnyuEl03Ko6r9Y3CPrbnxJzOLNoQE0FkVXj1vdlhtSHQB3vIEcWEgZl0s+6KqyPIjGCNIfRf8L4e3rlZ4oj5jJWKzphYnl5kmDMx7D3fN1C/R+uyyPD4ps2FaCxrldpsdK52E1O01dULpbsDTCTpgL+xyQjaXUJWl7MSrUMg6SG52M42N2+oM/Zphd0v0Yy9i6iI18hk8cOgUt+mssAu2HA4Xu+ksAYst0mTovNmdydzghbDjlAXxOrndOrPh3oEOpO39K2eobSqF3WZrMddiH3pPDQeMLoUnAaFXn7c4IIpySvpD89L6aBtJivMLmxRfiA5rNXJ1kZhHWrqvsbeQ7mX5rrUwSCiIvgO+hu/6UAJIbzuVHR32f4/fkEpWR8+RGvv3Or5A/AEQzOqEiE+ERBImmEW56zRAyb1/nKmIJ/2wgk9RH398waul47b6AlvA6JQosiYnicg1keQhbpb9wHRNKYxwdlrXdo+GymVYy8sarhnjrQCKEmj8Ynv4H4WDaLNWI1skBOV8L5D0CyIpuqZmm8mq0iMDtkjxgcU3SnDJmYqbP1ffWP94oIQ9896YLH0N77m1XWdtfnWNZCPU3Ym70coVunrJyuCoMcJqk7olDECciUcKRHZ8b+bfIo3fHwKY/XVjHbPffuDOK9Pqan8JHE9zi+aZDugsMH56zEvcYEcTTYDIDt/MuTHn/zJbiijZj+IYWfCl5slIOuNVgB4zqjKK8g1tg4mQ/xhkaH5dbZwl8Z74+s80LboPakPIVv1FyNZY4fobPJnGGae6Rlkh91ceHijDHSy5FWtf7jVIIk1EU6ZEE/SJ5pnsh/TTfMF9o1gwlJdmHGAN918GIulkGqFz6oRacG6LVNdIcsomrlsMq7oo/ojE1TU+G5UG3s7eOx8X5Qs/0mDOxuqqC6xg+3VxgN37TVbESjhCQWwd2nMarLq8TNSpJ6+1UinQqVtTTT7Ydrltmdbn18sdAnV9KveLqJ/t817mxTlwtYUv5q6YYR1mtZ66oIjzdae/aGD2gqEw6WLlsszTEUKuhw+GLUL2KWy2gATASAp30BHxv7rr4k/msL5ikylG5yLF99bm3cQu4fEkPRrTR541tEB2Oxvm96bPAs6vRe9xq9LYCoZVwGT96zBqC2UVGnObvnqjFA4ZGpFtDKWRQyDsrhi8F/5+dd+T8HJHGfI7QJGu7DJyO+ovjAOw1fttx2ophA2vlHiYpy8FL6d2fhMb5o5vh6qX+s4S8yhlVocYQhH/DodnBttmGOExTNZZEzyUJSjqNJot0hBuLsmVzNJYkOK91Ov49+aRgzQ2besb94S1VSLeoWmUbHx3x3kxmuyfoiKFaxT6VJ4lBAz6JB+laAEjZEmW3k2Qroc2J4wJ1BqXfJvulkAw+0BbgAuj28Haob4Ixs9bx52Ffas5T3QvIJtJWTrtAXuDvgv5vz9v/olM6aN1XJU0WOEKhoVq3KH4zIYJG2LVZqEQdz7Jf0e2/T20Cm9Z4OY5tm2Tq6IeCxWrvd+Ov9j9a/FakY8OvIBp/U+uliOGl/YGdUo+loHBGF4ZkvcqCeUxhrblNBEuEwXIgKrlR/qXn+n+7lBR3oez5N6J7KPgB9KkuyjY6O6e3j58ST2BASUAhwY2POaultTv8lrRl/nBP6AK421e9bMh8xoBNAwTcYwmseq+gH2u1rRfcpRUskjNX+AkWzvR/GMfMK5xBMq/M4o1DYK0ZLDLIRb2mT2O+SZRbKaW+Sfd0yQUDs527rJj3nXXtxhn1qKfIIYWP+JQHdtZD2GUshPzl4Bg97ATvJkpltoy8gJzXnmfWzZo60RtY0Sanl3Uc493AZD6achx3LStWJl1iKrgKDduk6SNMH61CpvFWyRgxROKXKvcHHMJar/OdjP2phO7OA4LXHBeoOjT';
+  var IV_HEX='84953be2d5d399ff57fc5a09c82c90aa';
+  var MAX_ATTEMPTS=5;
+  var attempts=0;
+  function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2){b[i/2]=parseInt(h.substring(i,i+2),16);}return b;}
+  function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])});}
+  function decryptData(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher);}
+  function go(){
+    var pwd=document.getElementById('pwd').value;
+    if(!pwd){return;}
+    var raw=atob(CIPHER);
+    var bytes=new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++){bytes[i]=raw.charCodeAt(i);}
+    var salt=bytes.slice(0,16);
+    var cipherBytes=bytes.slice(16);
+    deriveKey(pwd,salt).then(function(key){
+      return decryptData(key,hexToBytes(IV_HEX),cipherBytes);
+    }).then(function(plain){
+      var html=new TextDecoder().decode(plain);
+      document.open();document.write(html);document.close();
+    }).catch(function(){
+      attempts++;
+      var left=MAX_ATTEMPTS-attempts;
+      var el=document.getElementById('error');
+      var inp=document.getElementById('pwd');
+      if(left<=0){
+        el.textContent='Too many attempts. Please reload the page.';
+        document.getElementById('submit').disabled=true;
+        return;
+      }
+      el.textContent='Incorrect password. '+left+' attempt'+(left>1?'s':'')+' remaining.';
+      inp.classList.add('shake');
+      setTimeout(function(){inp.classList.remove('shake');},400);
+      inp.value='';inp.focus();
+    });
+  }
+  document.getElementById('submit').addEventListener('click',go);
+  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter'){go();}});
+})();
+</script>
 </body>
 </html>
