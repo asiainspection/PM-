@@ -428,14 +428,14 @@
   .example-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .example-card {
     background: #fff; border: 1px solid #edf0f6; border-radius: 10px;
-    padding: 8px; min-height: 88px;
+    padding: 8px; min-height: 0;
   }
   .example-thumb {
-    height: 42px; border-radius: 8px; margin-bottom: 6px;
+    height: 96px; border-radius: 8px; margin-bottom: 8px;
     overflow: hidden; background: #f4f6fa;
   }
   .example-thumb img {
-    display: block; width: 100%; height: 100%; object-fit: cover;
+    display: block; width: 100%; height: 100%; object-fit: cover; object-position: center;
   }
   .example-name { font-size: 12px; font-weight: 600; color: var(--carbon); }
   .example-desc { font-size: 10px; color: var(--seal); line-height: 14px; margin-top: 2px; }
