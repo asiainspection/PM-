@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<link rel="stylesheet" href="assets/access-gate.css" />
+<script src="assets/access-gate.js"></script>
+<title>QIMA 小程序 - 下单成功</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --carbon: #191919;
+    --seal: #737373;
+    --pool-500: #4169e1;
+    --pool-100: #e6ecfb;
+    --pool-050: #f2f5fd;
+    --border: #dedede;
+    --kiwi: #1f9d6b;
+  }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
+    background: #c9ced8;
+    color: var(--carbon);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body { display: flex; justify-content: center; }
+  .phone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #f2f5fc 0%, #fafbfe 100%);
+    overflow: hidden;
+  }
+  .blob { position: absolute; border-radius: 68px; filter: blur(50px); pointer-events: none; z-index: 0; }
+  .blob-1 { width: 340px; height: 314px; background: #f58f00; opacity: .07; left: 230px; top: -130px; transform: rotate(30deg); }
+  .blob-3 { width: 129px; height: 119px; background: #a086c4; opacity: .12; left: -70px; top: 0; transform: rotate(-30deg); }
+  .statusbar {
+    position: relative; z-index: 2;
+    height: 47px; width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 27px 0 0;
+  }
+  .statusbar .time { width: 134px; text-align: center; font-weight: 600; font-size: 17px; letter-spacing: -.4px; padding-top: 4px; }
+  .statusbar .indicators { display: flex; align-items: center; gap: 7px; padding-top: 4px; }
+  .statusbar .indicators img { display: block; }
+  .navbar {
+    position: relative; z-index: 2;
+    height: 44px; width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 17px;
+  }
+  .navbar .back { width: 12px; height: 20px; display: block; }
+  .navbar .title {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 17px; font-weight: 600; letter-spacing: -.34px;
+  }
+  .nav-capsule {
+    width: 83px; height: 30px; border-radius: 15px;
+    background: rgba(255,255,255,.7); border: .5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-around;
+  }
+  .nav-capsule img { width: 17px; height: 17px; }
+  .nav-capsule .divider { width: 1px; height: 18px; background: #d2d2d2; }
+  .content {
+    position: relative; z-index: 1;
+    flex: 1;
+    padding: 42px 20px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .success-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 14px rgba(25,25,25,.08);
+    padding: 34px 22px 20px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    margin: 0 auto 18px;
+    background: #eaf6f2;
+    color: var(--kiwi);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 38px; font-weight: 700;
+  }
+  .success-title { font-size: 22px; font-weight: 700; line-height: 31px; }
+  .success-desc { margin-top: 8px; font-size: 13px; line-height: 20px; color: var(--seal); }
+  .summary {
+    margin-top: 22px;
+    background: #f7f9ff;
+    border: 1px solid #e3e9fb;
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+  .summary-row {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 7px 0;
+    font-size: 13px; line-height: 19px;
+  }
+  .summary-row span:first-child { color: var(--seal); }
+  .summary-row span:last-child { color: var(--carbon); font-weight: 600; text-align: right; }
+  .card-block-divider {
+    height: 1px; background: #eef0f4; margin: 18px 0;
+  }
+  .reminder-banner {
+    background: #fff9e6;
+    border: 1px solid #f5d96e;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+  }
+  .reminder-icon {
+    width: 22px; height: 22px; flex-shrink: 0;
+    background: #f5a623;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 700;
+    margin-top: 1px;
+  }
+  .reminder-text { font-size: 13px; line-height: 20px; color: #6b5a1e; }
+  .reminder-text strong { color: #4a3d0e; }
+  .lab-section { text-align: left; }
+  .lab-section-title { font-size: 14px; font-weight: 700; color: var(--carbon); margin-bottom: 10px; }
+  .lab-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .lab-tab {
+    height: 32px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid #dce4fb; background: #fff;
+    color: var(--seal); font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .lab-tab.active {
+    background: var(--pool-050); border-color: #b8c6ee; color: var(--pool-500);
+  }
+  .lab-address-box {
+    background: #f7f9ff; border: 1px solid #e3e9fb; border-radius: 10px;
+    padding: 12px;
+  }
+  .lab-meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  .lab-meta-row {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 13px; line-height: 20px;
+  }
+  .lab-meta-label {
+    flex-shrink: 0; min-width: 52px;
+    color: var(--seal); font-size: 12px;
+  }
+  .lab-meta-value { color: var(--carbon); font-weight: 600; word-break: break-all; }
+  .lab-address-label { font-size: 11px; color: var(--seal); margin-bottom: 6px; }
+  .lab-address {
+    font-size: 13px; line-height: 20px; color: var(--carbon); word-break: break-all;
+  }
+  .copy-btn {
+    margin-top: 10px; width: 100%; height: 36px; border-radius: 10px;
+    border: 1px solid #dce4fb; background: #fff; color: var(--pool-500);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .copy-btn:active { background: var(--pool-050); }
+  .copy-toast {
+    position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%);
+    background: rgba(25,25,25,.86); color: #fff; font-size: 13px;
+    padding: 10px 14px; border-radius: 10px; opacity: 0; pointer-events: none;
+    transition: opacity .2s ease; z-index: 20;
+  }
+  .copy-toast.show { opacity: 1; }
+  .content { overflow-y: auto; }
+  .actions {
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .action {
+    width: 100%; height: 46px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    font-size: 15px; font-weight: 600;
+  }
+  .action.primary { background: var(--pool-500); color: #fff; box-shadow: 0 6px 16px rgba(65,105,225,.28); }
+  .action.secondary { background: #fff; color: var(--pool-500); border: 1px solid #dce4fb; }
+</style>
+<link rel="stylesheet" href="assets/phone-shell.css" />
+<link rel="stylesheet" href="assets/lang-toggle.css" />
+<link rel="stylesheet" href="assets/i18n-en.css" />
+<script>window.PAGE_TITLE_KEY = 'title.orderSuccess';</script>
+<script src="assets/i18n/zh.js"></script>
+<script src="assets/i18n/en.js"></script>
+<script src="assets/i18n-runtime.js"></script>
+</head>
+<body>
+  <div class="phone">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="statusbar">
+      <div class="time">9:41</div>
+      <div class="indicators">
+        <img src="assets/signal.svg" alt="" width="18" height="12" />
+        <img src="assets/wifi.svg" alt="" width="17" height="12" />
+        <img src="assets/battery.svg" alt="" width="27" height="13" />
+      </div>
+    </div>
+
+    <div class="navbar">
+      <a href="order-chat.html"><img class="back" src="assets/vector52.svg" alt="返回" data-i18n-alt="common.back" /></a>
+      <div class="title" data-i18n="orderSuccess.title">下单成功</div>
+      <div class="nav-capsule">
+        <img src="assets/share.svg" alt="" />
+        <div class="divider"></div>
+        <img src="assets/home.svg" alt="" />
+      </div>
+    </div>
+
+    <main class="content">
+      <section class="success-card">
+        <div class="success-icon">✓</div>
+        <div class="success-title" data-i18n="orderSuccess.heading">下单成功</div>
+        <div class="success-desc" data-i18n="orderSuccess.desc">检测订单已提交，QIMA 团队将继续处理样品收集、测试安排和报告生成。</div>
+        <div class="summary">
+          <div class="summary-row"><span data-i18n="common.orderRef">订单参考编号</span><span id="orderRefId">T-25617004</span></div>
+          <div class="summary-row"><span data-i18n="orderSuccess.serviceType">服务类型</span><span data-i18n="common.serviceLabTest">实验室检测</span></div>
+          <div class="summary-row"><span data-i18n="orderSuccess.orderStatus">订单状态</span><span data-i18n="status.pendingVerification">待验证</span></div>
+        </div>
+
+        <div class="card-block-divider"></div>
+
+        <div class="reminder-banner">
+          <div class="reminder-icon">!</div>
+          <div class="reminder-text">
+            <strong data-i18n="orderSuccess.reminderTitle">温馨提示：</strong><span data-i18n="orderSuccess.reminderBody" data-i18n-html="true">寄送样品时，请将<strong>订单参考编号（T单号）</strong>写在样品包装袋上，以便我们快速匹配您的样品。</span>
+          </div>
+        </div>
+
+        <div class="card-block-divider"></div>
+
+        <div class="lab-section">
+          <div class="lab-section-title" data-i18n="lab.sendToLab">寄送实验室</div>
+          <div class="lab-tabs" id="labTabs"></div>
+          <div class="lab-address-box">
+            <div class="lab-meta">
+              <div class="lab-meta-row">
+                <span class="lab-meta-label" data-i18n="lab.recipientLabel">收件人</span>
+                <span class="lab-meta-value" id="labRecipientText">样品组</span>
+              </div>
+              <div class="lab-meta-row">
+                <span class="lab-meta-label" data-i18n="lab.phoneLabel">电话</span>
+                <span class="lab-meta-value" id="labPhoneText">+86 571 8999 7158</span>
+              </div>
+            </div>
+            <div class="lab-address-label" data-i18n="lab.addressLabel">实验室地址</div>
+            <div class="lab-address" id="labAddressText"></div>
+            <button class="copy-btn" type="button" onclick="copyLabAddress()" data-i18n="common.copyAddress">复制地址</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="actions">
+        <a class="action primary" id="viewOrderLink" href="order-detail.html?order=T-25617004" data-i18n="orderSuccess.viewOrders">查看订单管理</a>
+        <a class="action secondary" href="index.html" data-i18n="orderSuccess.backHome">返回首页</a>
+      </div>
+    </main>
+    <div class="copy-toast" id="copyToast" data-i18n="common.addressCopied">地址已复制</div>
+  </div>
+  <script>
+    let activeLab = 'hangzhou';
+
+    const DEFAULT_ORDER_ID = 'T-25617004';
+
+    function getOrderId() {
+      const param = new URLSearchParams(window.location.search).get('order');
+      return param || DEFAULT_ORDER_ID;
+    }
+
+    function applyOrderContext() {
+      const orderId = getOrderId();
+      const refEl = document.getElementById('orderRefId');
+      if (refEl) refEl.textContent = orderId;
+      const link = document.getElementById('viewOrderLink');
+      if (link) link.href = 'order-detail.html?order=' + encodeURIComponent(orderId);
+    }
+
+    function getInitialLabKey() {
+      const param = new URLSearchParams(window.location.search).get('lab');
+      return ['hangzhou', 'shanghai', 'dongguan'].includes(param) ? param : 'hangzhou';
+    }
+
+    function renderLabTabs() {
+      const tabs = document.getElementById('labTabs');
+      if (!tabs || !window.I18n) return;
+      const labs = I18n.getTestingLabs();
+      tabs.innerHTML = labs.map(function (lab) {
+        const active = lab.key === activeLab ? ' active' : '';
+        return '<button class="lab-tab' + active + '" type="button" data-lab="' + lab.key + '" onclick="selectLab(\'' + lab.key + '\', this)">' + lab.label + '</button>';
+      }).join('');
+    }
+
+    function updateLabAddress() {
+      if (!window.I18n) return;
+      const lab = I18n.getTestingLabs().find(function (item) { return item.key === activeLab; });
+      const addressEl = document.getElementById('labAddressText');
+      const recipientEl = document.getElementById('labRecipientText');
+      const phoneEl = document.getElementById('labPhoneText');
+      if (addressEl) addressEl.textContent = lab ? lab.address : '';
+      if (recipientEl) recipientEl.textContent = lab ? lab.recipient : '';
+      if (phoneEl) phoneEl.textContent = lab ? lab.phone : '';
+    }
+
+    function selectLab(key, btn) {
+      activeLab = key;
+      document.querySelectorAll('.lab-tab').forEach(function (tab) { tab.classList.remove('active'); });
+      if (btn) btn.classList.add('active');
+      updateLabAddress();
+    }
+
+    function showCopyToast(messageKey) {
+      const toast = document.getElementById('copyToast');
+      toast.textContent = typeof t === 'function' ? t(messageKey) : messageKey;
+      toast.classList.add('show');
+      clearTimeout(showCopyToast.timer);
+      showCopyToast.timer = setTimeout(function () { toast.classList.remove('show'); }, 1600);
+    }
+
+    function getLabCopyText(lab) {
+      if (!lab) return '';
+      const recipientLabel = typeof t === 'function' ? t('lab.recipientLabel') : '收件人';
+      const phoneLabel = typeof t === 'function' ? t('lab.phoneLabel') : '电话';
+      const addressLabel = typeof t === 'function' ? t('lab.addressLabel') : '实验室地址';
+      return recipientLabel + '：' + lab.recipient + '\n' +
+        phoneLabel + '：' + lab.phone + '\n' +
+        addressLabel + '：' + lab.address;
+    }
+
+    function copyLabAddress() {
+      const lab = window.I18n
+        ? I18n.getTestingLabs().find(function (item) { return item.key === activeLab; })
+        : null;
+      const text = getLabCopyText(lab);
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          showCopyToast('common.addressCopied');
+        }).catch(fallbackCopy);
+        return;
+      }
+      fallbackCopy();
+      function fallbackCopy() {
+        const input = document.createElement('textarea');
+        input.value = text;
+        input.setAttribute('readonly', '');
+        input.style.position = 'absolute';
+        input.style.left = '-9999px';
+        document.body.appendChild(input);
+        input.select();
+        try {
+          document.execCommand('copy');
+          showCopyToast('common.addressCopied');
+        } catch (err) {
+          showCopyToast('common.copyFailed');
+        }
+        document.body.removeChild(input);
+      }
+    }
+
+    window.onLangApplied = function () {
+      renderLabTabs();
+      updateLabAddress();
+      applyOrderContext();
+    };
+
+    applyOrderContext();
+    activeLab = getInitialLabKey();
+    renderLabTabs();
+    updateLabAddress();
+
+    if (window.I18n) {
+      I18n.onLangApplied = window.onLangApplied;
+      I18n.initLangToggle();
+    }
+  </script>
+</body>
+</html>
