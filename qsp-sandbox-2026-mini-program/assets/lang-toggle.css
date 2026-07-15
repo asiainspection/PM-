@@ -1,9 +1,11 @@
+/* Temporarily hidden — restore by removing display:none / LANG_TOGGLE_HIDDEN */
 .lang-switcher {
+  display: none !important;
   position: fixed;
   left: 20px;
   bottom: 20px;
   z-index: 10000;
-  display: inline-flex;
+  /* was: display: inline-flex; */
   align-items: center;
   padding: 3px;
   border-radius: 12px;

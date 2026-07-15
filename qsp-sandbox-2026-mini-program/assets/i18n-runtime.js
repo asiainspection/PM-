@@ -240,6 +240,9 @@
     document.head.appendChild(link);
   }
 
+  /** Set false to show the 中文 / EN switcher again. */
+  var LANG_TOGGLE_HIDDEN = true;
+
   function initLangToggle(options) {
     options = options || {};
     if (options.pageTitleKey) {
@@ -254,6 +257,12 @@
 
     var existing = document.getElementById('qima-lang-switcher');
     if (existing) existing.remove();
+
+    // Still apply i18n copy; only the floating switcher is hidden for now.
+    if (LANG_TOGGLE_HIDDEN) {
+      applyPageI18n();
+      return;
+    }
 
     var current = getLang();
     var wrap = document.createElement('div');
