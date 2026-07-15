@@ -229,7 +229,7 @@ function detectProgramCategory(
     return "toys";
   }
   if (
-    /\b(?:hardware|grocery|kitchen\s*gadget|杂货|五金|厨具|日用|餐刀|scissors)\b/i
+    /\b(?:hardware|grocery|kitchen\s*gadget|screw|bolt|nut|washer|fastener|杂货|五金|厨具|日用|餐刀|scissors|螺丝|螺钉|螺栓|螺母|垫片|紧固件)\b/i
       .test(blob) ||
     (/temu/i.test(blob) && /硬件|杂货/.test(t))
   ) {

@@ -178,7 +178,8 @@
       return 'toys';
     }
     if (
-      /\b(?:hardware|grocery|kitchen\s*gadget|杂货|五金|厨具|日用|餐刀|scissors)\b/i.test(blob) ||
+      /\b(?:hardware|grocery|kitchen\s*gadget|screw|bolt|nut|washer|fastener|scissors)\b/i.test(blob) ||
+      /杂货|五金|厨具|日用|餐刀|螺丝|螺钉|螺栓|螺母|垫片|紧固件/.test(blob) ||
       (/temu/i.test(blob) && /硬件|杂货/.test(t))
     ) {
       return 'hardware';

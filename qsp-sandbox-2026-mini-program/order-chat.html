@@ -1505,6 +1505,70 @@
       return '';
     }
 
+    /** Match Program from product/context and write into manualAnswers (no fake editor fallbacks). */
+    function ensureProgramAnswerFromContext(){
+      const prog = manualAnswers['Program'] || '';
+      const resolvedProg = resolveProgramOption(prog);
+      if(resolvedProg){
+        manualAnswers['Program'] = resolvedProg;
+        return resolvedProg;
+      }
+      if(prog === '__PROGRAM_TEMU_HW__'){
+        manualAnswers['Program'] = resolveProgramOption('TEMU Hardware- Seller Pay（商家付款，杂货产品）') || '';
+        return manualAnswers['Program'];
+      }
+      if(prog === '__PROGRAM_TEMU_TOY__'){
+        manualAnswers['Program'] = resolveProgramOption('TEMU Toys - Seller Pay（商家付款，玩具产品）') || '';
+        return manualAnswers['Program'];
+      }
+      if(prog === '__PROGRAM_AMAZON__'){
+        manualAnswers['Program'] = '';
+        return '';
+      }
+      if(prog && !resolvedProg){
+        // Invalid leftover string — clear before rematch
+        manualAnswers['Program'] = '';
+      }
+      if(!window.QimaLabelParse || typeof QimaLabelParse.matchProgramFromText !== 'function'){
+        return manualAnswers['Program'] || '';
+      }
+      const hint = [
+        prog,
+        manualAnswers['Product Name'] || '',
+        manualAnswers[FIELD_ELECTRIC_DESC] || '',
+        manualAnswers[FIELD_ELECTRIC] || '',
+        manualAnswers['Shipping Remark'] || ''
+      ].join('\n');
+      const matched = QimaLabelParse.matchProgramFromText(hint, {
+        productName: manualAnswers['Product Name'] || '',
+        electricYes: /带电|electric/i.test(manualAnswers[FIELD_ELECTRIC] || '')
+      });
+      if(matched){
+        manualAnswers['Program'] = matched;
+        return matched;
+      }
+      return manualAnswers['Program'] || '';
+    }
+
+    function syncExtractCardField(name, value){
+      const raw = String(value || '').trim();
+      document.querySelectorAll('.field[data-field="'+cssEscape(name)+'"]').forEach(function(el){
+        const fv = el.querySelector('.fv');
+        if(!fv) return;
+        const oldBadge = el.querySelector('.badge-ok, .badge-miss');
+        if(oldBadge) oldBadge.remove();
+        if(raw && isCountedFieldValue(raw)){
+          fv.textContent = raw;
+          fv.classList.remove('miss');
+          el.insertAdjacentHTML('beforeend', '<div class="badge-ok">✓</div>');
+        } else {
+          fv.textContent = t('orderChat.fieldPending');
+          fv.classList.add('miss');
+          el.insertAdjacentHTML('beforeend', '<div class="badge-miss">'+t('orderChat.fieldMissing')+'</div>');
+        }
+      });
+    }
+
     function getOriginOptions(){
       return [t('orderChat.originAland'), t('orderChat.originChina'), t('orderChat.originVietnam'), t('orderChat.originIndia')];
     }
@@ -2771,21 +2835,7 @@
       else if(raw === '__SAMPLE_COLLECT__') manualAnswers['Sample Collection Method'] = sampleMethodCollect();
       else if(raw === '__SAMPLE_RECEIVED__') manualAnswers['Sample Collection Method'] = sampleMethodReceived();
 
-      const prog = manualAnswers['Program'] || '';
-      const resolvedProg = resolveProgramOption(prog);
-      if(resolvedProg) manualAnswers['Program'] = resolvedProg;
-      else if(prog === '__PROGRAM_TEMU_HW__') manualAnswers['Program'] = resolveProgramOption('TEMU Hardware- Seller Pay（商家付款，杂货产品）') || '';
-      else if(prog === '__PROGRAM_TEMU_TOY__') manualAnswers['Program'] = resolveProgramOption('TEMU Toys - Seller Pay（商家付款，玩具产品）') || '';
-      else if(prog === '__PROGRAM_AMAZON__') manualAnswers['Program'] = '';
-      else if(prog && !resolvedProg && window.QimaLabelParse && typeof QimaLabelParse.matchProgramFromText === 'function'){
-        const matched = QimaLabelParse.matchProgramFromText(prog + '\n' + (manualAnswers['Product Name'] || ''), {
-          productName: manualAnswers['Product Name'] || '',
-          electricYes: /带电|electric/i.test(manualAnswers[FIELD_ELECTRIC] || '')
-        });
-        manualAnswers['Program'] = matched || '';
-      } else if(prog && !resolvedProg){
-        manualAnswers['Program'] = '';
-      }
+      ensureProgramAnswerFromContext();
       const origin = manualAnswers['Country of Origin'] || '';
       if(origin === '中国' || /china/i.test(origin)){
         const opts = getOriginOptions();
@@ -3148,6 +3198,8 @@
     }
     function openManualFormModal(opts){
       opts = opts || {};
+      const matchedProgram = ensureProgramAnswerFromContext();
+      if(matchedProgram) syncExtractCardField('Program', matchedProgram);
       document.getElementById('manualFormModal').classList.add('show');
       populateManualFormI18n();
       fillManualFormFromAnswers();
@@ -4279,13 +4331,13 @@
         {
           title: t('orderChat.basicInfo'),
           fields: [
-            { name:'Product Name', fallback: t('orderChat.productRobotToy') },
-            { name:'Program', fallback: t('orderChat.projectTemuHardwareRefund'), type:'select', options: getProgramOptions() },
-            { name:'Country of Origin', fallback: t('orderChat.originAland'), type:'select', options: getOriginOptions() },
-            { name:'Countries/Regions of Distribution', fallback: t('orderChat.distributionPresetEn'), type:'multi-country' },
-            { name:'Item#/model#', fallback: 'RBT-2025-X9' },
-            { name:'Manufacturer', fallback: t('orderChat.manufacturerDemo') },
-            { name:'Manufacturer Address', fallback: t('orderChat.manufacturerAddrDemo') }
+            { name:'Product Name', fallback: '' },
+            { name:'Program', fallback: '', type:'select', options: [''].concat(getProgramOptions()) },
+            { name:'Country of Origin', fallback: '', type:'select', options: [''].concat(getOriginOptions()) },
+            { name:'Countries/Regions of Distribution', fallback: '', type:'multi-country' },
+            { name:'Item#/model#', fallback: '' },
+            { name:'Manufacturer', fallback: '' },
+            { name:'Manufacturer Address', fallback: '' }
           ]
         },
         {
@@ -4308,6 +4360,10 @@
 
     function openFieldEditor(btn){
       removeActionRow(btn);
+      // Auto-match Program from product context and echo into extract card before opening
+      const matchedProgram = ensureProgramAnswerFromContext();
+      if(matchedProgram) syncExtractCardField('Program', matchedProgram);
+      fillManualFormFromAnswers();
       const grid = document.getElementById('fieldEditorGrid');
       // Same section layout as #manualFormModal (fm-section-title + fm-row)
       grid.innerHTML = getEditableSections().map(function(section){
