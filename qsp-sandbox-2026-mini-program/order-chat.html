@@ -1365,10 +1365,13 @@
           <div class="fm-row">
             <div class="fm-label"><span data-i18n="index.manufacturer">制造商</span> <span class="req" data-i18n="common.required">*</span></div>
             <div class="fm-suggest" id="mf_manufacturerSuggest">
-              <input class="fm-input" id="mf_manufacturer" type="text" placeholder="搜索或选择制造商" data-i18n-placeholder="index.manufacturerPlaceholder" autocomplete="off" oninput="onManufacturerInput()" onfocus="renderManufacturerSuggestions()" onkeydown="onManufacturerKeydown(event)" onblur="onManufacturerBlur()">
+              <input class="fm-input" id="mf_manufacturer" type="text" placeholder="搜索或直接输入制造商（可自由修改）" data-i18n-placeholder="index.manufacturerPlaceholder" autocomplete="off" oninput="onManufacturerInput()" onfocus="renderManufacturerSuggestions()" onkeydown="onManufacturerKeydown(event)" onblur="onManufacturerBlur()">
               <div class="fm-suggest-results" id="mf_manufacturerResults"></div>
             </div>
-            <div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;"><span data-i18n="index.manufacturerSuggestHint">选择推荐工厂后，将自动填写对应地址</span></div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px;">
+              <div style="font-size:11px; color:#b8860b; line-height:16px; flex:1;"><span data-i18n="index.manufacturerSuggestHint">可直接改字或清空；只有点选推荐工厂时才自动带出地址。当前为本地推荐库，暂不支持联网搜企业。</span></div>
+              <button type="button" class="edit-add-btn" style="flex-shrink:0; height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField('mf')" data-i18n="index.manufacturerClear">清空</button>
+            </div>
           </div>
 
           <div class="fm-row">
@@ -2964,16 +2967,16 @@
       setVal('mf_sku', 'Item#/model#');
       setVal('mf_manufacturer', 'Manufacturer');
       setVal('mf_manufacturerAddr', 'Manufacturer Address');
-      // If manufacturer is a known recommendation / alias, expand name + fill address
+      // Expand only on exact legal name / exact alias when opening the form
       (function(){
         const mfrEl = document.getElementById('mf_manufacturer');
         const addrEl = document.getElementById('mf_manufacturerAddr');
-        const hit = findManufacturerOption(mfrEl ? mfrEl.value : manualAnswers['Manufacturer']);
-        if(hit){
-          if(mfrEl) mfrEl.value = hit.name;
-          if(addrEl && (!addrEl.value || !String(addrEl.value).trim())) addrEl.value = hit.address;
-          manualAnswers['Manufacturer'] = hit.name;
-          if(!manualAnswers['Manufacturer Address']) manualAnswers['Manufacturer Address'] = hit.address;
+        const exact = findManufacturerExact(mfrEl ? mfrEl.value : manualAnswers['Manufacturer']);
+        if(exact){
+          if(mfrEl) mfrEl.value = exact.name;
+          if(addrEl && (!addrEl.value || !String(addrEl.value).trim())) addrEl.value = exact.address;
+          manualAnswers['Manufacturer'] = exact.name;
+          if(!manualAnswers['Manufacturer Address']) manualAnswers['Manufacturer Address'] = exact.address;
         }
       })();
       setVal('mf_trackingNo', 'Tracking Number');
@@ -3994,21 +3997,29 @@
       ];
     }
 
-    function findManufacturerOption(query){
+    /** Exact legal name or exact alias only — never fuzzy (fuzzy causes delete→snap-back). */
+    function findManufacturerExact(query){
       const q = String(query || '').trim().toLowerCase();
       if(!q) return null;
       const list = getManufacturerOptions();
       let hit = list.find(function(item){ return item.name.toLowerCase() === q; });
       if(hit) return hit;
-      hit = list.find(function(item){
+      return list.find(function(item){
         return (item.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
-      });
-      if(hit) return hit;
-      hit = list.find(function(item){
+      }) || null;
+    }
+
+    /** Fuzzy match for opening known values / suggestion ranking — do not use to rewrite input. */
+    function findManufacturerOption(query){
+      const exact = findManufacturerExact(query);
+      if(exact) return exact;
+      const q = String(query || '').trim().toLowerCase();
+      if(!q || q.length < 2) return null;
+      const list = getManufacturerOptions();
+      return list.find(function(item){
         if(item.name.toLowerCase().indexOf(q) !== -1) return true;
         return (item.aliases || []).some(function(a){ return String(a).toLowerCase().indexOf(q) !== -1; });
-      });
-      return hit || null;
+      }) || null;
     }
 
     function filterManufacturerOptions(query){
@@ -4061,58 +4072,69 @@
 
     function pickManufacturerOption(btn){
       const name = (btn && btn.dataset.name) ? btn.dataset.name.trim() : '';
-      const hit = findManufacturerOption(name) || getManufacturerOptions().find(function(item){ return item.name === name; });
+      const hit = findManufacturerExact(name) || getManufacturerOptions().find(function(item){ return item.name === name; });
       if(!hit) return;
       applyManufacturerSelection(hit.name, hit.address);
     }
 
-    function onManufacturerInput(){
-      renderManufacturerSuggestions();
-      const input = document.getElementById('mf_manufacturer');
-      const hit = findManufacturerOption(input ? input.value : '');
-      // Auto-fill address only on exact / alias match while typing short aliases like 深圳工厂
-      if(hit){
-        const q = String(input.value || '').trim().toLowerCase();
-        const exact = hit.name.toLowerCase() === q ||
-          (hit.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
-        if(exact){
-          const addrEl = document.getElementById('mf_manufacturerAddr');
-          if(addrEl) addrEl.value = hit.address;
-          manualAnswers['Manufacturer'] = hit.name;
-          manualAnswers['Manufacturer Address'] = hit.address;
-          if(input && hit.name.toLowerCase() !== q){
-            // Expand short alias to legal name when exact alias matched
-            input.value = hit.name;
-          }
-        }
+    function clearManufacturerField(scope){
+      if(scope === 'fe'){
+        const nameEl = document.getElementById('fe_manufacturer');
+        const addrEl = document.getElementById('fe_manufacturerAddr');
+        if(nameEl) nameEl.value = '';
+        if(addrEl) addrEl.value = '';
+        clearFieldEditorManufacturerSuggestions();
+        if(nameEl) nameEl.focus();
+        return;
       }
+      const nameEl = document.getElementById('mf_manufacturer');
+      const addrEl = document.getElementById('mf_manufacturerAddr');
+      if(nameEl) nameEl.value = '';
+      if(addrEl) addrEl.value = '';
+      manualAnswers['Manufacturer'] = '';
+      manualAnswers['Manufacturer Address'] = '';
+      clearManufacturerSuggestions();
+      if(nameEl) nameEl.focus();
+    }
+
+    function onManufacturerInput(){
+      // Free typing only — never rewrite value while deleting/editing (alias snap-back bug)
+      renderManufacturerSuggestions();
     }
 
     function onManufacturerKeydown(e){
+      if(e.key === 'Escape'){
+        clearManufacturerSuggestions();
+        return;
+      }
       if(e.key !== 'Enter') return;
       e.preventDefault();
       const results = document.getElementById('mf_manufacturerResults');
       const first = results ? results.querySelector('.fm-suggest-option[data-name]') : null;
-      if(first){
+      // Only commit suggestion on Enter when dropdown is visible; else keep free text
+      if(first && results.classList.contains('show')){
         pickManufacturerOption(first);
         return;
       }
-      const input = document.getElementById('mf_manufacturer');
-      const hit = findManufacturerOption(input ? input.value : '');
-      if(hit) applyManufacturerSelection(hit.name, hit.address);
+      const exact = findManufacturerExact((document.getElementById('mf_manufacturer') || {}).value);
+      if(exact) applyManufacturerSelection(exact.name, exact.address);
     }
 
     function onManufacturerBlur(){
       setTimeout(function(){
-        const hit = findManufacturerOption((document.getElementById('mf_manufacturer') || {}).value);
-        if(hit){
-          const q = String((document.getElementById('mf_manufacturer') || {}).value || '').trim().toLowerCase();
-          const exactOrAlias = hit.name.toLowerCase() === q ||
-            (hit.aliases || []).some(function(a){ return String(a).toLowerCase().indexOf(q) !== -1; }) ||
-            hit.name.toLowerCase().indexOf(q) !== -1;
-          if(exactOrAlias && q){
-            const addrEl = document.getElementById('mf_manufacturerAddr');
-            if(addrEl && !String(addrEl.value || '').trim()) addrEl.value = hit.address;
+        // Expand short alias → legal name only when the field exactly equals an alias
+        const input = document.getElementById('mf_manufacturer');
+        const exact = findManufacturerExact(input ? input.value : '');
+        if(exact && input){
+          const q = String(input.value || '').trim().toLowerCase();
+          if(exact.name.toLowerCase() !== q){
+            input.value = exact.name;
+          }
+          const addrEl = document.getElementById('mf_manufacturerAddr');
+          if(addrEl && !String(addrEl.value || '').trim()) addrEl.value = exact.address;
+          manualAnswers['Manufacturer'] = exact.name;
+          if(exact.address && !manualAnswers['Manufacturer Address']){
+            manualAnswers['Manufacturer Address'] = exact.address;
           }
         }
         clearManufacturerSuggestions();
@@ -4568,16 +4590,20 @@
 
     function renderEditManufacturerField(field){
       const current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
-      const hit = findManufacturerOption(current);
-      const name = hit ? hit.name : current;
-      const addr = (getFieldValue('Manufacturer Address') || manualAnswers['Manufacturer Address'] || (hit && hit.address) || '');
+      // Keep OCR/user text as-is while editing; only expand when exact catalog hit
+      const exact = findManufacturerExact(current);
+      const name = exact ? exact.name : current;
+      const addr = (getFieldValue('Manufacturer Address') || manualAnswers['Manufacturer Address'] || (exact && exact.address) || '');
       return '<div class="fm-row">'+
         '<div class="fm-label"><span>'+escapeHtml(fieldLabel(field.name))+'</span> <span class="req">*</span></div>'+
         '<div class="fm-suggest" id="fe_manufacturerSuggest">'+
           '<input class="fm-input" id="fe_manufacturer" type="text" data-field-name="Manufacturer" value="'+escapeHtml(name)+'" placeholder="'+t('index.manufacturerPlaceholder')+'" autocomplete="off" oninput="onFieldEditorManufacturerInput()" onfocus="renderFieldEditorManufacturerSuggestions()" onkeydown="onFieldEditorManufacturerKeydown(event)" onblur="onFieldEditorManufacturerBlur()">'+
           '<div class="fm-suggest-results" id="fe_manufacturerResults"></div>'+
         '</div>'+
-        '<div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
+        '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px;">'+
+          '<div style="font-size:11px; color:#b8860b; line-height:16px; flex:1;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
+          '<button type="button" class="edit-add-btn" style="flex-shrink:0; height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField(\'fe\')">'+escapeHtml(t('index.manufacturerClear'))+'</button>'+
+        '</div>'+
       '</div>'+
       '<div class="fm-row">'+
         '<div class="fm-label"><span>'+escapeHtml(fieldLabel('Manufacturer Address'))+'</span> <span class="req">*</span></div>'+
@@ -4614,7 +4640,7 @@
 
     function pickFieldEditorManufacturer(btn){
       const name = (btn && btn.dataset.name) ? btn.dataset.name.trim() : '';
-      const hit = findManufacturerOption(name);
+      const hit = findManufacturerExact(name) || getManufacturerOptions().find(function(item){ return item.name === name; });
       if(!hit) return;
       const nameEl = document.getElementById('fe_manufacturer');
       const addrEl = document.getElementById('fe_manufacturerAddr');
@@ -4624,31 +4650,39 @@
     }
 
     function onFieldEditorManufacturerInput(){
+      // Free edit — never rewrite while typing/deleting
       renderFieldEditorManufacturerSuggestions();
-      const input = document.getElementById('fe_manufacturer');
-      const hit = findManufacturerOption(input ? input.value : '');
-      if(!hit || !input) return;
-      const q = String(input.value || '').trim().toLowerCase();
-      const exact = hit.name.toLowerCase() === q ||
-        (hit.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
-      if(exact){
-        input.value = hit.name;
-        const addrEl = document.getElementById('fe_manufacturerAddr');
-        if(addrEl) addrEl.value = hit.address;
-      }
     }
 
     function onFieldEditorManufacturerKeydown(e){
+      if(e.key === 'Escape'){
+        clearFieldEditorManufacturerSuggestions();
+        return;
+      }
       if(e.key !== 'Enter') return;
       e.preventDefault();
-      const first = document.querySelector('#fe_manufacturerResults .fm-suggest-option[data-name]');
-      if(first){ pickFieldEditorManufacturer(first); return; }
-      const hit = findManufacturerOption((document.getElementById('fe_manufacturer') || {}).value);
-      if(hit) pickFieldEditorManufacturer({ dataset: { name: hit.name } });
+      const results = document.getElementById('fe_manufacturerResults');
+      const first = results ? results.querySelector('.fm-suggest-option[data-name]') : null;
+      if(first && results.classList.contains('show')){
+        pickFieldEditorManufacturer(first);
+        return;
+      }
+      const exact = findManufacturerExact((document.getElementById('fe_manufacturer') || {}).value);
+      if(exact) pickFieldEditorManufacturer({ dataset: { name: exact.name } });
     }
 
     function onFieldEditorManufacturerBlur(){
-      setTimeout(clearFieldEditorManufacturerSuggestions, 160);
+      setTimeout(function(){
+        const input = document.getElementById('fe_manufacturer');
+        const exact = findManufacturerExact(input ? input.value : '');
+        if(exact && input){
+          const q = String(input.value || '').trim().toLowerCase();
+          if(exact.name.toLowerCase() !== q) input.value = exact.name;
+          const addrEl = document.getElementById('fe_manufacturerAddr');
+          if(addrEl && !String(addrEl.value || '').trim()) addrEl.value = exact.address;
+        }
+        clearFieldEditorManufacturerSuggestions();
+      }, 160);
     }
 
     function renderEditField(field){

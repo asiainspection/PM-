@@ -1524,16 +1524,23 @@
       ];
     }
 
-    function findManufacturerOption(query) {
+    function findManufacturerExact(query) {
       const q = String(query || '').trim().toLowerCase();
       if (!q) return null;
       const list = getManufacturerOptions();
       let hit = list.find(function (item) { return item.name.toLowerCase() === q; });
       if (hit) return hit;
-      hit = list.find(function (item) {
+      return list.find(function (item) {
         return (item.aliases || []).some(function (a) { return String(a).toLowerCase() === q; });
-      });
-      if (hit) return hit;
+      }) || null;
+    }
+
+    function findManufacturerOption(query) {
+      const exact = findManufacturerExact(query);
+      if (exact) return exact;
+      const q = String(query || '').trim().toLowerCase();
+      if (!q || q.length < 2) return null;
+      const list = getManufacturerOptions();
       return list.find(function (item) {
         if (item.name.toLowerCase().indexOf(q) !== -1) return true;
         return (item.aliases || []).some(function (a) { return String(a).toLowerCase().indexOf(q) !== -1; });
@@ -1566,7 +1573,7 @@
     }
 
     function pickIndexManufacturer(name) {
-      const hit = findManufacturerOption(name) || getManufacturerOptions().find(function (item) { return item.name === name; });
+      const hit = findManufacturerExact(name) || getManufacturerOptions().find(function (item) { return item.name === name; });
       if (!hit) return;
       document.getElementById('manufacturerInput').value = hit.name;
       document.getElementById('manufacturerAddressInput').value = hit.address;
@@ -1575,28 +1582,19 @@
 
     function onIndexManufacturerInput() {
       renderIndexManufacturerSuggestions();
-      const input = document.getElementById('manufacturerInput');
-      const hit = findManufacturerOption(input ? input.value : '');
-      if (!hit || !input) return;
-      const q = String(input.value || '').trim().toLowerCase();
-      const exact = hit.name.toLowerCase() === q ||
-        (hit.aliases || []).some(function (a) { return String(a).toLowerCase() === q; });
-      if (exact) {
-        input.value = hit.name;
-        document.getElementById('manufacturerAddressInput').value = hit.address;
-      }
     }
 
     function onIndexManufacturerKeydown(event) {
       if (event.key !== 'Enter') return;
       event.preventDefault();
-      const first = document.querySelector('#manufacturerResults .country-option[onmousedown]');
-      if (first) {
+      const results = document.getElementById('manufacturerResults');
+      const first = results ? results.querySelector('.country-option[onmousedown]') : null;
+      if (first && results.classList.contains('show')) {
         first.dispatchEvent(new MouseEvent('mousedown'));
         return;
       }
-      const hit = findManufacturerOption((document.getElementById('manufacturerInput') || {}).value);
-      if (hit) pickIndexManufacturer(hit.name);
+      const exact = findManufacturerExact((document.getElementById('manufacturerInput') || {}).value);
+      if (exact) pickIndexManufacturer(exact.name);
     }
 
     document.addEventListener('click', function (event) {
