@@ -16,5 +16,6 @@ window.SUPABASE_CONFIG = {
   asrEndpoint: 'https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/transcribe-voice',
   parseEndpoint: 'https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/parse-order',
   waybillEndpoint: 'https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/parse-waybill',
+  manufacturerSearchEndpoint: 'https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/search-manufacturer',
   parseEndpointFallback: ''
 };

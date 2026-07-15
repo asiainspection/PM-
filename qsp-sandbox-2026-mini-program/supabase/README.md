@@ -102,6 +102,7 @@ Frontend calls **Supabase Edge Functions only** (no Vercel):
 | `parse-order` | Multimodal OCR / label / **product-link page fetch** + field extract (NVIDIA vision + LLM) |
 | `parse-waybill` | Fast shipping-label OCR (single short vision call → carrier + tracking) |
 | `transcribe-voice` | Chinese ASR proxy (Whisper via upstream if configured) |
+| `search-manufacturer` | Web lookup for manufacturer legal name + address (public web snippets + NVIDIA LLM) |
 
 ```bash
 export SUPABASE_ACCESS_TOKEN=sbp_xxx   # https://supabase.com/dashboard/account/tokens
@@ -112,6 +113,7 @@ npx supabase secrets set NVIDIA_API_KEY=nvapi-xxx --project-ref dewcjtkqykkclxwc
 npx supabase functions deploy parse-order --project-ref dewcjtkqykkclxwcmusg
 npx supabase functions deploy parse-waybill --project-ref dewcjtkqykkclxwcmusg
 npx supabase functions deploy transcribe-voice --project-ref dewcjtkqykkclxwcmusg
+npx supabase functions deploy search-manufacturer --project-ref dewcjtkqykkclxwcmusg
 ```
 
 Endpoints:
@@ -119,6 +121,7 @@ Endpoints:
 - `https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/parse-order`
 - `https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/parse-waybill`
 - `https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/transcribe-voice`
+- `https://dewcjtkqykkclxwcmusg.supabase.co/functions/v1/search-manufacturer`
 
-Frontend: `SUPABASE_CONFIG.parseEndpoint` / `waybillEndpoint` / `asrEndpoint` in `assets/supabase-config.js`.
+Frontend: `SUPABASE_CONFIG.parseEndpoint` / `waybillEndpoint` / `asrEndpoint` / `manufacturerSearchEndpoint` in `assets/supabase-config.js`.
 Local `assets/label-parse.js` is fallback / race partner when the edge API is slow or unavailable.

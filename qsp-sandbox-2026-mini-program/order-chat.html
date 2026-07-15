@@ -1368,9 +1368,12 @@
               <input class="fm-input" id="mf_manufacturer" type="text" placeholder="搜索或直接输入制造商（可自由修改）" data-i18n-placeholder="index.manufacturerPlaceholder" autocomplete="off" oninput="onManufacturerInput()" onfocus="renderManufacturerSuggestions()" onkeydown="onManufacturerKeydown(event)" onblur="onManufacturerBlur()">
               <div class="fm-suggest-results" id="mf_manufacturerResults"></div>
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px;">
-              <div style="font-size:11px; color:#b8860b; line-height:16px; flex:1;"><span data-i18n="index.manufacturerSuggestHint">可直接改字或清空；只有点选推荐工厂时才自动带出地址。当前为本地推荐库，暂不支持联网搜企业。</span></div>
-              <button type="button" class="edit-add-btn" style="flex-shrink:0; height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField('mf')" data-i18n="index.manufacturerClear">清空</button>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; flex-wrap:wrap;">
+              <div style="font-size:11px; color:#b8860b; line-height:16px; flex:1; min-width:140px;"><span data-i18n="index.manufacturerSuggestHint">可直接改字、点选推荐，或点「联网搜索」。选中结果后会自动带出地址。</span></div>
+              <div style="display:flex; gap:6px; flex-shrink:0;">
+                <button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="searchManufacturerOnline('mf')" data-i18n="index.manufacturerWebSearch">联网搜索</button>
+                <button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField('mf')" data-i18n="index.manufacturerClear">清空</button>
+              </div>
             </div>
           </div>
 
@@ -4097,6 +4100,100 @@
       if(nameEl) nameEl.focus();
     }
 
+    function manufacturerInputEls(scope){
+      if(scope === 'fe'){
+        return {
+          input: document.getElementById('fe_manufacturer'),
+          addr: document.getElementById('fe_manufacturerAddr'),
+          results: document.getElementById('fe_manufacturerResults'),
+          pick: pickFieldEditorManufacturer
+        };
+      }
+      return {
+        input: document.getElementById('mf_manufacturer'),
+        addr: document.getElementById('mf_manufacturerAddr'),
+        results: document.getElementById('mf_manufacturerResults'),
+        pick: pickManufacturerOption
+      };
+    }
+
+    function renderManufacturerWebResults(scope, hits, statusText){
+      const els = manufacturerInputEls(scope);
+      if(!els.results) return;
+      if(statusText){
+        els.results.innerHTML = '<div class="fm-suggest-option muted">'+escapeHtml(statusText)+'</div>';
+        els.results.classList.add('show');
+        return;
+      }
+      const list = Array.isArray(hits) ? hits : [];
+      if(!list.length){
+        els.results.innerHTML = '<div class="fm-suggest-option muted">'+escapeHtml(t('index.manufacturerSearchEmpty'))+'</div>';
+        els.results.classList.add('show');
+        return;
+      }
+      const pickFn = scope === 'fe' ? 'pickManufacturerOnlineResult(\'fe\', this)' : 'pickManufacturerOnlineResult(\'mf\', this)';
+      els.results.innerHTML = list.map(function(item){
+        const badge = item.source === 'web'
+          ? t('index.manufacturerSourceWeb')
+          : t('index.manufacturerSourceLocal');
+        return '<button class="fm-suggest-option" type="button" data-name="'+escapeHtml(item.name || '')+'" data-address="'+escapeHtml(item.address || '')+'" onmousedown="'+pickFn+'">'+
+          '<span class="fm-suggest-name">'+escapeHtml(item.name || '')+
+            ' <span style="font-size:10px;font-weight:500;color:var(--pool-500);margin-left:4px;">'+escapeHtml(badge)+'</span>'+
+          '</span>'+
+          '<span class="fm-suggest-addr">'+escapeHtml(item.address || '—')+'</span>'+
+        '</button>';
+      }).join('');
+      els.results.classList.add('show');
+    }
+
+    function pickManufacturerOnlineResult(scope, btn){
+      const name = (btn && btn.dataset.name) ? btn.dataset.name.trim() : '';
+      const address = (btn && btn.dataset.address) ? btn.dataset.address.trim() : '';
+      if(!name) return;
+      if(scope === 'fe'){
+        const nameEl = document.getElementById('fe_manufacturer');
+        const addrEl = document.getElementById('fe_manufacturerAddr');
+        if(nameEl) nameEl.value = name;
+        if(addrEl && address) addrEl.value = address;
+        clearFieldEditorManufacturerSuggestions();
+        return;
+      }
+      applyManufacturerSelection(name, address || '');
+    }
+
+    let manufacturerSearchBusy = false;
+    function searchManufacturerOnline(scope){
+      const els = manufacturerInputEls(scope || 'mf');
+      const q = String((els.input && els.input.value) || '').trim();
+      if(q.length < 2){
+        renderManufacturerWebResults(scope, [], t('index.manufacturerSearchNeedQuery'));
+        return;
+      }
+      if(manufacturerSearchBusy) return;
+      manufacturerSearchBusy = true;
+      renderManufacturerWebResults(scope, null, t('index.manufacturerSearching'));
+      const api = window.QimaSupabase;
+      const remote = (api && typeof api.searchManufacturer === 'function')
+        ? api.searchManufacturer(q)
+        : Promise.reject(Object.assign(new Error('missing_client'), { code: 'missing_client' }));
+      remote.then(function(data){
+        renderManufacturerWebResults(scope, (data && data.results) || [], '');
+      }).catch(function(err){
+        console.warn('manufacturer web search failed', err);
+        // Fall back to local catalog filter so the button still does something useful
+        const local = filterManufacturerOptions(q).map(function(item){
+          return { name: item.name, address: item.address, source: 'catalog' };
+        });
+        if(local.length){
+          renderManufacturerWebResults(scope, local, '');
+        } else {
+          renderManufacturerWebResults(scope, [], t('index.manufacturerSearchFailed'));
+        }
+      }).finally(function(){
+        manufacturerSearchBusy = false;
+      });
+    }
+
     function onManufacturerInput(){
       // Free typing only — never rewrite value while deleting/editing (alias snap-back bug)
       renderManufacturerSuggestions();
@@ -4600,9 +4697,12 @@
           '<input class="fm-input" id="fe_manufacturer" type="text" data-field-name="Manufacturer" value="'+escapeHtml(name)+'" placeholder="'+t('index.manufacturerPlaceholder')+'" autocomplete="off" oninput="onFieldEditorManufacturerInput()" onfocus="renderFieldEditorManufacturerSuggestions()" onkeydown="onFieldEditorManufacturerKeydown(event)" onblur="onFieldEditorManufacturerBlur()">'+
           '<div class="fm-suggest-results" id="fe_manufacturerResults"></div>'+
         '</div>'+
-        '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px;">'+
-          '<div style="font-size:11px; color:#b8860b; line-height:16px; flex:1;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
-          '<button type="button" class="edit-add-btn" style="flex-shrink:0; height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField(\'fe\')">'+escapeHtml(t('index.manufacturerClear'))+'</button>'+
+        '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; flex-wrap:wrap;">'+
+          '<div style="font-size:11px; color:#b8860b; line-height:16px; flex:1; min-width:140px;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
+          '<div style="display:flex; gap:6px; flex-shrink:0;">'+
+            '<button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="searchManufacturerOnline(\'fe\')">'+escapeHtml(t('index.manufacturerWebSearch'))+'</button>'+
+            '<button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField(\'fe\')">'+escapeHtml(t('index.manufacturerClear'))+'</button>'+
+          '</div>'+
         '</div>'+
       '</div>'+
       '<div class="fm-row">'+

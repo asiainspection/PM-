@@ -324,6 +324,67 @@
       }).finally(function () {
         if (timer) clearTimeout(timer);
       });
+    },
+    /**
+     * Web search for manufacturer legal name + address candidates.
+     * @param {string} query
+     * @returns {Promise<{results: Array<{name:string,address:string,source:string}>, source:string}>}
+     */
+    searchManufacturer: function (query) {
+      var q = String(query || '').trim();
+      if (q.length < 2) {
+        return Promise.reject(Object.assign(new Error('empty_query'), { code: 'empty_query' }));
+      }
+      var endpoint = (cfg.manufacturerSearchEndpoint || '').replace(/\/$/, '');
+      if (!endpoint) {
+        if (!ready()) return Promise.reject(new Error('missing_config'));
+        endpoint = url.replace(/\/$/, '') + '/functions/v1/search-manufacturer';
+      }
+      var headers = { 'Content-Type': 'application/json' };
+      if (endpoint.indexOf('/functions/v1/') !== -1 && anonKey) {
+        headers.apikey = anonKey;
+        headers.Authorization = 'Bearer ' + anonKey;
+      }
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timer = null;
+      if (controller) {
+        timer = setTimeout(function () { controller.abort(); }, 35000);
+      }
+      return fetch(endpoint, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ query: q }),
+        signal: controller ? controller.signal : undefined
+      }).then(function (res) {
+        return res.text().then(function (text) {
+          var data = null;
+          try {
+            data = text ? JSON.parse(text) : null;
+          } catch (_) {
+            data = { error: 'bad_response', raw: text };
+          }
+          if (!res.ok) {
+            var err = new Error((data && data.error) || ('http_' + res.status));
+            err.code = (data && data.error) || ('http_' + res.status);
+            err.status = res.status;
+            throw err;
+          }
+          return {
+            results: (data && Array.isArray(data.results)) ? data.results : [],
+            source: (data && data.source) || 'web_ai',
+            query: (data && data.query) || q
+          };
+        });
+      }).catch(function (err) {
+        if (err && err.name === 'AbortError') {
+          var te = new Error('manufacturer_search_timeout');
+          te.code = 'manufacturer_search_timeout';
+          throw te;
+        }
+        throw err;
+      }).finally(function () {
+        if (timer) clearTimeout(timer);
+      });
     }
   };
 
