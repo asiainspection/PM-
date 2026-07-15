@@ -1134,6 +1134,25 @@
   .fm-input:focus, .fm-select:focus, .fm-textarea:focus {
     border-color: var(--pool-500); box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
+  .fm-suggest { position: relative; }
+  .fm-suggest-results {
+    display: none; margin-top: 6px; max-height: 180px; overflow-y: auto;
+    background: #fff; border: 1px solid #e1e5ee; border-radius: 10px;
+    box-shadow: 0 8px 18px rgba(25,25,25,.1); z-index: 5; position: relative;
+  }
+  .fm-suggest-results.show { display: block; }
+  .fm-suggest-option {
+    width: 100%; border: none; background: #fff; text-align: left;
+    padding: 10px 12px; cursor: pointer; border-bottom: .5px solid #f0f2f6;
+  }
+  .fm-suggest-option:last-child { border-bottom: none; }
+  .fm-suggest-option:hover, .fm-suggest-option.active { background: var(--pool-050); }
+  .fm-suggest-name { display: block; font-size: 13px; color: var(--carbon); font-weight: 600; }
+  .fm-suggest-addr { display: block; margin-top: 2px; font-size: 11px; color: var(--seal); line-height: 1.35; }
+  .fm-suggest-option.muted {
+    color: var(--seal); cursor: default; opacity: .8; font-size: 12px;
+  }
+  .fm-suggest-option.muted:hover { background: #fff; }
   .fm-radio-stack { display: flex; flex-direction: column; gap: 8px; }
   .fm-radio-line {
     display: flex; align-items: flex-start; gap: 7px;
@@ -1435,8 +1454,11 @@
 
           <div class="fm-row">
             <div class="fm-label"><span data-i18n="index.manufacturer">制造商</span> <span class="req" data-i18n="common.required">*</span></div>
-            <input class="fm-input" id="mf_manufacturer" type="text" placeholder="请输入制造商完整工厂全称" data-i18n-placeholder="index.manufacturerPlaceholder">
-            <div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;"><span data-i18n="index.manufacturerWarn">⚠ 请务必提供完整的工厂全称，不可简写</span></div>
+            <div class="fm-suggest" id="mf_manufacturerSuggest">
+              <input class="fm-input" id="mf_manufacturer" type="text" placeholder="搜索或选择制造商" data-i18n-placeholder="index.manufacturerPlaceholder" autocomplete="off" oninput="onManufacturerInput()" onfocus="renderManufacturerSuggestions()" onkeydown="onManufacturerKeydown(event)" onblur="onManufacturerBlur()">
+              <div class="fm-suggest-results" id="mf_manufacturerResults"></div>
+            </div>
+            <div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;"><span data-i18n="index.manufacturerSuggestHint">选择推荐工厂后，将自动填写对应地址</span></div>
           </div>
 
           <div class="fm-row">
@@ -2974,6 +2996,18 @@
       setVal('mf_sku', 'Item#/model#');
       setVal('mf_manufacturer', 'Manufacturer');
       setVal('mf_manufacturerAddr', 'Manufacturer Address');
+      // If manufacturer is a known recommendation / alias, expand name + fill address
+      (function(){
+        const mfrEl = document.getElementById('mf_manufacturer');
+        const addrEl = document.getElementById('mf_manufacturerAddr');
+        const hit = findManufacturerOption(mfrEl ? mfrEl.value : manualAnswers['Manufacturer']);
+        if(hit){
+          if(mfrEl) mfrEl.value = hit.name;
+          if(addrEl && (!addrEl.value || !String(addrEl.value).trim())) addrEl.value = hit.address;
+          manualAnswers['Manufacturer'] = hit.name;
+          if(!manualAnswers['Manufacturer Address']) manualAnswers['Manufacturer Address'] = hit.address;
+        }
+      })();
       setVal('mf_trackingNo', 'Tracking Number');
       setVal('mf_shippingRemark', 'Shipping Remark');
 
@@ -3931,6 +3965,161 @@
       setTimeout(()=>{ typingRow.remove(); botMsg(t('orderChat.shippingRecorded'), false); askManualField(); }, 500);
     }
 
+    function getManufacturerOptions(){
+      return [
+        {
+          name: t('orderChat.manufacturerDemo'),
+          address: t('orderChat.manufacturerAddrDemo'),
+          aliases: ['深圳工厂', '智创', 'Zhichuang', 'Shenzhen Zhichuang', '深圳市智创']
+        },
+        {
+          name: t('orderChat.manufacturerDemo2'),
+          address: t('orderChat.manufacturerAddrDemo2'),
+          aliases: ['东莞工厂', '启明', 'Qiming', 'Dongguan Qiming', '东莞启明']
+        },
+        {
+          name: 'QIMA Toy Factory',
+          address: 'Dongguan, Guangdong, China',
+          aliases: ['QIMA', '启迈工厂', '玩具工厂']
+        },
+        {
+          name: 'Shenzhen Zhichuang Co., Ltd.',
+          address: t('orderChat.manufacturerAddrDemo'),
+          aliases: ['深圳工厂', 'Zhichuang Co']
+        },
+        {
+          name: 'Qiming Toy Supplier Co., Ltd.',
+          address: t('orderChat.manufacturerAddrDemo2'),
+          aliases: ['启明供应商', 'Qiming Toy']
+        }
+      ];
+    }
+
+    function findManufacturerOption(query){
+      const q = String(query || '').trim().toLowerCase();
+      if(!q) return null;
+      const list = getManufacturerOptions();
+      let hit = list.find(function(item){ return item.name.toLowerCase() === q; });
+      if(hit) return hit;
+      hit = list.find(function(item){
+        return (item.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
+      });
+      if(hit) return hit;
+      hit = list.find(function(item){
+        if(item.name.toLowerCase().indexOf(q) !== -1) return true;
+        return (item.aliases || []).some(function(a){ return String(a).toLowerCase().indexOf(q) !== -1; });
+      });
+      return hit || null;
+    }
+
+    function filterManufacturerOptions(query){
+      const q = String(query || '').trim().toLowerCase();
+      const list = getManufacturerOptions();
+      if(!q) return list.slice(0, 6);
+      return list.filter(function(item){
+        if(item.name.toLowerCase().indexOf(q) !== -1) return true;
+        if(item.address.toLowerCase().indexOf(q) !== -1) return true;
+        return (item.aliases || []).some(function(a){ return String(a).toLowerCase().indexOf(q) !== -1; });
+      }).slice(0, 8);
+    }
+
+    function clearManufacturerSuggestions(){
+      const results = document.getElementById('mf_manufacturerResults');
+      if(!results) return;
+      results.classList.remove('show');
+      results.innerHTML = '';
+    }
+
+    function renderManufacturerSuggestions(){
+      const input = document.getElementById('mf_manufacturer');
+      const results = document.getElementById('mf_manufacturerResults');
+      if(!input || !results) return;
+      const keyword = (input.value || '').trim();
+      const matches = filterManufacturerOptions(keyword);
+      if(!matches.length){
+        results.innerHTML = '<div class="fm-suggest-option muted">'+escapeHtml(t('index.noMatchingManufacturer'))+'</div>';
+        results.classList.add('show');
+        return;
+      }
+      results.innerHTML = matches.map(function(item, idx){
+        return '<button class="fm-suggest-option" type="button" data-index="'+idx+'" data-name="'+escapeHtml(item.name)+'" onmousedown="pickManufacturerOption(this)">'+
+          '<span class="fm-suggest-name">'+escapeHtml(item.name)+'</span>'+
+          '<span class="fm-suggest-addr">'+escapeHtml(item.address)+'</span>'+
+        '</button>';
+      }).join('');
+      results.classList.add('show');
+    }
+
+    function applyManufacturerSelection(name, address){
+      const nameEl = document.getElementById('mf_manufacturer');
+      const addrEl = document.getElementById('mf_manufacturerAddr');
+      if(nameEl) nameEl.value = name || '';
+      if(addrEl && address) addrEl.value = address;
+      if(name) manualAnswers['Manufacturer'] = name;
+      if(address) manualAnswers['Manufacturer Address'] = address;
+      clearManufacturerSuggestions();
+    }
+
+    function pickManufacturerOption(btn){
+      const name = (btn && btn.dataset.name) ? btn.dataset.name.trim() : '';
+      const hit = findManufacturerOption(name) || getManufacturerOptions().find(function(item){ return item.name === name; });
+      if(!hit) return;
+      applyManufacturerSelection(hit.name, hit.address);
+    }
+
+    function onManufacturerInput(){
+      renderManufacturerSuggestions();
+      const input = document.getElementById('mf_manufacturer');
+      const hit = findManufacturerOption(input ? input.value : '');
+      // Auto-fill address only on exact / alias match while typing short aliases like 深圳工厂
+      if(hit){
+        const q = String(input.value || '').trim().toLowerCase();
+        const exact = hit.name.toLowerCase() === q ||
+          (hit.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
+        if(exact){
+          const addrEl = document.getElementById('mf_manufacturerAddr');
+          if(addrEl) addrEl.value = hit.address;
+          manualAnswers['Manufacturer'] = hit.name;
+          manualAnswers['Manufacturer Address'] = hit.address;
+          if(input && hit.name.toLowerCase() !== q){
+            // Expand short alias to legal name when exact alias matched
+            input.value = hit.name;
+          }
+        }
+      }
+    }
+
+    function onManufacturerKeydown(e){
+      if(e.key !== 'Enter') return;
+      e.preventDefault();
+      const results = document.getElementById('mf_manufacturerResults');
+      const first = results ? results.querySelector('.fm-suggest-option[data-name]') : null;
+      if(first){
+        pickManufacturerOption(first);
+        return;
+      }
+      const input = document.getElementById('mf_manufacturer');
+      const hit = findManufacturerOption(input ? input.value : '');
+      if(hit) applyManufacturerSelection(hit.name, hit.address);
+    }
+
+    function onManufacturerBlur(){
+      setTimeout(function(){
+        const hit = findManufacturerOption((document.getElementById('mf_manufacturer') || {}).value);
+        if(hit){
+          const q = String((document.getElementById('mf_manufacturer') || {}).value || '').trim().toLowerCase();
+          const exactOrAlias = hit.name.toLowerCase() === q ||
+            (hit.aliases || []).some(function(a){ return String(a).toLowerCase().indexOf(q) !== -1; }) ||
+            hit.name.toLowerCase().indexOf(q) !== -1;
+          if(exactOrAlias && q){
+            const addrEl = document.getElementById('mf_manufacturerAddr');
+            if(addrEl && !String(addrEl.value || '').trim()) addrEl.value = hit.address;
+          }
+        }
+        clearManufacturerSuggestions();
+      }, 160);
+    }
+
     function getSupplierOptions(){
       return [
         { name:'Shenzhen Zhichuang Co., Ltd.', address: t('orderChat.manufacturerAddrDemo'), contact:'Sally Xu' },
@@ -4428,6 +4617,9 @@
           results.classList.remove('show');
           results.innerHTML = '';
         });
+      }
+      if(!event.target.closest('#mf_manufacturerSuggest')){
+        clearManufacturerSuggestions();
       }
     });
 

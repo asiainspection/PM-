@@ -760,8 +760,11 @@
 
           <div class="form-row">
             <div class="form-label"><span data-i18n="index.manufacturer">制造商</span> <span class="req">*</span></div>
-            <input class="form-input" id="manufacturerInput" type="text" data-i18n-placeholder="index.manufacturerPlaceholder" placeholder="请输入制造商完整工厂全称">
-            <div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;" data-i18n="index.manufacturerWarn">⚠ 请务必提供完整的工厂全称，不可简写</div>
+            <div class="country-search" id="manufacturerSuggest">
+              <input class="form-input" id="manufacturerInput" type="text" data-i18n-placeholder="index.manufacturerPlaceholder" placeholder="搜索或选择制造商" autocomplete="off" oninput="onIndexManufacturerInput()" onfocus="renderIndexManufacturerSuggestions()" onkeydown="onIndexManufacturerKeydown(event)">
+              <div class="country-results" id="manufacturerResults"></div>
+            </div>
+            <div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;" data-i18n="index.manufacturerSuggestHint">选择推荐工厂后，将自动填写对应地址</div>
           </div>
 
           <div class="form-row">
@@ -1491,9 +1494,117 @@
       addSalesCountry(key);
     }
 
+    function getManufacturerOptions() {
+      return [
+        {
+          name: t('orderChat.manufacturerDemo'),
+          address: t('orderChat.manufacturerAddrDemo'),
+          aliases: ['深圳工厂', '智创', 'Zhichuang', 'Shenzhen Zhichuang', '深圳市智创']
+        },
+        {
+          name: t('orderChat.manufacturerDemo2'),
+          address: t('orderChat.manufacturerAddrDemo2'),
+          aliases: ['东莞工厂', '启明', 'Qiming', 'Dongguan Qiming', '东莞启明']
+        },
+        {
+          name: 'QIMA Toy Factory',
+          address: 'Dongguan, Guangdong, China',
+          aliases: ['QIMA', '启迈工厂', '玩具工厂']
+        },
+        {
+          name: 'Shenzhen Zhichuang Co., Ltd.',
+          address: t('orderChat.manufacturerAddrDemo'),
+          aliases: ['深圳工厂', 'Zhichuang Co']
+        },
+        {
+          name: 'Qiming Toy Supplier Co., Ltd.',
+          address: t('orderChat.manufacturerAddrDemo2'),
+          aliases: ['启明供应商', 'Qiming Toy']
+        }
+      ];
+    }
+
+    function findManufacturerOption(query) {
+      const q = String(query || '').trim().toLowerCase();
+      if (!q) return null;
+      const list = getManufacturerOptions();
+      let hit = list.find(function (item) { return item.name.toLowerCase() === q; });
+      if (hit) return hit;
+      hit = list.find(function (item) {
+        return (item.aliases || []).some(function (a) { return String(a).toLowerCase() === q; });
+      });
+      if (hit) return hit;
+      return list.find(function (item) {
+        if (item.name.toLowerCase().indexOf(q) !== -1) return true;
+        return (item.aliases || []).some(function (a) { return String(a).toLowerCase().indexOf(q) !== -1; });
+      }) || null;
+    }
+
+    function renderIndexManufacturerSuggestions() {
+      const input = document.getElementById('manufacturerInput');
+      const results = document.getElementById('manufacturerResults');
+      if (!input || !results) return;
+      const keyword = (input.value || '').trim().toLowerCase();
+      const list = getManufacturerOptions().filter(function (item) {
+        if (!keyword) return true;
+        if (item.name.toLowerCase().indexOf(keyword) !== -1) return true;
+        if (item.address.toLowerCase().indexOf(keyword) !== -1) return true;
+        return (item.aliases || []).some(function (a) { return String(a).toLowerCase().indexOf(keyword) !== -1; });
+      }).slice(0, 8);
+      if (!list.length) {
+        results.innerHTML = '<div class="country-option muted">' + escapeHtml(t('index.noMatchingManufacturer')) + '</div>';
+        results.classList.add('show');
+        return;
+      }
+      results.innerHTML = list.map(function (item) {
+        return '<button class="country-option" type="button" onmousedown="pickIndexManufacturer(\'' + escapeJs(item.name) + '\')">' +
+          '<div style="font-weight:600">' + escapeHtml(item.name) + '</div>' +
+          '<div style="font-size:11px;color:#737373;margin-top:2px">' + escapeHtml(item.address) + '</div>' +
+        '</button>';
+      }).join('');
+      results.classList.add('show');
+    }
+
+    function pickIndexManufacturer(name) {
+      const hit = findManufacturerOption(name) || getManufacturerOptions().find(function (item) { return item.name === name; });
+      if (!hit) return;
+      document.getElementById('manufacturerInput').value = hit.name;
+      document.getElementById('manufacturerAddressInput').value = hit.address;
+      document.getElementById('manufacturerResults').classList.remove('show');
+    }
+
+    function onIndexManufacturerInput() {
+      renderIndexManufacturerSuggestions();
+      const input = document.getElementById('manufacturerInput');
+      const hit = findManufacturerOption(input ? input.value : '');
+      if (!hit || !input) return;
+      const q = String(input.value || '').trim().toLowerCase();
+      const exact = hit.name.toLowerCase() === q ||
+        (hit.aliases || []).some(function (a) { return String(a).toLowerCase() === q; });
+      if (exact) {
+        input.value = hit.name;
+        document.getElementById('manufacturerAddressInput').value = hit.address;
+      }
+    }
+
+    function onIndexManufacturerKeydown(event) {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      const first = document.querySelector('#manufacturerResults .country-option[onmousedown]');
+      if (first) {
+        first.dispatchEvent(new MouseEvent('mousedown'));
+        return;
+      }
+      const hit = findManufacturerOption((document.getElementById('manufacturerInput') || {}).value);
+      if (hit) pickIndexManufacturer(hit.name);
+    }
+
     document.addEventListener('click', function (event) {
       if (!event.target.closest('.country-search')) {
-        document.getElementById('countryResults').classList.remove('show');
+        const countryResults = document.getElementById('countryResults');
+        const manufacturerResults = document.getElementById('manufacturerResults');
+        if (countryResults) countryResults.classList.remove('show');
+        if (manufacturerResults) manufacturerResults.classList.remove('show');
       }
     });
 
