@@ -1015,49 +1015,193 @@
     return extractSpokenProductName(text);
   }
 
-  function canonicalizeFieldKeys(raw) {
-    var out = emptyFields();
-    if (!raw || typeof raw !== 'object') return out;
+  function editDistance(a, b) {
+    var s = String(a || '');
+    var t = String(b || '');
+    if (s === t) return 0;
+    if (!s.length) return t.length;
+    if (!t.length) return s.length;
+    var prev = [];
+    var i;
+    var j;
+    for (j = 0; j <= t.length; j++) prev[j] = j;
+    for (i = 1; i <= s.length; i++) {
+      var cur = [i];
+      for (j = 1; j <= t.length; j++) {
+        var cost = s.charAt(i - 1) === t.charAt(j - 1) ? 0 : 1;
+        cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      }
+      prev = cur;
+    }
+    return prev[t.length];
+  }
+
+  function lettersOnlyKey(key) {
+    return String(key || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9\u4e00-\u9fff]/g, '');
+  }
+
+  /** True when OCR/LLM misspells "manufacturer" (e.g. manufatcurer, manufactuer). */
+  function looksLikeManufacturerKeyToken(token) {
+    var n = lettersOnlyKey(token);
+    if (!n || n.length < 6 || n.length > 22) return false;
+    if (/address|addr|地址|厂址|产地|origin|model|product|program|carrier|tracking|sample|electric|region|country|remark|shipping/
+      .test(n)) {
+      return false;
+    }
+    if (
+      n === 'manufacturer' ||
+      n === 'manufacturers' ||
+      n === 'manufacturedby' ||
+      n === 'manufactory' ||
+      n === 'mfr' ||
+      n === 'mfg'
+    ) {
+      return true;
+    }
+    if (/manufactur/.test(n) || /manufatur/.test(n) || /manufaturer/.test(n)) return true;
+    if (/manuf/.test(n) && editDistance(n, 'manufacturer') <= 3) return true;
+    return editDistance(n, 'manufacturer') <= 3;
+  }
+
+  function looksLikeManufacturerAddressKeyToken(token) {
+    var raw = String(token || '');
+    var n = lettersOnlyKey(token);
+    if (/制造商地址|工厂地址|厂家地址|厂址/.test(raw)) return true;
+    if (!n) return false;
+    if (/(manufacturer|manufactur|manufatcur|manufatur).{0,6}(address|addr)/.test(n)) return true;
+    if (/(address|addr).{0,6}(manufacturer|manufactur)/.test(n)) return true;
+    if (/厂址|制造商地址/.test(n)) return true;
+    return false;
+  }
+
+  /**
+   * Map alternate / misspelled OCR·LLM keys onto canonical English field names.
+   * Especially routes manufatcurer / manufactuer / Manufactured By → Manufacturer.
+   */
+  function resolveCanonicalFieldKey(key) {
+    var raw = String(key || '').trim();
+    if (!raw) return '';
+    var fields = emptyFields();
+    if (Object.prototype.hasOwnProperty.call(fields, raw)) return raw;
+
     var alias = {
       'product name': 'Product Name',
       product_name: 'Product Name',
+      productname: 'Product Name',
       品名: 'Product Name',
       产品名称: 'Product Name',
+      program: 'Program',
+      关联项目: 'Program',
       model: 'Item#/model#',
       'model no': 'Item#/model#',
+      'model no.': 'Item#/model#',
       'model number': 'Item#/model#',
       'model#': 'Item#/model#',
       sku: 'Item#/model#',
+      'p/n': 'Item#/model#',
+      pn: 'Item#/model#',
       型号: 'Item#/model#',
       货号: 'Item#/model#',
       'item # / model #': 'Item#/model#',
+      'item#/model#': 'Item#/model#',
       manufacturer: 'Manufacturer',
       'manufacturer name': 'Manufacturer',
+      manufacturer_name: 'Manufacturer',
+      manufacturers: 'Manufacturer',
+      manufactory: 'Manufacturer',
+      'manufactured by': 'Manufacturer',
+      manufactured_by: 'Manufacturer',
+      manufactuer: 'Manufacturer',
+      manufatcurer: 'Manufacturer',
+      manufaturer: 'Manufacturer',
+      manufacturor: 'Manufacturer',
+      manfuacturer: 'Manufacturer',
+      mfr: 'Manufacturer',
+      mfg: 'Manufacturer',
+      company: 'Manufacturer',
+      'company name': 'Manufacturer',
+      factory: 'Manufacturer',
+      'factory name': 'Manufacturer',
       制造商: 'Manufacturer',
       生产商: 'Manufacturer',
       厂家: 'Manufacturer',
-      address: 'Manufacturer Address',
+      厂商: 'Manufacturer',
+      生产厂家: 'Manufacturer',
+      工厂: 'Manufacturer',
       'manufacturer address': 'Manufacturer Address',
+      manufacturer_address: 'Manufacturer Address',
+      manufactueraddress: 'Manufacturer Address',
+      manufatcureraddress: 'Manufacturer Address',
+      address: 'Manufacturer Address',
+      'factory address': 'Manufacturer Address',
       制造商地址: 'Manufacturer Address',
       厂址: 'Manufacturer Address',
+      工厂地址: 'Manufacturer Address',
+      厂家地址: 'Manufacturer Address',
       地址: 'Manufacturer Address',
       origin: 'Country of Origin',
       'country of origin': 'Country of Origin',
+      'made in': 'Country of Origin',
       原产国: 'Country of Origin',
+      原产国家或地区: 'Country of Origin',
+      产地: 'Country of Origin',
+      'countries/regions of distribution': 'Countries/Regions of Distribution',
+      'countries of distribution': 'Countries/Regions of Distribution',
+      distribution: 'Countries/Regions of Distribution',
+      销售国家或地区: 'Countries/Regions of Distribution',
+      'sample collection method': 'Sample Collection Method',
+      'sample collection': 'Sample Collection Method',
+      样品收集方式: 'Sample Collection Method',
       rating: 'Product Description',
       'electric product': 'Electric Product',
       'electrical product': 'Electric Product',
+      产品是否带电: 'Electric Product',
+      'product description': 'Product Description',
+      产品说明: 'Product Description',
+      carrier: 'Carrier',
+      快递公司: 'Carrier',
+      'tracking number': 'Tracking Number',
+      'tracking no': 'Tracking Number',
+      运单号: 'Tracking Number',
       remark: 'Shipping Remark',
       remarks: 'Shipping Remark',
-      备注: 'Shipping Remark'
+      备注: 'Shipping Remark',
+      'shipping remark': 'Shipping Remark'
     };
+
+    var lower = raw.toLowerCase();
+    if (alias[lower]) return alias[lower];
+
+    if (looksLikeManufacturerAddressKeyToken(raw)) return 'Manufacturer Address';
+    if (looksLikeManufacturerKeyToken(raw)) return 'Manufacturer';
+    if (/制造[商厂家]|生产商|厂商|厂家/.test(raw) && !/地址|addr/i.test(raw)) {
+      return 'Manufacturer';
+    }
+    return '';
+  }
+
+  function cleanManufacturerValue(raw) {
+    var v = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!v) return '';
+    v = v.replace(/^(?:Manufacturer|Manufactured\s+by|Made\s+by|Factory|Company|制造商|生产商|厂家|厂商)\s*[:：#.=-]?\s*/i, '');
+    v = v.split(/\s+(?:Address|Contact|EC\s*REP|UK\s*REP|Rating|Model|MADE\s+IN|制造商地址|厂址|地址)\b/i)[0].trim();
+    v = v.replace(/[,，;；]\s*$/, '').trim();
+    if (/^(Address|Model|Rating|Contact|Company|Manufacturer)$/i.test(v)) return '';
+    return v;
+  }
+
+  function canonicalizeFieldKeys(raw) {
+    var out = emptyFields();
+    if (!raw || typeof raw !== 'object') return out;
     var emptyish = /^(n\/?a|none|null|unknown|未知|无|暂无|-|—)$/i;
     Object.keys(raw).forEach(function (key) {
       var text = raw[key] != null ? String(raw[key]).trim() : '';
       if (!text || emptyish.test(text)) return;
-      var canon = Object.prototype.hasOwnProperty.call(out, key)
-        ? key
-        : alias[String(key).trim().toLowerCase()];
+      var canon = resolveCanonicalFieldKey(key);
+      if (!canon) return;
+      if (canon === 'Manufacturer') text = cleanManufacturerValue(text) || text;
       if (canon && !out[canon]) out[canon] = text;
     });
     return out;
@@ -1069,11 +1213,18 @@
     var model = extractModel(text);
     var manufacturer = pickLabelValue(text, [
       'Manufacturer',
+      'Manufatcurer',
+      'Manufactuer',
+      'Manufaturer',
+      'Manufacturor',
       'Manufactured by',
       'Manufactured By',
       'Made by',
+      'Made By',
       'Factory',
+      'Factory Name',
       'Company',
+      'Company Name',
       '制造商',
       '生产商',
       '厂家',
@@ -1082,6 +1233,8 @@
     ]);
     var address = pickLabelValue(text, [
       'Manufacturer Address',
+      'Manufatcurer Address',
+      'Manufactuer Address',
       'Factory Address',
       'Address',
       'Addr',
@@ -1092,9 +1245,15 @@
     ]);
     if (!manufacturer) {
       var mfrLine = text.match(
-        /(?:^|\n)\s*(?:Manufacturer|Manufactured\s+by|制造商|生产商|厂家)\s*[:：]?\s*([^\n]{2,120})/i
+        /(?:^|\n)\s*(?:Manuf(?!acturing\b)[a-z]{4,12}|Manufactured\s+by|Made\s+by|制造商|生产商|厂家|厂商)\s*[:：#.=-]?\s*([^\n]{2,120})/i
       );
       if (mfrLine) manufacturer = simplifySpaces(mfrLine[1]);
+    }
+    if (!manufacturer) {
+      var mfrBy = text.match(
+        /\b(?:manufactured|made|produced)\s+by\s+([A-Za-z0-9][A-Za-z0-9 &\-.',]{1,90}?)(?=\s+(?:Address|Contact|EC\s*REP|UK\s*REP|Model|Rating|MADE\s+IN|sold|for|,|;|\.|$)|$)/i
+      );
+      if (mfrBy) manufacturer = simplifySpaces(mfrBy[1]);
     }
     if (!address) {
       var addrLine = text.match(
@@ -1102,11 +1261,7 @@
       );
       if (addrLine) address = simplifySpaces(addrLine[1]);
     }
-    if (manufacturer) {
-      manufacturer = manufacturer.split(/\s+(?:Address|Contact|EC\s*REP|UK\s*REP|Rating|Model)\b/i)[0].trim();
-      manufacturer = manufacturer.replace(/[,，;；]\s*$/, '').trim();
-      if (/^(Address|Model|Rating|Contact)$/i.test(manufacturer)) manufacturer = '';
-    }
+    manufacturer = cleanManufacturerValue(manufacturer);
     if (address) {
       address = address.split(/\s+(?:Contact|EC\s*REP|UK\s*REP|Manufacturer|Model|Rating)\b/i)[0].trim();
       if (/^(Manufacturer|Model|Rating|Contact)$/i.test(address)) address = '';
@@ -1364,14 +1519,20 @@
     if (!model) model = extractModel(text);
 
     var manufacturer = pick(text, [
-      /制造商(?:名称|全称)?\s*[是为：:]?\s*([^\n，。,]{2,80})/,
-      /(?:厂家|工厂|生产商|厂商)\s*[是为：:]?\s*([^\n，。,]{2,80})/,
-      /manufacturer\s*[:=]\s*([^\n,.]{2,80})/i
+      /制造商(?:名称|全称|名字)?\s*[是为：:]?\s*([^\n，。,；;]{2,80})/,
+      /(?:厂家|工厂|生产商|厂商)(?:名称|全称)?\s*[是为：:]?\s*([^\n，。,；;]{2,80})/,
+      /manufactur(?:er|e)?\s*(?:name)?\s*[:=：]\s*([^\n,.]{2,80})/i,
+      /manufatcurer\s*[:=：]\s*([^\n,.]{2,80})/i,
+      /\bmanufactured\s+by\s+([A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff &\-.',]{1,80}?)(?=\s+(?:sold|made|address|model|ship|for|with|and|,|;|\.|$)|$)/i,
+      /\bmade\s+by\s+([A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff &\-.',]{1,80}?)(?=\s+(?:sold|manufactured|address|model|ship|for|with|and|,|;|\.|$)|$)/i,
+      /\bproduced\s+by\s+([A-Za-z0-9\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff &\-.',]{1,80}?)(?=\s+(?:sold|made|address|model|,|;|\.|$)|$)/i
     ]);
+    manufacturer = cleanManufacturerValue(manufacturer);
 
     var address = pick(text, [
       /制造商地址\s*[是为：:]?\s*([^\n，。,;；]{4,80})/,
       /(?:工厂|厂家|公司)?地址\s*[是为：:]?\s*([^\n，。,;；]{4,80})/,
+      /(?:manufacturer|manufatcurer|manufactuer)\s*address\s*[:=：]?\s*([^\n,.;]{4,80})/i,
       /address\s*[:=]\s*([^\n,.;]{4,80})/i
     ]);
     if (address) {
@@ -1875,6 +2036,8 @@
     extractFieldsFromOcrText: extractFieldsFromOcrText,
     extractFieldsFromVoiceText: extractFieldsFromVoiceText,
     canonicalizeFieldKeys: canonicalizeFieldKeys,
+    resolveCanonicalFieldKey: resolveCanonicalFieldKey,
+    cleanManufacturerValue: cleanManufacturerValue,
     isPlausibleField: isPlausibleField,
     sanitizeParsedFields: sanitizeParsedFields,
     sanitizeParseResult: sanitizeParseResult,

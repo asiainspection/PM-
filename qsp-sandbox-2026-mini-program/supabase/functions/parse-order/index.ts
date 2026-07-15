@@ -10,7 +10,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const NVIDIA_BASE = "https://integrate.api.nvidia.com/v1/chat/completions";
-const VISION_MODEL = "meta/llama-3.2-11b-vision-instruct";
+const VISION_MODEL = "nvidia/llama-3.1-nemotron-nano-vl-8b-v1";
 // nemotron-nano currently hangs on NIM; use a responsive instruct model
 const LLM_MODEL = "meta/llama-3.1-8b-instruct";
 
@@ -47,7 +47,264 @@ const MARK_TO_REGIONS: Record<string, string[]> = {
   EAC: ["俄罗斯"],
 };
 
+/** Canonical Program options (AIMS display strings). Skip "… - Copy". */
+const PROGRAM_CATALOG = [
+  "TEMU Toys - TEMU Pay（TEMU 付款-玩具产品）",
+  "TEMU Textile (Sleepwear) - TEMU Pay（TEMU 付款，睡衣产品）",
+  "TEMU Hardware- Seller Pay（商家付款，杂货产品）",
+  "DEFAULT",
+  "TEMU Textile (Non-Sleepwear) - Seller Pay（商家付款，非睡衣类纺织品产品）",
+  "TEMU FCM-Seller Pay（商家付款，食品接触产品）",
+  "TEMU FCM-TEMU Pay（Temu 付款，食品接触产品）",
+  "TEMU Textile (Non-Sleepwear) - TEMU Pay（TEMU 付款，非睡衣类纺织品产品）",
+  "TEMU Toys - Seller Pay（商家付款，玩具产品）",
+  "TEMU Textile (Sleepwear) - Seller Pay（商家付款，睡衣产品）",
+  "TEMU Eyewear(PPE)-Seller Pay（商家付款,PPE 眼镜产品）",
+  "TEMU Electric product -Seller Pay（商家付款，电子产品）",
+  "SH-Self",
+  "TEMU MSDS-Seller Pay（商家付款，只做MSDS专用program）",
+] as const;
+
+const PROGRAM_BY_KEY: Record<string, string> = {
+  toys_temu: "TEMU Toys - TEMU Pay（TEMU 付款-玩具产品）",
+  toys_seller: "TEMU Toys - Seller Pay（商家付款，玩具产品）",
+  sleepwear_temu: "TEMU Textile (Sleepwear) - TEMU Pay（TEMU 付款，睡衣产品）",
+  sleepwear_seller: "TEMU Textile (Sleepwear) - Seller Pay（商家付款，睡衣产品）",
+  non_sleepwear_temu:
+    "TEMU Textile (Non-Sleepwear) - TEMU Pay（TEMU 付款，非睡衣类纺织品产品）",
+  non_sleepwear_seller:
+    "TEMU Textile (Non-Sleepwear) - Seller Pay（商家付款，非睡衣类纺织品产品）",
+  hardware_seller: "TEMU Hardware- Seller Pay（商家付款，杂货产品）",
+  fcm_seller: "TEMU FCM-Seller Pay（商家付款，食品接触产品）",
+  fcm_temu: "TEMU FCM-TEMU Pay（Temu 付款，食品接触产品）",
+  eyewear_seller: "TEMU Eyewear(PPE)-Seller Pay（商家付款,PPE 眼镜产品）",
+  electric_seller: "TEMU Electric product -Seller Pay（商家付款，电子产品）",
+  msds_seller: "TEMU MSDS-Seller Pay（商家付款，只做MSDS专用program）",
+  sh_self: "SH-Self",
+  default: "DEFAULT",
+};
+
 type FieldMap = Record<string, string>;
+
+function compactProgramKey(s: string): string {
+  return String(s || "")
+    .toLowerCase()
+    .replace(/[\s\-–—_/()（）,，.·]+/g, "")
+    .replace(/selly/g, "seller");
+}
+
+function resolveProgramLabel(value: string): string {
+  const v = String(value ?? "").trim();
+  if (!v) return "";
+  if (/^__PROGRAM_TEMU_TOY__$/.test(v)) return PROGRAM_BY_KEY.toys_seller;
+  if (/^__PROGRAM_TEMU_HW__$/.test(v)) return PROGRAM_BY_KEY.hardware_seller;
+  if (/^__PROGRAM_AMAZON__$/.test(v)) return "";
+  for (const label of PROGRAM_CATALOG) {
+    if (label === v) return label;
+  }
+  const compact = compactProgramKey(v);
+  if (compact.length >= 6) {
+    for (const label of PROGRAM_CATALOG) {
+      if (compactProgramKey(label) === compact) return label;
+    }
+  }
+  if (compact.length >= 14) {
+    for (const label of PROGRAM_CATALOG) {
+      const cLabel = compactProgramKey(label);
+      if (cLabel.includes(compact) || compact.includes(cLabel)) {
+        return label;
+      }
+    }
+  }
+  if (
+    /temu.*hardware|hardware.*seller|硬件|杂货/i.test(v) &&
+    /seller|商家|退款|refund/i.test(v)
+  ) {
+    return PROGRAM_BY_KEY.hardware_seller;
+  }
+  if (
+    /temu.*toys?|toys?.*seller|玩具/i.test(v) &&
+    /seller|商家/i.test(v) &&
+    !/temu\s*pay|temu付款|付款/i.test(v)
+  ) {
+    return PROGRAM_BY_KEY.toys_seller;
+  }
+  if (/temu.*toys?|玩具/i.test(v) && /temu\s*pay|temu付款|付款/i.test(v)) {
+    return PROGRAM_BY_KEY.toys_temu;
+  }
+  if (/msds/i.test(v)) return PROGRAM_BY_KEY.msds_seller;
+  if (/^sh[-\s]?self$/i.test(v) || /自助\s*program|self\s*program/i.test(v)) {
+    return PROGRAM_BY_KEY.sh_self;
+  }
+  if (/^default$/i.test(v)) return PROGRAM_BY_KEY.default;
+  return "";
+}
+
+function detectProgramPayer(text: string): "" | "temu" | "seller" {
+  const t = String(text || "");
+  const temuPay = /TEMU\s*Pay|TEMU\s*付款|Temu\s*付款|平台付款|TEMU付款/i.test(t);
+  const sellerPay =
+    /Seller\s*Pay|Selly\s*Pay|商家付款|卖家付款|seller\s*paid/i.test(t);
+  if (temuPay && !sellerPay) return "temu";
+  if (sellerPay && !temuPay) return "seller";
+  if (temuPay && sellerPay) {
+    if (
+      /Program.{0,40}(?:TEMU\s*Pay|TEMU\s*付款)|(?:TEMU\s*Pay|TEMU\s*付款).{0,40}Program/i
+        .test(t)
+    ) {
+      return "temu";
+    }
+    if (
+      /Program.{0,40}(?:Seller\s*Pay|商家付款)|(?:Seller\s*Pay|商家付款).{0,40}Program/i
+        .test(t)
+    ) {
+      return "seller";
+    }
+  }
+  return "";
+}
+
+function detectProgramCategory(
+  text: string,
+  hints: { productName?: string; electricYes?: boolean } = {},
+): string {
+  const t = String(text || "");
+  const name = String(hints.productName || "").trim();
+  const blob = (name + "\n" + t).toLowerCase();
+  const electricHint = !!hints.electricYes;
+  if (
+    electricHint ||
+    /__ELECTRIC_YES__/i.test(t) ||
+    /\b(?:electric\s+fan|electric\s+product|electronics?|battery|voltage|charger|motor|adapter|电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电)\b/i
+      .test(blob) ||
+    /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(blob)
+  ) {
+    const toyCue =
+      /\b(?:toy|toys|en\s*71|cpsia|玩具|机器人玩具|积木)\b/i.test(blob);
+    const electricName =
+      /\b(?:fan|lamp|light|heater|blender|mixer|vacuum|speaker|耳机|风扇|台灯|吹风机|充电器)\b/i
+        .test(blob) ||
+      /electric\s+product|电子产品|带电产品/i.test(blob);
+    if (electricName || (electricHint && !toyCue)) return "electric";
+    if (!toyCue) return "electric";
+  }
+  if (
+    /\b(?:msds\s*only|only\s*msds|只做\s*msds|msds专用|msds\s*program)\b/i
+      .test(blob) ||
+    (/msds/i.test(blob) && /只做|专用|only/i.test(blob))
+  ) {
+    return "msds";
+  }
+  if (/\bsh[-\s]?self\b|自助\s*program|self\s*program/i.test(blob)) {
+    return "sh_self";
+  }
+  if (
+    /\b(?:eyewear|glasses|goggles|ppe\b|safety\s*glasses|护目镜|眼镜|ppe\s*眼镜)\b/i
+      .test(blob)
+  ) {
+    return "eyewear";
+  }
+  if (
+    /\b(?:food\s*contact|fcm\b|lfgb|食品接触|餐具|水杯|bowl|cup\b(?!\s*toy))/i
+      .test(blob)
+  ) {
+    return "fcm";
+  }
+  // Check non-sleepwear before sleepwear (hyphenated "non-sleepwear" contains "sleepwear")
+  if (/\b(?:non[-\s]?sleepwear|非睡衣)/i.test(blob)) {
+    return "non_sleepwear";
+  }
+  if (
+    /\b(?:sleepwear|pajamas?|pyjamas?|nightgown|睡衣|睡袍|家居服)\b/i.test(blob)
+  ) {
+    return "sleepwear";
+  }
+  if (
+    /\b(?:textile|fabric|apparel|garment|clothing|面料|纺织|衣服|服装|布料)\b/i
+      .test(blob)
+  ) {
+    return "non_sleepwear";
+  }
+  if (/\b(?:toy|toys|en\s*71|cpsia|玩具|积木|公仔|doll|plush)\b/i.test(blob)) {
+    return "toys";
+  }
+  if (
+    /\b(?:hardware|grocery|kitchen\s*gadget|杂货|五金|厨具|日用|餐刀|scissors)\b/i
+      .test(blob) ||
+    (/temu/i.test(blob) && /硬件|杂货/.test(t))
+  ) {
+    return "hardware";
+  }
+  if (/\bdefault\b/i.test(blob) && /program|关联项目|项目/i.test(blob)) {
+    return "default";
+  }
+  return "";
+}
+
+function matchProgramFromText(
+  text: string,
+  hints: { productName?: string; electricYes?: boolean } = {},
+): string {
+  const raw = String(text || "");
+  if (!raw && !hints.productName) return "";
+
+  const programMention = raw.match(
+    /(?:关联)?(?:项目|Program)\s*[是为：:=]\s*([^\n，。;；]{2,80})/i,
+  );
+  const direct = resolveProgramLabel(programMention?.[1]?.trim() || "");
+  if (direct) return direct;
+
+  for (const label of PROGRAM_CATALOG) {
+    if (label.length >= 4 && raw.includes(label)) return label;
+    const compactLabel = compactProgramKey(label);
+    if (
+      compactLabel.length >= 8 &&
+      compactProgramKey(raw).includes(compactLabel)
+    ) {
+      return label;
+    }
+  }
+
+  const category = detectProgramCategory(raw, hints);
+  if (!category) return "";
+  if (category === "default") return PROGRAM_BY_KEY.default;
+  if (category === "sh_self") return PROGRAM_BY_KEY.sh_self;
+  if (category === "electric") return PROGRAM_BY_KEY.electric_seller;
+  if (category === "hardware") return PROGRAM_BY_KEY.hardware_seller;
+  if (category === "eyewear") return PROGRAM_BY_KEY.eyewear_seller;
+  if (category === "msds") return PROGRAM_BY_KEY.msds_seller;
+
+  let payer = detectProgramPayer(raw) || "seller";
+  const key = `${category}_${payer}`;
+  if (PROGRAM_BY_KEY[key]) return PROGRAM_BY_KEY[key];
+  return PROGRAM_BY_KEY[`${category}_seller`] || "";
+}
+
+function ensureProgramMatched(
+  fields: FieldMap,
+  opts: { rawExcerpt?: string } = {},
+): FieldMap {
+  const existing = resolveProgramLabel(fields.Program || "");
+  if (existing) {
+    fields.Program = existing;
+    return fields;
+  }
+  const hintText = [
+    opts.rawExcerpt || "",
+    fields["Product Name"] || "",
+    fields["Product Description"] || "",
+    fields["Electric Product"] || "",
+    fields["Shipping Remark"] || "",
+  ].join("\n");
+  fields.Program = matchProgramFromText(hintText, {
+    productName: fields["Product Name"] || "",
+    electricYes:
+      /带电|electric\s*yes|^electric$/i.test(
+        String(fields["Electric Product"] || ""),
+      ),
+  }) || "";
+  return fields;
+}
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const allow =
@@ -177,7 +434,304 @@ function cleanProductName(raw: string): string {
       name = (sp > 12 ? cut.slice(0, sp) : cut).trim();
     }
   }
+  if (
+    /^(?:实验室(?:检测|测试)?|检测服务|验货|装运前(?:检测|检验)|Lab(?:oratory)?\s*(?:testing|test|inspection)?|Pre[-\s]?Shipment\s*Inspection|PSI|Inspection|Testing|EN\s*71|CPSIA|ASTM|RoHS|CE|UKCA|FCC)$/i
+      .test(name)
+  ) {
+    return "";
+  }
+  if (
+    /^(?:实验室|检测|测试|lab|testing|inspection)\b/i.test(name) &&
+    !/(?:玩具|机器人|风扇|鼠标|Fan|Toy|Mouse|Robot)/i.test(name)
+  ) {
+    if (name.length > 12) return "";
+  }
+  const commaCount = (name.match(/[,，;；]/g) || []).length;
+  if (commaCount >= 2) return "";
+  if (
+    /\b(?:sold\s+in|manufactured\s+by|I\s+need|lab\s+testing\s+for|销往|制造商)\b/i
+      .test(name)
+  ) {
+    return "";
+  }
+  const wordCount = name.split(/\s+/).filter(Boolean).length;
+  if (!hasCjk && wordCount > 8) return "";
   return name.length >= 2 ? name : "";
+}
+
+function countWords(s: string): number {
+  return String(s || "").trim().split(/\s+/).filter(Boolean).length;
+}
+
+function looksLikeSentence(s: string): boolean {
+  const t = String(s || "").trim();
+  if (!t) return false;
+  if (t.length > 120) return true;
+  if (
+    /\b(?:I\s+need|we\s+need|please|sold\s+in|manufactured\s+by|lab\s+testing\s+for|我想|我需要|帮我|销往|制造商是)\b/i
+      .test(t)
+  ) {
+    return true;
+  }
+  if (/[。.！？!?]/.test(t) && t.length > 40) return true;
+  const commas = (t.match(/[,，;；]/g) || []).length;
+  if (commas >= 2 && t.length > 50) return true;
+  if (commas >= 3) return true;
+  return false;
+}
+
+function looksLikeAddress(s: string): boolean {
+  return /(?:路|街|号|区|市|省|镇|村|大道|Building|Bldg|Floor|Fl\.|Road|Rd\.|Street|St\.|Ave|Avenue|District|City|Province|Zip|邮编|P\.?O\.?\s*Box|\d{1,5}\s+[A-Za-z])/i
+    .test(s);
+}
+
+function looksLikeTracking(s: string): boolean {
+  const t = String(s || "").replace(/\s+/g, "");
+  if (!/^[A-Za-z0-9\-]{8,32}$/.test(t)) return false;
+  if (/[A-Za-z]/.test(t) && /\d/.test(t)) return true;
+  if (/^\d{10,22}$/.test(t)) return true;
+  return false;
+}
+
+function looksLikeCompanyName(s: string): boolean {
+  const t = String(s || "").trim();
+  if (!t || t.length < 2 || t.length > 80) return false;
+  if (looksLikeAddress(t) && t.length > 40) return false;
+  if (looksLikeTracking(t)) return false;
+  if (/^(?:MADE\s+IN|Rating|Model|Address|Contact)\b/i.test(t)) return false;
+  if (/\d+\s*V|\d+\s*W|\d+\s*Hz|Rated|Rating/i.test(t) && t.length < 40) {
+    return false;
+  }
+  return /[\u4e00-\u9fffA-Za-z]/.test(t) && !looksLikeSentence(t);
+}
+
+const KNOWN_ORIGIN_RE =
+  /^(?:中国|China|CN|PRC|越南|Vietnam|VN|印度|India|IN|美国|USA?|United\s+States|英国|UK|United\s+Kingdom|欧盟|EU|European\s+Union|德国|Germany|DE|法国|France|FR|意大利|Italy|IT|日本|Japan|JP|韩国|Korea|KR|加拿大|Canada|CA|澳大利亚|Australia|AU|墨西哥|Mexico|MX|泰国|Thailand|TH|马来西亚|Malaysia|MY|印尼|Indonesia|ID|台湾|Taiwan|TW|香港|Hong\s+Kong|HK)$/i;
+
+const KNOWN_REGION_TOKEN_RE =
+  /^(?:中国|欧盟|英国|美国|日本|韩国|澳大利亚|加拿大|德国|法国|意大利|越南|印度|墨西哥|泰国|马来西亚|印尼|台湾|香港|Russia|俄罗斯|南美|中东|全球|Worldwide|Global|EU|UK|USA?|China|Japan|Korea|Australia|Canada)$/i;
+
+const KNOWN_CARRIER_RE =
+  /^(?:顺丰(?:速运|快递)?|SF\s*Express|中通(?:快递)?|圆通(?:速递)?|韵达(?:快递)?|京东(?:物流|快递)?|极兔(?:速递)?|申通(?:快递)?|德邦|邮政(?:EMS)?|EMS|DHL|UPS|FedEx|TNT|Aramex|YTO|ZTO|STO|JT(?:Express)?|JD|YunExpress|4PX|Yanwen)$/i;
+
+function isPlausibleField(key: string, value: string): boolean {
+  const v = String(value ?? "").trim();
+  if (!v) return false;
+  if (
+    /^(n\/?a|none|null|undefined|unknown|未知|无|暂无|不清楚|not\s*available|-|—|–|\.)$/i
+      .test(v)
+  ) {
+    return false;
+  }
+
+  switch (key) {
+    case "Product Name": {
+      if (v.length > 100) return false;
+      if (looksLikeSentence(v)) return false;
+      if (
+        /^(?:实验室(?:检测|测试)?|检测服务|Lab(?:oratory)?\s*(?:testing|test)?|PSI|Inspection|Testing|EN\s*71|CPSIA)$/i
+          .test(v)
+      ) {
+        return false;
+      }
+      const cleaned = cleanProductName(v);
+      if (!cleaned || cleaned.length < 2) return false;
+      if (cleaned.length > 80) return false;
+      const hasCjk = /[\u4e00-\u9fff]/.test(cleaned);
+      if (!hasCjk && countWords(cleaned) > 8) return false;
+      if (hasCjk && cleaned.length > 28) return false;
+      return true;
+    }
+    case "Program": {
+      if (/^__PROGRAM_(?:TEMU_HW|TEMU_TOY)__$/.test(v)) return true;
+      if (v.length > 120 || looksLikeSentence(v)) return false;
+      return !!resolveProgramLabel(v);
+    }
+    case "Country of Origin": {
+      if (v.length > 40 || looksLikeSentence(v)) return false;
+      const originNorm = normalizeOrigin(v);
+      if (KNOWN_ORIGIN_RE.test(originNorm) || KNOWN_ORIGIN_RE.test(v)) {
+        return true;
+      }
+      if (/[\u4e00-\u9fff]/.test(v)) {
+        return v.length >= 2 && v.length <= 12 && !looksLikeAddress(v);
+      }
+      return countWords(v) <= 3 && /^[A-Za-z][A-Za-z\s\-.]{1,35}$/.test(v);
+    }
+    case "Countries/Regions of Distribution": {
+      if (v.length > 80 || looksLikeSentence(v)) return false;
+      const parts = v.split(/[,，、;/|]+/).map((p) => p.trim()).filter(Boolean);
+      if (!parts.length) return false;
+      let ok = 0;
+      for (const p of parts) {
+        if (
+          KNOWN_REGION_TOKEN_RE.test(p) || KNOWN_ORIGIN_RE.test(p) ||
+          (p.length <= 12 && /[\u4e00-\u9fffA-Za-z]/.test(p))
+        ) {
+          ok += 1;
+        }
+      }
+      return ok > 0 && ok >= Math.ceil(parts.length / 2);
+    }
+    case "Item#/model#": {
+      if (v.length > 40 || looksLikeSentence(v) || looksLikeAddress(v)) {
+        return false;
+      }
+      if (/^(?:No\.?|Number|#|N\/A)$/i.test(v)) return false;
+      const compact = v.replace(/\s+/g, "");
+      if (!/^[A-Za-z0-9][A-Za-z0-9\-_.\/#]{0,38}$/.test(compact)) {
+        if (
+          !/^[A-Za-z0-9][A-Za-z0-9\-_.\/# ]{1,38}$/.test(v) ||
+          countWords(v) > 3
+        ) {
+          return false;
+        }
+      }
+      if (/^(?:Manufacturer|Address|Rating|Made|China|Product)$/i.test(v)) {
+        return false;
+      }
+      return true;
+    }
+    case "Manufacturer": {
+      if (v.length > 80 || looksLikeSentence(v)) return false;
+      if (/^MADE\s+IN\b/i.test(v)) return false;
+      if (looksLikeTracking(v)) return false;
+      if (/\d+\s*V|\d+\s*W|\d+\s*Hz|^Rating\b/i.test(v)) return false;
+      return looksLikeCompanyName(v);
+    }
+    case "Manufacturer Address": {
+      if (v.length > 160) return false;
+      if (v.length < 6) return false;
+      if (/^(?:Manufacturer|Model|Rating|Contact|Company)$/i.test(v)) {
+        return false;
+      }
+      if (looksLikeTracking(v)) return false;
+      if (looksLikeAddress(v)) return true;
+      if (looksLikeSentence(v)) return false;
+      if (/[\u4e00-\u9fff]/.test(v) && v.length >= 8) return true;
+      return v.length >= 12 && countWords(v) >= 2;
+    }
+    case "Sample Collection Method": {
+      if (/^__SAMPLE_(?:SHIP|COLLECT|RECEIVED)__$/.test(v)) return true;
+      if (v.length > 80 || looksLikeSentence(v)) return false;
+      return /(?:寄送|邮寄|送样|现场收集|上门取样|已经拿到|已收到|仓库|ship|collect|received|courier|mail\s*sample)/i
+        .test(v);
+    }
+    case "Electric Product": {
+      if (/^__ELECTRIC_(?:YES|NO)__$/.test(v)) return true;
+      if (
+        /^(?:带电产品|非电产品|带电|非电|electric|non[-\s]?electric|yes|no)$/i
+          .test(v)
+      ) {
+        return true;
+      }
+      return false;
+    }
+    case "Product Description": {
+      if (v.length > 200 || looksLikeSentence(v)) return false;
+      if (/额定|Rating|Rated|\d+\s*[VvWw]|\d+\s*Hz|电池|充电|Input|Output|电压|功率/.test(v)) {
+        return true;
+      }
+      return v.length >= 2 && v.length <= 120 && countWords(v) <= 25;
+    }
+    case "Carrier": {
+      if (v.length > 40 || looksLikeSentence(v)) return false;
+      if (looksLikeTracking(v) && !KNOWN_CARRIER_RE.test(v)) return false;
+      if (KNOWN_CARRIER_RE.test(v)) return true;
+      return countWords(v) <= 4 && /[\u4e00-\u9fffA-Za-z]/.test(v) &&
+        !/^\d+$/.test(v);
+    }
+    case "Tracking Number": {
+      if (looksLikeSentence(v) || looksLikeAddress(v)) return false;
+      const tr = v.replace(/[\s\-]/g, "");
+      if (tr.length < 8 || tr.length > 32) return false;
+      if (!/^[A-Za-z0-9]+$/.test(tr)) return false;
+      if (/^(?:toy|fan|robot|product|china|made)/i.test(tr)) return false;
+      return looksLikeTracking(v) ||
+        (/[A-Za-z]/.test(tr) && /\d/.test(tr)) ||
+        /^\d{10,22}$/.test(tr);
+    }
+    case "Shipping Remark": {
+      if (v.length > 240) return false;
+      if (
+        looksLikeSentence(v) &&
+        !/(?:批号|生产日期|欧代|合规标识|\bCE\b|\bUKCA\b|\bFCC\b|\bRoHS\b|Batch|Remark)/i
+          .test(v)
+      ) {
+        return false;
+      }
+      return true;
+    }
+    default:
+      return v.length > 0 && v.length <= 200 && !looksLikeSentence(v);
+  }
+}
+
+function sanitizeParsedFields(
+  fields: FieldMap,
+  opts?: { rawExcerpt?: string },
+): FieldMap {
+  const out: FieldMap = {};
+  for (const key of FIELD_KEYS) {
+    out[key] = "";
+  }
+  const src = fields || {};
+  for (const key of FIELD_KEYS) {
+    let raw = String(src[key] || "").trim();
+    if (!raw) continue;
+    let candidate = raw;
+    if (key === "Product Name") {
+      candidate = cleanProductName(raw) || "";
+    } else if (key === "Country of Origin") {
+      candidate = normalizeOrigin(raw) || raw;
+    } else if (key === "Program") {
+      candidate = resolveProgramLabel(raw) || "";
+    }
+    if (!candidate || !isPlausibleField(key, candidate)) {
+      out[key] = "";
+      continue;
+    }
+    if (key === "Product Name") {
+      const cleaned = cleanProductName(candidate) || candidate;
+      out[key] = isPlausibleField(key, cleaned) ? cleaned : "";
+    } else if (key === "Program") {
+      out[key] = resolveProgramLabel(candidate) || "";
+    } else {
+      out[key] = candidate;
+    }
+  }
+
+  ensureProgramMatched(out, { rawExcerpt: opts?.rawExcerpt || "" });
+
+  if (opts?.rawExcerpt && out["Shipping Remark"]) {
+    const excerpt = String(opts.rawExcerpt || "").replace(/\s+/g, " ").trim()
+      .toLowerCase();
+    const remark = out["Shipping Remark"].replace(/\s+/g, " ").trim()
+      .toLowerCase();
+    if (excerpt.length > 40 && remark.length > 40) {
+      const overlap =
+        excerpt.indexOf(remark.slice(0, Math.min(40, remark.length))) !== -1 ||
+        remark.indexOf(excerpt.slice(0, Math.min(40, excerpt.length))) !== -1;
+      const hasBetter = !!(
+        out["Product Name"] || out["Manufacturer"] || out["Item#/model#"] ||
+        out["Country of Origin"]
+      );
+      if (
+        overlap && hasBetter &&
+        !/(?:批号|生产日期|欧代|合规标识|\bce\b|\bukca\b|\bfcc\b|batch)/i.test(remark)
+      ) {
+        out["Shipping Remark"] = "";
+      }
+    }
+  }
+
+  if (out["Product Description"] && out["Product Description"].length > 200) {
+    out["Product Description"] = out["Product Description"].slice(0, 200).trim();
+  }
+  if (out["Shipping Remark"] && out["Shipping Remark"].length > 240) {
+    out["Shipping Remark"] = out["Shipping Remark"].slice(0, 240).trim();
+  }
+  return out;
 }
 
 function isEmptyishField(val: unknown): boolean {
@@ -187,12 +741,67 @@ function isEmptyishField(val: unknown): boolean {
     .test(s);
 }
 
-/** Map alternate vision/LLM keys onto canonical FIELD_KEYS. */
-function canonicalizeFieldMap(
-  raw: Record<string, unknown> | null | undefined,
-): FieldMap {
-  const out: FieldMap = {};
-  if (!raw || typeof raw !== "object") return out;
+function editDistance(a: string, b: string): number {
+  if (a === b) return 0;
+  if (!a.length) return b.length;
+  if (!b.length) return a.length;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+function lettersOnlyKey(key: string): string {
+  return String(key || "").toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, "");
+}
+
+/** OCR/LLM often misspells Manufacturer → manufatcurer, manufactuer, etc. */
+function looksLikeManufacturerKeyToken(token: string): boolean {
+  const n = lettersOnlyKey(token);
+  if (!n || n.length < 6 || n.length > 22) return false;
+  if (
+    /address|addr|地址|厂址|产地|origin|model|product|program|carrier|tracking|sample|electric|region|country|remark|shipping/
+      .test(n)
+  ) {
+    return false;
+  }
+  if (
+    n === "manufacturer" || n === "manufacturers" || n === "manufacturedby" ||
+    n === "manufactory" || n === "mfr" || n === "mfg"
+  ) {
+    return true;
+  }
+  if (/manufactur/.test(n) || /manufatur/.test(n)) return true;
+  if (/manuf/.test(n) && editDistance(n, "manufacturer") <= 3) return true;
+  return editDistance(n, "manufacturer") <= 3;
+}
+
+function looksLikeManufacturerAddressKeyToken(token: string): boolean {
+  const raw = String(token || "");
+  const n = lettersOnlyKey(token);
+  if (/制造商地址|工厂地址|厂家地址|厂址/.test(raw)) return true;
+  if (!n) return false;
+  if (/(manufacturer|manufactur|manufatcur|manufatur).{0,6}(address|addr)/.test(n)) {
+    return true;
+  }
+  if (/(address|addr).{0,6}(manufacturer|manufactur)/.test(n)) return true;
+  return false;
+}
+
+function resolveCanonicalFieldKey(
+  key: string,
+): (typeof FIELD_KEYS)[number] | "" {
+  const raw = String(key || "").trim();
+  if (!raw) return "";
+  if ((FIELD_KEYS as readonly string[]).includes(raw)) {
+    return raw as (typeof FIELD_KEYS)[number];
+  }
   const alias: Record<string, (typeof FIELD_KEYS)[number]> = {
     "product name": "Product Name",
     product_name: "Product Name",
@@ -230,18 +839,38 @@ function canonicalizeFieldMap(
     "货号 / 型号": "Item#/model#",
     manufacturer: "Manufacturer",
     "manufacturer name": "Manufacturer",
+    manufacturer_name: "Manufacturer",
+    manufacturers: "Manufacturer",
+    manufactory: "Manufacturer",
+    "manufactured by": "Manufacturer",
+    manufactured_by: "Manufacturer",
+    manufactuer: "Manufacturer",
+    manufatcurer: "Manufacturer",
+    manufaturer: "Manufacturer",
+    manufacturor: "Manufacturer",
+    manfuacturer: "Manufacturer",
+    mfr: "Manufacturer",
+    mfg: "Manufacturer",
     company: "Manufacturer",
+    "company name": "Manufacturer",
     factory: "Manufacturer",
+    "factory name": "Manufacturer",
     制造商: "Manufacturer",
     生产商: "Manufacturer",
     厂家: "Manufacturer",
     厂商: "Manufacturer",
+    生产厂家: "Manufacturer",
+    工厂: "Manufacturer",
     "manufacturer address": "Manufacturer Address",
     manufacturer_address: "Manufacturer Address",
+    manufactueraddress: "Manufacturer Address",
+    manufatcureraddress: "Manufacturer Address",
     address: "Manufacturer Address",
     "factory address": "Manufacturer Address",
     制造商地址: "Manufacturer Address",
     厂址: "Manufacturer Address",
+    工厂地址: "Manufacturer Address",
+    厂家地址: "Manufacturer Address",
     地址: "Manufacturer Address",
     "sample collection method": "Sample Collection Method",
     "sample collection": "Sample Collection Method",
@@ -263,16 +892,45 @@ function canonicalizeFieldMap(
     备注: "Shipping Remark",
     物流备注: "Shipping Remark",
   };
+  const hit = alias[raw.toLowerCase()];
+  if (hit) return hit;
+  if (looksLikeManufacturerAddressKeyToken(raw)) return "Manufacturer Address";
+  if (looksLikeManufacturerKeyToken(raw)) return "Manufacturer";
+  if (/制造[商厂家]|生产商|厂商|厂家/.test(raw) && !/地址|addr/i.test(raw)) {
+    return "Manufacturer";
+  }
+  return "";
+}
+
+function cleanManufacturerValue(raw: string): string {
+  let v = String(raw || "").replace(/\s+/g, " ").trim();
+  if (!v) return "";
+  v = v.replace(
+    /^(?:Manufacturer|Manufactured\s+by|Made\s+by|Factory|Company|制造商|生产商|厂家|厂商)\s*[:：#.=-]?\s*/i,
+    "",
+  );
+  v = v.split(
+    /\s+(?:Address|Contact|EC\s*REP|UK\s*REP|Rating|Model|MADE\s+IN|制造商地址|厂址|地址)\b/i,
+  )[0].trim();
+  v = v.replace(/[,，;；]\s*$/, "").trim();
+  if (/^(Address|Model|Rating|Contact|Company|Manufacturer)$/i.test(v)) return "";
+  return v;
+}
+
+/** Map alternate vision/LLM keys onto canonical FIELD_KEYS. */
+function canonicalizeFieldMap(
+  raw: Record<string, unknown> | null | undefined,
+): FieldMap {
+  const out: FieldMap = {};
+  if (!raw || typeof raw !== "object") return out;
   for (const [key, value] of Object.entries(raw)) {
     if (isEmptyishField(value)) continue;
-    const text = String(value).trim();
-    let canon: (typeof FIELD_KEYS)[number] | undefined;
-    if ((FIELD_KEYS as readonly string[]).includes(key)) {
-      canon = key as (typeof FIELD_KEYS)[number];
-    } else {
-      canon = alias[key.trim().toLowerCase()];
-    }
+    let text = String(value).trim();
+    const canon = resolveCanonicalFieldKey(key);
     if (!canon) continue;
+    if (canon === "Manufacturer") {
+      text = cleanManufacturerValue(text) || text;
+    }
     if (!out[canon]) out[canon] = text;
   }
   return out;
@@ -443,8 +1101,8 @@ async function ocrImageStructured(
     '- "Product Name": 简短产品名称 ONLY（如 Electric Fan、Toy Race Car、智能机器人玩具）。' +
     '不要整句、不要「实验室检测 · xxx」、不要销往/制造商/型号后缀。从语音长句中只抠出品名\n' +
     '- "Item#/model#": 型号/货号，优先取 Model / Model No / 型号 / SKU / Item No / P/N（如 XP-085、XY-03）。键名必须是 Item#/model#，不要用 Model\n' +
-    '- "Manufacturer": 制造商公司全称（Manufacturer / Manufactured by / 制造商）\n' +
-    '- "Manufacturer Address": 制造商地址完整一行（Address / 厂址）；不要把欧代地址当作制造商地址\n' +
+    '- "Manufacturer": 制造商公司全称。标签上可能写作 Manufacturer / Manufactured by / Manufatcurer(拼写错误) / Company / Factory / 制造商 / 生产商 / 厂家——一律填到键名 "Manufacturer"（不要用别的键名）\n' +
+    '- "Manufacturer Address": 制造商地址完整一行（Address / 厂址）；不要把欧代地址当作制造商地址；键名必须是 "Manufacturer Address"\n' +
     '- "Country of Origin": 原产国（优先 MADE IN / Manufacturing location，值用简体如「中国」）\n' +
     '- "Batch": 批号/Batch\n' +
     '- "Date of manufacture": 生产日期\n' +
@@ -466,16 +1124,18 @@ async function ocrImageStructured(
       {
         role: "user",
         content: [
-          { type: "text", text: prompt },
           {
             type: "image_url",
             image_url: { url: `data:${media};base64,${b64}` },
           },
+          { type: "text", text: prompt },
         ],
       },
     ],
-    max_tokens: 1600,
+    // Keep tokens modest — latency on NIM vision is dominated by output size
+    max_tokens: 900,
     temperature: 0.05,
+    stream: false,
   });
   try {
     return parseJsonFromLlm(raw);
@@ -580,7 +1240,7 @@ function seedFieldsFromLabels(
     ) {
       const val = String(flat[key] || "").trim();
       if (val && !seed[key]) {
-        seed[key] = key === "Product Name" ? (cleanProductName(val) || val) : val;
+        seed[key] = key === "Product Name" ? (cleanProductName(val) || "") : val;
       }
     }
     const origin = normalizeOrigin(String(flat["Country of Origin"] || ""));
@@ -616,6 +1276,18 @@ function seedFieldsFromLabels(
         seed["Electric Product"] = "带电产品";
       }
     }
+    if (!seed.Program) {
+      const hintBlob = [
+        seed["Product Name"],
+        seed["Product Description"],
+        seed["Electric Product"],
+        String(label.ocr_text || ""),
+      ].join("\n");
+      seed.Program = matchProgramFromText(hintBlob, {
+        productName: seed["Product Name"] || "",
+        electricYes: /带电|electric/i.test(seed["Electric Product"] || ""),
+      });
+    }
     const extraRemark = buildShippingRemark(label);
     if (extraRemark) remarkBits.push(extraRemark);
   }
@@ -635,18 +1307,20 @@ function normalizeResult(
       ? parsed.fields as Record<string, unknown>
       : {};
   const fieldsIn = canonicalizeFieldMap(fieldsInRaw);
-  const fields: FieldMap = {};
+  let fields: FieldMap = {};
   for (const key of FIELD_KEYS) {
     let val = fieldsIn[key];
     if (isEmptyishField(val)) val = seedFields[key] || "";
     fields[key] = val != null ? String(val).trim() : "";
   }
   if (fields["Product Name"]) {
-    fields["Product Name"] = cleanProductName(fields["Product Name"]) ||
-      fields["Product Name"];
+    fields["Product Name"] = cleanProductName(fields["Product Name"]) || "";
   }
   if (fields["Country of Origin"]) {
     fields["Country of Origin"] = normalizeOrigin(fields["Country of Origin"]);
+  }
+  if (fields.Program) {
+    fields.Program = resolveProgramLabel(fields.Program) || fields.Program;
   }
   fields["Countries/Regions of Distribution"] = mergeRegionList(
     seedFields["Countries/Regions of Distribution"] || "",
@@ -674,25 +1348,29 @@ function normalizeResult(
     }
   }
 
+  const excerpt = String(parsed.raw_excerpt || "").slice(0, 500);
+  // Plausibility gate — drop clearly unreasonable OCR/LLM junk per field
+  fields = sanitizeParsedFields(fields, { rawExcerpt: excerpt });
+
   const summaryIn =
     parsed.product_summary && typeof parsed.product_summary === "object"
       ? parsed.product_summary as Record<string, unknown>
       : {};
   let summaryName = String(summaryIn.name || fields["Product Name"] || "").trim();
-  summaryName = cleanProductName(summaryName) || fields["Product Name"] || summaryName;
+  summaryName = cleanProductName(summaryName) || "";
+  if (summaryName && !isPlausibleField("Product Name", summaryName)) {
+    summaryName = "";
+  }
+  if (!summaryName) summaryName = fields["Product Name"] || "";
   const productSummary = {
     name: summaryName,
     brand: String(summaryIn.brand || "").trim(),
     hint: String(summaryIn.hint || "").trim(),
   };
-  if (!productSummary.name && fields["Product Name"]) {
-    productSummary.name = fields["Product Name"];
-  }
   const confidence =
     parsed.confidence && typeof parsed.confidence === "object"
       ? parsed.confidence
       : {};
-  const excerpt = String(parsed.raw_excerpt || "").slice(0, 500);
 
   return {
     product_summary: productSummary,
@@ -722,7 +1400,14 @@ async function structureFields(
     "明确非电填「非电产品」，否则空字符串\n" +
     "6) Product Description：带电时写入 Rating/电池/充电等要点\n" +
     "7) Shipping Remark 可汇总批号、生产日期、欧代、合规标识\n" +
-    "8) 无法确定的字段留空字符串\n" +
+    "8) Program：只能从下列固定列表中选择完整字符串之一，禁止自创：" +
+    PROGRAM_CATALOG.map((p) => `「${p}」`).join("、") +
+    "。根据品名/品类推断：玩具→Toys，睡衣→Textile Sleepwear，纺织/面料非睡衣→Textile Non-Sleepwear，" +
+    "食品接触/FCM→FCM，眼镜/PPE→Eyewear，电子/电压/风扇→Electric product，杂货/五金→Hardware，" +
+    "只做MSDS→MSDS，SH-Self 字样→SH-Self，字面 DEFAULT→DEFAULT。" +
+    "付款方：TEMU Pay / TEMU 付款 vs Seller Pay / 商家付款；未提及付款方时默认 Seller Pay 变体（若该品类有）。" +
+    "置信度不足则 Program 留空字符串。\n" +
+    "9) 无法确定或明显不合理的字段留空字符串，不要编造、不要把整段语音塞进任一字段\n" +
     'JSON：{"product_summary":{"name":"短品名","brand":"","hint":""},' +
     '"fields":{...},"confidence":{...},"raw_excerpt":""}';
 
@@ -741,7 +1426,8 @@ async function structureFields(
       { role: "user", content: user },
     ],
     temperature: 0.1,
-    max_tokens: 2048,
+    // Cap output — full catalog already seeded; shorter JSON = faster
+    max_tokens: 1400,
   });
   const parsed = parseJsonFromLlm(raw);
   return normalizeResult(parsed, seedFields);

@@ -2777,93 +2777,40 @@
       }));
     }
 
-    /** Map alternate OCR/LLM keys onto canonical English field names. */
+    /** Map alternate OCR/LLM keys onto canonical English field names (incl. manufatcurer typos). */
     function canonicalizeParsedFields(raw){
       if(!raw || typeof raw !== 'object') return {};
+      if(window.QimaLabelParse && typeof QimaLabelParse.canonicalizeFieldKeys === 'function'){
+        return QimaLabelParse.canonicalizeFieldKeys(raw);
+      }
       const out = {};
-      const aliasToCanonical = {
-        'product name': 'Product Name',
-        'product_name': 'Product Name',
-        'productname': 'Product Name',
-        '品名': 'Product Name',
-        '产品名称': 'Product Name',
-        'program': 'Program',
-        '关联项目': 'Program',
-        'country of origin': 'Country of Origin',
-        'country_of_origin': 'Country of Origin',
-        'origin': 'Country of Origin',
-        'made in': 'Country of Origin',
-        '原产国': 'Country of Origin',
-        '原产国家或地区': 'Country of Origin',
-        '产地': 'Country of Origin',
-        'countries/regions of distribution': 'Countries/Regions of Distribution',
-        'countries of distribution': 'Countries/Regions of Distribution',
-        'distribution': 'Countries/Regions of Distribution',
-        'sales regions': 'Countries/Regions of Distribution',
-        '销售国家或地区': 'Countries/Regions of Distribution',
-        '销往': 'Countries/Regions of Distribution',
-        'item#/model#': 'Item#/model#',
-        'item # / model #': 'Item#/model#',
-        'item/model': 'Item#/model#',
-        'item_model': 'Item#/model#',
-        'model': 'Item#/model#',
-        'model no': 'Item#/model#',
-        'model no.': 'Item#/model#',
-        'model number': 'Item#/model#',
-        'model#': 'Item#/model#',
-        'sku': 'Item#/model#',
-        'p/n': 'Item#/model#',
-        'pn': 'Item#/model#',
-        '型号': 'Item#/model#',
-        '货号': 'Item#/model#',
-        '货号 / 型号': 'Item#/model#',
-        'manufacturer': 'Manufacturer',
-        'manufacturer name': 'Manufacturer',
-        'company': 'Manufacturer',
-        'factory': 'Manufacturer',
-        '制造商': 'Manufacturer',
-        '生产商': 'Manufacturer',
-        '厂家': 'Manufacturer',
-        '厂商': 'Manufacturer',
-        'manufacturer address': 'Manufacturer Address',
-        'manufacturer_address': 'Manufacturer Address',
-        'address': 'Manufacturer Address',
-        'factory address': 'Manufacturer Address',
-        '制造商地址': 'Manufacturer Address',
-        '厂址': 'Manufacturer Address',
-        '地址': 'Manufacturer Address',
-        'sample collection method': 'Sample Collection Method',
-        'sample collection': 'Sample Collection Method',
-        '样品收集方式': 'Sample Collection Method',
-        'electric product': 'Electric Product',
-        'electrical product': 'Electric Product',
-        '产品是否带电': 'Electric Product',
-        'product description': 'Product Description',
-        'rating': 'Product Description',
-        '产品说明': 'Product Description',
-        'carrier': 'Carrier',
-        '快递公司': 'Carrier',
-        'tracking number': 'Tracking Number',
-        'tracking no': 'Tracking Number',
-        '运单号': 'Tracking Number',
-        'shipping remark': 'Shipping Remark',
-        'remark': 'Shipping Remark',
-        'remarks': 'Shipping Remark',
-        '备注': 'Shipping Remark',
-        '物流备注': 'Shipping Remark'
-      };
       const emptyish = /^(n\/?a|none|null|undefined|unknown|未知|无|暂无|不清楚|not\s*available|-|—|–|\.)$/i;
+      const resolve = (window.QimaLabelParse && QimaLabelParse.resolveCanonicalFieldKey)
+        ? QimaLabelParse.resolveCanonicalFieldKey
+        : function(key){
+            const aliases = {
+              manufacturer: 'Manufacturer', manufatcurer: 'Manufacturer', manufactuer: 'Manufacturer',
+              'manufacturer name': 'Manufacturer', company: 'Manufacturer', factory: 'Manufacturer',
+              '制造商': 'Manufacturer', '生产商': 'Manufacturer', '厂家': 'Manufacturer', '厂商': 'Manufacturer',
+              'manufacturer address': 'Manufacturer Address', address: 'Manufacturer Address',
+              '制造商地址': 'Manufacturer Address', '厂址': 'Manufacturer Address'
+            };
+            if(['Product Name','Program','Country of Origin','Countries/Regions of Distribution',
+              'Item#/model#','Manufacturer','Manufacturer Address','Sample Collection Method',
+              'Electric Product','Product Description','Carrier','Tracking Number','Shipping Remark'
+            ].indexOf(key) !== -1) return key;
+            return aliases[String(key).trim().toLowerCase()] || '';
+          };
       Object.keys(raw).forEach(function(key){
         const val = raw[key];
         if(val == null) return;
-        const text = String(val).trim();
+        let text = String(val).trim();
         if(!text || emptyish.test(text)) return;
-        const canon = aliasToCanonical[String(key).trim().toLowerCase()] ||
-          (['Product Name','Program','Country of Origin','Countries/Regions of Distribution',
-            'Item#/model#','Manufacturer','Manufacturer Address','Sample Collection Method',
-            'Electric Product','Product Description','Carrier','Tracking Number','Shipping Remark'
-          ].indexOf(key) !== -1 ? key : '');
+        const canon = resolve(key);
         if(!canon) return;
+        if(canon === 'Manufacturer' && window.QimaLabelParse && QimaLabelParse.cleanManufacturerValue){
+          text = QimaLabelParse.cleanManufacturerValue(text) || text;
+        }
         if(!out[canon]) out[canon] = text;
       });
       return out;
