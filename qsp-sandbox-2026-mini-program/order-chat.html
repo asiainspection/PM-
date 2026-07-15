@@ -2691,7 +2691,8 @@
         parsingDocx: 'orderChat.parsingDocx',
         parsingLegacyDoc: 'orderChat.parsingLegacyDoc',
         parsingVoice: 'orderChat.parsingVoice',
-        parsingLink: 'orderChat.parsingLink'
+        parsingLink: 'orderChat.parsingLink',
+        parsingCombine: 'orderChat.parsingCombine'
       };
       if(msg && keyMap[msg]) return t(keyMap[msg]);
       return msg || t('orderChat.parsingLocal');
@@ -3088,42 +3089,63 @@
       const userRow = userMsg(parts.join('<div style="margin-top:6px"></div>'));
       markUserBubbleParsing(userRow, true);
 
+      const srcBits = [];
+      if(hasVoiceInput) srcBits.push('voice');
+      if(v) srcBits.push('link');
+      if(hasUploadedFiles) srcBits.push('doc');
       let src = t('orderChat.recognizeSourceLink');
-      if(hasVoiceInput && (hasUploadedFiles || v)) src = t('orderChat.recognizeSourceBoth');
-      else if(hasVoiceInput) src = t('orderChat.recognizeSourceVoice');
+      if(srcBits.length === 3) src = t('orderChat.recognizeSourceAll');
+      else if(hasVoiceInput && v) src = t('orderChat.recognizeSourceVoiceLink');
+      else if(hasVoiceInput && hasUploadedFiles) src = t('orderChat.recognizeSourceVoiceDoc');
       else if(hasUploadedFiles && v) src = t('orderChat.recognizeSourceBoth');
+      else if(hasVoiceInput) src = t('orderChat.recognizeSourceVoice');
       else if(hasUploadedFiles) src = t('orderChat.recognizeSourceDoc');
 
       const api = window.QimaSupabase;
       setParseButtonBusy(true);
-      const hint = v ? t('orderChat.parsingLink') : t('orderChat.parsingHint');
+      const multiSource = srcBits.length >= 2;
+      const hint = multiSource
+        ? t('orderChat.parsingCombine')
+        : (v ? t('orderChat.parsingLink') : t('orderChat.parsingHint'));
       const progressRow = botMsg(parseProgressCard(hint), true);
-      const remoteTimeoutMs = v ? 75000 : 55000;
+      // Voice + link page fetch + OCR can be slow
+      const remoteTimeoutMs = (hasVoiceInput && v && hasUploadedFiles) ? 90000
+        : (v ? 75000 : 55000);
 
       collectParseFiles().then(function(files){
-        updateParseProgressCard(progressRow, v ? t('orderChat.parsingLink') : t('orderChat.parsingRemote'));
+        updateParseProgressCard(
+          progressRow,
+          multiSource ? t('orderChat.parsingCombine') : (v ? t('orderChat.parsingLink') : t('orderChat.parsingRemote'))
+        );
 
+        // Always send all three channels together — cloud merges into one form fill
         const remote = (api && typeof api.parseOrder === 'function')
           ? withTimeout(api.parseOrder({ voiceText: voiceTranscript, link: v, files: files }), remoteTimeoutMs, 'remote_timeout')
           : Promise.reject(Object.assign(new Error('missing_parse_client'), { code: 'missing_parse_client' }));
 
         return remote.then(function(result){
-          if(result && result.fields) result.source = result.source || 'edge_ai';
+          if(result && result.fields){
+            result.source = result.source || 'edge_ai';
+            if(multiSource && result.product_summary){
+              result.product_summary.hint = src;
+            }
+          }
           return result;
         }).catch(function(err){
           console.warn('parseOrder remote failed, trying local parse', err);
-          updateParseProgressCard(progressRow, v ? t('orderChat.parsingLink') : t('orderChat.parsingLocal'));
+          updateParseProgressCard(progressRow, multiSource ? t('orderChat.parsingCombine') : (v ? t('orderChat.parsingLink') : t('orderChat.parsingLocal')));
           if(window.QimaLabelParse && typeof QimaLabelParse.parseFilesLocally === 'function'){
             return withTimeout(
               QimaLabelParse.parseFilesLocally(files, voiceTranscript, v, function(msg){
                 updateParseProgressCard(progressRow, localizeParseProgress(msg));
               }),
-              v ? 50000 : 45000,
+              (v || multiSource) ? 55000 : 45000,
               'local_timeout'
             );
           }
           throw err;
         }).then(function(result){
+          // Fill any gaps from voice locally after cloud merge
           return enrichParseResultWithVoice(result, voiceTranscript);
         });
       }).then(function(result){
