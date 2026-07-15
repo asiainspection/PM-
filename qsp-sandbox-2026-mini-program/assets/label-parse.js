@@ -1701,55 +1701,193 @@
     });
   }
 
+  function pdfBaseName(file) {
+    var name = String((file && file.name) || 'document.pdf');
+    return name.replace(/\.pdf$/i, '') || 'document';
+  }
+
+  function renderPdfPageToJpegFile(page, baseName, pageNum, opts) {
+    opts = opts || {};
+    var maxSide = opts.maxSide || 1280;
+    var quality = opts.quality != null ? opts.quality : 0.85;
+    var scale = opts.scale || 2;
+    var viewport = page.getViewport({ scale: scale });
+    var w = viewport.width;
+    var h = viewport.height;
+    if (w > maxSide || h > maxSide) {
+      var fit = Math.min(maxSide / w, maxSide / h);
+      viewport = page.getViewport({ scale: scale * fit });
+      w = viewport.width;
+      h = viewport.height;
+    }
+    var canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(w));
+    canvas.height = Math.max(1, Math.round(h));
+    var ctx = canvas.getContext('2d');
+    return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
+      return new Promise(function (resolve) {
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            resolve(null);
+            return;
+          }
+          resolve(new File(
+            [blob],
+            baseName + '-page' + pageNum + '.jpg',
+            { type: 'image/jpeg' }
+          ));
+        }, 'image/jpeg', quality);
+      });
+    });
+  }
+
+  function collectPdfText(pdf, maxPages) {
+    var texts = [];
+    var chain = Promise.resolve();
+    var limit = Math.min(pdf.numPages || 1, maxPages || 3);
+    for (var i = 1; i <= limit; i++) {
+      (function (pageNum) {
+        chain = chain.then(function () {
+          return pdf.getPage(pageNum).then(function (page) {
+            return page.getTextContent().then(function (tc) {
+              var pageText = (tc.items || [])
+                .map(function (it) { return it.str; })
+                .join(' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+              if (pageText) texts.push(pageText);
+            });
+          });
+        });
+      })(i);
+    }
+    return chain.then(function () {
+      return texts.join('\n\n').trim();
+    });
+  }
+
+  function rasterizePdfToImageFiles(file, onProgress, opts) {
+    opts = opts || {};
+    var maxPages = opts.maxPages || 3;
+    return loadPdfJs().then(function (pdfjsLib) {
+      notifyProgress(onProgress, 'parsingPdfPages', '正在将 PDF 页面转为图片识别…');
+      return file.arrayBuffer().then(function (buf) {
+        return pdfjsLib.getDocument({ data: buf }).promise;
+      }).then(function (pdf) {
+        var base = pdfBaseName(file);
+        var pages = Math.min(pdf.numPages || 1, maxPages);
+        var images = [];
+        var chain = Promise.resolve();
+        for (var i = 1; i <= pages; i++) {
+          (function (pageNum) {
+            chain = chain.then(function () {
+              return pdf.getPage(pageNum).then(function (page) {
+                return renderPdfPageToJpegFile(page, base, pageNum, opts);
+              }).then(function (imgFile) {
+                if (imgFile) images.push(imgFile);
+              });
+            });
+          })(i);
+        }
+        return chain.then(function () { return images; });
+      });
+    });
+  }
+
+  /**
+   * Cloud parse only extracts PDF text layers. Scanned / image-only PDFs need
+   * page rasterization first so NVIDIA vision can OCR them like photos.
+   */
+  function prepareFilesForCloudParse(files, onProgress) {
+    files = files || [];
+    var out = [];
+    var chain = Promise.resolve();
+    files.forEach(function (file) {
+      chain = chain.then(function () {
+        if (!file || !file.size) return;
+        if (!isPdfFile(file)) {
+          out.push(file);
+          return;
+        }
+        notifyProgress(onProgress, 'parsingPdf', '正在读取 PDF…');
+        return loadPdfJs().then(function (pdfjsLib) {
+          return file.arrayBuffer().then(function (buf) {
+            return pdfjsLib.getDocument({ data: buf }).promise;
+          });
+        }).then(function (pdf) {
+          return collectPdfText(pdf, 3).then(function (combined) {
+            if (combined.length >= 30) {
+              // Real text layer — keep PDF for server-side extractText
+              out.push(file);
+              return;
+            }
+            notifyProgress(onProgress, 'parsingPdfOcr', 'PDF 无文本层，改为图片识别…');
+            var base = pdfBaseName(file);
+            var pages = Math.min(pdf.numPages || 1, 3);
+            var pageChain = Promise.resolve();
+            for (var i = 1; i <= pages; i++) {
+              (function (pageNum) {
+                pageChain = pageChain.then(function () {
+                  return pdf.getPage(pageNum).then(function (page) {
+                    return renderPdfPageToJpegFile(page, base, pageNum, {
+                      maxSide: 1280,
+                      scale: 2,
+                      quality: 0.85
+                    });
+                  }).then(function (imgFile) {
+                    if (imgFile) out.push(imgFile);
+                  });
+                });
+              })(i);
+            }
+            return pageChain;
+          });
+        }).catch(function (err) {
+          console.warn('pdf prepare for cloud failed, uploading original', err);
+          out.push(file);
+        });
+      });
+    });
+    return chain.then(function () {
+      return out.slice(0, 6);
+    });
+  }
+
   function extractTextFromPdf(file, onProgress) {
     return loadPdfJs().then(function (pdfjsLib) {
       notifyProgress(onProgress, 'parsingPdf', '正在读取 PDF…');
       return file.arrayBuffer().then(function (buf) {
         return pdfjsLib.getDocument({ data: buf }).promise;
       }).then(function (pdf) {
-        var maxPages = Math.min(pdf.numPages || 1, 3);
-        var texts = [];
-        var chain = Promise.resolve();
-        for (var i = 1; i <= maxPages; i++) {
-          (function (pageNum) {
-            chain = chain.then(function () {
-              return pdf.getPage(pageNum).then(function (page) {
-                return page.getTextContent().then(function (tc) {
-                  var pageText = (tc.items || [])
-                    .map(function (it) { return it.str; })
-                    .join(' ')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-                  if (pageText) texts.push(pageText);
-                });
-              });
-            });
-          })(i);
-        }
-        return chain.then(function () {
-          var combined = texts.join('\n\n').trim();
+        return collectPdfText(pdf, 3).then(function (combined) {
           if (combined.length >= 30) return combined;
 
-          // Scanned PDF: rasterize first page then OCR
+          // Scanned PDF: rasterize pages then local OCR
           notifyProgress(onProgress, 'parsingPdfOcr', 'PDF 无文本层，改为图片识别…');
-          return pdf.getPage(1).then(function (page) {
-            var viewport = page.getViewport({ scale: 2 });
-            var canvas = document.createElement('canvas');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            var ctx = canvas.getContext('2d');
-            return page.render({ canvasContext: ctx, viewport: viewport }).promise.then(function () {
-              return new Promise(function (resolve) {
-                canvas.toBlob(function (blob) {
-                  if (!blob) {
-                    resolve('');
-                    return;
-                  }
-                  var imgFile = new File([blob], 'pdf-page1.png', { type: 'image/png' });
-                  ocrImageFile(imgFile, onProgress).then(resolve).catch(function () { resolve(''); });
-                }, 'image/png');
+          var maxPages = Math.min(pdf.numPages || 1, 3);
+          var texts = [];
+          var chain = Promise.resolve();
+          var base = pdfBaseName(file);
+          for (var i = 1; i <= maxPages; i++) {
+            (function (pageNum) {
+              chain = chain.then(function () {
+                return pdf.getPage(pageNum).then(function (page) {
+                  return renderPdfPageToJpegFile(page, base, pageNum, {
+                    maxSide: 1600,
+                    scale: 2,
+                    quality: 0.9
+                  });
+                }).then(function (imgFile) {
+                  if (!imgFile) return;
+                  return ocrImageFile(imgFile, onProgress).then(function (t) {
+                    if (t && String(t).trim()) texts.push(String(t).trim());
+                  }).catch(function () { /* continue */ });
+                });
               });
-            });
+            })(i);
+          }
+          return chain.then(function () {
+            return texts.join('\n\n').trim();
           });
         });
       });
@@ -2154,6 +2292,8 @@
     extractWaybillFromOcrText: extractWaybillFromOcrText,
     recognizeWaybillImage: recognizeWaybillImage,
     parseFilesLocally: parseFilesLocally,
+    prepareFilesForCloudParse: prepareFilesForCloudParse,
+    rasterizePdfToImageFiles: rasterizePdfToImageFiles,
     loadTesseract: loadTesseract,
     getProgramCatalog: getProgramCatalog,
     matchProgramFromText: matchProgramFromText,

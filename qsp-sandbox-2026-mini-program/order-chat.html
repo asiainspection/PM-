@@ -1099,7 +1099,7 @@
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260714c"></script>
 <script src="assets/supabase-client.js?v=20260714c"></script>
-<script src="assets/label-parse.js?v=20260714k"></script>
+<script src="assets/label-parse.js?v=20260715a"></script>
 </head>
 <body>
   <div class="phone">
@@ -2688,6 +2688,7 @@
         parsingImage: 'orderChat.parsingImage',
         parsingPdf: 'orderChat.parsingPdf',
         parsingPdfOcr: 'orderChat.parsingPdfOcr',
+        parsingPdfPages: 'orderChat.parsingPdfPages',
         parsingDocx: 'orderChat.parsingDocx',
         parsingLegacyDoc: 'orderChat.parsingLegacyDoc',
         parsingVoice: 'orderChat.parsingVoice',
@@ -2768,11 +2769,17 @@
       });
     }
 
-    function collectParseFiles(){
+    function collectParseFiles(onProgress){
       const items = uploadedFileList.filter(function(item){ return item.file && item.file.size; });
       return Promise.all(items.slice(0, 5).map(function(item){
         return compressImageFileForParse(item.file);
-      }));
+      })).then(function(files){
+        // Image-only / scanned PDFs have no text layer — rasterize pages so cloud vision can OCR
+        if(window.QimaLabelParse && typeof QimaLabelParse.prepareFilesForCloudParse === 'function'){
+          return QimaLabelParse.prepareFilesForCloudParse(files, onProgress);
+        }
+        return files;
+      });
     }
 
     /** Map alternate OCR/LLM keys onto canonical English field names (incl. manufatcurer typos). */
@@ -3109,10 +3116,18 @@
         : (v ? t('orderChat.parsingLink') : t('orderChat.parsingHint'));
       const progressRow = botMsg(parseProgressCard(hint), true);
       // Voice + link page fetch + OCR can be slow
+      const hasPdfUpload = uploadedFileList.some(function(item){
+        const f = item && item.file;
+        if(!f) return false;
+        const name = String(f.name || '').toLowerCase();
+        return f.type === 'application/pdf' || name.endsWith('.pdf');
+      });
       const remoteTimeoutMs = (hasVoiceInput && v && hasUploadedFiles) ? 90000
-        : (v ? 75000 : 55000);
+        : (hasPdfUpload ? 85000 : (v ? 75000 : 55000));
 
-      collectParseFiles().then(function(files){
+      collectParseFiles(function(msg){
+        updateParseProgressCard(progressRow, localizeParseProgress(msg));
+      }).then(function(files){
         updateParseProgressCard(
           progressRow,
           multiSource ? t('orderChat.parsingCombine') : (v ? t('orderChat.parsingLink') : t('orderChat.parsingRemote'))
