@@ -404,23 +404,26 @@
     name = name.replace(/^product\s*name\s*[:：=]\s*/i, '');
     name = name.replace(/^品名\s*[:：=]\s*/, '');
     name = name.replace(/^产品名称\s*[:：=]\s*/, '');
+    name = name.replace(/^名称\s*[:：=]\s*/, '');
 
     // Cut English trailing clauses / model suffixes
     name = name.split(
       /\s+(?:sold\s+(?:in|to|for)|manufactured\s+by|made\s+(?:by|in)|produced\s+by|exported\s+to|shipped\s+to|distribut(?:ed|ion)\s+(?:in|to|for)|intended\s+for|for\s+(?:the\s+)?(?:US|U\.S\.|USA|UK|EU|European|American|Chinese|market)|from\s+(?:the\s+)?(?:factory|manufacturer|supplier)|that\s+(?:is|are|was|were|has|have)|which\s+(?:is|are|was|were)|and\s+(?:I|we|the|it)|(?:I|we)\s+(?:need|want|will)|with\s+(?:batter|power)|Model\b|型号|item\s*(?:no\.?|number|#)|SKU|P\s*\/?\s*N)\b/i
     )[0];
 
-    // Cut Chinese trailing clauses
+    // Cut Chinese trailing clauses / form neighbors (规格|标准|型号…)
     name = name.split(
-      /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/
+      /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/
     )[0];
 
     // Drop leading articles / quantifiers
     name = name.replace(/^(?:一款|一个|一台|一件|这种|这个|那个|该|a|an|the|my|our|this|that)\s+/i, '').trim();
     // Drop trailing "做检测/for testing" leftovers
     name = name.replace(/(?:做(?:实验室)?(?:检测|测试)|的检测|的测试|for\s+(?:lab\s+)?(?:testing|test|inspection))$/i, '').trim();
-    name = name.replace(/[,，。.;；:：!！?？\-~–—|/\\·•]+$/g, '').trim();
-    name = name.replace(/^[,，。.;；:：\-~–—|/\\·•]+/, '').trim();
+    name = name.replace(/[,，。.;；:：!！?？\-_~–—|/\\·•]+$/g, '').trim();
+    name = name.replace(/^[,，。.;；:：\-_~–—|/\\·•]+/, '').trim();
+    // OCR underscore placeholders from blank forms
+    name = name.replace(/_{2,}/g, ' ').replace(/\s+/g, ' ').trim();
 
     // Prefer short titles — CJK vs Latin length caps
     var hasCjk = /[\u4e00-\u9fff]/.test(name);
@@ -435,12 +438,14 @@
       }
     }
 
-    // Reject bare service / standard labels (not products)
-    if (/^(?:实验室(?:检测|测试)?|检测服务|验货|装运前(?:检测|检验)|Lab(?:oratory)?\s*(?:testing|test|inspection)?|Pre[-\s]?Shipment\s*Inspection|PSI|Inspection|Testing|EN\s*71|CPSIA|ASTM|RoHS|CE|UKCA|FCC)$/i.test(name)) {
+    if (looksLikeNonProductName(name)) return '';
+
+    // Reject bare service labels (not products)
+    if (/^(?:实验室(?:检测|测试)?|检测服务|验货|装运前(?:检测|检验)|Lab(?:oratory)?\s*(?:testing|test|inspection)?|Pre[-\s]?Shipment\s*Inspection|PSI|Inspection|Testing)$/i.test(name)) {
       return '';
     }
     // Reject if still looks like a whole sentence / bare service phrase
-    if (/^(?:实验室|检测|测试|lab|testing|inspection)\b/i.test(name) && !/(?:玩具|机器人|风扇|鼠标|Fan|Toy|Mouse|Robot)/i.test(name)) {
+    if (/^(?:实验室|检测|测试|lab|testing|inspection)\b/i.test(name) && !/(?:玩具|机器人|风扇|鼠标|直发|电吹|Fan|Toy|Mouse|Robot|Straightener|Hair)/i.test(name)) {
       if (name.length > 12) return '';
     }
     // Too many clause markers → still a transcript dump
@@ -451,8 +456,41 @@
     }
     var wordCount = name.split(/\s+/).filter(Boolean).length;
     if (!hasCjk && wordCount > 8) return '';
-    if ((hasCjk && name.length > 1) || (!hasCjk && name.length > 1)) return name;
     return name.length >= 2 ? name : '';
+  }
+
+  /** Model codes, electrical ratings, standards, watermarks — not product names. */
+  function looksLikeNonProductName(s) {
+    var t = String(s || '').replace(/\s+/g, ' ').trim();
+    if (!t) return true;
+    if (/^(?:型号|名称|品名|规格|标准|Manufacturer|Model|Rating|Address|Product)$/i.test(t)) {
+      return true;
+    }
+    // Watermark / site junk from scanned docs
+    if (/(?:wenku\.baidu|baidu\.com|docin\.com|jd\.com|tmall\.com|iframe|http)/i.test(t)) {
+      return true;
+    }
+    // Safety / IEC standards dumped as "name"
+    if (/^(?:EN|IEC|ISO|UL|ASTM|GB\/?T?)\s*[-.]?\d/i.test(t)) return true;
+    if (/\bEN\s*60335|\bIEC\s*\d|GB\/T?\s*\d/i.test(t) && !/[\u4e00-\u9fff]/.test(t)) {
+      return true;
+    }
+    // Electrical rating / 规格 line
+    if (/(?:\d+\s*(?:Vac?|V(?:ac)?|Hz|k?W|mA|A)\b).{0,20}(?:\d+\s*(?:Vac?|V|Hz|W))/i.test(t)) {
+      return true;
+    }
+    if (/^\d+\s*(?:Vac?|V|Hz|W|mA)\b/i.test(t)) return true;
+    // Bare model/SKU codes (HT060, XP-085) — belong in Item#/model#
+    var compact = t.replace(/\s+/g, '');
+    if (!/[\u4e00-\u9fff]/.test(compact)) {
+      if (
+        /^[A-Za-z]{1,5}\d{2,8}[A-Za-z0-9\-_./#]*$/i.test(compact) ||
+        /^\d{2,6}[A-Za-z]{1,4}\d{0,4}$/i.test(compact)
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   var KNOWN_ORIGIN_RE =
@@ -520,11 +558,13 @@
       case 'Product Name': {
         if (v.length > 100) return false;
         if (looksLikeSentence(v)) return false;
+        if (looksLikeNonProductName(v)) return false;
         if (/^(?:实验室(?:检测|测试)?|检测服务|Lab(?:oratory)?\s*(?:testing|test)?|PSI|Inspection|Testing|EN\s*71|CPSIA)$/i.test(v)) {
           return false;
         }
         var cleaned = cleanProductName(v);
         if (!cleaned || cleaned.length < 2) return false;
+        if (looksLikeNonProductName(cleaned)) return false;
         if (cleaned.length > 80) return false;
         var hasCjk = /[\u4e00-\u9fff]/.test(cleaned);
         if (!hasCjk && countWords(cleaned) > 8) return false;
@@ -986,34 +1026,62 @@
   }
 
   function extractProductName(text) {
-    var productName = pick(text, [
+    var src = String(text || '');
+    // Chinese spec sheets often use 名称（not 产品名称）; avoid 公司/厂家名称
+    var zhName = pick(src, [
+      /产品名称\s*[:：_\s]*([^\n]{1,40})/,
+      /品名\s*[:：_\s]*([^\n]{1,40})/,
+      /Product\s*name\s*[:：]\s*([^\n]+)/i,
+      /(?:^|\n)\s*名称\s*[:：_\s]+(?!公司|厂家|厂商|制造商|企业|单位)([^\n型号规格标准]{1,40})/,
+      /(?:^|\n)\s*名称\s+(?!公司|厂家|厂商|制造商|企业|单位)([\u4e00-\u9fffA-Za-z][^\n型号规格标准]{0,36})/
+    ]);
+    if (zhName) {
+      zhName = zhName
+        .replace(/\s+/g, ' ')
+        .split(/\s*(?:型号|规格|标准|Model|Rated|Rating|Manufacturer)\b/i)[0]
+        .replace(/[_…]{2,}/g, '')
+        .trim();
+      zhName = cleanProductName(zhName);
+      if (zhName && isPlausibleField('Product Name', zhName)) return zhName;
+    }
+
+    var productName = pick(src, [
       /Product\s*name\s*[:：]\s*([^\n]+)/i,
       /品名\s*[:：]?\s*([^\n]+)/,
       /产品名称\s*[:：]?\s*([^\n]+)/
     ]);
     if (productName) {
       productName = productName.replace(/\s+/g, ' ').trim();
-      productName = productName.split(/\s+(?:Model|型号|Rated|Rating|FCC|Manufacturer)\b/i)[0].trim();
+      productName = productName.split(/\s+(?:Model|型号|规格|标准|Rated|Rating|FCC|Manufacturer)\b/i)[0].trim();
       productName = cleanProductName(productName);
-      if (productName) return productName;
+      if (productName && isPlausibleField('Product Name', productName)) return productName;
     }
     // Title line directly above Model (common nameplate / Word table export)
-    var aboveModel = text.match(
-      /(?:^|\n)\s*([A-Za-z\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff &/\-]{1,60}?)\s*(?:\n|\r)+\s*Model\b/i
+    var aboveModel = src.match(
+      /(?:^|\n)\s*([A-Za-z\u4e00-\u9fff][A-Za-z0-9\u4e00-\u9fff &/\-]{1,60}?)\s*(?:\n|\r)+\s*(?:Model|型号)\b/i
     );
     if (aboveModel) {
       var title = cleanProductName(aboveModel[1]);
-      if (title && !/^(Manufacturer|Address|Rating|Contact|EC\s*REP|UK\s*REP)$/i.test(title)) {
+      if (
+        title &&
+        isPlausibleField('Product Name', title) &&
+        !/^(Manufacturer|Address|Rating|Contact|EC\s*REP|UK\s*REP|规格|标准)$/i.test(title)
+      ) {
         return title;
       }
     }
     // Common appliance titles glued on one line: "Electric Fan Model XP-085"
-    var glued = text.match(
-      /\b((?:Electric|Wireless|Smart|Portable)?\s*(?:Fan|Heater|Lamp|Light|Mouse|Speaker|Robot|Toy|Blender|Kettle)[A-Za-z ]{0,20})\s+Model\b/i
+    var glued = src.match(
+      /\b((?:Electric|Wireless|Smart|Portable|Hair)?\s*(?:Fan|Heater|Lamp|Light|Mouse|Speaker|Robot|Toy|Blender|Kettle|Straightener|Dryer)[A-Za-z ]{0,20})\s+Model\b/i
     );
-    if (glued) return cleanProductName(glued[1]);
+    if (glued) {
+      var gluedName = cleanProductName(glued[1]);
+      if (gluedName && isPlausibleField('Product Name', gluedName)) return gluedName;
+    }
     // Voice / free-text fallback when OCR layout patterns miss
-    return extractSpokenProductName(text);
+    var spoken = extractSpokenProductName(src);
+    if (spoken && isPlausibleField('Product Name', spoken)) return spoken;
+    return '';
   }
 
   function editDistance(a, b) {
