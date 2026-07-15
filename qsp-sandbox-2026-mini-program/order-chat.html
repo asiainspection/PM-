@@ -990,9 +990,10 @@
     min-height: 30px; font-size: 12px; color: var(--carbon);
   }
   .distribution-option input { width: 16px; height: 16px; accent-color: var(--pool-500); }
-  .distribution-add { display: flex; gap: 8px; margin-top: 10px; }
+  .distribution-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .distribution-add-search { flex: 1; min-width: 0; position: relative; }
   .distribution-add input {
-    flex: 1; min-width: 0; height: 36px;
+    width: 100%; height: 36px;
     border: 1px solid #dce4fb; border-radius: 10px;
     background: #f7f9ff; padding: 0 10px;
     color: var(--carbon); font-size: 12px; outline: none;
@@ -1000,8 +1001,14 @@
   .distribution-add button {
     width: 58px; height: 36px; border: 1px solid #dce4fb;
     border-radius: 10px; background: #fff; color: var(--pool-500);
-    font-size: 12px; cursor: pointer;
+    font-size: 12px; cursor: pointer; flex-shrink: 0;
   }
+  .distribution-add .edit-country-results { width: 100%; flex-basis: 100%; }
+  .distribution-add .edit-country-option.muted,
+  .edit-country-option.muted {
+    color: var(--seal); cursor: default; opacity: .75;
+  }
+  .distribution-add .edit-country-option.muted:hover { background: #fff; color: var(--seal); }
   .fm-sales-country-add { margin-top: 8px; }
   .fm-sales-country-add input {
     background: #fff;
@@ -1399,9 +1406,12 @@
               <label class="fm-radio-line"><input type="checkbox" value="南非" data-country-key="za"> <span data-dist-preset>南非</span></label>
               <label class="fm-radio-line"><input type="checkbox" value="澳大利亚" data-country-key="au"> <span data-dist-preset>澳大利亚</span></label>
             </div>
-            <div class="distribution-add fm-sales-country-add">
-              <input class="distribution-input" id="mf_salesCountryInput" type="text" placeholder="添加其他国家或地区" data-i18n-placeholder="orderChat.distributionAddPlaceholder" onkeydown="if(event.key==='Enter'){event.preventDefault();addManualSalesCountry();}">
+            <div class="distribution-add fm-sales-country-add" id="mf_salesCountryAdd">
+              <div class="distribution-add-search">
+                <input class="distribution-input" id="mf_salesCountryInput" type="text" placeholder="搜索并添加国家/地区" data-i18n-placeholder="orderChat.distributionAddPlaceholder" autocomplete="off" oninput="renderManualSalesCountryResults()" onfocus="renderManualSalesCountryResults()" onkeydown="if(event.key==='Enter'){event.preventDefault();addManualSalesCountry();}">
+              </div>
               <button type="button" onclick="addManualSalesCountry()" data-i18n="orderChat.distributionAdd">添加</button>
+              <div class="edit-country-results" id="mf_salesCountryResults"></div>
             </div>
           </div>
 
@@ -2920,31 +2930,39 @@
       else if(elec === 'non-electric' || elec === 'no') manualAnswers[FIELD_ELECTRIC] = t('index.electricNo');
     }
 
-    function normalizeCountryLabel(value){
-      const raw = String(value || '').trim();
-      if(!raw) return '';
-      if(window.I18n && I18n.displayCountry){
-        const display = I18n.displayCountry(raw);
-        if(display) return display;
+    function catalogCountryKey(value){
+      if(!value) return '';
+      if(window.I18n && typeof I18n.resolveCountryCanonical === 'function'){
+        return I18n.resolveCountryCanonical(value) || '';
       }
-      return raw;
+      if(window.I18n && typeof I18n.isKnownCountry === 'function' && I18n.isKnownCountry(value)){
+        return I18n.resolveCountryKey(value) || '';
+      }
+      return '';
+    }
+
+    function normalizeCountryLabel(value){
+      const key = catalogCountryKey(value);
+      if(!key) return '';
+      if(window.I18n && I18n.displayCountry) return I18n.displayCountry(key);
+      return key;
     }
 
     function normalizeParsedDistributionCountries(){
       const raw = manualAnswers['Countries/Regions of Distribution'] || '';
       if(!raw) return;
-      const parts = splitSalesCountryValues(raw).map(normalizeCountryLabel).filter(Boolean);
-      if(!parts.length) return;
-      // Deduplicate by country key when possible
       const seen = {};
       const out = [];
-      parts.forEach(function(label){
-        const key = (window.I18n && I18n.resolveCountryKey) ? I18n.resolveCountryKey(label) : '';
-        const id = key || label.toLowerCase();
-        if(seen[id]) return;
-        seen[id] = true;
-        out.push(label);
+      splitSalesCountryValues(raw).forEach(function(part){
+        const key = catalogCountryKey(part);
+        if(!key || seen[key]) return;
+        seen[key] = true;
+        out.push(normalizeCountryLabel(key) || key);
       });
+      if(!out.length){
+        delete manualAnswers['Countries/Regions of Distribution'];
+        return;
+      }
       manualAnswers['Countries/Regions of Distribution'] = out.join(t('orderChat.listSep') || '、');
     }
 
@@ -3310,30 +3328,81 @@
 
     function appendManualSalesCountryOption(value, checked){
       const grid = getManualSalesCountryGrid();
-      const label = String(value || '').trim();
-      if(!grid || !label) return null;
-      const existing = findManualSalesCountryCheckbox(label);
+      const key = catalogCountryKey(value);
+      if(!grid || !key) return null;
+      const label = normalizeCountryLabel(key) || key;
+      const existing = findManualSalesCountryCheckbox(key) || findManualSalesCountryCheckbox(label);
       if(existing){
         if(checked) existing.checked = true;
         return existing;
       }
-      const key = (window.I18n && I18n.resolveCountryKey) ? I18n.resolveCountryKey(label) : '';
       const el = document.createElement('label');
       el.className = 'fm-radio-line';
-      el.innerHTML = '<input type="checkbox" value="'+escapeHtml(label)+'"'+(key ? ' data-country-key="'+escapeHtml(key)+'"' : '')+(checked ? ' checked' : '')+'> <span>'+escapeHtml(label)+'</span>';
+      el.innerHTML = '<input type="checkbox" value="'+escapeHtml(label)+'" data-country-key="'+escapeHtml(key)+'"'+(checked ? ' checked' : '')+'> <span>'+escapeHtml(label)+'</span>';
       grid.appendChild(el);
       return el.querySelector('input');
     }
 
+    function clearManualSalesCountryResults(){
+      const results = document.getElementById('mf_salesCountryResults');
+      if(!results) return;
+      results.classList.remove('show');
+      results.innerHTML = '';
+    }
+
+    function renderManualSalesCountryResults(){
+      const input = document.getElementById('mf_salesCountryInput');
+      const results = document.getElementById('mf_salesCountryResults');
+      if(!input || !results) return;
+      const keyword = (input.value || '').trim().toLowerCase();
+      if(!keyword){
+        clearManualSalesCountryResults();
+        return;
+      }
+      const matches = getDistributionSearchList()
+        .filter(function(country){ return country.toLowerCase().includes(keyword); })
+        .filter(function(country){ return !findManualSalesCountryCheckbox(country); })
+        .slice(0, 8);
+      if(!matches.length){
+        results.innerHTML = '<div class="edit-country-option muted">'+escapeHtml(t('common.noMatchingCountry'))+'</div>';
+        results.classList.add('show');
+        return;
+      }
+      results.innerHTML = matches.map(function(country){
+        return '<button class="edit-country-option" type="button" data-country="'+escapeHtml(country)+'" onmousedown="pickManualSalesCountry(this)">'+escapeHtml(country)+'</button>';
+      }).join('');
+      results.classList.add('show');
+    }
+
+    function pickManualSalesCountry(btn){
+      const value = (btn && btn.dataset.country) ? btn.dataset.country.trim() : '';
+      if(!value || !catalogCountryKey(value)) return;
+      appendManualSalesCountryOption(value, true);
+      const input = document.getElementById('mf_salesCountryInput');
+      if(input){ input.value = ''; input.focus(); }
+      clearManualSalesCountryResults();
+    }
+
     function addManualSalesCountry(){
       const input = document.getElementById('mf_salesCountryInput');
+      const results = document.getElementById('mf_salesCountryResults');
       const value = input ? input.value.trim() : '';
       if(!value) return;
-      appendManualSalesCountryOption(value, true);
-      if(input){
-        input.value = '';
-        input.focus();
+      const key = catalogCountryKey(value);
+      if(key){
+        appendManualSalesCountryOption(key, true);
+        if(input){ input.value = ''; input.focus(); }
+        clearManualSalesCountryResults();
+        return;
       }
+      // Prefer first catalog match from open results; never invent free text.
+      const first = results ? results.querySelector('.edit-country-option[data-country]') : null;
+      if(first){
+        pickManualSalesCountry(first);
+        return;
+      }
+      renderManualSalesCountryResults();
+      alert(t('common.invalidCountry'));
     }
 
     function splitSalesCountryValues(raw){
@@ -3351,13 +3420,8 @@
       const countries = splitSalesCountryValues(raw);
       grid.querySelectorAll('input[type="checkbox"]').forEach(function(cb){ cb.checked = false; });
       countries.forEach(function(country){
-        const display = normalizeCountryLabel(country) || country;
-        const existing = findManualSalesCountryCheckbox(country) || findManualSalesCountryCheckbox(display);
-        if(existing){
-          existing.checked = true;
-          return;
-        }
-        appendManualSalesCountryOption(display, true);
+        if(!catalogCountryKey(country)) return;
+        appendManualSalesCountryOption(country, true);
       });
     }
 
@@ -3537,8 +3601,11 @@
           options.map(function(option, i){ return distributionOption(option, i < 2); }).join('')+
         '</div>'+
         '<div class="distribution-add">'+
-          '<input class="distribution-input" type="text" placeholder="'+t('orderChat.distributionAddPlaceholder')+'">'+
+          '<div class="distribution-add-search">'+
+            '<input class="distribution-input" type="text" placeholder="'+t('orderChat.distributionAddPlaceholder')+'" autocomplete="off" oninput="renderDistributionCountryResults(this)" onfocus="renderDistributionCountryResults(this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addDistributionOption(this.closest(\'.distribution-add\').querySelector(\'button\'));}">'+
+          '</div>'+
           '<button type="button" onclick="addDistributionOption(this)">'+t('orderChat.distributionAdd')+'</button>'+
+          '<div class="edit-country-results" data-role="distribution-results"></div>'+
         '</div>'+
         '<button class="select-confirm" type="button" onclick="confirmDistributionSelection(this)">'+t('orderChat.selectCardConfirm')+'</button>'+
       '</div>';
@@ -3548,14 +3615,90 @@
       return '<label class="distribution-option"><input type="checkbox" value="'+escapeHtml(value)+'"'+(checked ? ' checked' : '')+'> '+escapeHtml(value)+'</label>';
     }
 
+    function getDistributionResultsEl(root){
+      const card = root ? root.closest('.distribution-card') || root.closest('.distribution-add') : null;
+      const add = card ? (card.classList && card.classList.contains('distribution-add') ? card : card.querySelector('.distribution-add')) : null;
+      return add ? add.querySelector('[data-role="distribution-results"]') : null;
+    }
+
+    function clearDistributionCountryResults(inputOrBtn){
+      const results = getDistributionResultsEl(inputOrBtn);
+      if(!results) return;
+      results.classList.remove('show');
+      results.innerHTML = '';
+    }
+
+    function renderDistributionCountryResults(input){
+      const card = input.closest('.distribution-card');
+      const list = card ? card.querySelector('.distribution-options') : null;
+      const results = getDistributionResultsEl(input);
+      if(!list || !results) return;
+      const keyword = (input.value || '').trim().toLowerCase();
+      if(!keyword){
+        clearDistributionCountryResults(input);
+        return;
+      }
+      const existing = new Set(Array.from(list.querySelectorAll('.distribution-option input')).map(function(el){
+        return String(el.value || '').trim().toLowerCase();
+      }));
+      const matches = getDistributionSearchList()
+        .filter(function(country){ return country.toLowerCase().includes(keyword); })
+        .filter(function(country){
+          const key = catalogCountryKey(country);
+          const display = (normalizeCountryLabel(country) || country).toLowerCase();
+          return !existing.has(display) && !(key && existing.has(key));
+        })
+        .slice(0, 8);
+      if(!matches.length){
+        results.innerHTML = '<div class="edit-country-option muted">'+escapeHtml(t('common.noMatchingCountry'))+'</div>';
+        results.classList.add('show');
+        return;
+      }
+      results.innerHTML = matches.map(function(country){
+        return '<button class="edit-country-option" type="button" data-country="'+escapeHtml(country)+'" onmousedown="pickDistributionCountry(this)">'+escapeHtml(country)+'</button>';
+      }).join('');
+      results.classList.add('show');
+    }
+
+    function pickDistributionCountry(btn){
+      const card = btn.closest('.distribution-card');
+      const list = card ? card.querySelector('.distribution-options') : null;
+      const input = card ? card.querySelector('.distribution-input') : null;
+      const value = (btn.dataset.country || '').trim();
+      const key = catalogCountryKey(value);
+      if(!list || !key) return;
+      const label = normalizeCountryLabel(key) || value;
+      const exists = Array.from(list.querySelectorAll('.distribution-option input')).find(function(el){
+        return catalogCountryKey(el.value) === key || String(el.value || '').trim() === label;
+      });
+      if(exists) exists.checked = true;
+      else list.insertAdjacentHTML('beforeend', distributionOption(label, true));
+      if(input){ input.value = ''; input.focus(); }
+      clearDistributionCountryResults(btn);
+    }
+
     function addDistributionOption(btn){
       const card = btn.closest('.distribution-card');
       const input = card ? card.querySelector('.distribution-input') : null;
       const list = card ? card.querySelector('.distribution-options') : null;
+      const results = getDistributionResultsEl(btn);
       const value = input ? input.value.trim() : '';
-      if(!value || !list) return;
-      list.insertAdjacentHTML('beforeend', distributionOption(value, true));
-      input.value = '';
+      if(!list) return;
+      if(value && catalogCountryKey(value)){
+        const fake = document.createElement('button');
+        fake.dataset.country = value;
+        card.appendChild(fake);
+        pickDistributionCountry(fake);
+        fake.remove();
+        return;
+      }
+      const first = results ? results.querySelector('.edit-country-option[data-country]') : null;
+      if(first){
+        pickDistributionCountry(first);
+        return;
+      }
+      if(input) renderDistributionCountryResults(input);
+      if(value) alert(t('common.invalidCountry'));
     }
 
     function confirmDistributionSelection(btn){
@@ -4135,7 +4278,15 @@
     function getDistributionSearchList(){ return I18n.getDistributionSearchList(); }
     function normalizeDistributionCountries(raw){
       if(!raw) return [];
-      return raw.split(/[,，、]/).map(part => part.trim()).filter(Boolean).map(part => I18n.resolveCountryKey(part) || part);
+      const seen = {};
+      const out = [];
+      raw.split(/[,，、;/|]+/).map(function(part){ return part.trim(); }).filter(Boolean).forEach(function(part){
+        const key = catalogCountryKey(part);
+        if(!key || seen[key]) return;
+        seen[key] = true;
+        out.push(key);
+      });
+      return out;
     }
 
     function getEditCountryWrap(el){
@@ -4201,9 +4352,8 @@
         results.innerHTML = '';
         return;
       }
-      if(!matches.length && keyword){
-        const raw = input.value.trim();
-        results.innerHTML = '<button class="edit-country-option" type="button" data-country="'+escapeHtml(raw)+'" onmousedown="addEditCountryOption(this)">'+t('common.addCountry', {value: escapeHtml(raw)})+'</button>';
+      if(!matches.length){
+        results.innerHTML = '<div class="edit-country-option muted">'+escapeHtml(t('common.noMatchingCountry'))+'</div>';
         results.classList.add('show');
         return;
       }
@@ -4218,10 +4368,10 @@
       const list = getEditCountryList(wrap);
       const search = wrap ? wrap.querySelector('.edit-country-search input') : null;
       const results = wrap ? wrap.querySelector('.edit-country-results') : null;
-      const displayValue = (country || btn.dataset.country || '').trim();
-      if(!displayValue || !list) return;
-      const value = I18n.resolveCountryKey(displayValue);
-      const exists = Array.from(list.querySelectorAll('.edit-country-line input')).find(input => input.value === value);
+      const displayValue = (country || (btn && btn.dataset && btn.dataset.country) || '').trim();
+      const value = catalogCountryKey(displayValue);
+      if(!value || !list) return;
+      const exists = Array.from(list.querySelectorAll('.edit-country-line input')).find(input => input.value === value || catalogCountryKey(input.value) === value);
       if(exists){
         exists.checked = true;
       } else {
@@ -4239,7 +4389,7 @@
       const current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
       const selected = new Set(normalizeDistributionCountries(current));
       const presetKeys = ['us', 'eu', 'ca', 'za', 'au'];
-      const extras = [...selected].filter(country => !presetKeys.includes(country));
+      const extras = [...selected].filter(country => catalogCountryKey(country) && !presetKeys.includes(catalogCountryKey(country)));
       const presetHtml = presetKeys.map(key => editCountryCheckbox(key, selected.has(key))).join('');
       const extraHtml = extras.map(country => editCountryCheckbox(country, true, true)).join('');
       const hiddenValue = [...selected].join(', ');
@@ -4305,7 +4455,10 @@
     }
 
     document.addEventListener('click', (event) => {
-      if(!event.target.closest('.edit-country-search')){
+      const inCountrySearch = event.target.closest('.edit-country-search') ||
+        event.target.closest('.distribution-add') ||
+        event.target.closest('#mf_salesCountryAdd');
+      if(!inCountrySearch){
         document.querySelectorAll('.edit-country-results.show').forEach(results => {
           results.classList.remove('show');
           results.innerHTML = '';

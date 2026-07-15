@@ -320,6 +320,11 @@
     return canon || raw;
   }
 
+  /** True only when the value maps to a catalog country/region slug. */
+  function isKnownCountry(country) {
+    return !!resolveCountryCanonical(country);
+  }
+
   function displayCountry(country) {
     var raw = String(country || '').trim();
     if (!raw) return '';
@@ -433,6 +438,8 @@
     translateStatus: translateStatus,
     displayCountry: displayCountry,
     resolveCountryKey: resolveCountryKey,
+    resolveCountryCanonical: resolveCountryCanonical,
+    isKnownCountry: isKnownCountry,
     chipHtml: chipHtml,
     statusClass: statusClass,
     escapeHtml: escapeHtml,

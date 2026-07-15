@@ -396,6 +396,8 @@
     padding: 10px 11px; font-size: 13px; color: var(--carbon); cursor: pointer;
   }
   .edit-country-option:hover { background: var(--pool-050); color: var(--pool-500); }
+  .edit-country-option.muted { color: var(--seal); cursor: default; opacity: .75; }
+  .edit-country-option.muted:hover { background: #fff; color: var(--seal); }
   .edit-lab-address {
     margin-top: 8px; padding: 10px 12px;
     background: #f7f9ff; border: 1px solid #e3e9fb; border-radius: 9px;
@@ -1204,9 +1206,17 @@
 
     function normalizeDistributionCountries(raw){
       if(!raw) return [];
-      return raw.split(/[,，、]/).map(function (part) { return part.trim(); }).filter(Boolean).map(function (part) {
-        return I18n.resolveCountryKey(part);
+      const seen = {};
+      const out = [];
+      raw.split(/[,，、;/|]+/).map(function (part) { return part.trim(); }).filter(Boolean).forEach(function (part) {
+        const key = (window.I18n && typeof I18n.resolveCountryCanonical === 'function')
+          ? I18n.resolveCountryCanonical(part)
+          : '';
+        if(!key || seen[key]) return;
+        seen[key] = true;
+        out.push(key);
       });
+      return out;
     }
 
     function formatDistributionDisplay(raw){
@@ -1316,8 +1326,7 @@
         return;
       }
       if(!matches.length){
-        const raw = input.value.trim();
-        results.innerHTML = '<button class="edit-country-option" type="button" data-country="'+escapeHtml(raw)+'" onmousedown="addEditCountryOption(this)">'+escapeHtml(t('common.addCountry', { value: raw }))+'</button>';
+        results.innerHTML = '<div class="edit-country-option muted">'+escapeHtml(t('common.noMatchingCountry'))+'</div>';
         results.classList.add('show');
         return;
       }
@@ -1333,9 +1342,13 @@
       const search = wrap ? wrap.querySelector('.edit-country-search input') : null;
       const results = wrap ? wrap.querySelector('.edit-country-results') : null;
       const displayValue = (btn.dataset.country || '').trim();
-      if(!displayValue || !list) return;
-      const value = I18n.resolveCountryKey(displayValue);
-      const exists = Array.from(list.querySelectorAll('.edit-country-line input')).find(function (input) { return input.value === value; });
+      const value = (window.I18n && typeof I18n.resolveCountryCanonical === 'function')
+        ? I18n.resolveCountryCanonical(displayValue)
+        : ((window.I18n && I18n.isKnownCountry && I18n.isKnownCountry(displayValue)) ? I18n.resolveCountryKey(displayValue) : '');
+      if(!value || !list) return;
+      const exists = Array.from(list.querySelectorAll('.edit-country-line input')).find(function (input) {
+        return input.value === value || (I18n.resolveCountryCanonical && I18n.resolveCountryCanonical(input.value) === value);
+      });
       if(exists){
         exists.checked = true;
       } else {

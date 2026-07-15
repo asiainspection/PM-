@@ -328,6 +328,8 @@
     cursor: pointer;
   }
   .country-option:hover { background: var(--pool-050); color: var(--pool-500); }
+  .country-option.muted { color: var(--seal); cursor: default; opacity: .75; }
+  .country-option.muted:hover { background: #fff; color: var(--seal); }
   .inline-form-row {
     display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px;
   }
@@ -733,7 +735,7 @@
             </div>
             <div class="selected-country-list" id="selectedSalesCountries"></div>
             <div class="country-search">
-              <input class="form-input" id="salesCountrySearch" type="text" data-i18n-placeholder="common.searchCountry" placeholder="请输入或搜索其他国家/地区" autocomplete="off" oninput="renderCountryResults()" onfocus="renderCountryResults()">
+              <input class="form-input" id="salesCountrySearch" type="text" data-i18n-placeholder="common.searchCountry" placeholder="搜索并添加国家/地区" autocomplete="off" oninput="renderCountryResults()" onfocus="renderCountryResults()">
               <div class="country-results" id="countryResults"></div>
             </div>
           </div>
@@ -1418,9 +1420,12 @@
     }
 
     function addSalesCountry(country) {
-      if (!country) return;
-      selectedSalesCountries.add(country);
-      syncSalesCountryCheckbox(country, true);
+      const key = (window.I18n && typeof I18n.resolveCountryCanonical === 'function')
+        ? I18n.resolveCountryCanonical(country)
+        : '';
+      if (!key) return;
+      selectedSalesCountries.add(key);
+      syncSalesCountryCheckbox(key, true);
       renderSelectedSalesCountries();
       document.getElementById('salesCountrySearch').value = '';
       document.getElementById('countryResults').classList.remove('show');
@@ -1452,9 +1457,14 @@
         })
         .slice(0, 6);
 
-      if (!keyword || matches.length === 0) {
+      if (!keyword) {
         results.classList.remove('show');
         results.innerHTML = '';
+        return;
+      }
+      if (matches.length === 0) {
+        results.innerHTML = '<div class="country-option muted">' + escapeHtml(t('common.noMatchingCountry')) + '</div>';
+        results.classList.add('show');
         return;
       }
 
@@ -1465,15 +1475,20 @@
     }
 
     function findCountryKeyByDisplay(displayName) {
-      const keys = ['eu', 'us', 'au', 'ca', 'za', 'cn', 'vn', 'in', 'gb', 'de', 'fr', 'it', 'es', 'jp', 'kr', 'sg', 'my', 'th', 'mx', 'br', 'ax'];
+      if (window.I18n && typeof I18n.resolveCountryCanonical === 'function') {
+        return I18n.resolveCountryCanonical(displayName) || '';
+      }
+      const keys = ['eu', 'us', 'au', 'ca', 'za', 'cn', 'vn', 'in', 'gb', 'de', 'fr', 'it', 'es', 'jp', 'kr', 'sg', 'my', 'th', 'mx', 'br'];
       for (let i = 0; i < keys.length; i++) {
         if (I18n.displayCountry(keys[i]) === displayName) return keys[i];
       }
-      return displayName;
+      return '';
     }
 
     function addSalesCountryFromSearch(displayName) {
-      addSalesCountry(findCountryKeyByDisplay(displayName));
+      const key = findCountryKeyByDisplay(displayName);
+      if (!key) return;
+      addSalesCountry(key);
     }
 
     document.addEventListener('click', function (event) {
