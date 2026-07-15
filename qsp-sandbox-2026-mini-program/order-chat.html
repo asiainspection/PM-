@@ -2694,7 +2694,8 @@
         parsingPdfOcr: 'orderChat.parsingPdfOcr',
         parsingDocx: 'orderChat.parsingDocx',
         parsingLegacyDoc: 'orderChat.parsingLegacyDoc',
-        parsingVoice: 'orderChat.parsingVoice'
+        parsingVoice: 'orderChat.parsingVoice',
+        parsingLink: 'orderChat.parsingLink'
       };
       if(msg && keyMap[msg]) return t(keyMap[msg]);
       return msg || t('orderChat.parsingLocal');
@@ -3068,15 +3069,28 @@
     }
 
     function doParse(){
-      const v = ((document.getElementById('linkIn')||{}).value || '').trim();
+      let v = ((document.getElementById('linkIn')||{}).value || '').trim();
       voiceTranscript = getVoiceTranscriptValue();
       hasVoiceInput = !!voiceTranscript;
       if(parseInFlight || (!hasUploadedFiles && !v && !hasVoiceInput)) return;
 
+      if(v){
+        const normalized = (window.QimaLabelParse && QimaLabelParse.normalizeProductUrl)
+          ? QimaLabelParse.normalizeProductUrl(v)
+          : (/^https?:\/\//i.test(v) ? v : '');
+        if(!normalized){
+          botMsg(t('orderChat.invalidLink'), false);
+          return;
+        }
+        v = normalized;
+        const linkIn = document.getElementById('linkIn');
+        if(linkIn) linkIn.value = v;
+      }
+
       const parts = [];
       if(hasVoiceInput) parts.push('🎤 '+escapeHtml(voiceTranscript));
       if(hasUploadedFiles) parts.push(uploadedFilesSummary());
-      if(v) parts.push('🔗 '+t('orderChat.productLink')+'：'+escapeHtml(v.length>28 ? v.slice(0,28)+'…' : v));
+      if(v) parts.push('🔗 '+t('orderChat.productLink')+'：'+escapeHtml(v.length>40 ? v.slice(0,40)+'…' : v));
       const userRow = userMsg(parts.join('<div style="margin-top:6px"></div>'));
       markUserBubbleParsing(userRow, true);
 
@@ -3088,13 +3102,15 @@
 
       const api = window.QimaSupabase;
       setParseButtonBusy(true);
-      const progressRow = botMsg(parseProgressCard(t('orderChat.parsingHint')), true);
+      const hint = v ? t('orderChat.parsingLink') : t('orderChat.parsingHint');
+      const progressRow = botMsg(parseProgressCard(hint), true);
+      const remoteTimeoutMs = v ? 75000 : 55000;
 
       collectParseFiles().then(function(files){
-        updateParseProgressCard(progressRow, t('orderChat.parsingRemote'));
+        updateParseProgressCard(progressRow, v ? t('orderChat.parsingLink') : t('orderChat.parsingRemote'));
 
         const remote = (api && typeof api.parseOrder === 'function')
-          ? withTimeout(api.parseOrder({ voiceText: voiceTranscript, link: v, files: files }), 55000, 'remote_timeout')
+          ? withTimeout(api.parseOrder({ voiceText: voiceTranscript, link: v, files: files }), remoteTimeoutMs, 'remote_timeout')
           : Promise.reject(Object.assign(new Error('missing_parse_client'), { code: 'missing_parse_client' }));
 
         return remote.then(function(result){
@@ -3102,13 +3118,13 @@
           return result;
         }).catch(function(err){
           console.warn('parseOrder remote failed, trying local parse', err);
-          updateParseProgressCard(progressRow, t('orderChat.parsingLocal'));
+          updateParseProgressCard(progressRow, v ? t('orderChat.parsingLink') : t('orderChat.parsingLocal'));
           if(window.QimaLabelParse && typeof QimaLabelParse.parseFilesLocally === 'function'){
             return withTimeout(
               QimaLabelParse.parseFilesLocally(files, voiceTranscript, v, function(msg){
                 updateParseProgressCard(progressRow, localizeParseProgress(msg));
               }),
-              45000,
+              v ? 50000 : 45000,
               'local_timeout'
             );
           }
@@ -3130,6 +3146,8 @@
           botMsg(t('orderChat.parsingLegacyDoc'), false);
         } else if(err && (err.code === 'empty_local_ocr' || err.message === 'empty_local_ocr')){
           botMsg(t('orderChat.parseUnsupportedDoc'), false);
+        } else if(err && (err.code === 'link_open_failed' || err.code === 'invalid_link')){
+          botMsg(t(err.code === 'invalid_link' ? 'orderChat.invalidLink' : 'orderChat.linkOpenFailed'), false);
         }
         // Still open guided fill instead of dead-ending
         botMsg(t('orderChat.parseFailedContinue'), false);

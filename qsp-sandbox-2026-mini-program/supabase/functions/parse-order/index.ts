@@ -1386,9 +1386,12 @@ async function structureFields(
 ): Promise<Record<string, unknown>> {
   const fieldList = FIELD_KEYS.map((k) => `- "${k}"`).join("\n");
   const system =
-    "你是 QIMA 检测订单信息抽取助手。根据用户提供的语音、文档、产品标签识别结果和商品链接，" +
+    "你是 QIMA 检测订单信息抽取助手。根据用户提供的语音、文档、产品标签识别结果和商品链接网页内容，" +
     "抽取订单字段。必须输出合法 JSON，不要 markdown。字段值可用简体中文或与原文一致的英文品名。\n" +
     "规则：\n" +
+    "0) 若资料含【商品链接网页内容】：优先用页面标题/品牌/型号/描述映射到对应字段；" +
+    "Marketplace 品牌常对应 Manufacturer；ASIN/SKU 可写入 Item#/model#；" +
+    "不要把整个商品列表或评论写进任何字段。\n" +
     "1) Product Name：只填简洁产品名（2–8 个英文词或 ≤24 个汉字），例如「Toy Race Car」「智能机器人玩具」。" +
     "禁止整句语音、禁止「Lab testing · … / 实验室检测 · …」、禁止带上 sold in / manufactured by / 销往 / 制造商 / 型号等从句。" +
     "从 rambling 语音中智能抠出品名，其余信息分别写入对应字段。\n" +
@@ -1433,6 +1436,417 @@ async function structureFields(
   return normalizeResult(parsed, seedFields);
 }
 
+function normalizeProductUrl(raw: string): string {
+  let s = String(raw || "").trim();
+  if (!s) return "";
+  if (/^\/\//.test(s)) s = "https:" + s;
+  if (!/^https?:\/\//i.test(s)) {
+    if (/^[a-z0-9.-]+\.[a-z]{2,}([/?#]|$)/i.test(s)) s = "https://" + s;
+    else return "";
+  }
+  let u: URL;
+  try {
+    u = new URL(s);
+  } catch {
+    return "";
+  }
+  if (u.protocol !== "http:" && u.protocol !== "https:") return "";
+  if (!u.hostname || u.hostname === "localhost") return "";
+  return u.toString();
+}
+
+function decodeHtmlEntities(s: string): string {
+  return String(s || "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) =>
+      String.fromCharCode(parseInt(h, 16))
+    )
+    .replace(/&nbsp;/gi, " ");
+}
+
+function metaContent(html: string, key: string): string {
+  const k = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const patterns = [
+    new RegExp(
+      `<meta[^>]+(?:property|name)=["']${k}["'][^>]+content=["']([^"']+)["']`,
+      "i",
+    ),
+    new RegExp(
+      `<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${k}["']`,
+      "i",
+    ),
+  ];
+  for (const re of patterns) {
+    const m = html.match(re);
+    if (m?.[1]) return decodeHtmlEntities(m[1]).trim();
+  }
+  return "";
+}
+
+function stripHtmlToText(html: string): string {
+  let s = String(html || "");
+  s = s.replace(/<script[\s\S]*?<\/script>/gi, " ");
+  s = s.replace(/<style[\s\S]*?<\/style>/gi, " ");
+  s = s.replace(/<noscript[\s\S]*?<\/noscript>/gi, " ");
+  s = s.replace(/<!--[\s\S]*?-->/g, " ");
+  s = s.replace(/<\/?(?:br|p|div|li|tr|h[1-6]|section|article)[^>]*>/gi, "\n");
+  s = s.replace(/<[^>]+>/g, " ");
+  s = decodeHtmlEntities(s);
+  s = s.replace(/[ \t\f\v]+/g, " ");
+  s = s.replace(/\n{3,}/g, "\n\n");
+  return s.trim();
+}
+
+function extractJsonLdProducts(html: string): Record<string, unknown>[] {
+  const out: Record<string, unknown>[] = [];
+  const re =
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    try {
+      const raw = m[1].replace(/^\s*<!--/, "").replace(/-->\s*$/, "").trim();
+      const parsed = JSON.parse(raw);
+      const stack: unknown[] = Array.isArray(parsed) ? parsed.slice(0, 20) : [parsed];
+      for (let i = 0; i < stack.length && i < 40; i++) {
+        const item = stack[i];
+        if (!item || typeof item !== "object") continue;
+        const node = item as Record<string, unknown>;
+        const graph = node["@graph"];
+        if (Array.isArray(graph)) {
+          for (const g of graph.slice(0, 20)) {
+            if (g && typeof g === "object") stack.push(g);
+          }
+        }
+        const type = String(node["@type"] || "").toLowerCase();
+        if (type.includes("product") || type.includes("offer")) {
+          out.push(node);
+        }
+      }
+    } catch {
+      /* ignore bad json-ld */
+    }
+  }
+  return out;
+}
+
+type ProductPageSignals = {
+  url: string;
+  site: string;
+  title: string;
+  description: string;
+  brand: string;
+  model: string;
+  asin: string;
+  text: string;
+  source: string;
+};
+
+function hostSiteHint(hostname: string): string {
+  const h = hostname.toLowerCase();
+  if (h.includes("amazon.") || h === "amzn.to" || h.includes("amzn.")) {
+    return "amazon";
+  }
+  if (h.includes("temu.")) return "temu";
+  if (h.includes("shopify") || h.includes("myshopify.com")) return "shopify";
+  if (h.includes("aliexpress.")) return "aliexpress";
+  if (h.includes("ebay.")) return "ebay";
+  if (h.includes("walmart.")) return "walmart";
+  return h.replace(/^www\./, "");
+}
+
+function extractAsin(url: string): string {
+  const m = url.match(
+    /(?:\/dp\/|\/gp\/product\/|\/product\/|asin=)([A-Z0-9]{8,12})/i,
+  );
+  return m?.[1] ? m[1].toUpperCase() : "";
+}
+
+function signalsFromHtml(html: string, url: string): ProductPageSignals {
+  const u = new URL(url);
+  const site = hostSiteHint(u.hostname);
+  let title =
+    metaContent(html, "og:title") ||
+    metaContent(html, "twitter:title") ||
+    "";
+  if (!title) {
+    const tm = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    if (tm?.[1]) title = decodeHtmlEntities(tm[1]).replace(/\s+/g, " ").trim();
+  }
+  // Amazon often embeds #productTitle even when bot-throttled
+  if (!title || site === "amazon") {
+    const amz = html.match(
+      /id=["']productTitle["'][^>]*>\s*([^<]{2,200})\s*</i,
+    );
+    if (amz?.[1]) title = decodeHtmlEntities(amz[1]).trim();
+  }
+  const description =
+    metaContent(html, "og:description") ||
+    metaContent(html, "description") ||
+    metaContent(html, "twitter:description") ||
+    "";
+  let brand =
+    metaContent(html, "product:brand") ||
+    metaContent(html, "brand") ||
+    "";
+  let model = "";
+  let desc = description;
+  const asin = extractAsin(url);
+  const jsonLd = extractJsonLdProducts(html);
+  for (const node of jsonLd) {
+    if (!title && node.name) title = String(node.name).trim();
+    if (!brand && node.brand) {
+      const b = node.brand;
+      if (typeof b === "string") brand = b;
+      else if (b && typeof b === "object" && "name" in (b as object)) {
+        brand = String((b as { name?: string }).name || "").trim();
+      }
+    }
+    if (!model && (node.sku || node.mpn || node.model)) {
+      model = String(node.sku || node.mpn || node.model || "").trim();
+    }
+    if (!desc && node.description) {
+      desc = String(node.description).replace(/\s+/g, " ").trim();
+    }
+  }
+
+  // Shopify product JSON
+  if ((!title || !brand) && /Shopify\.theme|product":\s*\{/i.test(html)) {
+    const shop = html.match(
+      /<script[^>]*type=["']application\/json["'][^>]*data-product-json[^>]*>([\s\S]*?)<\/script>/i,
+    );
+    if (shop?.[1]) {
+      try {
+        const pj = JSON.parse(shop[1]);
+        if (pj.title && !title) title = String(pj.title);
+        if (pj.vendor && !brand) brand = String(pj.vendor);
+      } catch { /* ignore */ }
+    }
+  }
+
+  if (site === "amazon" && !brand) {
+    const byline = html.match(
+      /id=["']bylineInfo["'][^>]*>\s*([^<]{2,80})</i,
+    ) || html.match(/Brand\s*:\s*<\/[^>]+>\s*<[^>]+>\s*([^<]{2,80})/i);
+    if (byline?.[1]) {
+      brand = decodeHtmlEntities(byline[1])
+        .replace(/^(?:Visit\s+the|Brand:)\s*/i, "")
+        .replace(/\s*Store$/i, "")
+        .trim();
+    }
+  }
+
+  const text = stripHtmlToText(html).slice(0, 12000);
+  // Clean Amazon title suffixes
+  title = title
+    .replace(/\s*[:|]\s*Amazon\.[a-z.]+.*$/i, "")
+    .replace(/\s*-\s*TEMU.*$/i, "")
+    .trim();
+
+  return {
+    url,
+    site,
+    title,
+    description: desc.slice(0, 800),
+    brand,
+    model: model || asin,
+    asin,
+    text,
+    source: "html",
+  };
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  ms: number,
+): Promise<Response> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: ctrl.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function fetchViaJinaReader(url: string): Promise<string> {
+  const readerUrl = "https://r.jina.ai/" + url;
+  const res = await fetchWithTimeout(
+    readerUrl,
+    {
+      headers: {
+        Accept: "text/plain, text/markdown, */*",
+        "User-Agent": "QIMA-MiniProgram/1.0 (+product-link-parse)",
+      },
+      redirect: "follow",
+    },
+    18000,
+  );
+  if (!res.ok) throw new Error("jina_http_" + res.status);
+  const text = await res.text();
+  return String(text || "").trim();
+}
+
+async function fetchProductPage(rawLink: string): Promise<ProductPageSignals | null> {
+  const url = normalizeProductUrl(rawLink);
+  if (!url) return null;
+
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
+    "Cache-Control": "no-cache",
+  };
+
+  let htmlSignals: ProductPageSignals | null = null;
+  try {
+    const res = await fetchWithTimeout(
+      url,
+      { headers, redirect: "follow" },
+      15000,
+    );
+    if (res.ok) {
+      const ctype = (res.headers.get("content-type") || "").toLowerCase();
+      const html = await res.text();
+      if (
+        html &&
+        (ctype.includes("html") || /<html|<head|<title|og:title/i.test(html))
+      ) {
+        htmlSignals = signalsFromHtml(html.slice(0, 900000), res.url || url);
+      }
+    }
+  } catch (err) {
+    console.warn("direct product fetch failed", err);
+  }
+
+  // Enrich / fallback with Jina reader (handles JS-heavy pages better)
+  let readerText = "";
+  try {
+    readerText = await fetchViaJinaReader(url);
+  } catch (err) {
+    console.warn("jina reader failed", err);
+  }
+
+  if (!htmlSignals && !readerText) {
+    return {
+      url,
+      site: hostSiteHint(new URL(url).hostname),
+      title: "",
+      description: "",
+      brand: "",
+      model: extractAsin(url),
+      asin: extractAsin(url),
+      text: "",
+      source: "url_only",
+    };
+  }
+
+  if (!htmlSignals) {
+    const titleLine =
+      readerText.match(/^(?:Title|标题)\s*:\s*(.+)$/im)?.[1]?.trim() ||
+      readerText.split("\n").find((l) => l.trim().length > 8)?.trim() ||
+      "";
+    return {
+      url,
+      site: hostSiteHint(new URL(url).hostname),
+      title: titleLine.slice(0, 200),
+      description: "",
+      brand: "",
+      model: extractAsin(url),
+      asin: extractAsin(url),
+      text: readerText.slice(0, 14000),
+      source: "jina",
+    };
+  }
+
+  if (readerText) {
+    const mergedText = (htmlSignals.text + "\n\n" + readerText).slice(0, 16000);
+    if (!htmlSignals.title) {
+      const titleLine =
+        readerText.match(/^(?:Title|标题)\s*:\s*(.+)$/im)?.[1]?.trim() || "";
+      if (titleLine) htmlSignals.title = titleLine.slice(0, 200);
+    }
+    htmlSignals.text = mergedText;
+    htmlSignals.source = htmlSignals.source + "+jina";
+  }
+  return htmlSignals;
+}
+
+function seedFromProductPage(signals: ProductPageSignals | null): FieldMap {
+  const seed: FieldMap = Object.fromEntries(FIELD_KEYS.map((k) => [k, ""]));
+  if (!signals) return seed;
+  const blob = [signals.title, signals.description, signals.brand, signals.text]
+    .filter(Boolean)
+    .join("\n");
+  if (signals.title) {
+    seed["Product Name"] = cleanProductName(signals.title) ||
+      signals.title.slice(0, 80);
+  }
+  if (signals.brand && looksLikeCompanyName(signals.brand)) {
+    seed.Manufacturer = cleanManufacturerValue(signals.brand) || signals.brand;
+  }
+  if (signals.model) seed["Item#/model#"] = String(signals.model).slice(0, 40);
+  if (signals.asin && !seed["Item#/model#"]) {
+    seed["Item#/model#"] = signals.asin;
+  }
+  if (signals.description) {
+    seed["Product Description"] = signals.description.slice(0, 200);
+  }
+  // Infer electric / program from page text
+  const electricYes =
+    /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz|battery|charger|motor|voltage|电源|电机|充电|电池|电压|功率|电子产品|带电|electric\s+(?:fan|product)/i
+      .test(blob);
+  const electricNo = /非电|non[-\s]?electric|unelectrified/i.test(blob);
+  if (electricYes) seed["Electric Product"] = "带电产品";
+  else if (electricNo) seed["Electric Product"] = "非电产品";
+  const program = matchProgramFromText(blob, {
+    productName: seed["Product Name"] || "",
+    electricYes: electricYes || /带电|electric/i.test(seed["Electric Product"] || ""),
+  });
+  if (program) seed.Program = program;
+
+  // Marketplace default distribution
+  if (signals.site === "amazon") {
+    seed["Countries/Regions of Distribution"] = "美国";
+  } else if (signals.site === "temu") {
+    seed["Countries/Regions of Distribution"] = "美国";
+  }
+
+  if (/made\s+in\s+china|原产国.{0,4}中国|中国制造/i.test(blob)) {
+    seed["Country of Origin"] = "中国";
+  }
+  return seed;
+}
+
+function formatProductPageContext(signals: ProductPageSignals): string {
+  const lines = [
+    "【商品链接网页内容】",
+    `URL: ${signals.url}`,
+    `站点: ${signals.site}`,
+    `抓取方式: ${signals.source}`,
+  ];
+  if (signals.title) lines.push(`标题: ${signals.title}`);
+  if (signals.brand) lines.push(`品牌/厂商: ${signals.brand}`);
+  if (signals.model) lines.push(`型号/SKU/ASIN: ${signals.model}`);
+  if (signals.asin) lines.push(`ASIN: ${signals.asin}`);
+  if (signals.description) lines.push(`描述: ${signals.description}`);
+  if (signals.text) {
+    lines.push("—— 页面正文摘录 ——");
+    lines.push(signals.text.slice(0, 12000));
+  }
+  if (!signals.title && !signals.text) {
+    lines.push("(未能打开网页正文；请仅根据 URL 与站点类型尽量推断，不确定则留空)");
+  }
+  return lines.join("\n");
+}
+
 async function parseOrderRequest(
   voiceText: string,
   link: string,
@@ -1441,7 +1855,19 @@ async function parseOrderRequest(
   const chunks: string[] = [];
   const labels: Record<string, unknown>[] = [];
   if (voiceText) chunks.push(`【语音转写】\n${voiceText}`);
-  if (link) chunks.push(`【商品链接】\n${link}`);
+
+  let pageSignals: ProductPageSignals | null = null;
+  if (link) {
+    chunks.push(`【商品链接】\n${link}`);
+    try {
+      pageSignals = await fetchProductPage(link);
+      if (pageSignals) chunks.push(formatProductPageContext(pageSignals));
+    } catch (err) {
+      console.warn("fetchProductPage error", err);
+      chunks.push("【商品链接】未能抓取网页，仅提供 URL：" + link);
+    }
+  }
+
   for (const item of files) {
     const { text, label } = await extractFile(
       item.filename,
@@ -1453,20 +1879,61 @@ async function parseOrderRequest(
   }
   const context = chunks.join("\n\n").trim();
   if (!context) throw new Error("empty_input");
-  const seed = seedFieldsFromLabels(labels);
+
+  const seedFromLabels = seedFieldsFromLabels(labels);
+  const seedFromLink = seedFromProductPage(pageSignals);
+  const seed: FieldMap = { ...seedFromLink };
+  for (const key of FIELD_KEYS) {
+    // Prefer label OCR over marketplace page when both present
+    if (seedFromLabels[key]) seed[key] = seedFromLabels[key];
+  }
+
   try {
-    return await structureFields(context, seed);
+    const result = await structureFields(context, seed);
+    if (result && typeof result === "object") {
+      const summary = (result.product_summary || {}) as Record<string, unknown>;
+      if (!summary.hint) {
+        summary.hint = pageSignals
+          ? `来自商品链接（${pageSignals.site}）`
+          : String(summary.hint || "");
+      }
+      if (pageSignals?.brand && !summary.brand) {
+        summary.brand = pageSignals.brand;
+      }
+      result.product_summary = summary;
+      result.source = pageSignals ? "product_link" : result.source;
+      (result as Record<string, unknown>).link_meta = pageSignals
+        ? {
+          url: pageSignals.url,
+          site: pageSignals.site,
+          fetch: pageSignals.source,
+          title: pageSignals.title,
+        }
+        : undefined;
+    }
+    return result;
   } catch (err) {
     if (FIELD_KEYS.some((k) => seed[k])) {
       return {
         product_summary: {
           name: seed["Product Name"] || "",
-          brand: "",
-          hint: "来自产品标签识别",
+          brand: pageSignals?.brand || "",
+          hint: pageSignals
+            ? `来自商品链接（${pageSignals.site}）`
+            : "来自产品标签识别",
         },
         fields: seed,
         confidence: {},
         raw_excerpt: context.slice(0, 500),
+        source: pageSignals ? "product_link" : "seed",
+        link_meta: pageSignals
+          ? {
+            url: pageSignals.url,
+            site: pageSignals.site,
+            fetch: pageSignals.source,
+            title: pageSignals.title,
+          }
+          : undefined,
       };
     }
     throw err;

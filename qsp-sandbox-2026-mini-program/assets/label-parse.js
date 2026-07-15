@@ -1782,6 +1782,87 @@
     return Promise.resolve('');
   }
 
+  function normalizeProductUrlClient(raw) {
+    var s = String(raw || '').trim();
+    if (!s) return '';
+    if (/^\/\//.test(s)) s = 'https:' + s;
+    if (!/^https?:\/\//i.test(s)) {
+      if (/^[a-z0-9.-]+\.[a-z]{2,}([/?#]|$)/i.test(s)) s = 'https://' + s;
+      else return '';
+    }
+    try {
+      var u = new URL(s);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+      if (!u.hostname) return '';
+      return u.toString();
+    } catch (e) {
+      return '';
+    }
+  }
+
+  /**
+   * Open a product URL via Jina reader (CORS-friendly) and map page text → order fields.
+   * Used as local fallback when Edge parse-order is unavailable.
+   */
+  function fetchProductLinkLocally(link, onProgress) {
+    var url = normalizeProductUrlClient(link);
+    if (!url) {
+      var bad = new Error('invalid_link');
+      bad.code = 'invalid_link';
+      return Promise.reject(bad);
+    }
+    notifyProgress(onProgress, 'parsingLink', '正在打开商品网页并提取字段…');
+    var readerUrl = 'https://r.jina.ai/' + url;
+    return fetch(readerUrl, {
+      method: 'GET',
+      headers: { Accept: 'text/plain, text/markdown, */*' }
+    }).then(function (res) {
+      if (!res.ok) throw new Error('link_http_' + res.status);
+      return res.text();
+    }).then(function (body) {
+      var text = String(body || '').trim();
+      if (!text || text.length < 40) {
+        var empty = new Error('link_open_failed');
+        empty.code = 'link_open_failed';
+        throw empty;
+      }
+      var title =
+        (text.match(/^(?:Title|标题)\s*:\s*(.+)$/im) || [])[1] ||
+        text.split('\n').map(function (l) { return l.trim(); }).find(function (l) {
+          return l.length > 8 && l.length < 160 && !/^https?:/i.test(l);
+        }) ||
+        '';
+      title = cleanProductName(title) || title;
+      var asinMatch = url.match(/(?:\/dp\/|\/gp\/product\/|asin=)([A-Z0-9]{8,12})/i);
+      var asin = asinMatch ? asinMatch[1].toUpperCase() : '';
+      var brandMatch = text.match(/(?:Brand|品牌|Manufacturer|厂商|制造商)\s*[:：]\s*([^\n]{2,80})/i);
+      var brand = brandMatch ? cleanManufacturerValue(brandMatch[1]) : '';
+      var pageFields = sanitizeParsedFields({
+        'Product Name': title,
+        Manufacturer: brand,
+        'Item#/model#': asin,
+        'Product Description': text.slice(0, 240),
+        'Countries/Regions of Distribution':
+          /amazon\.|temu\./i.test(url) ? '美国' : '',
+        'Country of Origin': /made\s+in\s+china|中国制造/i.test(text) ? '中国' : '',
+        Program: matchProgramFromText(title + '\n' + text.slice(0, 2000), {
+          productName: title,
+          electricYes: /\d+\s*V|\d+\s*W|battery|充电|电压|风扇|electric/i.test(text)
+        })
+      }, { rawExcerpt: text });
+      var voiceLike = extractFieldsFromVoiceText(text.slice(0, 2500));
+      var merged = mergeFieldSets({ fields: pageFields }, voiceLike);
+      if (merged && merged.product_summary) {
+        merged.product_summary.hint = '来自商品链接';
+        if (!merged.product_summary.name && title) merged.product_summary.name = title;
+      }
+      merged.source = 'product_link_local';
+      merged.link_meta = { url: url, fetch: 'jina' };
+      merged.raw_excerpt = text.slice(0, 500);
+      return merged;
+    });
+  }
+
   function parseFilesLocally(files, voiceText, link, onProgress) {
     files = files || [];
     var voiceResult = voiceText ? extractFieldsFromVoiceText(voiceText) : null;
@@ -1789,14 +1870,36 @@
       return f && f.size && (isImageFile(f) || isPdfFile(f) || isDocxFile(f) || isLegacyDocFile(f));
     });
     var onlyLegacyDoc = usable.length > 0 && usable.every(isLegacyDocFile);
+    var linkUrl = link ? normalizeProductUrlClient(link) : '';
+
+    function withLink(base) {
+      if (!linkUrl) return Promise.resolve(base);
+      return fetchProductLinkLocally(linkUrl, onProgress).then(function (linkResult) {
+        if (base) return mergeFieldSets(base, linkResult);
+        return linkResult;
+      }).catch(function () {
+        if (base) return base;
+        var linkAsText = extractFieldsFromVoiceText(String(link));
+        return linkAsText;
+      });
+    }
 
     if (!usable.length) {
+      if (linkUrl) {
+        return withLink(voiceResult && voiceResult.raw_excerpt ? voiceResult : null).then(function (result) {
+          if (result && result.fields && Object.keys(result.fields).some(function (k) {
+            return result.fields[k];
+          })) {
+            return result;
+          }
+          if (voiceResult && voiceResult.raw_excerpt) return voiceResult;
+          var emptyErr = new Error('link_open_failed');
+          emptyErr.code = 'link_open_failed';
+          return Promise.reject(emptyErr);
+        });
+      }
       notifyProgress(onProgress, 'parsingVoice', '正在匹配语音字段…');
       if (voiceResult && voiceResult.raw_excerpt) return Promise.resolve(voiceResult);
-      if (link) {
-        var linkOnly = extractFieldsFromVoiceText(String(link));
-        return Promise.resolve(linkOnly);
-      }
       return Promise.reject(new Error('empty_local_ocr'));
     }
 
@@ -1818,14 +1921,17 @@
 
     return Promise.all(tasks).then(function (texts) {
       var combined = texts.filter(Boolean).join('\n\n');
-      if (link) combined = combined + '\n\n' + String(link);
       var ocrResult = combined.trim() ? extractFieldsFromOcrText(combined) : null;
-      if (voiceResult && ocrResult) return mergeFieldSets(ocrResult, voiceResult);
-      if (ocrResult) return ocrResult;
-      if (voiceResult && voiceResult.raw_excerpt) return voiceResult;
-      var emptyErr = new Error('empty_local_ocr');
-      emptyErr.code = 'empty_local_ocr';
-      return Promise.reject(emptyErr);
+      var base = null;
+      if (voiceResult && ocrResult) base = mergeFieldSets(ocrResult, voiceResult);
+      else if (ocrResult) base = ocrResult;
+      else if (voiceResult && voiceResult.raw_excerpt) base = voiceResult;
+      return withLink(base).then(function (result) {
+        if (result) return result;
+        var emptyErr = new Error('empty_local_ocr');
+        emptyErr.code = 'empty_local_ocr';
+        return Promise.reject(emptyErr);
+      });
     });
   }
 
@@ -2035,6 +2141,8 @@
     extractProductName: extractProductName,
     extractFieldsFromOcrText: extractFieldsFromOcrText,
     extractFieldsFromVoiceText: extractFieldsFromVoiceText,
+    normalizeProductUrl: normalizeProductUrlClient,
+    fetchProductLinkLocally: fetchProductLinkLocally,
     canonicalizeFieldKeys: canonicalizeFieldKeys,
     resolveCanonicalFieldKey: resolveCanonicalFieldKey,
     cleanManufacturerValue: cleanManufacturerValue,
