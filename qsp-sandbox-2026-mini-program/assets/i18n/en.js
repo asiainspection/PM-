@@ -363,7 +363,7 @@ window.I18N_EN = {
   'orderChat.uploadSourceTitle': 'Choose upload source',
   'orderChat.uploadWechat': 'Upload from WeChat',
   'orderChat.uploadPhone': 'Upload from phone',
-  'orderChat.fieldEditorTitle': 'Edit form',
+  'orderChat.fieldEditorTitle': 'Complete order form',
   'orderChat.orderConfirmTitle': 'Order confirmation',
   'orderChat.backToEdit': 'Back to edit',
   'orderChat.backConfirmText': 'Return to home? Your current progress will not be saved.',

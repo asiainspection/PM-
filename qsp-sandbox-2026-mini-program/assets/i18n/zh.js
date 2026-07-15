@@ -363,7 +363,7 @@ window.I18N_ZH = {
   'orderChat.uploadSourceTitle': '选择上传方式',
   'orderChat.uploadWechat': '从微信上传',
   'orderChat.uploadPhone': '从手机上传',
-  'orderChat.fieldEditorTitle': '表单填写',
+  'orderChat.fieldEditorTitle': '详细填写订单',
   'orderChat.orderConfirmTitle': '订单确认信息',
   'orderChat.backToEdit': '返回修改',
   'orderChat.backConfirmText': '您确定返回主页吗？现在的进度将不会保存',

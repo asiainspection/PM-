@@ -615,115 +615,36 @@
     border: 1px solid #dbe5ff; font-weight: 600;
   }
 
-  /* ===== 字段编辑浮窗 ===== */
-  .edit-mask {
-    position: absolute; inset: 0; z-index: 40;
-    background: rgba(25,25,25,.42);
-    display: none; align-items: flex-end;
-  }
-  .edit-mask.show { display: flex; }
-  .edit-modal {
-    width: 100%; max-height: 78%; background: #fff;
-    border-radius: 18px 18px 0 0; overflow: hidden;
-    box-shadow: 0 -8px 28px rgba(25,25,25,.12);
-  }
-  .edit-modal-head {
-    height: 52px; padding: 0 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    border-bottom: .5px solid #eef0f4;
-  }
-  .edit-modal-title { font-size: 16px; font-weight: 600; color: var(--carbon); }
-  .edit-close {
-    border: none; background: #f4f6fa; color: var(--seal);
-    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-    font-size: 18px; line-height: 28px;
-  }
-  .edit-modal-body {
-    max-height: 540px; overflow-y: auto; padding: 12px 16px 16px;
-  }
-  .edit-modal-body::-webkit-scrollbar { display: none; }
-  .edit-grid { display: flex; flex-direction: column; gap: 12px; }
-  .edit-section {
-    border: 1px solid #edf0f6; border-radius: 12px;
-    overflow: hidden; background: #fff;
-  }
-  .edit-section-title {
-    background: #f7f9ff; color: #24407a;
-    font-size: 12px; font-weight: 700;
-    padding: 9px 11px;
-    border-bottom: .5px solid #edf0f6;
-  }
-  .edit-section-body { padding: 10px 11px 12px; display: flex; flex-direction: column; gap: 10px; }
-  .edit-item label {
-    display: block; font-size: 12px; color: var(--seal); margin-bottom: 5px;
-  }
-  .edit-control {
-    width: 100%; height: 38px; border: 1px solid #e1e5ee;
-    border-radius: 9px; padding: 0 10px;
-    font-size: 13px; color: var(--carbon); outline: none;
-    background: #fff;
-  }
-  .edit-control:focus {
-    border-color: var(--pool-500);
-    box-shadow: 0 0 0 3px rgba(65,105,225,.1);
-  }
+  /* ===== 字段编辑浮窗（复用 form-modal 壳；保留销售国家组件样式） ===== */
+  #fieldEditor { z-index: 62; }
   .edit-inline-add {
     display: flex; gap: 8px; margin-top: 8px;
   }
-  .edit-inline-add .edit-control { flex: 1; height: 36px; }
+  .edit-inline-add .fm-input { flex: 1; }
   .edit-add-btn {
-    height: 36px; padding: 0 12px; border-radius: 9px;
+    height: 38px; padding: 0 12px; border-radius: 9px;
     border: 1px solid #dce4fb; background: var(--pool-050);
     color: var(--pool-500); font-size: 12px; font-weight: 600; cursor: pointer; flex-shrink: 0;
   }
   .edit-add-btn:active { background: #e8eeff; }
-  .edit-item-country .edit-item-label-row {
-    display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
-  }
-  .edit-item-country .edit-item-label-row label {
-    margin-bottom: 0; font-size: 12px; color: var(--seal);
-  }
+  .edit-item-country .fm-label { margin-bottom: 8px; }
   .edit-info-icon {
     width: 14px; height: 14px; border-radius: 50%;
     background: var(--pool-100); color: var(--pool-500);
     font-size: 10px; font-weight: 700; line-height: 14px; text-align: center;
     flex-shrink: 0;
   }
-  .edit-country-panel {
-    border: 1px solid #e8ecf4; border-radius: 10px;
-    background: #fafbfe; padding: 8px;
-  }
-  .edit-country-checks {
-    display: flex; flex-direction: column; gap: 8px;
-  }
+  .edit-country-panel { margin-top: 2px; }
+  .edit-country-checks.fm-check-grid { margin-bottom: 8px; }
   .edit-item-country .edit-country-line {
     display: flex; align-items: center; gap: 7px;
-    width: 100%; min-width: 0; height: 38px; padding: 0 12px; margin-bottom: 0;
-    border: 1px solid #e1e5ee; border-radius: 9px;
-    background: #fff;
+    min-height: 18px; margin-bottom: 0;
     font-size: 12px; color: var(--carbon);
     cursor: pointer; user-select: none;
-    transition: border-color .15s, background .15s, color .15s;
-  }
-  .edit-item-country .edit-country-line:has(input:checked) {
-    border-color: #c0d0f8; background: var(--pool-050);
-    color: var(--pool-500); font-weight: 600;
   }
   .edit-item-country .edit-country-line input {
-    appearance: none; -webkit-appearance: none;
     width: 16px; height: 16px; flex: 0 0 16px;
-    border: 1.5px solid #aeb7c8; border-radius: 4px;
-    background: #fff; margin: 0; cursor: pointer;
-    display: grid; place-content: center;
-  }
-  .edit-item-country .edit-country-line input:checked {
-    border-color: var(--pool-500); background: var(--pool-500);
-  }
-  .edit-item-country .edit-country-line input:checked::after {
-    content: "";
-    width: 5px; height: 9px;
-    border: solid #fff; border-width: 0 2px 2px 0;
-    transform: rotate(45deg); margin-top: -1px;
+    accent-color: var(--pool-500); margin: 0; cursor: pointer;
   }
   .edit-item-country .edit-country-line span {
     min-width: 0; line-height: 18px;
@@ -731,20 +652,19 @@
   }
   .edit-country-summary {
     margin-top: 8px; padding: 8px 10px;
-    border-radius: 8px; background: #fff;
-    border: 1px dashed #dce4fb;
+    border-radius: 8px; background: #f7f9ff;
+    border: 1px solid #e3e9fb;
     font-size: 11px; color: #24407a; line-height: 16px;
   }
-  .edit-country-summary.empty { color: var(--seal); border-color: #e8ecf4; }
+  .edit-country-summary.empty { color: var(--seal); border-color: #e8ecf4; background: #fafbfe; }
   .edit-country-search { position: relative; margin-top: 10px; }
   .edit-country-search::before {
     content: ""; position: absolute; left: 11px; top: 50%;
     width: 14px; height: 14px; transform: translateY(-50%);
     background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Ccircle cx='7' cy='7' r='4.5' stroke='%23999' stroke-width='1.4'/%3E%3Cpath d='M10.5 10.5 13 13' stroke='%23999' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
-    pointer-events: none;
+    pointer-events: none; z-index: 1;
   }
-  .edit-country-search .edit-control {
-    height: 38px; font-size: 13px; color: var(--seal);
+  .edit-country-search .fm-input {
     padding-left: 32px;
   }
   .edit-country-results {
@@ -760,18 +680,8 @@
     padding: 10px 11px; font-size: 13px; color: var(--carbon); cursor: pointer;
   }
   .edit-country-option:hover { background: var(--pool-050); color: var(--pool-500); }
-  .edit-modal-actions {
-    display: flex; gap: 10px; padding: 12px 16px 16px;
-    border-top: .5px solid #eef0f4;
-  }
-  .edit-action {
-    flex: 1; height: 42px; border-radius: 12px; border: 1px solid #e1e5ee;
-    background: #fff; color: var(--seal); font-size: 14px; cursor: pointer;
-  }
-  .edit-action.primary {
-    border-color: var(--pool-500); background: var(--pool-500); color: #fff;
-    font-weight: 600;
-  }
+  .edit-country-option.muted { color: var(--seal); cursor: default; opacity: .75; }
+  .edit-country-option.muted:hover { background: #fff; color: var(--seal); }
 
   /* ===== 订单确认浮窗 ===== */
   .order-confirm-mask {
@@ -1303,19 +1213,19 @@
       </div>
     </div>
 
-    <!-- 字段编辑浮窗 -->
-    <div class="edit-mask" id="fieldEditor" onclick="closeFieldEditor(event)">
-      <div class="edit-modal" onclick="event.stopPropagation()">
-        <div class="edit-modal-head">
-          <div class="edit-modal-title" data-i18n="orderChat.fieldEditorTitle">表单填写</div>
-          <button class="edit-close" onclick="closeFieldEditor()" aria-label="关闭" data-i18n-title="common.close">×</button>
+    <!-- 字段编辑浮窗（与详细填写订单 manualFormModal 统一 UI） -->
+    <div class="form-modal-mask" id="fieldEditor" onclick="closeFieldEditor(event)">
+      <div class="form-modal" onclick="event.stopPropagation()">
+        <div class="form-modal-head">
+          <div class="form-modal-title" data-i18n="orderChat.fieldEditorTitle">详细填写订单</div>
+          <button class="form-modal-close" type="button" onclick="closeFieldEditor()" aria-label="关闭" data-i18n-title="common.close">×</button>
         </div>
-        <div class="edit-modal-body">
-          <div class="edit-grid" id="fieldEditorGrid"></div>
+        <div class="form-modal-body">
+          <div id="fieldEditorGrid"></div>
         </div>
-        <div class="edit-modal-actions">
-          <button class="edit-action" onclick="closeFieldEditor()" data-i18n="common.cancel">取消</button>
-          <button class="edit-action primary" onclick="saveFieldEditor()" data-i18n="common.save">保存修改</button>
+        <div class="form-modal-actions">
+          <button class="form-modal-action" type="button" onclick="closeFieldEditor()" data-i18n="common.cancel">取消</button>
+          <button class="form-modal-action primary" type="button" onclick="saveFieldEditor()" data-i18n="common.save">保存修改</button>
         </div>
       </div>
     </div>
@@ -4399,19 +4309,16 @@
     function openFieldEditor(btn){
       removeActionRow(btn);
       const grid = document.getElementById('fieldEditorGrid');
-      grid.innerHTML = getEditableSections().map(section =>
-        '<div class="edit-section">'+
-          '<div class="edit-section-title">'+section.title+'</div>'+
-          '<div class="edit-section-body">'+
-            section.fields.map(renderEditField).join('')+
-          '</div>'+
-        '</div>'
-      ).join('');
+      // Same section layout as #manualFormModal (fm-section-title + fm-row)
+      grid.innerHTML = getEditableSections().map(function(section){
+        return '<div class="fm-section-title">'+escapeHtml(section.title)+'</div>'+
+          section.fields.map(renderEditField).join('');
+      }).join('');
       document.getElementById('fieldEditor').classList.add('show');
     }
 
     function addEditSelectOption(btn){
-      const wrap = btn.closest('.edit-item-combo');
+      const wrap = btn.closest('.fm-row') || btn.closest('.edit-item-combo');
       if(!wrap) return;
       const input = wrap.querySelector('.edit-inline-add input');
       const select = wrap.querySelector('select');
@@ -4479,8 +4386,9 @@
 
     function editCountryCheckbox(value, checked, extra){
       const label = I18n.displayCountry(value);
-      return '<label class="edit-country-line'+(extra ? ' extra' : '')+'">'+
-        '<input type="checkbox" value="'+escapeHtml(value)+'"'+(checked ? ' checked' : '')+' onchange="toggleEditCountry(this)">'+
+      const key = catalogCountryKey(value) || value;
+      return '<label class="fm-radio-line edit-country-line'+(extra ? ' extra' : '')+'">'+
+        '<input type="checkbox" value="'+escapeHtml(value)+'"'+(key ? ' data-country-key="'+escapeHtml(key)+'"' : '')+(checked ? ' checked' : '')+' onchange="toggleEditCountry(this)">'+
         '<span>'+escapeHtml(label)+'</span>'+
       '</label>';
     }
@@ -4548,25 +4456,116 @@
       const extraHtml = extras.map(country => editCountryCheckbox(country, true, true)).join('');
       const hiddenValue = [...selected].join(', ');
       const summaryText = selected.size ? t('common.selectedCount', {count: selected.size, list: [...selected].map(function(c){ return I18n.displayCountry(c); }).join(t('orderChat.listSep'))}) : t('common.selectAtLeastOneCountry');
-      return '<div class="edit-item edit-item-country">'+
-        '<div class="edit-item-label-row">'+
-          '<label>'+escapeHtml(fieldLabel(field.name))+' <span class="req">*</span></label>'+
+      return '<div class="fm-row edit-item-country">'+
+        '<div class="fm-label">'+
+          '<span>'+escapeHtml(fieldLabel(field.name))+'</span> <span class="req">*</span>'+
           '<span class="edit-info-icon" title="'+t('orderDetail.countryInfoTip')+'">i</span>'+
         '</div>'+
         '<div class="edit-country-panel">'+
-          '<div class="edit-country-checks" data-role="country-list">'+presetHtml+extraHtml+'</div>'+
+          '<div class="fm-check-grid edit-country-checks" data-role="country-list">'+presetHtml+extraHtml+'</div>'+
           '<div class="edit-country-summary'+(!selected.size ? ' empty' : '')+'">'+escapeHtml(summaryText)+'</div>'+
         '</div>'+
         '<div class="edit-country-search">'+
-          '<input class="edit-control" type="text" placeholder="'+t('common.searchOtherCountry')+'" autocomplete="off" oninput="renderEditCountryResults(this)" onfocus="renderEditCountryResults(this)">'+
+          '<input class="fm-input" type="text" placeholder="'+t('common.searchOtherCountry')+'" autocomplete="off" oninput="renderEditCountryResults(this)" onfocus="renderEditCountryResults(this)">'+
           '<div class="edit-country-results"></div>'+
         '</div>'+
         '<input type="hidden" data-field-name="'+field.name+'" value="'+escapeHtml(hiddenValue)+'">'+
       '</div>';
     }
 
+    function renderEditManufacturerField(field){
+      const current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
+      const hit = findManufacturerOption(current);
+      const name = hit ? hit.name : current;
+      const addr = (getFieldValue('Manufacturer Address') || manualAnswers['Manufacturer Address'] || (hit && hit.address) || '');
+      return '<div class="fm-row">'+
+        '<div class="fm-label"><span>'+escapeHtml(fieldLabel(field.name))+'</span> <span class="req">*</span></div>'+
+        '<div class="fm-suggest" id="fe_manufacturerSuggest">'+
+          '<input class="fm-input" id="fe_manufacturer" type="text" data-field-name="Manufacturer" value="'+escapeHtml(name)+'" placeholder="'+t('index.manufacturerPlaceholder')+'" autocomplete="off" oninput="onFieldEditorManufacturerInput()" onfocus="renderFieldEditorManufacturerSuggestions()" onkeydown="onFieldEditorManufacturerKeydown(event)" onblur="onFieldEditorManufacturerBlur()">'+
+          '<div class="fm-suggest-results" id="fe_manufacturerResults"></div>'+
+        '</div>'+
+        '<div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
+      '</div>'+
+      '<div class="fm-row">'+
+        '<div class="fm-label"><span>'+escapeHtml(fieldLabel('Manufacturer Address'))+'</span> <span class="req">*</span></div>'+
+        '<input class="fm-input" id="fe_manufacturerAddr" type="text" data-field-name="Manufacturer Address" value="'+escapeHtml(addr)+'" placeholder="'+t('index.manufacturerAddressPlaceholder')+'">'+
+        '<div style="font-size:11px; color:#b8860b; margin-top:4px; line-height:16px;">'+escapeHtml(t('index.manufacturerAddressWarn'))+'</div>'+
+      '</div>';
+    }
+
+    function clearFieldEditorManufacturerSuggestions(){
+      const results = document.getElementById('fe_manufacturerResults');
+      if(!results) return;
+      results.classList.remove('show');
+      results.innerHTML = '';
+    }
+
+    function renderFieldEditorManufacturerSuggestions(){
+      const input = document.getElementById('fe_manufacturer');
+      const results = document.getElementById('fe_manufacturerResults');
+      if(!input || !results) return;
+      const matches = filterManufacturerOptions(input.value || '');
+      if(!matches.length){
+        results.innerHTML = '<div class="fm-suggest-option muted">'+escapeHtml(t('index.noMatchingManufacturer'))+'</div>';
+        results.classList.add('show');
+        return;
+      }
+      results.innerHTML = matches.map(function(item){
+        return '<button class="fm-suggest-option" type="button" data-name="'+escapeHtml(item.name)+'" onmousedown="pickFieldEditorManufacturer(this)">'+
+          '<span class="fm-suggest-name">'+escapeHtml(item.name)+'</span>'+
+          '<span class="fm-suggest-addr">'+escapeHtml(item.address)+'</span>'+
+        '</button>';
+      }).join('');
+      results.classList.add('show');
+    }
+
+    function pickFieldEditorManufacturer(btn){
+      const name = (btn && btn.dataset.name) ? btn.dataset.name.trim() : '';
+      const hit = findManufacturerOption(name);
+      if(!hit) return;
+      const nameEl = document.getElementById('fe_manufacturer');
+      const addrEl = document.getElementById('fe_manufacturerAddr');
+      if(nameEl) nameEl.value = hit.name;
+      if(addrEl) addrEl.value = hit.address;
+      clearFieldEditorManufacturerSuggestions();
+    }
+
+    function onFieldEditorManufacturerInput(){
+      renderFieldEditorManufacturerSuggestions();
+      const input = document.getElementById('fe_manufacturer');
+      const hit = findManufacturerOption(input ? input.value : '');
+      if(!hit || !input) return;
+      const q = String(input.value || '').trim().toLowerCase();
+      const exact = hit.name.toLowerCase() === q ||
+        (hit.aliases || []).some(function(a){ return String(a).toLowerCase() === q; });
+      if(exact){
+        input.value = hit.name;
+        const addrEl = document.getElementById('fe_manufacturerAddr');
+        if(addrEl) addrEl.value = hit.address;
+      }
+    }
+
+    function onFieldEditorManufacturerKeydown(e){
+      if(e.key !== 'Enter') return;
+      e.preventDefault();
+      const first = document.querySelector('#fe_manufacturerResults .fm-suggest-option[data-name]');
+      if(first){ pickFieldEditorManufacturer(first); return; }
+      const hit = findManufacturerOption((document.getElementById('fe_manufacturer') || {}).value);
+      if(hit) pickFieldEditorManufacturer({ dataset: { name: hit.name } });
+    }
+
+    function onFieldEditorManufacturerBlur(){
+      setTimeout(clearFieldEditorManufacturerSuggestions, 160);
+    }
+
     function renderEditField(field){
       const current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
+      if(field.name === 'Manufacturer'){
+        return renderEditManufacturerField(field);
+      }
+      if(field.name === 'Manufacturer Address'){
+        return '';
+      }
       if(field.type === 'multi-country'){
         return renderEditMultiCountryField(field);
       }
@@ -4578,27 +4577,27 @@
           const label = opt || t('common.selectPlaceholder');
           return '<option value="'+escapeHtml(opt)+'"'+selected+'>'+escapeHtml(label)+'</option>';
         }).join('');
-        const selectHtml =
-          '<div class="edit-item'+(field.type === 'select-addable' ? ' edit-item-combo' : '')+'">'+
-            '<label>'+fieldLabel(field.name)+'</label>'+
-            '<select class="edit-control" data-field-name="'+field.name+'">'+options+'</select>';
+        let html =
+          '<div class="fm-row'+(field.type === 'select-addable' ? ' edit-item-combo' : '')+'">'+
+            '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+'</div>'+
+            '<select class="fm-select" data-field-name="'+field.name+'">'+options+'</select>';
         if(field.type === 'select-addable'){
-          return selectHtml+
+          html +=
             '<div class="edit-inline-add">'+
-              '<input class="edit-control" type="text" placeholder="'+(field.addPlaceholder || t('orderChat.inputNewOption'))+'">'+
+              '<input class="fm-input" type="text" placeholder="'+(field.addPlaceholder || t('orderChat.inputNewOption'))+'">'+
               '<button class="edit-add-btn" type="button" onclick="addEditSelectOption(this)">'+t('orderChat.addOption')+'</button>'+
-            '</div>'+
-          '</div>';
+            '</div>';
         }
-        return selectHtml+'</div>';
+        return html+'</div>';
       }
-      return '<div class="edit-item">'+
-        '<label>'+fieldLabel(field.name)+'</label>'+
-        '<input class="edit-control" data-field-name="'+field.name+'" value="'+escapeHtml(current)+'" placeholder="'+t('orderChat.fieldInputPlaceholder', {field: fieldLabel(field.name)})+'">'+
+      return '<div class="fm-row">'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+'</div>'+
+        '<input class="fm-input" data-field-name="'+field.name+'" value="'+escapeHtml(current)+'" placeholder="'+t('orderChat.fieldInputPlaceholder', {field: fieldLabel(field.name)})+'">'+
       '</div>';
     }
 
-    function closeFieldEditor(){
+    function closeFieldEditor(e){
+      if(e && e.target && e.currentTarget && e.target !== e.currentTarget) return;
       document.getElementById('fieldEditor').classList.remove('show');
     }
 
@@ -4618,8 +4617,9 @@
           results.innerHTML = '';
         });
       }
-      if(!event.target.closest('#mf_manufacturerSuggest')){
+      if(!event.target.closest('#mf_manufacturerSuggest') && !event.target.closest('#fe_manufacturerSuggest')){
         clearManufacturerSuggestions();
+        if(typeof clearFieldEditorManufacturerSuggestions === 'function') clearFieldEditorManufacturerSuggestions();
       }
     });
 
