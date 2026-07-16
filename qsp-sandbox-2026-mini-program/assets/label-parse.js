@@ -136,50 +136,68 @@
     var name = String((hints && hints.productName) || '').trim();
     var blob = (name + '\n' + t).toLowerCase();
     var electricHint = !!(hints && hints.electricYes);
+
+    // 1) Explicit MSDS-only program
+    if (/\b(?:msds\s*only|only\s*msds|msds\s*program)\b/i.test(blob) ||
+      (/msds/i.test(blob) && /只做|专用|only/i.test(blob))) {
+      return 'msds';
+    }
+    // 2) Chemical / cosmetic / coating — products that need an SDS/MSDS
+    //    (nail polish, perfume, paint, adhesive, detergent, solvent, ink, aerosol…)
+    if (/\b(?:nail\s*polish|polish|cosmetic|cosmetics|makeup|perfume|fragrance|eau\s*de|paint|coating|varnish|lacquer|adhesive|glue|resin|detergent|cleaner|solvent|ink|aerosol|chemicals?|hazardous)\b/i.test(blob) ||
+      /指甲油|化妆品|香水|卸妆|染发剂|漂发剂|洗甲水|油漆|涂料|涂层|胶水|粘合剂|树脂|清洁剂|洗涤剂|溶剂|油墨|气雾剂|化学品|危险品|脱漆/.test(blob)) {
+      return 'msds';
+    }
+    // 3) SH-Self
+    if (/\bsh[-\s]?self\b|\bself\s*program\b/i.test(blob) || /自助\s*program/.test(blob)) return 'sh_self';
+    // 4) Eyewear / PPE
+    if (/\b(?:eyewear|sunglasses|glasses|goggles|spectacles|ppe\b|safety\s*glasses|reading\s*glasses)\b/i.test(blob) ||
+      /护目镜|太阳镜|眼镜|镜架|镜片/.test(blob)) {
+      return 'eyewear';
+    }
+    // 5) Electric — only with concrete powered evidence (never from category guess alone)
     if (
       electricHint ||
       /__ELECTRIC_YES__/i.test(t) ||
-      /\b(?:electric\s+fan|electric\s+product|electronics?|battery|voltage|charger|motor|adapter|电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电)\b/i.test(blob) ||
+      /\b(?:electric\s+fan|electric\s+product|electronics?|voltage|charger|motor|adapter)\b/i.test(blob) ||
+      /电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电/.test(blob) ||
       /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(blob)
     ) {
-      // Prefer electric when product is clearly powered; toys with batteries still toys if toy cue stronger
-      var toyCue = /\b(?:toy|toys|en\s*71|cpsia|玩具|机器人玩具|积木)\b/i.test(blob);
-      var electricName = /\b(?:fan|lamp|light|heater|blender|mixer|vacuum|speaker|耳机|风扇|台灯|吹风机|充电器)\b/i.test(blob) ||
-        /electric\s+product|电子产品|带电产品/i.test(blob);
+      var toyCue = /\b(?:toy|toys|en\s*71|cpsia)\b/i.test(blob) || /玩具|机器人玩具|积木|毛绒/.test(blob);
+      var electricName = /\b(?:fan|lamp|light|heater|blender|mixer|vacuum|speaker|headphones?|earphones?|shaver|straightener|hair\s*dryer)\b/i.test(blob) ||
+        /耳机|风扇|台灯|吹风机|充电器|剃须刀|直发器|带电产品|电子产品/.test(blob) ||
+        /electric\s+product/i.test(blob);
       if (electricName || (electricHint && !toyCue)) {
         return 'electric';
       }
       if (!toyCue) return 'electric';
     }
-    if (/\b(?:msds\s*only|only\s*msds|只做\s*msds|msds专用|msds\s*program)\b/i.test(blob) ||
-      (/msds/i.test(blob) && /只做|专用|only/i.test(blob))) {
-      return 'msds';
-    }
-    if (/\bsh[-\s]?self\b|自助\s*program|self\s*program/i.test(blob)) return 'sh_self';
-    if (/\b(?:eyewear|glasses|goggles|ppe\b|safety\s*glasses|护目镜|眼镜|ppe\s*眼镜)\b/i.test(blob)) {
-      return 'eyewear';
-    }
-    if (/\b(?:food\s*contact|fcm\b|lfgb|食品接触|餐具|水杯|bowl|cup\b(?!\s*toy))/i.test(blob)) {
+    // 6) Food contact materials (tableware / drinkware / cookware that touches food)
+    if (/\b(?:food\s*contact|fcm\b|lfgb|tableware|cutlery|flatware|chopsticks|mug|cup|glass(?:es)?|bottle|tumbler|plate|bowl|dish|cookware|pan\b|pot\b|wok|tray|food\s*container|lunchbox|cutting\s*board|chopping\s*board|wine\s*glass)\b/i.test(blob) ||
+      /食品接触|餐具|水杯|杯子|餐盒|餐盘|碗|碟|锅|壶|砧板|菜板|筷子|刀叉|餐刀/.test(blob)) {
       return 'fcm';
     }
-    // non-sleepwear before sleepwear — hyphenated "non-sleepwear" contains "sleepwear"
-    if (/\b(?:non[-\s]?sleepwear|非睡衣)/i.test(blob)) {
+    // 7) non-sleepwear before sleepwear — hyphenated "non-sleepwear" contains "sleepwear"
+    if (/\bnon[-\s]?sleepwear\b/i.test(blob) || /非睡衣/.test(blob)) {
       return 'non_sleepwear';
     }
-    if (/\b(?:sleepwear|pajamas?|pyjamas?|nightgown|睡衣|睡袍|家居服)\b/i.test(blob)) {
+    if (/\b(?:sleepwear|pajamas?|pyjamas?|nightgown|nightwear|onesie|sleep\s*sack)\b/i.test(blob) ||
+      /睡衣|睡袍|家居服|睡袋/.test(blob)) {
       return 'sleepwear';
     }
-    if (
-      /\b(?:textile|fabric|apparel|garment|clothing|面料|纺织|衣服|服装|布料)\b/i.test(blob)
-    ) {
+    if (/\b(?:textile|fabric|apparel|garment|clothing|shirt|t[-\s]?shirt|dress|blouse|pants?|trousers|jeans|underwear|socks?|towel|bedding|linen|hat|scarf|glove|gloves)\b/i.test(blob) ||
+      /面料|纺织|衣服|服装|布料|衬衫|t恤|裙子|裤|内衣|袜子|毛巾|床品|帽子|围巾|手套/.test(blob)) {
       return 'non_sleepwear';
     }
-    if (/\b(?:toy|toys|en\s*71|cpsia|玩具|积木|公仔|doll|plush)\b/i.test(blob)) {
+    // 8) Toys
+    if (/\b(?:toy|toys|en\s*71|cpsia|plush|doll|figurine|puzzle|spinner|rc\b|remote\s*control|water\s*gun|building\s*block|toy\s*car)\b/i.test(blob) ||
+      /玩具|积木|公仔|毛绒|娃娃|手办|拼图|陀螺|遥控|水枪|玩具车/.test(blob)) {
       return 'toys';
     }
+    // 9) Hardware / grocery (non-food tools, fasteners, gadgets)
     if (
-      /\b(?:hardware|grocery|kitchen\s*gadget|screw|bolt|nut|washer|fastener|scissors)\b/i.test(blob) ||
-      /杂货|五金|厨具|日用|餐刀|螺丝|螺钉|螺栓|螺母|垫片|紧固件/.test(blob) ||
+      /\b(?:hardware|grocery|kitchen\s*gadget|screwdriver|wrench|pliers|hammer|saw|drill|fastener|screw|bolt|nut|washer|scissors|tape\s*measure|utility\s*knife|tools?)\b/i.test(blob) ||
+      /杂货|五金|厨具|日用|螺丝|螺钉|螺栓|螺母|垫片|紧固件|工具|扳手|钳|锤|锯|剪刀|卷尺/.test(blob) ||
       (/temu/i.test(blob) && /硬件|杂货/.test(t))
     ) {
       return 'hardware';
@@ -187,7 +205,8 @@
     if (/\bdefault\b/i.test(blob) && /program|关联项目|项目/i.test(blob)) {
       return 'default';
     }
-    return '';
+    // 10) Nothing recognizable → DEFAULT (per product rule: never leave Program empty on auto-fill)
+    return 'default';
   }
 
   /**
