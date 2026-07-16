@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advance Payment Relaunch Proposal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Brand */
+    --qima-red:#E4002B;
+    --qima-red-dark:#C71A21;
+    --qima-red-900:#9E141B;
+    --qima-red-bg:#FDEFEF;
+
+    /* Neutrals */
+    --white:#FFFFFF;
+    --mist:#F7F7F7;
+    --seal:#F0F0F0;
+    --cloud:#DEDEDE;
+    --pearl:#BFBFBF;
+    --ash:#979797;
+    --stone:#737373;
+    --slate:#3E3E3E;
+    --carbon:#191919;
+
+    /* Semantic — Cherry (Critical / Danger) */
+    --cherry-050:#FDEFEF;
+    --cherry-100:#FBDDDD;
+    --cherry-500:#E5353D;
+    --cherry-600:#C71A21;
+    --cherry-900:#9E141B;
+
+    /* Semantic — Orange (Major / Warning) */
+    --orange-050:#FCF2E6;
+    --orange-100:#F9E4CD;
+    --orange-500:#F58F00;
+    --orange-600:#D67D00;
+    --orange-900:#B26309;
+
+    /* Semantic — Lemon (Minor / Caution) */
+    --lemon-050:#FFF9E7;
+    --lemon-100:#FFF2CF;
+    --lemon-500:#FFCA0F;
+    --lemon-600:#E5A700;
+    --lemon-900:#BD8A00;
+
+    /* Semantic — Kiwi (Success / Pass) */
+    --kiwi-050:#EAF6F2;
+    --kiwi-100:#CEEAE1;
+    --kiwi-500:#00A876;
+    --kiwi-600:#008A61;
+    --kiwi-900:#006648;
+
+    /* Semantic Aliases */
+    --fg-1:var(--carbon);
+    --fg-2:var(--stone);
+    --fg-3:var(--ash);
+    --fg-link:var(--qima-red);
+    --bg-app:var(--mist);
+    --bg-surface:var(--white);
+    --bg-sunken:var(--seal);
+    --bg-brand:var(--qima-red);
+    --border-default:rgba(0,0,0,0.1);
+    --border-strong:var(--cloud);
+
+    /* Radius */
+    --radius-sm:4px;
+    --radius-md:8px;
+    --radius-lg:16px;
+    --radius-pill:999px;
+
+    /* Spacing — 4-point grid */
+    --space-tiny:2px;
+    --space-xxs:4px;
+    --space-xs:8px;
+    --space-s:12px;
+    --space-m:16px;
+    --space-l:24px;
+    --space-xl:36px;
+    --space-xxl:48px;
+
+    /* Shadows */
+    --shadow-0:0 1px 2px rgba(25,25,25,0.08);
+    --shadow-1:0 2px 4px rgba(25,25,25,0.1);
+    --shadow-2:0 4px 12px rgba(25,25,25,0.15);
+    --shadow-3:0 8px 24px rgba(25,25,25,0.2);
+
+    /* Typography — Families */
+    --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --font-mono:'DM Mono','JetBrains Mono',ui-monospace,Menlo,monospace;
+    --font-cjk:'Noto Sans SC','Inter',sans-serif;
+
+    /* Typography — Scale */
+    --fs-h1:45px;    --lh-h1:52px;
+    --fs-h2:37px;    --lh-h2:44px;
+    --fs-h3:30px;    --lh-h3:36px;
+    --fs-h4:26px;    --lh-h4:32px;
+    --fs-h5:22px;    --lh-h5:28px;
+    --fs-h6:18px;    --lh-h6:24px;
+    --fs-body-01:16px; --lh-body-01:20px;
+    --fs-body-02:14px; --lh-body-02:20px;
+    --fs-caption:12px; --lh-caption:16px;
+    --fs-overline:11px; --lh-overline:12px;
+    --tracking-tight:-0.02em;
+    --tracking-snug:-0.01em;
+
+    /* Animation */
+    --dur-base:200ms;
+    --ease-standard:cubic-bezier(0.2,0,0,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    font-family:var(--font-cjk);
+    font-size:var(--fs-body-02);
+    line-height:var(--lh-body-02);
+    color:var(--fg-1);
+    background:var(--bg-app);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  h1,h2,h3,h4,h5,h6{letter-spacing:var(--tracking-tight);color:var(--fg-1);font-family:var(--font-sans);}
+
+  .overline{
+    font:600 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--fg-2);
+  }
+
+  /* Layout */
+  .page{
+    max-width:1000px;
+    margin:24px auto;
+    background:var(--bg-surface);
+    border:1px solid var(--border-default);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-1);
+    overflow:hidden;
+  }
+
+  /* Topbar */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:var(--space-m) var(--space-xl);
+    border-bottom:1px solid var(--border-default);
+    background:var(--bg-surface);
+  }
+  .topbar .logo{display:flex;align-items:center;}
+  .topbar .topbar-meta{
+    font:400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    color:var(--fg-2);
+  }
+
+  /* Hero header */
+  header.hero{
+    background:var(--qima-red);
+    color:var(--white);
+    padding:var(--space-xl) var(--space-xl) var(--space-l);
+  }
+  header.hero .tag{
+    font:600 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:rgba(255,255,255,0.85);
+    margin-bottom:var(--space-s);
+  }
+  header.hero h1{
+    font:400 var(--fs-h3)/var(--lh-h3) var(--font-sans);
+    letter-spacing:var(--tracking-tight);
+    color:var(--white);
+    margin-bottom:var(--space-s);
+  }
+  header.hero p{
+    font:400 var(--fs-body-01)/24px var(--font-sans);
+    color:rgba(255,255,255,0.92);
+    max-width:72ch;
+  }
+
+  /* Sections */
+  section{
+    padding:var(--space-xl);
+    border-bottom:1px solid var(--border-default);
+  }
+  section:last-of-type{border-bottom:none;}
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:var(--space-s);
+    margin-bottom:var(--space-l);
+  }
+  .sec-head h2{
+    font:400 var(--fs-h5)/var(--lh-h5) var(--font-sans);
+    letter-spacing:var(--tracking-tight);
+    color:var(--fg-1);
+  }
+  .sec-head .accent{
+    width:4px;
+    align-self:stretch;
+    background:var(--qima-red);
+    border-radius:var(--radius-pill);
+  }
+
+  /* Executive summary cards */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:var(--space-m);
+  }
+  .summary-card{
+    background:var(--bg-surface);
+    border:1px solid var(--border-default);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-0);
+    padding:var(--space-m);
+  }
+  .summary-card .label{
+    font:600 var(--fs-overline)/var(--lh-overline) var(--font-sans);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--qima-red-900);
+    margin-bottom:var(--space-xs);
+  }
+  .summary-card .value{
+    font:400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    color:var(--fg-1);
+  }
+
+  /* Timeline */
+  .timeline{margin-top:var(--space-xxs);}
+  .phase{
+    display:grid;
+    grid-template-columns:40px 1fr;
+    gap:var(--space-m);
+  }
+  .phase .marker{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .phase .dot{
+    width:36px;height:36px;
+    border-radius:var(--radius-pill);
+    background:var(--qima-red);
+    color:var(--white);
+    font:600 var(--fs-body-01)/1 var(--font-sans);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .phase .connector{
+    width:2px;
+    flex:1;
+    background:var(--border-strong);
+    margin-top:var(--space-xxs);
+  }
+  .phase:last-child .connector{display:none;}
+  .phase-body{padding-bottom:var(--space-l);}
+  .phase-dates{
+    display:inline-flex;
+    align-items:center;
+    height:24px;
+    padding:0 10px;
+    background:var(--qima-red-bg);
+    color:var(--qima-red-900);
+    font:500 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    border-radius:var(--radius-pill);
+    margin-bottom:var(--space-xs);
+  }
+  .phase-body h3{
+    font:500 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+    letter-spacing:var(--tracking-tight);
+    color:var(--fg-1);
+    margin-bottom:var(--space-xxs);
+  }
+  .phase-owner{
+    font:400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    color:var(--fg-2);
+    margin-bottom:var(--space-xs);
+  }
+  .phase-owner b{color:var(--fg-1);font-weight:600;}
+  .phase-body ul{
+    margin:var(--space-xs) 0 0;
+    padding-left:18px;
+    font:400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    color:var(--fg-1);
+  }
+  .phase-body li{margin-bottom:var(--space-xxs);}
+  .phase-rationale{
+    background:var(--bg-sunken);
+    border:1px solid var(--border-default);
+    font:400 var(--fs-caption)/18px var(--font-sans);
+    color:var(--fg-2);
+    padding:var(--space-s);
+    margin:var(--space-xs) 0;
+    border-radius:var(--radius-md);
+  }
+  .phase-rationale b{color:var(--qima-red-900);font-weight:600;}
+
+  /* Tables */
+  .tbl-wrap{
+    background:var(--bg-surface);
+    border-radius:var(--radius-md);
+    border:1px solid var(--border-default);
+    overflow:hidden;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font:400 13px/20px var(--font-sans);
+    color:var(--fg-1);
+  }
+  thead th{
+    text-align:left;
+    padding:12px 16px;
+    font:500 12px/16px var(--font-sans);
+    color:var(--fg-2);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    background:var(--bg-app);
+    border-bottom:1px solid var(--border-default);
+  }
+  tbody td{
+    padding:14px 16px;
+    border-bottom:1px solid var(--border-default);
+    vertical-align:top;
+  }
+  tbody tr:last-child td{border-bottom:0;}
+  tbody tr:hover{background:var(--qima-red-bg);}
+
+  /* Escalation */
+  .esc-block{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:var(--space-l);
+  }
+  .esc-col{
+    background:var(--bg-surface);
+    border:1px solid var(--border-default);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-0);
+    padding:var(--space-m);
+  }
+  .esc-col h4{
+    font:500 var(--fs-h6)/var(--lh-h6) var(--font-sans);
+    letter-spacing:var(--tracking-tight);
+    color:var(--fg-1);
+    margin-bottom:var(--space-m);
+  }
+  .esc-step{
+    display:flex;
+    gap:var(--space-s);
+    margin-bottom:var(--space-s);
+    align-items:flex-start;
+  }
+  .esc-step:last-child{margin-bottom:0;}
+  .esc-step .lvl{
+    background:var(--qima-red);
+    color:var(--white);
+    font:600 var(--fs-caption)/1 var(--font-sans);
+    width:24px;height:24px;
+    border-radius:var(--radius-pill);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    margin-top:var(--space-tiny);
+  }
+  .esc-step .txt{
+    font:400 var(--fs-body-02)/var(--lh-body-02) var(--font-sans);
+    color:var(--fg-1);
+  }
+  .esc-step .txt b{display:block;font-weight:600;color:var(--fg-1);margin-bottom:var(--space-tiny);}
+
+  /* Badges */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    height:24px;
+    padding:0 10px;
+    border-radius:var(--radius-pill);
+    font:500 12px/16px var(--font-sans);
+    white-space:nowrap;
+  }
+  .badge.pass{background:var(--kiwi-050);color:var(--kiwi-900);}
+  .badge.major{background:var(--orange-050);color:var(--orange-900);}
+
+  /* Footer */
+  footer{
+    padding:var(--space-l) var(--space-xl);
+    font:400 var(--fs-caption)/var(--lh-caption) var(--font-sans);
+    color:var(--fg-2);
+    text-align:center;
+    background:var(--bg-surface);
+  }
+
+  @media (max-width:900px){
+    .page{margin:0;border-radius:0;border:none;}
+    section,header.hero,.topbar{padding-left:var(--space-m);padding-right:var(--space-m);}
+    .summary-grid{grid-template-columns:1fr;}
+    .esc-block{grid-template-columns:1fr;}
+  }
+
+  @media print{
+    body{background:#fff;}
+    .page{box-shadow:none;border:none;margin:0;max-width:none;}
+    tbody tr:hover{background:transparent;}
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="topbar">
+    <div class="logo">
+      <svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA">
+        <defs><style>.cls-1{fill:#e4002b}</style></defs>
+        <g id="Layer_2" data-name="Layer 2"><g id="Layer1">
+          <path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.98ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/>
+        </g></g>
+      </svg>
+    </div>
+    <div class="topbar-meta">Implementation Proposal</div>
+  </div>
+
+  <header class="hero">
+    <div class="tag">Consumer Products &nbsp;&middot;&nbsp; Online Payment Initiative</div>
+    <h1>Advance Payment Relaunch — Implementation Proposal</h1>
+    <p>Data-driven, two-track segmentation to re-introduce Advance Payment following the unsuccessful July 2025 pilot (164 accounts). Prepared for Alexis Fabre Ringborg, VP Product.</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="accent"></span><h2>Executive Summary</h2></div>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="label">Root Cause (2025)</div>
+        <div class="value">Segmentation used revenue only, no DSO filter — good payers were forced into Advance Payment, no escalation path, bundled with a price increase.</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">New Approach</div>
+        <div class="value">New-customer default is the primary track and proceeds regardless. Existing-account conversion (DSO-filtered) is a secondary track — go/no-go decided in Phase 1 based on Phase 0 data and Sales buy-in.</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Timeline</div>
+        <div class="value">Go-live by Sep 4, 2026; monitoring runs continuously afterward.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="accent"></span><h2>Implementation Timeline</h2></div>
+    <div class="timeline">
+
+      <div class="phase">
+        <div class="marker"><div class="dot">0</div><div class="connector"></div></div>
+        <div class="phase-body">
+          <span class="phase-dates">Jul 16 – Jul 24, 2026</span>
+          <h3>Phase 0 — Data Collection</h3>
+          <div class="phase-owner">Owner: <b>Eric Wang</b> &middot; Hard deadline: <b>Fri, Jul 24</b></div>
+          <ul>
+            <li>DSO distribution for existing C&amp;D clients (&lt;$10K USD LTM revenue)</li>
+            <li>Churn / complaint detail from the 2025 164-account batch (availability to be confirmed)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker"><div class="dot">1</div><div class="connector"></div></div>
+        <div class="phase-body">
+          <span class="phase-dates">Jul 27 – Aug 14, 2026 (3 weeks)</span>
+          <h3>Phase 1 — Define Standard &amp; Escalation Design</h3>
+          <div class="phase-owner">Owner: <b>Eric Wang</b> &middot; Sign-off: <b>Alexis</b></div>
+          <div class="phase-rationale"><b>Why 3 weeks:</b> in the 2025 test, Sales/SIC sign-off on the account list alone took over 2 weeks — only 46 of 200 accounts had cleared by day 11. This phase adds a DSO-threshold decision and a new escalation-authority negotiation with Sales on top of that, so 3 weeks is sized with a buffer against the same slippage.</div>
+          <ul>
+            <li>Decide DSO threshold based on Phase 0 data</li>
+            <li>Decide new-customer default scope — all new C&amp;D clients, or a defined sub-segment</li>
+            <li>Design the two escalation mechanisms (Section below) and confirm authority levels with Sales</li>
+            <li>Go/no-go on the existing-customer track: proceed only if Phase 0 data shows a meaningful high-DSO population and Sales is willing to support it. The new-customer track proceeds regardless of this decision</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker"><div class="dot">2</div><div class="connector"></div></div>
+        <div class="phase-body">
+          <span class="phase-dates">Aug 17 – Sep 4, 2026 (3 weeks)</span>
+          <h3>Phase 2 — Build &amp; Execute</h3>
+          <div class="phase-owner">Owner: <b>Eric Wang</b></div>
+          <div class="phase-rationale"><b>Why 3 weeks:</b> in 2025, batch execution was repeatedly cut short by SIC readiness — Batch 1 dropped from 107 to 57 accounts, Batch 2 from a 200 target to 164, partly due to holidays. 3 weeks gives room for readiness slippage without cutting scope again.</div>
+          <ul>
+            <li>Implement system logic: in-scope new customers default to Advance Payment at signup; override restricted to Sales Director level and above, logged automatically</li>
+            <li>Only if the existing-customer track was approved in Phase 1: finalize target list (DSO above agreed threshold), batch-convert, and send customer notification</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="marker"><div class="dot">3</div></div>
+        <div class="phase-body">
+          <span class="phase-dates">From Sep 7, 2026 — ongoing, weekly review</span>
+          <h3>Phase 3 — Monitor &amp; Iterate</h3>
+          <div class="phase-owner">Owner: <b>Eric Wang</b> &middot; First review: <b>Fri, Sep 11</b>, then every week</div>
+          <ul>
+            <li>Dashboard metrics: adoption rate, DSO/AR days trend, complaint volume, escalation/override volume</li>
+            <li>Qualitative: Sales feedback on whether Advance Payment is blocking new deals</li>
+            <li>Each weekly review decides: tighten, loosen, or hold the threshold/scope</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="accent"></span><h2>Escalation Mechanism</h2></div>
+    <div class="esc-block">
+      <div class="esc-col">
+        <h4>A. New-Customer Pushback (Sales-side)</h4>
+        <div class="esc-step"><div class="lvl">1</div><div class="txt"><b>Sales Rep</b>Flags customer objection to Advance Payment at signing.</div></div>
+        <div class="esc-step"><div class="lvl">2</div><div class="txt"><b>Sales Director</b>Reviews the case; has sole authority to grant a one-off override for that account. Normal reps cannot self-override.</div></div>
+      </div>
+      <div class="esc-col">
+        <h4>B. Existing-Customer Batch Conversion (Sales-managed whitelist)</h4>
+        <div class="esc-step"><div class="lvl">1</div><div class="txt"><b>Sales Rep</b>Reviews the batch list of accounts crossing the DSO threshold; flags any account they consider a relationship risk.</div></div>
+        <div class="esc-step"><div class="lvl">2</div><div class="txt"><b>Sales Director</b>Decides directly — either whitelist the account before the batch update runs, or revert an already-converted account back off Advance Payment. No PM approval needed; decision is final.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="accent"></span><h2>Benefits</h2></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th style="width:26%">Benefit</th><th>Why it matters</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="badge pass">Benefit</span></td><td>Preserves relationships with good-paying existing customers — the exact group that drove the 2025 backlash</td></tr>
+          <tr><td><span class="badge pass">Benefit</span></td><td>New-customer default is a one-time config change with a lasting, compounding cash-flow benefit — every new C&amp;D client signed from go-live onward pays in advance</td></tr>
+          <tr><td><span class="badge pass">Benefit</span></td><td>Clear, Sales-owned escalation control avoids the reactive chaos of 2025 — no PM bottleneck, decisions stay with the people closest to the client</td></tr>
+          <tr><td><span class="badge pass">Benefit</span></td><td>Low dev cost — this is a configuration and communication-driven initiative, not a build</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="accent"></span><h2>Risks</h2></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th style="width:22%">Risk</th><th>Description</th><th style="width:30%">Mitigation</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="badge major">Risk</span></td><td>DSO threshold miscalibrated (too low → good payers still caught; too high → doesn't move the needle)</td><td>Anchor threshold to 2025's actual complaint/churn cases, not a guess</td></tr>
+          <tr><td><span class="badge major">Risk</span></td><td>New-customer default reduces sign-up/conversion rate</td><td>Pilot on a limited new-customer segment first; track signing conversion in Phase 3</td></tr>
+          <tr><td><span class="badge major">Risk</span></td><td>Escalation abuse — Sales Directors over-granting exceptions defeats the purpose</td><td>All overrides logged and reviewed at each weekly cycle</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>Consumer Products — Product Team &nbsp;&middot;&nbsp; Prepared Jul 15, 2026</footer>
+
+</div>
+</body>
+</html>
