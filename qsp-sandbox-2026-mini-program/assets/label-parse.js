@@ -502,6 +502,49 @@
   var KNOWN_CARRIER_RE =
     /^(?:顺丰(?:速运|快递)?|SF\s*Express|中通(?:快递)?|圆通(?:速递)?|韵达(?:快递)?|京东(?:物流|快递)?|极兔(?:速递)?|申通(?:快递)?|德邦|邮政(?:EMS)?|EMS|DHL|UPS|FedEx|TNT|Aramex|YTO|ZTO|STO|JT(?:Express)?|JD|YunExpress|4PX|Yanwen)$/i;
 
+  /** Canonical demo carrier catalog (Chinese labels match i18n carrier.* keys). */
+  var CARRIER_CATALOG = [
+    '顺丰速运',
+    '中通快递',
+    '圆通速递',
+    '申通快递',
+    '韵达快递',
+    '京东物流',
+    '极兔速递'
+  ];
+
+  function normalizeCarrierText(s) {
+    return String(s || '').replace(/\s+/g, ' ').trim();
+  }
+
+  /** Map free-text carrier (OCR/LLM/voice) to a canonical catalog label, or '' if not allowed. */
+  function resolveCarrierCatalog(value) {
+    var v = normalizeCarrierText(value);
+    if (!v) return '';
+    var lower = v.toLowerCase();
+    // Exact / contained catalog match
+    for (var i = 0; i < CARRIER_CATALOG.length; i++) {
+      var label = CARRIER_CATALOG[i];
+      if (v === label) return label;
+      if (lower === label.toLowerCase()) return label;
+    }
+    // Brand → catalog mapping (covers aliases the OCR/ASR may produce)
+    var map = [
+      { re: /顺丰|SF\s*EXPRESS|SFEXPRESS/i, label: '顺丰速运' },
+      { re: /中通|ZTO|ZHONG\s*TONG/i, label: '中通快递' },
+      { re: /圆通|YTO|YUAN\s*TONG/i, label: '圆通速递' },
+      { re: /申通|STO|SHEN\s*TONG/i, label: '申通快递' },
+      { re: /韵达|YUNDA/i, label: '韵达快递' },
+      { re: /京东(?:物流|快递|速运)?|\bJD\b/i, label: '京东物流' },
+      { re: /极兔|J&T|JT\s*EXPRESS/i, label: '极兔速递' }
+    ];
+    for (var j = 0; j < map.length; j++) {
+      if (map[j].re.test(v)) return map[j].label;
+    }
+    // Not in the allowed carrier list — do not auto-fill random carriers
+    return '';
+  }
+
   function countWords(s) {
     return String(s || '').trim().split(/\s+/).filter(Boolean).length;
   }
@@ -644,8 +687,8 @@
       case 'Carrier': {
         if (v.length > 40 || looksLikeSentence(v)) return false;
         if (looksLikeTracking(v) && !KNOWN_CARRIER_RE.test(v)) return false;
-        if (KNOWN_CARRIER_RE.test(v)) return true;
-        return countWords(v) <= 4 && /[\u4e00-\u9fffA-Za-z]/.test(v) && !/^\d+$/.test(v);
+        // Only the demo carrier catalog is allowed — no random OCR carriers
+        return !!resolveCarrierCatalog(v);
       }
       case 'Tracking Number': {
         if (looksLikeSentence(v) || looksLikeAddress(v)) return false;
@@ -704,6 +747,9 @@
         candidate = mergeRegions([raw]) || raw;
       } else if (key === 'Program') {
         candidate = resolveProgramLabel(raw) || '';
+      } else if (key === 'Carrier') {
+        // Restrict to the demo carrier catalog; blank anything else
+        candidate = resolveCarrierCatalog(raw);
       }
 
       if (!candidate || !isPlausibleField(key, candidate)) {
@@ -2355,6 +2401,7 @@
     cleanManufacturerValue: cleanManufacturerValue,
     isPlausibleField: isPlausibleField,
     sanitizeParsedFields: sanitizeParsedFields,
+    resolveCarrierCatalog: resolveCarrierCatalog,
     sanitizeParseResult: sanitizeParseResult,
     mergeFieldSets: mergeFieldSets,
     extractWaybillFromOcrText: extractWaybillFromOcrText,

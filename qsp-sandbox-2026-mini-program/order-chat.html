@@ -1099,7 +1099,7 @@
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
-<script src="assets/label-parse.js?v=20260715b"></script>
+<script src="assets/label-parse.js?v=20260716a"></script>
 </head>
 <body>
   <div class="phone">
@@ -1475,6 +1475,28 @@
 
     function getCarriers(){
       return ['carrier.sf','carrier.zto','carrier.yto','carrier.sto','carrier.yunda','carrier.jd','carrier.jt','carrier.other'].map(function(k){ return t(k); });
+    }
+
+    /** Clamp a free-text/OCR carrier to the demo carrier catalog, else '' (field stays 待确认). */
+    function clampCarrierToCatalog(value){
+      const v = String(value || '').trim();
+      if(!v) return '';
+      const carriers = getCarriers();
+      // Exact catalog match (localized)
+      const exact = carriers.find(function(c){ return c === v; });
+      if(exact) return exact;
+      // Other / 其他 always allowed
+      if(/^(其他|Other)$/i.test(v)) return carriers[7];
+      // Brand → canonical Chinese label → localized catalog label
+      const resolved = (window.QimaLabelParse && typeof QimaLabelParse.resolveCarrierCatalog === 'function')
+        ? QimaLabelParse.resolveCarrierCatalog(v)
+        : '';
+      if(resolved){
+        const idx = ['顺丰速运','中通快递','圆通速递','申通快递','韵达快递','京东物流','极兔速递'].indexOf(resolved);
+        if(idx >= 0 && carriers[idx]) return carriers[idx];
+        return resolved;
+      }
+      return '';
     }
 
     function getProgramOptions(){
@@ -2052,10 +2074,10 @@
       }
       const parts = value.split(/[，,;；\s]+/).filter(Boolean);
       if(parts.length >= 2){
-        manualAnswers['Carrier'] = parts[0];
+        manualAnswers['Carrier'] = clampCarrierToCatalog(parts[0]);
         manualAnswers['Tracking Number'] = parts.slice(1).join(' ');
       } else {
-        manualAnswers['Carrier'] = value;
+        manualAnswers['Carrier'] = clampCarrierToCatalog(value);
       }
       setFieldValue('Carrier', manualAnswers['Carrier']);
       if(manualAnswers['Tracking Number']){
@@ -3743,10 +3765,10 @@
         }
         const parts = value.split(/[，,;；\s]+/).filter(Boolean);
         if(parts.length >= 2){
-          manualAnswers['Carrier'] = parts[0];
+          manualAnswers['Carrier'] = clampCarrierToCatalog(parts[0]);
           manualAnswers['Tracking Number'] = parts.slice(1).join(' ');
         } else {
-          manualAnswers['Carrier'] = value;
+          manualAnswers['Carrier'] = clampCarrierToCatalog(value);
         }
       } else {
         manualAnswers[item.key] = value;
@@ -4786,7 +4808,11 @@
     }
 
     function renderEditField(field){
-      const current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
+      let current = getFieldValue(field.name) || manualAnswers[field.name] || field.fallback || '';
+      if(field.name === 'Carrier'){
+        // Carrier is catalog-only; drop any stray OCR value so the select never offers it
+        current = clampCarrierToCatalog(current);
+      }
       if(field.name === 'Manufacturer'){
         return renderEditManufacturerField(field);
       }
@@ -4979,8 +5005,15 @@
         return carriers[keyMap[parsed.carrierKey]];
       }
       if(parsed.carrier){
-        const hit = carriers.find(function(c){ return c.indexOf(parsed.carrier) !== -1 || parsed.carrier.indexOf(c) !== -1; });
-        return hit || parsed.carrier;
+        // Restrict to the demo carrier catalog — no random OCR carriers like "SUCCESSCOURIER SL"
+        const resolved = (window.QimaLabelParse && typeof QimaLabelParse.resolveCarrierCatalog === 'function')
+          ? QimaLabelParse.resolveCarrierCatalog(parsed.carrier)
+          : '';
+        if(resolved) return resolved;
+        const hit = carriers.find(function(c){
+          return c === parsed.carrier || c.indexOf(parsed.carrier) !== -1 || parsed.carrier.indexOf(c) !== -1;
+        });
+        return hit || '';
       }
       return '';
     }
@@ -5476,13 +5509,15 @@
         }
         const parts = value.split(/[，,;；\s]+/).filter(Boolean);
         if(parts.length >= 2){
-          setFieldValue('Carrier', parts[0]);
+          const carrier = clampCarrierToCatalog(parts[0]);
+          setFieldValue('Carrier', carrier);
           setFieldValue('Tracking Number', parts.slice(1).join(' '));
-          manualAnswers['Carrier'] = parts[0];
+          manualAnswers['Carrier'] = carrier;
           manualAnswers['Tracking Number'] = parts.slice(1).join(' ');
         } else {
-          setFieldValue('Carrier', value);
-          manualAnswers['Carrier'] = value;
+          const carrier = clampCarrierToCatalog(value);
+          setFieldValue('Carrier', carrier);
+          manualAnswers['Carrier'] = carrier;
         }
       } else {
         setFieldValue(item.key, value);
