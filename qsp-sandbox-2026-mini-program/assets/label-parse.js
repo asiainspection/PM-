@@ -719,10 +719,11 @@
    * Sanitize a fields map in-place-ish: keep only plausible values; blank the rest.
    * Optionally pass rawExcerpt to drop Shipping Remark that merely duplicates the transcript.
    */
-  function sanitizeParsedFields(fields, opts) {
+    function sanitizeParsedFields(fields, opts) {
     var out = emptyFields();
     var src = fields && typeof fields === 'object' ? fields : {};
     var flat = canonicalizeFieldKeys(src);
+    var rawExcerpt = (opts && opts.rawExcerpt) || '';
     Object.keys(out).forEach(function (key) {
       var raw = flat[key] || '';
       // Prefer already-canonical value if canonicalize skipped (identical keys)
@@ -750,6 +751,20 @@
       } else if (key === 'Carrier') {
         // Restrict to the demo carrier catalog; blank anything else
         candidate = resolveCarrierCatalog(raw);
+      } else if (key === 'Electric Product') {
+        // Require concrete electrical evidence before accepting "带电产品"
+        // from LLM/OCR. No evidence → leave empty (待确认), never guess.
+        var elecLower = String(candidate || '').toLowerCase();
+        var saysYes = /__ELECTRIC_YES__|带电产品|带电|electric|yes/i.test(elecLower);
+        var saysNo = /__ELECTRIC_NO__|非电产品|非电|non[-\s]?electric|no/i.test(elecLower);
+        var elecEvidenceText = [rawExcerpt, flat['Product Description'], flat['Product Name']].join('\n');
+        if (saysYes && !saysNo) {
+          candidate = hasElectricEvidence(elecEvidenceText) ? '__ELECTRIC_YES__' : '';
+        } else if (saysNo && !saysYes) {
+          candidate = '__ELECTRIC_NO__';
+        } else {
+          candidate = '';
+        }
       }
 
       if (!candidate || !isPlausibleField(key, candidate)) {
@@ -1522,6 +1537,10 @@
   /**
    * Infer whether product is electric from OCR/voice text.
    * Returns { code: '__ELECTRIC_YES__'|'__ELECTRIC_NO__'|'', desc: string }
+   *
+   * Only mark electric when concrete electrical evidence is actually present
+   * (voltage / power / Hz / battery / charger / adapter / motor / Rating …).
+   * Do NOT guess from product category alone (fan / robot / speaker …).
    */
   function inferElectricFromText(text) {
     var raw = String(text || '');
@@ -1535,20 +1554,28 @@
       return { code: '__ELECTRIC_YES__', desc: extractElectricDescription(raw) };
     }
 
+    if (!hasElectricEvidence(raw)) return { code: '', desc: '' };
+
     var score = 0;
     if (/batter(?:y|ies)|rechargeable|锂电|锂电池|干电池|纽扣电池|蓄电池|充电电池/i.test(raw)) score += 4;
     if (/\b\d+(?:\.\d+)?\s*V(?:olt)?(?:\s*DC|\s*AC)?\b|\b\d+(?:\.\d+)?\s*(?:mA|A)\b|\b\d+(?:\.\d+)?\s*W\b|额定(?:电压|电流|功率)|电压|电流|功率/i.test(raw)) score += 3;
     if (/\b\d+\s*\/\s*\d+\s*Hz\b|\b50\s*\/\s*60\s*Hz\b|\b\d+\s*Hz\b|Rating\s*[:：]?\s*[^\n]*\d+\s*W/i.test(raw)) score += 3;
     if (/USB|Type-?C|DC\s*in(?:put)?|AC\s*(?:adapter|input)|充电器|适配器|电源适配|充电口|充电仓/i.test(raw)) score += 3;
-    if (/FCC\s*ID|Bluetooth|Wi-?Fi|无线充电|电机|马达|\bLED\b|PCB|电路/i.test(raw)) score += 2;
+    if (/FCC\s*ID|Bluetooth|Wi-?Fi|无线充电|电机|马达|PCB|电路/i.test(raw)) score += 2;
     if (/Input\s*[:：]|Output\s*[:：]|Rated\s*[:：]|Power\s*[:：]|Rating\s*[:：]/i.test(raw)) score += 2;
-    if (/Wireless\s+Mouse|无线鼠标|耳机|earbud|headphone|speaker|音箱|台灯|robot|机器人|drone|无人机|Electric\s+Fan|电风扇|风扇/i.test(raw)) score += 2;
     if (/充电|charger|adapter/i.test(raw)) score += 2;
 
     if (score >= 3) {
       return { code: '__ELECTRIC_YES__', desc: extractElectricDescription(raw) };
     }
     return { code: '', desc: '' };
+  }
+
+  /** Concrete electrical evidence actually visible in the source text. */
+  function hasElectricEvidence(text) {
+    var t = String(text || '');
+    if (!t) return false;
+    return /(?:\b\d+(?:\.\d+)?\s*(?:V(?:olt)?|W(?:att)?|Hz|mA|A)\b)|battery|batteries|rechargeable|锂电池|干电池|纽扣电池|蓄电池|充电电池|电池|charger|充电|adapter|适配器|电源|电机|马达|电动|Rated|Rating|Input|Output|Power\s*supply|USB|Type-?C|DC\s*in|AC\s*adapter|电压|功率|电流|带电|electric\s+product|带电产品/i.test(t);
   }
 
   function extractSpokenRegions(text) {
