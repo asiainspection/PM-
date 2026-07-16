@@ -257,13 +257,22 @@
     return PROGRAM_BY_KEY[sellerKey] || '';
   }
 
+  function programLabelCategory(label) {
+    var resolved = resolveProgramLabel(label);
+    if (!resolved) return '';
+    for (var k in PROGRAM_BY_KEY) {
+      if (PROGRAM_BY_KEY[k] === resolved) {
+        if (k === 'default') return 'default';
+        if (k === 'sh_self') return 'sh_self';
+        return k.replace(/_(temu|seller)$/, '');
+      }
+    }
+    return '';
+  }
+
   function ensureProgramMatched(fields, opts) {
     var out = fields || {};
     var existing = resolveProgramLabel(out.Program || '');
-    if (existing) {
-      out.Program = existing;
-      return out;
-    }
     var hintText = [
       (opts && opts.rawExcerpt) || '',
       out['Product Name'] || '',
@@ -276,7 +285,27 @@
       electricYes: out['Electric Product'] === '__ELECTRIC_YES__' ||
         /带电|electric\s*yes|^electric$/i.test(String(out['Electric Product'] || ''))
     });
-    out.Program = matched || '';
+    if (existing) {
+      // Reconcile: only override with HIGH-CONFIDENCE detector categories
+      // (chemical->MSDS, electric, eyewear, sh_self) where keyword evidence is
+      // reliable. Avoids false-positive overrides on overlapping buckets
+      // (e.g. "bottle opener" -> FCM vs Hardware). Payer from LLM is preserved.
+      var STRONG = { msds: 1, electric: 1, eyewear: 1, sh_self: 1 };
+      var existingCat = programLabelCategory(existing);
+      var detectedCat = programLabelCategory(matched);
+      if (detectedCat && STRONG[detectedCat] && detectedCat !== existingCat) {
+        var payer = /temu\s*pay|temu付款/i.test(existing) ? 'temu' : 'seller';
+        var key = detectedCat === 'non_sleepwear' ? 'non_sleepwear_' + payer : detectedCat + '_' + payer;
+        if (!PROGRAM_BY_KEY[key]) {
+          key = detectedCat === 'non_sleepwear' ? 'non_sleepwear_seller' : detectedCat + '_seller';
+        }
+        out.Program = PROGRAM_BY_KEY[key] || matched || existing;
+      } else {
+        out.Program = existing;
+      }
+      return out;
+    }
+    out.Program = matched || PROGRAM_BY_KEY.default;
     return out;
   }
 

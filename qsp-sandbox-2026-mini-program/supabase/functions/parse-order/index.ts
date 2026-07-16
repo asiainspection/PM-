@@ -314,15 +314,24 @@ function matchProgramFromText(
   return PROGRAM_BY_KEY[`${category}_seller`] || "";
 }
 
+function programLabelCategory(label: string): string {
+  const resolved = resolveProgramLabel(label);
+  if (!resolved) return "";
+  for (const k in PROGRAM_BY_KEY) {
+    if (PROGRAM_BY_KEY[k] === resolved) {
+      if (k === "default") return "default";
+      if (k === "sh_self") return "sh_self";
+      return k.replace(/_(temu|seller)$/, "");
+    }
+  }
+  return "";
+}
+
 function ensureProgramMatched(
   fields: FieldMap,
   opts: { rawExcerpt?: string } = {},
 ): FieldMap {
   const existing = resolveProgramLabel(fields.Program || "");
-  if (existing) {
-    fields.Program = existing;
-    return fields;
-  }
   const hintText = [
     opts.rawExcerpt || "",
     fields["Product Name"] || "",
@@ -330,13 +339,38 @@ function ensureProgramMatched(
     fields["Electric Product"] || "",
     fields["Shipping Remark"] || "",
   ].join("\n");
-  fields.Program = matchProgramFromText(hintText, {
+  const matched = matchProgramFromText(hintText, {
     productName: fields["Product Name"] || "",
     electricYes:
       /带电|electric\s*yes|^electric$/i.test(
         String(fields["Electric Product"] || ""),
       ),
-  }) || "";
+  });
+  if (existing) {
+    // Reconcile: only override with HIGH-CONFIDENCE detector categories
+    // (chemical->MSDS, electric, eyewear, sh_self) where keyword evidence is
+    // reliable. Avoids false-positive overrides on overlapping buckets
+    // (e.g. "bottle opener" -> FCM vs Hardware). Payer from LLM is preserved.
+    const STRONG: Record<string, 1> = { msds: 1, electric: 1, eyewear: 1, sh_self: 1 };
+    const existingCat = programLabelCategory(existing);
+    const detectedCat = programLabelCategory(matched);
+    if (detectedCat && STRONG[detectedCat] && detectedCat !== existingCat) {
+      const payer = /temu\s*pay|temu付款/i.test(existing) ? "temu" : "seller";
+      let key = detectedCat === "non_sleepwear"
+        ? `non_sleepwear_${payer}`
+        : `${detectedCat}_${payer}`;
+      if (!PROGRAM_BY_KEY[key]) {
+        key = detectedCat === "non_sleepwear"
+          ? "non_sleepwear_seller"
+          : `${detectedCat}_seller`;
+      }
+      fields.Program = PROGRAM_BY_KEY[key] || matched || existing;
+    } else {
+      fields.Program = existing;
+    }
+    return fields;
+  }
+  fields.Program = matched || PROGRAM_BY_KEY.default;
   return fields;
 }
 
