@@ -425,6 +425,22 @@
     // OCR underscore placeholders from blank forms
     name = name.replace(/_{2,}/g, ' ').replace(/\s+/g, ' ').trim();
 
+    // Strip document metadata glued by OCR onto the product name
+    // e.g. "NAIL POLISH M SDS Number (version number)" -> "NAIL POLISH"
+    name = name.replace(/\s*\(?\s*version\s+(?:no\.?|number|#)\s*\)?\s*$/i, '');
+    name = name.replace(
+      /\s+(?:M\s+)?M?\s*S\s*D\s*S\b.*$/i, ''
+    );
+    name = name.replace(/\s+(?:Material\s+)?Safety\s+Data\s+Sheet\b.*$/i, '');
+    name = name.replace(/\s+M\s*S\s*D\s*S\b.*$/i, '');
+    name = name.replace(/\s+Version\s*(?:No\.?|Number|#)\b.*$/i, '');
+    name = name.replace(
+      /\s+(?:Report|Certificate|Cert\.?|Lot|Batch|Item|Doc\.?|Document)\s*(?:No\.?|Number|#)\b.*$/i,
+      ''
+    );
+    name = name.replace(/\s+\(?\s*version\s+number\s*\)?\s*$/i, '');
+    name = name.replace(/\s+/g, ' ').trim();
+
     // Prefer short titles — CJK vs Latin length caps
     var hasCjk = /[\u4e00-\u9fff]/.test(name);
     var maxLen = hasCjk ? 24 : 48;

@@ -412,16 +412,32 @@ function cleanProductName(raw: string): string {
   name = name.replace(/^product\s*name\s*[:：=]\s*/i, "");
   name = name.replace(/^品名\s*[:：=]\s*/, "");
   name = name.replace(/^产品名称\s*[:：=]\s*/, "");
+  name = name.replace(/^名称\s*[:：=]\s*/, "");
   name = name.split(
     /\s+(?:sold\s+(?:in|to|for)|manufactured\s+by|made\s+(?:by|in)|produced\s+by|exported\s+to|shipped\s+to|distribut(?:ed|ion)\s+(?:in|to|for)|intended\s+for|for\s+(?:the\s+)?(?:US|U\.S\.|USA|UK|EU|European|American|Chinese|market)|from\s+(?:the\s+)?(?:factory|manufacturer|supplier)|that\s+(?:is|are|was|were|has|have)|which\s+(?:is|are|was|were)|and\s+(?:I|we|the|it)|(?:I|we)\s+(?:need|want|will)|with\s+(?:batter|power)|Model\b|型号|item\s*(?:no\.?|number|#)|SKU|P\s*\/?\s*N)\b/i,
   )[0];
   name = name.split(
-    /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/,
+    /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/,
   )[0];
   name = name.replace(/^(?:一款|一个|一台|一件|这种|这个|那个|该|a|an|the|my|our|this|that)\s+/i, "").trim();
   name = name.replace(/(?:做(?:实验室)?(?:检测|测试)|的检测|的测试|for\s+(?:lab\s+)?(?:testing|test|inspection))$/i, "").trim();
-  name = name.replace(/[,，。.;；:：!！?？\-~–—|/\\·•]+$/g, "").trim();
-  name = name.replace(/^[,，。.;；:：\-~–—|/\\·•]+/, "").trim();
+  name = name.replace(/[,，。.;；:：!！?？\-_~–—|/\\·•]+$/g, "").trim();
+  name = name.replace(/^[,，。.;；:：\-_~–—|/\\·•]+/, "").trim();
+  name = name.replace(/_{2,}/g, " ").replace(/\s+/g, " ").trim();
+
+  // Strip document metadata glued by OCR onto the product name
+  // e.g. "NAIL POLISH M SDS Number (version number)" -> "NAIL POLISH"
+  name = name.replace(/\s*\(?\s*version\s+(?:no\.?|number|#)\s*\)?\s*$/i, "");
+  name = name.replace(/\s+(?:M\s+)?M?\s*S\s*D\s*S\b.*$/i, "");
+  name = name.replace(/\s+(?:Material\s+)?Safety\s+Data\s+Sheet\b.*$/i, "");
+  name = name.replace(/\s+M\s*S\s*D\s*S\b.*$/i, "");
+  name = name.replace(/\s+Version\s*(?:No\.?|Number|#)\b.*$/i, "");
+  name = name.replace(
+    /\s+(?:Report|Certificate|Cert\.?|Lot|Batch|Item|Doc\.?|Document)\s*(?:No\.?|Number|#)\b.*$/i,
+    "",
+  );
+  name = name.replace(/\s+\(?\s*version\s+number\s*\)?\s*$/i, "");
+  name = name.replace(/\s+/g, " ").trim();
 
   const hasCjk = /[\u4e00-\u9fff]/.test(name);
   const maxLen = hasCjk ? 24 : 48;
@@ -434,15 +450,17 @@ function cleanProductName(raw: string): string {
       name = (sp > 12 ? cut.slice(0, sp) : cut).trim();
     }
   }
+  if (looksLikeNonProductName(name)) return "";
   if (
-    /^(?:实验室(?:检测|测试)?|检测服务|验货|装运前(?:检测|检验)|Lab(?:oratory)?\s*(?:testing|test|inspection)?|Pre[-\s]?Shipment\s*Inspection|PSI|Inspection|Testing|EN\s*71|CPSIA|ASTM|RoHS|CE|UKCA|FCC)$/i
+    /^(?:实验室(?:检测|测试)?|检测服务|验货|装运前(?:检测|检验)|Lab(?:oratory)?\s*(?:testing|test|inspection)?|Pre[-\s]?Shipment\s*Inspection|PSI|Inspection|Testing)$/i
       .test(name)
   ) {
     return "";
   }
   if (
     /^(?:实验室|检测|测试|lab|testing|inspection)\b/i.test(name) &&
-    !/(?:玩具|机器人|风扇|鼠标|Fan|Toy|Mouse|Robot)/i.test(name)
+    !/(?:玩具|机器人|风扇|鼠标|直发|电吹|Fan|Toy|Mouse|Robot|Straightener|Hair)/i
+      .test(name)
   ) {
     if (name.length > 12) return "";
   }
@@ -457,6 +475,43 @@ function cleanProductName(raw: string): string {
   const wordCount = name.split(/\s+/).filter(Boolean).length;
   if (!hasCjk && wordCount > 8) return "";
   return name.length >= 2 ? name : "";
+}
+
+/** Model codes / ratings / standards / watermarks — never product names. */
+function looksLikeNonProductName(s: string): boolean {
+  const t = String(s || "").replace(/\s+/g, " ").trim();
+  if (!t) return true;
+  if (
+    /^(?:型号|名称|品名|规格|标准|Manufacturer|Model|Rating|Address|Product)$/i
+      .test(t)
+  ) {
+    return true;
+  }
+  if (/(?:wenku\.baidu|baidu\.com|docin\.com|http)/i.test(t)) return true;
+  if (/^(?:EN|IEC|ISO|UL|ASTM|GB\/?T?)\s*[-.]?\d/i.test(t)) return true;
+  if (
+    /\bEN\s*60335|\bIEC\s*\d|GB\/T?\s*\d/i.test(t) &&
+    !/[\u4e00-\u9fff]/.test(t)
+  ) {
+    return true;
+  }
+  if (
+    /(?:\d+\s*(?:Vac?|V(?:ac)?|Hz|k?W|mA|A)\b).{0,20}(?:\d+\s*(?:Vac?|V|Hz|W))/i
+      .test(t)
+  ) {
+    return true;
+  }
+  if (/^\d+\s*(?:Vac?|V|Hz|W|mA)\b/i.test(t)) return true;
+  const compact = t.replace(/\s+/g, "");
+  if (!/[\u4e00-\u9fff]/.test(compact)) {
+    if (
+      /^[A-Za-z]{1,5}\d{2,8}[A-Za-z0-9\-_./#]*$/i.test(compact) ||
+      /^\d{2,6}[A-Za-z]{1,4}\d{0,4}$/i.test(compact)
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function countWords(s: string): number {
@@ -505,6 +560,14 @@ function looksLikeCompanyName(s: string): boolean {
   return /[\u4e00-\u9fffA-Za-z]/.test(t) && !looksLikeSentence(t);
 }
 
+/** Concrete electrical evidence actually visible in the source text. */
+function hasElectricEvidence(text: string): boolean {
+  const t = String(text || "");
+  if (!t) return false;
+  return /(?:\b\d+(?:\.\d+)?\s*(?:V(?:olt)?|W(?:att)?|Hz|mA|A)\b)|battery|batteries|rechargeable|锂电池|干电池|纽扣电池|蓄电池|充电电池|电池|charger|充电|adapter|适配器|电源|电机|马达|电动|Rated|Rating|Input|Output|Power\s*supply|USB|Type-?C|DC\s*in|AC\s*adapter|电压|功率|电流|带电|electric\s+product|带电产品/i
+    .test(t);
+}
+
 const KNOWN_ORIGIN_RE =
   /^(?:中国|China|CN|PRC|越南|Vietnam|VN|印度|India|IN|美国|USA?|United\s+States|英国|UK|United\s+Kingdom|欧盟|EU|European\s+Union|德国|Germany|DE|法国|France|FR|意大利|Italy|IT|日本|Japan|JP|韩国|Korea|KR|加拿大|Canada|CA|澳大利亚|Australia|AU|墨西哥|Mexico|MX|泰国|Thailand|TH|马来西亚|Malaysia|MY|印尼|Indonesia|ID|台湾|Taiwan|TW|香港|Hong\s+Kong|HK)$/i;
 
@@ -528,6 +591,7 @@ function isPlausibleField(key: string, value: string): boolean {
     case "Product Name": {
       if (v.length > 100) return false;
       if (looksLikeSentence(v)) return false;
+      if (looksLikeNonProductName(v)) return false;
       if (
         /^(?:实验室(?:检测|测试)?|检测服务|Lab(?:oratory)?\s*(?:testing|test)?|PSI|Inspection|Testing|EN\s*71|CPSIA)$/i
           .test(v)
@@ -536,6 +600,7 @@ function isPlausibleField(key: string, value: string): boolean {
       }
       const cleaned = cleanProductName(v);
       if (!cleaned || cleaned.length < 2) return false;
+      if (looksLikeNonProductName(cleaned)) return false;
       if (cleaned.length > 80) return false;
       const hasCjk = /[\u4e00-\u9fff]/.test(cleaned);
       if (!hasCjk && countWords(cleaned) > 8) return false;
@@ -686,6 +751,17 @@ function sanitizeParsedFields(
       candidate = normalizeOrigin(raw) || raw;
     } else if (key === "Program") {
       candidate = resolveProgramLabel(raw) || "";
+    } else if (key === "Electric Product") {
+      const elecLower = String(candidate || "").toLowerCase();
+      const saysYes = /__ELECTRIC_YES__|带电产品|带电|electric|yes/i.test(elecLower);
+      const saysNo = /__ELECTRIC_NO__|非电产品|非电|non[-\s]?electric|no/i.test(elecLower);
+      if (saysYes && !saysNo) {
+        candidate = hasElectricEvidence(opts?.rawExcerpt || "") ? "__ELECTRIC_YES__" : "";
+      } else if (saysNo && !saysYes) {
+        candidate = "__ELECTRIC_NO__";
+      } else {
+        candidate = "";
+      }
     }
     if (!candidate || !isPlausibleField(key, candidate)) {
       out[key] = "";
@@ -1074,6 +1150,67 @@ async function extractPdf(data: Uint8Array): Promise<string> {
   }
 }
 
+/** Pull embedded JPEG/PNG streams from scanned PDFs when text layer is empty. */
+function extractEmbeddedImagesFromPdf(
+  data: Uint8Array,
+): { mime: string; bytes: Uint8Array }[] {
+  const out: { mime: string; bytes: Uint8Array }[] = [];
+  const minBytes = 12_000;
+  for (let i = 0; i < data.length - 3; i++) {
+    // JPEG SOI
+    if (data[i] === 0xff && data[i + 1] === 0xd8 && data[i + 2] === 0xff) {
+      for (let j = i + 3; j < data.length - 1; j++) {
+        if (data[j] === 0xff && data[j + 1] === 0xd9) {
+          const bytes = data.slice(i, j + 2);
+          if (bytes.length >= minBytes) {
+            out.push({ mime: "image/jpeg", bytes });
+          }
+          i = j + 1;
+          break;
+        }
+      }
+      continue;
+    }
+    // PNG signature
+    if (
+      data[i] === 0x89 &&
+      data[i + 1] === 0x50 &&
+      data[i + 2] === 0x4e &&
+      data[i + 3] === 0x47
+    ) {
+      const iend = [0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82];
+      for (let j = i + 8; j < data.length - 8; j++) {
+        let match = true;
+        for (let k = 0; k < 8; k++) {
+          if (data[j + k] !== iend[k]) {
+            match = false;
+            break;
+          }
+        }
+        if (match) {
+          const bytes = data.slice(i, j + 8);
+          if (bytes.length >= minBytes) {
+            out.push({ mime: "image/png", bytes });
+          }
+          i = j + 7;
+          break;
+        }
+      }
+    }
+  }
+  out.sort((a, b) => b.bytes.length - a.bytes.length);
+  // Dedupe near-identical sizes (same image repeated)
+  const uniq: { mime: string; bytes: Uint8Array }[] = [];
+  for (const img of out) {
+    if (uniq.some((u) => Math.abs(u.bytes.length - img.bytes.length) < 64)) {
+      continue;
+    }
+    uniq.push(img);
+    if (uniq.length >= 3) break;
+  }
+  return uniq;
+}
+
 function extractPlain(data: Uint8Array): string {
   const encodings: string[] = ["utf-8", "gb18030", "latin-1"];
   for (const enc of encodings) {
@@ -1098,17 +1235,19 @@ async function ocrImageStructured(
     "你是产品标签/合格证/铭牌识别助手。请仔细阅读图片中的全部文字与标识，" +
     "抽取检测下单所需字段，只返回合法 JSON（不要 markdown）。\n" +
     "字段说明：\n" +
-    '- "Product Name": 简短产品名称 ONLY（如 Electric Fan、Toy Race Car、智能机器人玩具）。' +
+    '- "Product Name": 简短产品名称 ONLY（如 Electric Fan、直发器、智能机器人玩具）。' +
+    '中文规格表里「名称」后的值才是品名（如 名称：直发器）；不要填型号 HT060、规格 220V/50Hz、标准 EN60335、水印网址。' +
     '不要整句、不要「实验室检测 · xxx」、不要销往/制造商/型号后缀。从语音长句中只抠出品名\n' +
-    '- "Item#/model#": 型号/货号，优先取 Model / Model No / 型号 / SKU / Item No / P/N（如 XP-085、XY-03）。键名必须是 Item#/model#，不要用 Model\n' +
+    '- "Item#/model#": 型号/货号，优先取 Model / Model No / 型号 / SKU / Item No / P/N（如 HT060、XP-085）。键名必须是 Item#/model#，不要用 Model\n' +
     '- "Manufacturer": 制造商公司全称。标签上可能写作 Manufacturer / Manufactured by / Manufatcurer(拼写错误) / Company / Factory / 制造商 / 生产商 / 厂家——一律填到键名 "Manufacturer"（不要用别的键名）\n' +
     '- "Manufacturer Address": 制造商地址完整一行（Address / 厂址）；不要把欧代地址当作制造商地址；键名必须是 "Manufacturer Address"\n' +
     '- "Country of Origin": 原产国（优先 MADE IN / Manufacturing location，值用简体如「中国」）\n' +
     '- "Batch": 批号/Batch\n' +
     '- "Date of manufacture": 生产日期\n' +
     '- "Rating": 额定参数原文（如 110/240~, 50/60Hz, 60W）\n' +
-    '- "Electric Product": 是否带电，填「带电产品」或「非电产品」；' +
-    "有电压/功率/Hz/电池/充电/电机/Electric 等视为带电产品\n" +
+    '- "Electric Product": 是否带电，填「带电产品」「非电产品」或空字符串。' +
+    "只有当资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
+    "不要凭品名(风扇/机器人/玩具等)猜测。没有明确带电信息则留空字符串，不要填非电也不要填带电。\n" +
     '- "Product Description": 带电说明，可写入 Rating / 电池 / 充电方式\n' +
     '- "EC REP": 欧代公司+地址（如有 EC REP）\n' +
     '- "UK REP": 英代（如有）\n' +
@@ -1190,9 +1329,28 @@ async function extractFile(
     }
     if (mime === "application/pdf" || lower.endsWith(".pdf")) {
       const text = await extractPdf(data);
-      if (text) return { text: `【文件: ${filename}】\n${text}`, label: null };
+      if (text && text.length >= 30) {
+        return { text: `【文件: ${filename}】\n${text}`, label: null };
+      }
+      // Scanned / image-only PDF: OCR embedded page images via vision
+      const embeds = extractEmbeddedImagesFromPdf(data);
+      if (embeds.length) {
+        const snippets: string[] = [];
+        let firstLabel: Record<string, unknown> | null = null;
+        for (let i = 0; i < embeds.length; i++) {
+          const emb = embeds[i];
+          const pageName = `${filename}#img${i + 1}`;
+          const label = await ocrImageStructured(emb.bytes, emb.mime, pageName);
+          if (!firstLabel) firstLabel = label;
+          snippets.push(labelDictToSnippet(label, pageName));
+        }
+        return {
+          text: snippets.join("\n\n"),
+          label: firstLabel,
+        };
+      }
       return {
-        text: `[PDF ${filename}: 未提取到文本，建议上传照片或截图]`,
+        text: `[PDF ${filename}: 扫描件无文本层且未能抽出页面图，请在客户端转图后重试或直接上传照片]`,
         label: null,
       };
     }
@@ -1253,16 +1411,20 @@ function seedFieldsFromLabels(
     if (String(label["UK REP"] || "").trim()) regions.push("英国");
 
     const elec = String(flat["Electric Product"] || "").trim();
+    const ratingForElec = String(
+      flat["Product Description"] || label.Rating || "",
+    ).trim();
+    const labelElecEvidence = hasElectricEvidence(
+      [ratingForElec, label.Rating, label["Product Description"], label["ocr_text"]].join("\n"),
+    );
     if (elec && !seed["Electric Product"]) {
       if (/非电|non[-\s]?electric|no/i.test(elec)) {
         seed["Electric Product"] = "非电产品";
-      } else if (/带电|electric|yes/i.test(elec)) {
+      } else if (/带电|electric|yes/i.test(elec) && labelElecEvidence) {
         seed["Electric Product"] = "带电产品";
       }
     }
-    const rating = String(
-      flat["Product Description"] || label.Rating || "",
-    ).trim();
+    const rating = ratingForElec;
     if (rating && !seed["Product Description"]) {
       seed["Product Description"] = rating.startsWith("额定")
         ? rating
@@ -1389,18 +1551,23 @@ async function structureFields(
     "你是 QIMA 检测订单信息抽取助手。根据用户提供的语音、文档、产品标签识别结果和商品链接网页内容，" +
     "抽取订单字段。必须输出合法 JSON，不要 markdown。字段值可用简体中文或与原文一致的英文品名。\n" +
     "规则：\n" +
-    "0) 若资料含【商品链接网页内容】：优先用页面标题/品牌/型号/描述映射到对应字段；" +
+    "0) 多源合并（重要）：若同时有【语音转写】【商品链接网页内容】与上传图片/文档，必须交叉填表——" +
+    "每个字段取最合理的来源，不要只用单一资料；标签 OCR/规格表优先于网页营销文案，" +
+    "语音可补充销售国家、样品方式、承运商等网页里没有的信息；冲突时选更完整、更像工厂法定信息的值。" +
+    "若资料含【商品链接网页内容】：标题/品牌/型号/描述映射到对应字段；" +
     "Marketplace 品牌常对应 Manufacturer；ASIN/SKU 可写入 Item#/model#；" +
     "不要把整个商品列表或评论写进任何字段。\n" +
-    "1) Product Name：只填简洁产品名（2–8 个英文词或 ≤24 个汉字），例如「Toy Race Car」「智能机器人玩具」。" +
+    "1) Product Name：只填简洁产品名（2–8 个英文词或 ≤24 个汉字），例如「Toy Race Car」「直发器」。" +
+    "中文表头「名称 / 品名 / 产品名称」后的值才是品名；禁止填型号码（HT060）、电气规格（220Vac 50Hz 25W）、" +
+    "标准号（EN60335-1）、水印/网址，或字段标签本身。" +
     "禁止整句语音、禁止「Lab testing · … / 实验室检测 · …」、禁止带上 sold in / manufactured by / 销往 / 制造商 / 型号等从句。" +
-    "从 rambling 语音中智能抠出品名，其余信息分别写入对应字段。\n" +
+    "从 rambling 语音中智能抠出品名，其余信息分别写入对应字段。不确定则留空。\n" +
     "2) Country of Origin：MADE IN CHINA / Manufacturing location 含 China →「中国」\n" +
     "3) Countries/Regions of Distribution：CE/EC REP/Triman→欧盟，UKCA/UK REP→英国，" +
     "FC/FCC→美国；多个用顿号「、」连接\n" +
-    "4) Item#/model# 取 Model / Model No / SKU / 货号（不要把 NO/Number 当成型号）\n" +
-    "5) Electric Product：有电压/功率/Hz/电池/充电/电机/Electric/Rating 填「带电产品」，" +
-    "明确非电填「非电产品」，否则空字符串\n" +
+    "4) Item#/model# 取 Model / Model No / 型号 / SKU / 货号（如 HT060）；不要把 NO/Number 或品名当型号\n" +
+    "5) Electric Product：只有资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
+    "明确写出非电/无电池才填「非电产品」；否则留空字符串。不要凭品名(风扇/机器人/玩具)猜测带电。\n" +
     "6) Product Description：带电时写入 Rating/电池/充电等要点\n" +
     "7) Shipping Remark 可汇总批号、生产日期、欧代、合规标识\n" +
     "8) Program：只能从下列固定列表中选择完整字符串之一，禁止自创：" +
