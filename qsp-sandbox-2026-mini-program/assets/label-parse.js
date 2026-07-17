@@ -190,8 +190,8 @@
       return 'non_sleepwear';
     }
     // 8) Toys
-    if (/\b(?:toy|toys|en\s*71|cpsia|plush|doll|figurine|puzzle|spinner|rc\b|remote\s*control|water\s*gun|building\s*block|toy\s*car)\b/i.test(blob) ||
-      /玩具|积木|公仔|毛绒|娃娃|手办|拼图|陀螺|遥控|水枪|玩具车/.test(blob)) {
+    if (/\b(?:toy|toys|en\s*71|cpsia|plush|doll|figurine|puzzle|spinner|rc\b|remote\s*control|water\s*gun|building\s*block|toy\s*car|felt\s*face|flannel\s*face|emotion(?:al)?\s*(?:toy|game|board|card)|facial\s*expression|sel\b|montessori|preschool\s*(?:toy|game|learning)|busy\s*board|learning\s*toy|educational\s*toy)\b/i.test(blob) ||
+      /玩具|积木|公仔|毛绒|娃娃|手办|拼图|陀螺|遥控|水枪|玩具车|表情|情绪|情感|蒙氏|蒙特梭利|教具|早教|益智/.test(blob)) {
       return 'toys';
     }
     // 9) Hardware / grocery (non-food tools, fasteners, gadgets)

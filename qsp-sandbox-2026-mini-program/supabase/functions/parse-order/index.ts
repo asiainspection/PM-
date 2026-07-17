@@ -251,9 +251,11 @@ function detectProgramCategory(
   }
   // 8) Toys
   if (
-    /\b(?:toy|toys|en\s*71|cpsia|plush|doll|figurine|puzzle|spinner|rc\b|remote\s*control|water\s*gun|building\s*block|toy\s*car)\b/i
+    /\b(?:toy|toys|en\s*71|cpsia|plush|doll|figurine|puzzle|spinner|rc\b|remote\s*control|water\s*gun|building\s*block|toy\s*car|felt\s*face|flannel\s*face|emotion(?:al)?\s*(?:toy|game|board|card)|facial\s*expression|sel\b|montessori|preschool\s*(?:toy|game|learning)|busy\s*board|learning\s*toy|educational\s*toy)\b/i
       .test(blob) ||
-    /玩具|积木|公仔|毛绒|娃娃|手办|拼图|陀螺|遥控|水枪|玩具车/.test(blob)
+    /玩具|积木|公仔|毛绒|娃娃|手办|拼图|陀螺|遥控|水枪|玩具车|表情|情绪|情感|蒙氏|蒙特梭利|教具|早教|益智/.test(
+      blob,
+    )
   ) {
     return "toys";
   }
@@ -1300,30 +1302,36 @@ async function ocrImageStructured(
   let media = mime.startsWith("image/") ? mime : "image/jpeg";
   if (media === "application/octet-stream") media = "image/jpeg";
   const prompt =
-    "你是产品标签/合格证/铭牌识别助手。请仔细阅读图片中的全部文字与标识，" +
-    "抽取检测下单所需字段，只返回合法 JSON（不要 markdown）。\n" +
+    "你是 QIMA 检测下单助手。图片可能是：(A) 产品标签/合格证/铭牌，或 (B) 商品实物照片/包装展示图（几乎没有铭牌文字）。\n" +
+    "两种情况都要尽量填表。只返回合法 JSON（不要 markdown）。\n" +
     "字段说明：\n" +
-    '- "Product Name": 简短产品名称 ONLY（如 Electric Fan、直发器、智能机器人玩具）。' +
-    '中文规格表里「名称」后的值才是品名（如 名称：直发器）；不要填型号 HT060、规格 220V/50Hz、标准 EN60335、水印网址。' +
-    '不要整句、不要「实验室检测 · xxx」、不要销往/制造商/型号后缀。从语音长句中只抠出品名\n' +
-    '- "Item#/model#": 型号/货号，优先取 Model / Model No / 型号 / SKU / Item No / P/N（如 HT060、XP-085）。键名必须是 Item#/model#，不要用 Model\n' +
-    '- "Manufacturer": 制造商公司全称。标签上可能写作 Manufacturer / Manufactured by / Manufatcurer(拼写错误) / Company / Factory / 制造商 / 生产商 / 厂家——一律填到键名 "Manufacturer"（不要用别的键名）\n' +
-    '- "Manufacturer Address": 制造商地址完整一行（Address / 厂址）；不要把欧代地址当作制造商地址；键名必须是 "Manufacturer Address"\n' +
-    '- "Country of Origin": 原产国（优先 MADE IN / Manufacturing location，值用简体如「中国」）\n' +
+    '- "Product Name": 简短产品名称 ONLY（2–8 个英文词或 ≤24 个汉字）。\n' +
+    "  · 有标签文字时：取「名称/品名/Product Name」后的值（如 直发器、Electric Fan）。\n" +
+    "  · 无标签、只有实物照片时：根据外观智能猜测品名，例如 " +
+    "「Emotions Felt Face Board Toy」「Preschool Emotional Expression Toy」「毛绒玩具」「塑料玩具车」。" +
+    "要具体到品类+形态，不要只写 Toy / Product / Item。\n" +
+    "  · 禁止：型号(HT060)、电气规格、标准号、水印网址、整句营销文案、销往/制造商后缀。\n" +
+    '- "Item#/model#": 型号/货号，优先取 Model / Model No / 型号 / SKU / Item No / P/N（如 HT060）。' +
+    "键名必须是 Item#/model#。照片上看不到则留空。\n" +
+    '- "Manufacturer": 制造商公司全称（Manufacturer / Manufactured by / 制造商 / 厂家）。看不到则留空。\n' +
+    '- "Manufacturer Address": 制造商地址完整一行；不要把欧代地址当作制造商地址。看不到则留空。\n' +
+    '- "Country of Origin": 原产国（MADE IN / Manufacturing location，简体如「中国」）。看不到则留空。\n' +
     '- "Batch": 批号/Batch\n' +
     '- "Date of manufacture": 生产日期\n' +
     '- "Rating": 额定参数原文（如 110/240~, 50/60Hz, 60W）\n' +
     '- "Electric Product": 是否带电，填「带电产品」「非电产品」或空字符串。' +
     "只有当资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
-    "不要凭品名(风扇/机器人/玩具等)猜测。没有明确带电信息则留空字符串，不要填非电也不要填带电。\n" +
-    '- "Product Description": 带电说明，可写入 Rating / 电池 / 充电方式\n' +
-    '- "EC REP": 欧代公司+地址（如有 EC REP）\n' +
+    "不要凭品名(风扇/机器人/玩具等)猜测。毛绒/布艺/毡面/卡片类玩具通常无带电证据→留空。\n" +
+    '- "Product Description": 一句话描述产品是什么。' +
+    "有 Rating/电池时写入电气要点；纯实物照片可写材质/用途/主要部件" +
+    "（如「Felt face boards with interchangeable facial features and emotion flash cards for preschool SEL」）。\n" +
+    '- "EC REP": 欧代公司+地址（如有）\n' +
     '- "UK REP": 英代（如有）\n' +
     '- "marks": 图片上出现的合规标识数组，可能含 CE, UKCA, FC, FCC, RoHS, WEEE 等\n' +
     '- "Countries/Regions of Distribution": 销售国家/地区；' +
-    "若未写明，则根据标识/代表处推断：CE/EC REP/Triman→欧盟，UKCA/UK REP→英国，FC/FCC→美国，CCC→中国，RCM→澳大利亚\n" +
-    '- "ocr_text": 关键可见关键文字要点（简体）\n' +
-    "无法确定的字段用空字符串；marks 用数组。";
+    "若未写明，则根据标识推断：CE/EC REP/Triman→欧盟，UKCA/UK REP→英国，FC/FCC→美国，CCC→中国，RCM→澳大利亚\n" +
+    '- "ocr_text": 可见关键文字要点；若几乎无字，用一句话描述画面中的产品外观与组件\n' +
+    "无法确定的字段用空字符串；marks 用数组。不要因为「不是标签图」就全部留空——实物照片必须至少给出 Product Name。";
 
   const raw = await nvidiaChat({
     model: VISION_MODEL,
@@ -1494,14 +1502,18 @@ function seedFieldsFromLabels(
     }
     const rating = ratingForElec;
     if (rating && !seed["Product Description"]) {
+      const looksLikeRating =
+        /\d+\s*(?:Vac?|V(?:olt)?|W(?:att)?|Hz|mA|A)\b|电池|充电|Rated|Rating|Input|Output|电压|功率/i
+          .test(rating);
       seed["Product Description"] = rating.startsWith("额定")
         ? rating
-        : /V|W|Hz|电池|充电|Rated|Rating/i.test(rating)
+        : looksLikeRating
         ? `额定：${rating}`
         : rating;
       if (
         !seed["Electric Product"] &&
-        /\d+\s*V|\d+\s*W|\d+\s*Hz|电池|充电|Electric/i.test(rating)
+        looksLikeRating &&
+        hasElectricEvidence(rating)
       ) {
         seed["Electric Product"] = "带电产品";
       }
@@ -1625,27 +1637,33 @@ async function structureFields(
     "若资料含【商品链接网页内容】：标题/品牌/型号/描述映射到对应字段；" +
     "Marketplace 品牌常对应 Manufacturer；ASIN/SKU 可写入 Item#/model#；" +
     "不要把整个商品列表或评论写进任何字段。\n" +
-    "1) Product Name：只填简洁产品名（2–8 个英文词或 ≤24 个汉字），例如「Toy Race Car」「直发器」。" +
-    "中文表头「名称 / 品名 / 产品名称」后的值才是品名；禁止填型号码（HT060）、电气规格（220Vac 50Hz 25W）、" +
-    "标准号（EN60335-1）、水印/网址，或字段标签本身。" +
+    "1) Product Name：只填简洁产品名（2–8 个英文词或 ≤24 个汉字），例如「Toy Race Car」「直发器」" +
+    "「Emotions Felt Face Board Toy」。" +
+    "有标签时：取「名称 / 品名 / 产品名称」后的值。" +
+    "只有商品实物照片、几乎无铭牌文字时：必须根据外观猜测具体品名（品类+形态），" +
+    "不要只写 Toy/Product/Item，也不要因「无文字」而留空。" +
+    "禁止填型号码（HT060）、电气规格（220Vac 50Hz 25W）、标准号（EN60335-1）、水印/网址，或字段标签本身。" +
     "禁止整句语音、禁止「Lab testing · … / 实验室检测 · …」、禁止带上 sold in / manufactured by / 销往 / 制造商 / 型号等从句。" +
-    "从 rambling 语音中智能抠出品名，其余信息分别写入对应字段。不确定则留空。\n" +
+    "从 rambling 语音中智能抠出品名，其余信息分别写入对应字段。\n" +
     "2) Country of Origin：MADE IN CHINA / Manufacturing location 含 China →「中国」\n" +
     "3) Countries/Regions of Distribution：CE/EC REP/Triman→欧盟，UKCA/UK REP→英国，" +
     "FC/FCC→美国；多个用顿号「、」连接\n" +
     "4) Item#/model# 取 Model / Model No / 型号 / SKU / 货号（如 HT060）；不要把 NO/Number 或品名当型号\n" +
     "5) Electric Product：只有资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
     "明确写出非电/无电池才填「非电产品」；否则留空字符串。不要凭品名(风扇/机器人/玩具)猜测带电。\n" +
-    "6) Product Description：带电时写入 Rating/电池/充电等要点\n" +
+    "6) Product Description：带电时写入 Rating/电池/充电等要点；" +
+    "纯实物照片可写材质/用途/主要部件（一句话，勿写长篇营销文案）。\n" +
     "7) Shipping Remark 可汇总批号、生产日期、欧代、合规标识\n" +
     "8) Program：只能从下列固定列表中选择完整字符串之一，禁止自创：" +
     PROGRAM_CATALOG.map((p) => `「${p}」`).join("、") +
-    "。根据品名/品类推断：玩具→Toys，睡衣→Textile Sleepwear，纺织/面料非睡衣→Textile Non-Sleepwear，" +
+    "。根据品名/品类推断：玩具/教育玩具/felt face/emotion/SEL/公仔/积木→Toys，" +
+    "睡衣→Textile Sleepwear，纺织/面料非睡衣→Textile Non-Sleepwear，" +
     "食品接触/餐具/水杯/锅→FCM，眼镜/PPE→Eyewear，电子/电压/风扇→Electric product，杂货/五金工具→Hardware，" +
     "化学品/化妆品/指甲油/香水/油漆/胶水/清洁剂/只做MSDS→MSDS，SH-Self 字样→SH-Self。" +
     "付款方：TEMU Pay / TEMU 付款 vs Seller Pay / 商家付款；未提及付款方时默认 Seller Pay 变体（若该品类有）。" +
     "无法归类或置信度不足时 Program 填 DEFAULT。\n" +
-    "9) 无法确定或明显不合理的字段留空字符串，不要编造、不要把整段语音塞进任一字段\n" +
+    "9) 无法确定的字段留空字符串；但 Product Name 在有实物照片时必须尽量猜测，不要整表留空。" +
+    "不要把整段语音塞进任一字段。\n" +
     'JSON：{"product_summary":{"name":"短品名","brand":"","hint":""},' +
     '"fields":{...},"confidence":{...},"raw_excerpt":""}';
 
