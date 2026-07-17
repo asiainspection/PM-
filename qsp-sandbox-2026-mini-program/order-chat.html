@@ -4514,6 +4514,8 @@
             { name:'Country of Origin', fallback: '', type:'select', options: [''].concat(getOriginOptions()) },
             { name:'Countries/Regions of Distribution', fallback: '', type:'multi-country' },
             { name:'Item#/model#', fallback: '' },
+            { name:'Electric Product', fallback: '', type:'electric-radio' },
+            { name:'Product Description', fallback: '', type:'electric-desc' },
             { name:'Manufacturer', fallback: '' },
             { name:'Manufacturer Address', fallback: '' }
           ]
@@ -4819,6 +4821,12 @@
       if(field.name === 'Manufacturer Address'){
         return '';
       }
+      if(field.type === 'electric-radio'){
+        return renderEditElectricField(current);
+      }
+      if(field.type === 'electric-desc'){
+        return renderEditElectricDescField(current);
+      }
       if(field.type === 'multi-country'){
         return renderEditMultiCountryField(field);
       }
@@ -4849,6 +4857,55 @@
       '</div>';
     }
 
+    function resolveEditElectricValue(raw){
+      const s = String(raw || '').trim();
+      if(!s) return '';
+      if(s === '__ELECTRIC_YES__' || s === 'electric' || isElectricYes(s)) return 'electric';
+      if(s === '__ELECTRIC_NO__' || s === 'non-electric' || s === 'no' ||
+        s === t('index.electricNo') || /非电|non[-\s]?electric/i.test(s)) return 'non-electric';
+      return '';
+    }
+
+    function renderEditElectricField(current){
+      const val = resolveEditElectricValue(current) ||
+        resolveEditElectricValue(manualAnswers[FIELD_ELECTRIC] || manualAnswers['产品是否带电'] || '');
+      const yesChecked = val === 'electric' ? ' checked' : '';
+      const noChecked = val === 'non-electric' ? ' checked' : (val ? '' : '');
+      const label = val === 'electric' ? t('index.electricYes') : (val === 'non-electric' ? t('index.electricNo') : '');
+      return '<div class="fm-row" id="fe_electricRow">'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(FIELD_ELECTRIC))+' <span class="req">*</span></div>'+
+        '<div class="fm-radio-stack">'+
+          '<label class="fm-radio-line"><input type="radio" name="fe_electric" value="electric"'+yesChecked+' onchange="feToggleElectricDescription()"> <span>'+escapeHtml(t('index.electricYes'))+'</span></label>'+
+          '<label class="fm-radio-line"><input type="radio" name="fe_electric" value="non-electric"'+noChecked+' onchange="feToggleElectricDescription()"> <span>'+escapeHtml(t('index.electricNo'))+'</span></label>'+
+        '</div>'+
+        '<input type="hidden" data-field-name="'+FIELD_ELECTRIC+'" id="fe_electricHidden" value="'+escapeHtml(label)+'">'+
+      '</div>';
+    }
+
+    function renderEditElectricDescField(current){
+      const elecRaw = getFieldValue(FIELD_ELECTRIC) || manualAnswers[FIELD_ELECTRIC] || manualAnswers['产品是否带电'] || '';
+      const isYes = resolveEditElectricValue(elecRaw) === 'electric';
+      const desc = current || manualAnswers[FIELD_ELECTRIC_DESC] || manualAnswers['产品说明'] || '';
+      return '<div class="fm-row" id="fe_electricDescriptionRow" style="display:'+(isYes ? 'block' : 'none')+';">'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(FIELD_ELECTRIC_DESC))+' <span class="req">*</span></div>'+
+        '<textarea class="fm-textarea" data-field-name="'+FIELD_ELECTRIC_DESC+'" id="fe_electricDescription" placeholder="'+escapeHtml(t('index.productDescPlaceholder'))+'">'+escapeHtml(desc)+'</textarea>'+
+      '</div>';
+    }
+
+    function feToggleElectricDescription(){
+      const selected = document.querySelector('input[name="fe_electric"]:checked');
+      const row = document.getElementById('fe_electricDescriptionRow');
+      const hidden = document.getElementById('fe_electricHidden');
+      if(selected && hidden){
+        hidden.value = selected.value === 'electric' ? t('index.electricYes') : t('index.electricNo');
+      }
+      if(row) row.style.display = (selected && selected.value === 'electric') ? 'block' : 'none';
+      if(selected && selected.value !== 'electric'){
+        const ta = document.getElementById('fe_electricDescription');
+        if(ta) ta.value = '';
+      }
+    }
+
     function closeFieldEditor(e){
       if(e && e.target && e.currentTarget && e.target !== e.currentTarget) return;
       document.getElementById('fieldEditor').classList.remove('show');
@@ -4877,10 +4934,23 @@
     });
 
     function saveFieldEditor(){
+      // Sync electric radio → hidden label before reading inputs
+      const feElectric = document.querySelector('input[name="fe_electric"]:checked');
+      const feHidden = document.getElementById('fe_electricHidden');
+      const feDesc = document.getElementById('fe_electricDescription');
+      if(feElectric && feHidden){
+        feHidden.value = feElectric.value === 'electric' ? t('index.electricYes') : t('index.electricNo');
+      }
+      if(feElectric && feElectric.value !== 'electric' && feDesc){
+        feDesc.value = '';
+      }
+
       const inputs = document.querySelectorAll('#fieldEditorGrid input, #fieldEditorGrid select, #fieldEditorGrid textarea');
       inputs.forEach(input => {
         const name = input.dataset.fieldName;
         if(!name) return;
+        // Skip radio buttons — Electric Product is saved via the hidden input
+        if(input.type === 'radio') return;
         const value = input.value.trim();
         manualAnswers[name] = value;
         const field = document.querySelector('.field[data-field="'+cssEscape(name)+'"]');
@@ -4896,6 +4966,7 @@
             statusNode.textContent = '✓';
             statusNode.style.display = '';
           }
+          field.style.display = '';
         } else if(isOptional){
           valueNode.textContent = '—';
           valueNode.classList.remove('miss');
@@ -4910,6 +4981,15 @@
           }
         }
       });
+
+      // Hide Product Description row on extract card when not electric
+      const descField = document.querySelector('.field[data-field="'+cssEscape(FIELD_ELECTRIC_DESC)+'"]');
+      if(descField){
+        const elecVal = manualAnswers[FIELD_ELECTRIC] || '';
+        const showDesc = isElectricYes(elecVal) && !!(manualAnswers[FIELD_ELECTRIC_DESC] || '').trim();
+        descField.style.display = showDesc ? '' : 'none';
+      }
+
       closeFieldEditor();
       userMsg(t('orderChat.editedFields'));
       const completion = calculateRequiredCompletion();
