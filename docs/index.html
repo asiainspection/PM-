@@ -1,79 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Protected Page</title>
-<style>
-*,:before,:after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-.lock-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F7F7F7}
-.lock-card{background:#fff;border-radius:16px;box-shadow:0 2px 4px rgba(25,25,25,0.1);border:1px solid rgba(0,0,0,0.1);padding:36px;width:100%;max-width:380px;text-align:center}
-.lock-logo{margin-bottom:24px}
-.lock-logo svg{width:92px;height:20px}
-.lock-card h2{font-size:18px;font-weight:500;color:#191919;margin-bottom:8px;letter-spacing:-0.01em}
-.lock-card p{font-size:14px;line-height:20px;color:#737373;margin-bottom:24px}
-.lock-input{width:100%;height:44px;padding:0 14px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font:400 14px/20px 'Inter',sans-serif;color:#191919;background:#fff;outline:none;transition:border-color 200ms cubic-bezier(0.2,0,0,1)}
-.lock-input:focus{border-color:#E4002B}
-.lock-input.shake{animation:shake .4s ease-out;border-color:#E5353D}
-.lock-btn{width:100%;height:44px;margin-top:12px;background:#E4002B;color:#fff;border:none;border-radius:8px;font:500 14px/20px 'Inter',sans-serif;cursor:pointer;transition:background 200ms cubic-bezier(0.2,0,0,1)}
-.lock-btn:hover{background:#C71A21}
-.lock-error{font-size:12px;line-height:16px;color:#E5353D;margin-top:8px;min-height:16px}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QIMA TIC 行业周报 | GitHub Pages</title>
+  <meta name="description" content="QIMA PM 与业务团队的中国 TIC 行业周度市场研究报告">
+  <style>
+    :root {
+      --qima-red: #e4002b;
+      --ink: #171923;
+      --muted: #5b6475;
+      --line: #e7eaf0;
+      --blue: #2454ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--ink);
+      background: #f3f5f9;
+      line-height: 1.6;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap {
+      width: min(960px, calc(100% - 32px));
+      margin: 32px auto 64px;
+    }
+    header {
+      padding: 36px 32px;
+      border-radius: 22px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 85% 15%, rgba(255,255,255,.22), transparent 26%),
+        linear-gradient(135deg, #111827 0%, #3a0d17 46%, var(--qima-red) 100%);
+      box-shadow: 0 24px 60px rgba(15, 23, 42, .12);
+    }
+    .brand { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .brand img { width: 140px; background: #fff; border-radius: 12px; padding: 10px; }
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.28);
+    }
+    h1 { margin: 22px 0 10px; font-size: 34px; line-height: 1.15; }
+    .subtitle { color: rgba(255,255,255,.88); max-width: 760px; }
+    .card {
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 10px 24px rgba(15,23,42,.04);
+    }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+    .report-list { list-style: none; padding: 0; margin: 0; }
+    .report-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+    .report-list li:last-child { border-bottom: 0; }
+    .report-title { font-weight: 700; font-size: 16px; }
+    .report-meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: var(--qima-red);
+      color: #fff;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn:hover { text-decoration: none; filter: brightness(.95); }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+    .pill {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 14px;
+    }
+    footer { margin-top: 24px; color: var(--muted); font-size: 13px; text-align: center; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+    }
+  </style>
 </head>
 <body>
-<div class="lock-screen">
-  <div class="lock-card">
-    <div class="lock-logo"><svg width="92" height="20" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1{fill:#e4002b}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer1"><path class="cls-1" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM399.35 7.736v-.033A5.825 5.825 0 1 1 411 7.67v.033a5.825 5.825 0 1 1-11.65.033Zm10.478-.033v-.03a4.653 4.653 0 1 0-9.305.03v.03a4.653 4.653 0 1 0 9.305-.03Zm-7.063-2.377a.75.75 0 0 1 .737-.77h2.109c1.44 0 2.443.67 2.443 2.009a1.881 1.881 0 0 1-1.205 1.84l.904 1.105a.679.679 0 0 1 .2.536.695.695 0 0 1-.736.703.814.814 0 0 1-.602-.301l-1.406-1.74h-.97v1.304a.736.736 0 1 1-1.474 0Zm2.745 2.176c.67 0 1.038-.335 1.038-.837 0-.535-.402-.837-1.038-.837h-1.272v1.674ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></g></g></svg></div>
-    <h2>Password Required</h2>
-    <p>Enter the password to view this page.</p>
-    <input type="password" class="lock-input" id="pwd" placeholder="Enter password" autofocus>
-    <button class="lock-btn" id="submit">Unlock</button>
-    <div class="lock-error" id="error"></div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="assets/logo.svg" alt="QIMA">
+        <span class="badge">GitHub Pages · Weekly Intelligence</span>
+      </div>
+      <h1>中国 TIC 行业周度市场研究</h1>
+      <p class="subtitle">面向 QIMA PM 与业务团队的行业情报站点。每期优先收录竞品最新系统/平台/业务动作与 AI 使用方向，监管与市场背景作为附录参考。</p>
+    </header>
+
+    <section class="card">
+      <h2>最新报告</h2>
+      <ul class="report-list">
+        <li>
+          <div>
+            <div class="report-title">TIC Weekly Report 2026-07-17</div>
+            <div class="report-meta">报告日期：2026-07-17 · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>
+          </div>
+          <a class="btn" href="reports/china-tic-market-weekly-2026-07-17.html">阅读报告</a>
+        </li>
+        <li>
+          <div>
+            <div class="report-title">Protected Page</div>
+            <div class="report-meta">报告日期：2026-06-19 · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>
+          </div>
+          <a class="btn" href="reports/china-tic-market-weekly-2026-06-19.html">阅读报告</a>
+        </li>
+        <li>
+          <div>
+            <div class="report-title">Protected Page</div>
+            <div class="report-meta">报告日期：2026-06-17 · 竞品新闻雷达 · AI 动态 · QIMA 启示</div>
+          </div>
+          <a class="btn" href="reports/china-tic-market-weekly-2026-06-17.html">阅读报告</a>
+        </li>
+      </ul>
+    </section>
+
+    <div class="grid">
+      <div class="pill"><strong>更新频率</strong><br>每周五 09:00 UTC 自动同步发布</div>
+      <div class="pill"><strong>内容优先级</strong><br>竞品新闻 &gt; AI 动态 &gt; 监管背景</div>
+      <div class="pill"><strong>部署方式</strong><br>GitHub Actions 自动发布 Pages</div>
+    </div>
+
+    <footer>
+      <p>索引自动生成时间：2026-07-17 09:06 UTC · 最新报告日期：2026-07-17</p>
+      <p>站点由 <code>docs/</code> 目录提供，推送至 GitHub 后自动部署。</p>
+      <p>仓库：<a href="https://github.com/asiainspection/PM-" target="_blank" rel="noreferrer">asiainspection/PM-</a></p>
+    </footer>
   </div>
-</div>
-<script>
-(function(){
-  var CIPHER='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';
-  var IV_HEX='72769f135dfde8d90e7c3d19b0a786bd';
-  var MAX_ATTEMPTS=5;
-  var attempts=0;
-  function hexToBytes(h){for(var b=new Uint8Array(h.length/2),i=0;i<h.length;i+=2){b[i/2]=parseInt(h.substring(i,i+2),16);}return b;}
-  function deriveKey(pwd,salt){return crypto.subtle.importKey('raw',new TextEncoder().encode(pwd),{name:'PBKDF2'},false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:100000,hash:'SHA-256'},k,{name:'AES-CBC',length:256},false,['decrypt'])});}
-  function decryptData(key,iv,cipher){return crypto.subtle.decrypt({name:'AES-CBC',iv:iv},key,cipher);}
-  function go(){
-    var pwd=document.getElementById('pwd').value;
-    if(!pwd){return;}
-    var raw=atob(CIPHER);
-    var bytes=new Uint8Array(raw.length);
-    for(var i=0;i<raw.length;i++){bytes[i]=raw.charCodeAt(i);}
-    var salt=bytes.slice(0,16);
-    var cipherBytes=bytes.slice(16);
-    deriveKey(pwd,salt).then(function(key){
-      return decryptData(key,hexToBytes(IV_HEX),cipherBytes);
-    }).then(function(plain){
-      var html=new TextDecoder().decode(plain);
-      document.open();document.write(html);document.close();
-    }).catch(function(){
-      attempts++;
-      var left=MAX_ATTEMPTS-attempts;
-      var el=document.getElementById('error');
-      var inp=document.getElementById('pwd');
-      if(left<=0){
-        el.textContent='Too many attempts. Please reload the page.';
-        document.getElementById('submit').disabled=true;
-        return;
-      }
-      el.textContent='Incorrect password. '+left+' attempt'+(left>1?'s':'')+' remaining.';
-      inp.classList.add('shake');
-      setTimeout(function(){inp.classList.remove('shake');},400);
-      inp.value='';inp.focus();
-    });
-  }
-  document.getElementById('submit').addEventListener('click',go);
-  document.getElementById('pwd').addEventListener('keydown',function(e){if(e.key==='Enter'){go();}});
-})();
-</script>
 </body>
 </html>
