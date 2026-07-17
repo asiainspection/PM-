@@ -745,7 +745,7 @@
       case 'Product Description': {
         if (v.length > 200 || looksLikeSentence(v)) return false;
         // Prefer rating / electric descriptors
-        if (/额定|Rating|Rated|\d+\s*[VvWw]|\d+\s*Hz|电池|充电|Input|Output|电压|功率/.test(v)) return true;
+        if (/额定|Rating|Rated|\d+\s*(?:Vac?|V(?:olt)?|W(?:att)?|Hz|mA|A)\b|电池|充电|Input|Output|电压|功率/.test(v)) return true;
         return v.length >= 2 && v.length <= 120 && countWords(v) <= 25;
       }
       case 'Carrier': {
@@ -780,10 +780,61 @@
   }
 
   /**
+   * Clean Product Description: drop empty "标签：" segments and invented
+   * templates like "带电产品：电池；材质：毛绒；用途：情绪教育".
+   * This field is only for real electrical notes when the product is electric.
+   */
+  function cleanProductDescription(raw, opts) {
+    var rawText = String(raw || '').replace(/\s+/g, ' ').trim();
+    if (!rawText) return '';
+    var electricYes = !!(opts && opts.electricYes);
+    // Non-electric → leave Product Description empty (no invented 材质/用途/电池 templates)
+    if (!electricYes) return '';
+
+    var evidenceBlob = [
+      (opts && opts.rawExcerpt) || '',
+      (opts && opts.productName) || '',
+      rawText
+    ].join('\n');
+    var hasElec = hasElectricEvidence(evidenceBlob);
+
+    var parts = rawText
+      .split(/[；;]+/)
+      .map(function (p) { return String(p || '').replace(/\s+/g, ' ').trim(); })
+      .filter(Boolean);
+
+    var kept = [];
+    for (var i = 0; i < parts.length; i++) {
+      var seg = parts[i];
+      // Empty label with no value: "带电产品：" / "材质：" / "用途："
+      if (/^(?:带电产品|非电产品|材质|材料|用途|额定|电池|充电|电源|Rating|Rated|Material|Use|Usage)\s*[:：]?\s*$/i.test(seg)) {
+        continue;
+      }
+      // Material / use templates are not electrical 产品说明
+      if (/^(?:材质|材料|用途|Material|Use|Usage)\s*[:：]/i.test(seg)) {
+        continue;
+      }
+      // Bare "带电产品：电池" with no concrete rating elsewhere — drop
+      if (/带电产品\s*[:：]\s*电池\s*$/i.test(seg) && !hasElectricEvidence((opts && opts.rawExcerpt) || '')) {
+        continue;
+      }
+      if (/^额定\s*[:：]\s*$/i.test(seg)) continue;
+      kept.push(seg);
+    }
+
+    var out = kept.join('；').trim();
+    if (!out) return '';
+    // Still need some electrical substance
+    if (!hasElec && !/额定|Rating|Rated|\d+\s*(?:V|W|Hz)|电池|充电|电压|功率/i.test(out)) return '';
+    if (out.length > 200) out = out.slice(0, 200).trim();
+    return out;
+  }
+
+  /**
    * Sanitize a fields map in-place-ish: keep only plausible values; blank the rest.
    * Optionally pass rawExcerpt to drop Shipping Remark that merely duplicates the transcript.
    */
-    function sanitizeParsedFields(fields, opts) {
+  function sanitizeParsedFields(fields, opts) {
     var out = emptyFields();
     var src = fields && typeof fields === 'object' ? fields : {};
     var flat = canonicalizeFieldKeys(src);
@@ -818,10 +869,12 @@
       } else if (key === 'Electric Product') {
         // Require concrete electrical evidence before accepting "带电产品"
         // from LLM/OCR. No evidence → leave empty (待确认), never guess.
+        // Do NOT use Product Description as evidence — LLM often invents
+        // "带电产品：电池" there, which would circularly confirm itself.
         var elecLower = String(candidate || '').toLowerCase();
         var saysYes = /__ELECTRIC_YES__|带电产品|带电|electric|yes/i.test(elecLower);
         var saysNo = /__ELECTRIC_NO__|非电产品|非电|non[-\s]?electric|no/i.test(elecLower);
-        var elecEvidenceText = [rawExcerpt, flat['Product Description'], flat['Product Name']].join('\n');
+        var elecEvidenceText = [rawExcerpt, flat['Product Name'], flat['Item#/model#']].join('\n');
         if (saysYes && !saysNo) {
           candidate = hasElectricEvidence(elecEvidenceText) ? '__ELECTRIC_YES__' : '';
         } else if (saysNo && !saysYes) {
@@ -829,6 +882,9 @@
         } else {
           candidate = '';
         }
+      } else if (key === 'Product Description') {
+        // Cleaned after Electric Product is known (see below)
+        candidate = raw;
       }
 
       if (!candidate || !isPlausibleField(key, candidate)) {
@@ -848,6 +904,16 @@
     });
 
     ensureProgramMatched(out, opts);
+
+    // Product Description only when electric; strip empty/invented templates
+    out['Product Description'] = cleanProductDescription(out['Product Description'] || flat['Product Description'] || '', {
+      electricYes: out['Electric Product'] === '__ELECTRIC_YES__',
+      rawExcerpt: rawExcerpt,
+      productName: out['Product Name'] || ''
+    });
+    if (out['Product Description'] && !isPlausibleField('Product Description', out['Product Description'])) {
+      out['Product Description'] = '';
+    }
 
     // Drop shipping remark that is basically the full transcript when richer fields exist
     if (opts && opts.rawExcerpt && out['Shipping Remark']) {

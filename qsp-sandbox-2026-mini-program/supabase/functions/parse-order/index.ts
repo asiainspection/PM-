@@ -764,7 +764,7 @@ function isPlausibleField(key: string, value: string): boolean {
     }
     case "Product Description": {
       if (v.length > 200 || looksLikeSentence(v)) return false;
-      if (/额定|Rating|Rated|\d+\s*[VvWw]|\d+\s*Hz|电池|充电|Input|Output|电压|功率/.test(v)) {
+      if (/额定|Rating|Rated|\d+\s*(?:Vac?|V(?:olt)?|W(?:att)?|Hz|mA|A)\b|电池|充电|Input|Output|电压|功率/.test(v)) {
         return true;
       }
       return v.length >= 2 && v.length <= 120 && countWords(v) <= 25;
@@ -800,6 +800,55 @@ function isPlausibleField(key: string, value: string): boolean {
     default:
       return v.length > 0 && v.length <= 200 && !looksLikeSentence(v);
   }
+}
+
+function cleanProductDescription(
+  raw: string,
+  opts: { electricYes?: boolean; rawExcerpt?: string; productName?: string } = {},
+): string {
+  const rawText = String(raw || "").replace(/\s+/g, " ").trim();
+  if (!rawText) return "";
+  // Non-electric → leave empty (no invented 材质/用途/电池 templates)
+  if (!opts.electricYes) return "";
+
+  const evidenceBlob = [opts.rawExcerpt || "", opts.productName || "", rawText]
+    .join("\n");
+  const hasElec = hasElectricEvidence(evidenceBlob);
+
+  const parts = rawText
+    .split(/[；;]+/)
+    .map((p) => String(p || "").replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  const kept: string[] = [];
+  for (const seg of parts) {
+    if (
+      /^(?:带电产品|非电产品|材质|材料|用途|额定|电池|充电|电源|Rating|Rated|Material|Use|Usage)\s*[:：]?\s*$/i
+        .test(seg)
+    ) {
+      continue;
+    }
+    if (/^(?:材质|材料|用途|Material|Use|Usage)\s*[:：]/i.test(seg)) continue;
+    if (
+      /带电产品\s*[:：]\s*电池\s*$/i.test(seg) &&
+      !hasElectricEvidence(opts.rawExcerpt || "")
+    ) {
+      continue;
+    }
+    if (/^额定\s*[:：]\s*$/i.test(seg)) continue;
+    kept.push(seg);
+  }
+
+  let out = kept.join("；").trim();
+  if (!out) return "";
+  if (
+    !hasElec &&
+    !/额定|Rating|Rated|\d+\s*(?:V|W|Hz)|电池|充电|电压|功率/i.test(out)
+  ) {
+    return "";
+  }
+  if (out.length > 200) out = out.slice(0, 200).trim();
+  return out;
 }
 
 function sanitizeParsedFields(
@@ -848,6 +897,22 @@ function sanitizeParsedFields(
   }
 
   ensureProgramMatched(out, { rawExcerpt: opts?.rawExcerpt || "" });
+
+  // Product Description only when electric; strip empty/invented templates
+  out["Product Description"] = cleanProductDescription(
+    out["Product Description"] || String(src["Product Description"] || ""),
+    {
+      electricYes: out["Electric Product"] === "__ELECTRIC_YES__",
+      rawExcerpt: opts?.rawExcerpt || "",
+      productName: out["Product Name"] || "",
+    },
+  );
+  if (
+    out["Product Description"] &&
+    !isPlausibleField("Product Description", out["Product Description"])
+  ) {
+    out["Product Description"] = "";
+  }
 
   if (opts?.rawExcerpt && out["Shipping Remark"]) {
     const excerpt = String(opts.rawExcerpt || "").replace(/\s+/g, " ").trim()
@@ -1322,9 +1387,9 @@ async function ocrImageStructured(
     '- "Electric Product": 是否带电，填「带电产品」「非电产品」或空字符串。' +
     "只有当资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
     "不要凭品名(风扇/机器人/玩具等)猜测。毛绒/布艺/毡面/卡片类玩具通常无带电证据→留空。\n" +
-    '- "Product Description": 一句话描述产品是什么。' +
-    "有 Rating/电池时写入电气要点；纯实物照片可写材质/用途/主要部件" +
-    "（如「Felt face boards with interchangeable facial features and emotion flash cards for preschool SEL」）。\n" +
+    '- "Product Description": 仅当产品确实带电且有明确电气信息时填写（Rating/电压/功率/电池类型/充电方式）。' +
+    "不要写「带电产品：电池；材质：…；用途：…」这类模板。" +
+    "没有电气证据时必须留空字符串——不要凭外观编造电池/材质/用途填进本字段。\n" +
     '- "EC REP": 欧代公司+地址（如有）\n' +
     '- "UK REP": 英代（如有）\n' +
     '- "marks": 图片上出现的合规标识数组，可能含 CE, UKCA, FC, FCC, RoHS, WEEE 等\n' +
@@ -1651,8 +1716,8 @@ async function structureFields(
     "4) Item#/model# 取 Model / Model No / 型号 / SKU / 货号（如 HT060）；不要把 NO/Number 或品名当型号\n" +
     "5) Electric Product：只有资料里明确出现电压/功率/Hz/电池/充电/电机/电源/Rating/Input/Output 等带电信息时才填「带电产品」；" +
     "明确写出非电/无电池才填「非电产品」；否则留空字符串。不要凭品名(风扇/机器人/玩具)猜测带电。\n" +
-    "6) Product Description：带电时写入 Rating/电池/充电等要点；" +
-    "纯实物照片可写材质/用途/主要部件（一句话，勿写长篇营销文案）。\n" +
+    "6) Product Description：仅当 Electric Product=带电产品 且资料有明确电气信息时填写 Rating/电池/充电等要点。" +
+    "禁止编造「带电产品：电池；材质：毛绒；用途：情绪教育」这类模板；没有电气证据则留空。\n" +
     "7) Shipping Remark 可汇总批号、生产日期、欧代、合规标识\n" +
     "8) Program：只能从下列固定列表中选择完整字符串之一，禁止自创：" +
     PROGRAM_CATALOG.map((p) => `「${p}」`).join("、") +
