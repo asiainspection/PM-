@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SP-35404 Location Search Tester</title>
+<style>
+  :root {
+    --header-bg: #1f2d3d;
+    --header-fg: #ffffff;
+    --accent: #2f7cd2;
+    --accent-hover: #2569b8;
+    --border: #e2e6ea;
+    --error-bg: #fdecea;
+    --error-fg: #b3261e;
+    --ok-fg: #1b7a3d;
+    --muted: #6b7785;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #1f2d3d;
+    background: #f3f5f8;
+  }
+  header {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    padding: 18px 28px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.12);
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .3px; }
+  header .sub { margin-top: 4px; font-size: 12px; color: #b7c4d4; }
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 28px 48px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  }
+  .endpoint { font-family: Consolas, "Courier New", monospace; font-size: 12px; color: #33414f; background: #f0f3f7; padding: 2px 6px; border-radius: 3px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .status-line { margin: 14px 0 4px; font-size: 13px; }
+  .count { font-weight: 600; color: var(--ok-fg); }
+  .count.zero { color: var(--muted); }
+
+  /* autocomplete */
+  .autocomplete-row { display: flex; align-items: center; gap: 10px; }
+  .field-label { font-size: 14px; font-weight: 600; color: #2c3e50; white-space: nowrap; }
+  .autocomplete { position: relative; flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 220px; }
+  input[type="text"] {
+    flex: 1 1 auto;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid #c4ccd6;
+    border-radius: 5px;
+    outline: none;
+    background: #fff;
+  }
+  input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(47,124,210,.15); }
+
+  .chip {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 auto;
+    min-height: 38px;
+    padding: 4px 4px 4px 12px;
+    background: #eef4fb;
+    border: 1px solid #cfe0f3;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #1f3a5f;
+  }
+  .chip.show { display: flex; }
+  .chip-text { flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip-x {
+    flex: 0 0 auto;
+    width: 20px; height: 20px;
+    line-height: 18px; text-align: center;
+    border-radius: 50%;
+    background: #fff;
+    color: #6b7785;
+    cursor: pointer;
+    font-size: 15px;
+    border: 1px solid #d4dde6;
+    user-select: none;
+  }
+  .chip-x:hover { background: #b3261e; color: #fff; border-color: #b3261e; }
+  .spinner-inline {
+    width: 16px; height: 16px; border: 2px solid #cfd8e3; border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite; display: none; flex: 0 0 auto;
+  }
+  .spinner-inline.show { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .autocomplete-list {
+    display: none;
+    position: absolute;
+    left: 0; right: 0; top: calc(100% + 4px);
+    max-height: 320px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(31,45,61,.18);
+    z-index: 50;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .autocomplete-list.show { display: block; }
+  .autocomplete-item {
+    padding: 9px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f3f7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover,
+  .autocomplete-item.active { background: #eef4fb; }
+  .autocomplete-empty { padding: 12px; font-size: 13px; color: var(--muted); }
+
+  .error-box {
+    display: none;
+    background: var(--error-bg); color: var(--error-fg);
+    border: 1px solid #f5c6c0; border-radius: 6px;
+    padding: 12px 14px; margin-top: 12px; font-size: 13px;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .error-box.show { display: block; }
+  .error-box .label { font-weight: 600; display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>SP-35404 · Geography Location Search Tester</h1>
+  <div class="sub">Backend: <span class="endpoint">https://api-gateway.qcore-preprod.qima.com/geography/location/search?name={keyword}</span></div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="autocomplete-row">
+      <label class="field-label" for="keyword">Location :</label>
+      <div class="autocomplete">
+        <div class="chip" id="selectedChip">
+          <span class="chip-text" id="chipText"></span>
+          <span class="chip-x" id="chipX" title="Clear">&times;</span>
+        </div>
+        <input id="keyword" type="text" placeholder="Enter city / district keyword, e.g. futian" value="futian" autocomplete="off" />
+        <span class="spinner-inline" id="spinner"></span>
+        <ul class="autocomplete-list" id="resultList"></ul>
+      </div>
+    </div>
+    <div class="hint">Auto-search when keyword length &gt; 2. Pick an item to fill the input. Case-insensitive fuzzy match, up to 100 rows.</div>
+    <div class="status-line" id="statusLine"></div>
+    <div class="error-box" id="errorBox">
+      <span class="label" id="errorLabel"></span>
+      <span id="errorBody"></span>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var BASE = "https://api-gateway.qcore-preprod.qima.com/param-service/geography/location/search";
+  var MIN_CHARS = 2;
+  var DEBOUNCE_MS = 250;
+
+  var keywordEl = document.getElementById("keyword");
+  var spinner = document.getElementById("spinner");
+  var statusLine = document.getElementById("statusLine");
+  var errorBox = document.getElementById("errorBox");
+  var errorLabel = document.getElementById("errorLabel");
+  var errorBody = document.getElementById("errorBody");
+  var resultList = document.getElementById("resultList");
+  var selectedChip = document.getElementById("selectedChip");
+  var chipText = document.getElementById("chipText");
+  var chipX = document.getElementById("chipX");
+
+  var debounceTimer = null;
+  var currentReq = null;
+  var lastResults = [];
+  var activeIndex = -1;
+  var suppressSearch = false;
+
+  function setStatus(text, isZero) {
+    statusLine.innerHTML = text || "";
+    var c = statusLine.querySelector(".count");
+    if (c) c.classList.toggle("zero", !!isZero);
+  }
+
+  function showError(label, body) {
+    errorLabel.textContent = label;
+    errorBody.textContent = body || "";
+    errorBox.classList.add("show");
+  }
+  function clearError() { errorBox.classList.remove("show"); errorBody.textContent = ""; }
+
+  function hideList() {
+    resultList.classList.remove("show");
+    resultList.innerHTML = "";
+    activeIndex = -1;
+  }
+
+  function showList() { resultList.classList.add("show"); }
+
+  function renderItems(rows) {
+    lastResults = rows || [];
+    resultList.innerHTML = "";
+    if (lastResults.length === 0) {
+      var li = document.createElement("li");
+      li.className = "autocomplete-empty";
+      li.textContent = "No matching locations.";
+      resultList.appendChild(li);
+      showList();
+      activeIndex = -1;
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    lastResults.forEach(function (r, i) {
+      var li = document.createElement("li");
+      li.className = "autocomplete-item";
+      li.textContent = r.result == null ? "" : String(r.result);
+      li.dataset.index = i;
+      li.addEventListener("mousedown", function (e) {
+        e.preventDefault();
+        pickItem(i);
+      });
+      frag.appendChild(li);
+    });
+    resultList.appendChild(frag);
+    activeIndex = -1;
+    showList();
+  }
+
+  function pickItem(i) {
+    if (!lastResults[i]) return;
+    suppressSearch = true;
+    var text = lastResults[i].result == null ? "" : String(lastResults[i].result);
+    keywordEl.value = text;
+    chipText.textContent = text;
+    selectedChip.classList.add("show");
+    keywordEl.style.display = "none";
+    hideList();
+    clearError();
+    setStatus('Selected: "' + escapeHtml(text) + '"', false);
+    setTimeout(function () { suppressSearch = false; }, 300);
+  }
+
+  function clearSelection() {
+    suppressSearch = true;
+    selectedChip.classList.remove("show");
+    keywordEl.style.display = "";
+    keywordEl.value = "";
+    hideList();
+    clearError();
+    setStatus("", true);
+    keywordEl.focus();
+    setTimeout(function () { suppressSearch = false; }, 300);
+  }
+
+  function setActive(idx) {
+    var items = resultList.querySelectorAll(".autocomplete-item");
+    if (items.length === 0) return;
+    if (idx < 0) idx = items.length - 1;
+    if (idx >= items.length) idx = 0;
+    activeIndex = idx;
+    items.forEach(function (el, i) { el.classList.toggle("active", i === idx); });
+    var el = items[idx];
+    if (el) el.scrollIntoView({ block: "nearest" });
+  }
+
+  function doSearch() {
+    if (suppressSearch) return;
+    var kw = (keywordEl.value || "").trim();
+    if (kw.length <= MIN_CHARS) {
+      hideList();
+      setStatus("", true);
+      clearError();
+      return;
+    }
+    clearError();
+    spinner.classList.add("show");
+    setStatus("Searching ...", true);
+
+    if (currentReq) { try { currentReq.abort(); } catch (e) {} }
+
+    var url = BASE + "?name=" + encodeURIComponent(kw);
+    var xhr = new XMLHttpRequest();
+    currentReq = xhr;
+    xhr.open("GET", url, true);
+    xhr.timeout = 20000;
+
+    var startTime = performance.now();
+
+    xhr.onload = function () {
+      if (currentReq !== xhr) return;
+      currentReq = null;
+      spinner.classList.remove("show");
+      var elapsed = Math.round(performance.now() - startTime);
+      var status = xhr.status;
+      var raw = xhr.responseText;
+      if (status >= 200 && status < 300) {
+        try {
+          var data = JSON.parse(raw);
+          if (!Array.isArray(data)) {
+            throw new Error("Response is not a JSON array. Got: " + Object.prototype.toString.call(data));
+          }
+          renderItems(data);
+          var shown = data.length;
+          var note = shown >= 100 ? " (max 100, more may exist)" : "";
+          setStatus('<span class="count">' + shown + ' results</span> for "' + escapeHtml(kw) + '"' + note + ' · HTTP ' + status + ' · ' + elapsed + ' ms', shown === 0);
+        } catch (e) {
+          hideList();
+          showError("JSON parse failed (HTTP " + status + ")", raw + "\n\n" + (e && e.message ? e.message : e));
+          setStatus("Parse error · " + elapsed + " ms", true);
+        }
+      } else {
+        hideList();
+        showError("HTTP " + status + " " + xhr.statusText, raw);
+        setStatus("Request failed (HTTP " + status + ") · " + elapsed + " ms", true);
+      }
+    };
+
+    xhr.onerror = function () {
+      if (currentReq !== xhr) return;
+      currentReq = null;
+      spinner.classList.remove("show");
+      var elapsed = Math.round(performance.now() - startTime);
+      hideList();
+      var msg = "Network/CORS error. The request did not complete.\n" +
+        "If the console shows 'Access-Control-Allow-Origin', enable @CrossOrigin on the backend, or open via Chrome with --disable-web-security.\n" +
+        "URL: " + url;
+      showError("Request failed", msg);
+      setStatus("Network/CORS error · " + elapsed + " ms", true);
+    };
+
+    xhr.ontimeout = function () {
+      if (currentReq !== xhr) return;
+      currentReq = null;
+      spinner.classList.remove("show");
+      hideList();
+      var elapsed = Math.round(performance.now() - startTime);
+      showError("Timeout", "Request to " + url + " timed out after 20s. Is the PP API gateway reachable?");
+      setStatus("Timeout · " + elapsed + " ms", true);
+    };
+
+    xhr.send();
+  }
+
+  function scheduleSearch() {
+    if (suppressSearch) return;
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(doSearch, DEBOUNCE_MS);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (m) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m];
+    });
+  }
+
+  keywordEl.addEventListener("input", scheduleSearch);
+
+  keywordEl.addEventListener("keydown", function (e) {
+    var visible = resultList.classList.contains("show");
+    if (e.key === "ArrowDown" && lastResults.length) {
+      e.preventDefault();
+      if (!visible) showList();
+      setActive(activeIndex + 1);
+    } else if (e.key === "ArrowUp" && lastResults.length) {
+      e.preventDefault();
+      setActive(activeIndex - 1);
+    } else if (e.key === "Enter") {
+      if (visible && activeIndex >= 0 && lastResults[activeIndex]) {
+        e.preventDefault();
+        pickItem(activeIndex);
+      }
+    } else if (e.key === "Escape") {
+      hideList();
+    }
+  });
+
+  keywordEl.addEventListener("focus", function () {
+    if (lastResults.length && (keywordEl.value || "").trim().length > MIN_CHARS) showList();
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".autocomplete")) hideList();
+  });
+
+  chipX.addEventListener("click", function (e) {
+    e.stopPropagation();
+    clearSelection();
+  });
+
+  doSearch();
+})();
+</script>
+</body>
+</html>
