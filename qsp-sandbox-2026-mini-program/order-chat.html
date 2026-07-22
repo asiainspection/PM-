@@ -1094,12 +1094,12 @@
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260714c"></script>
-<script src="assets/i18n/en.js?v=20260714c"></script>
+<script src="assets/i18n/zh.js?v=20260722a"></script>
+<script src="assets/i18n/en.js?v=20260722a"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
-<script src="assets/label-parse.js?v=20260716b"></script>
+<script src="assets/label-parse.js?v=20260722a"></script>
 </head>
 <body>
   <div class="phone">
@@ -1679,10 +1679,20 @@
 
     function chipsRow(inner){ return '<div style="width:268px"><div class="chips">'+inner+'</div></div>'; }
 
+    /** AI补充信息 + 手动补充信息 (optionally + place order / edit). */
+    function completeInfoChips(extra){
+      var html =
+        I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)') +
+        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()');
+      if(extra) html += extra;
+      return chipsRow(html);
+    }
+
     function placeOrderChips(extra){
       var missing = (typeof getOrderBlockers === 'function') ? getOrderBlockers() : [];
       var html = missing.length
-        ? I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()') +
+        ? I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)') +
+          I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()') +
           I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
         : I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)') +
           I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)');
@@ -2087,57 +2097,103 @@
     }
 
     // 2) 首次测试 → 请求上传资料 / 链接
-    function askUpload(){
+    function retirePreviousInputPanels(){
+      document.querySelectorAll('#chat .panel.panel-pad').forEach(function(panel){
+        if(!panel.querySelector('.parse-btn, .voice-panel, .input-card-stack')) return;
+        panel.querySelectorAll('[id]').forEach(function(el){ el.removeAttribute('id'); });
+        panel.classList.add('input-panel-retired');
+      });
+    }
+
+    function buildAiInputCardHtml(opts){
+      opts = opts || {};
+      var title = opts.title || t('orderChat.uploadTitle');
+      var showTips = opts.showTips !== false;
+      var showManual = opts.showManual !== false;
+      var html = '<div class="panel panel-pad">';
+      if(title) html += '<div class="panel-title">'+title+'</div>';
+      if(showTips){
+        html +=
+          '<div class="input-guide">'+
+            '<div class="voice-tips-title">'+t('orderChat.voiceTipsTitle')+'</div>'+
+            '<ul class="voice-tips-list">'+t('orderChat.voiceTipsList')+'</ul>'+
+          '</div>';
+      }
+      html +=
+        '<div class="input-card-stack">'+
+          '<div class="input-card input-section">'+
+            '<div class="input-card-title"><span class="input-card-title-main"><span class="input-card-icon">🎤</span>'+t('orderChat.voiceSectionTitle')+'</span></div>'+
+            '<div class="voice-panel" id="voicePanel">'+
+              '<button class="voice-btn" id="voiceBtn" type="button" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
+            '</div>'+
+            '<div class="voice-transcript" id="voiceTranscript">'+
+              '<div class="voice-transcript-label">'+t('orderChat.voiceTranscriptLabel')+'</div>'+
+              '<textarea class="voice-transcript-text" id="voiceTranscriptText" placeholder="'+t('orderChat.voiceTranscriptPlaceholder')+'" oninput="onVoiceTranscriptInput()"></textarea>'+
+            '</div>'+
+          '</div>'+
+          '<div class="input-card input-section">'+
+            '<div class="input-card-title primary"><span class="input-card-title-main"><span class="input-card-icon">🔗</span>'+t('orderChat.linkSectionTitle')+'</span></div>'+
+            '<div class="link-row"><input id="linkIn" placeholder="'+t('orderChat.linkPlaceholder')+'" oninput="updateParseButtonState()"></div>'+
+          '</div>'+
+          '<div class="input-card">'+
+            '<div class="input-card-title">'+
+              '<span class="input-card-title-main"><span class="input-card-icon">📎</span>'+t('orderChat.uploadMaterialsTitle')+'</span>'+
+              '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
+            '</div>'+
+            '<div class="upload-card-actions">'+
+              '<button class="upload-card-btn primary" type="button" onclick="doUpload(\'photo\')">'+
+                '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>'+
+                t('orderChat.cameraCapture')+
+              '</button>'+
+              '<button class="upload-card-btn" type="button" onclick="openProductFilePicker()">'+
+                '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>'+
+                t('orderChat.uploadDocOptional')+
+              '</button>'+
+            '</div>'+
+            '<div class="uploaded-files" id="uploadedFiles"></div>'+
+          '</div>'+
+        '</div>'+
+        '<button class="parse-btn" id="parseBtn" type="button" onclick="doParse()" disabled>'+t('orderChat.parseBtn')+'</button>';
+      if(showManual){
+        html += '<button class="manual-fill" onclick="startManualFill()">'+t('orderChat.noDataFill')+'</button>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function resetAiInputSession(){
       hasUploadedFiles = false;
       hasVoiceInput = false;
       voiceTranscript = '';
       voiceRecording = false;
       voiceProcessing = false;
+      uploadedFileList = [];
+    }
+
+    function askUpload(){
+      retirePreviousInputPanels();
+      resetAiInputSession();
       botMsg(tHtml('orderChat.newProductMsg'), false);
-      const card =
-        '<div class="panel panel-pad">'+
-          '<div class="panel-title">'+t('orderChat.uploadTitle')+'</div>'+
-          '<div class="input-guide">'+
-            '<div class="voice-tips-title">'+t('orderChat.voiceTipsTitle')+'</div>'+
-            '<ul class="voice-tips-list">'+t('orderChat.voiceTipsList')+'</ul>'+
-          '</div>'+
-          '<div class="input-card-stack">'+
-            '<div class="input-card input-section">'+
-              '<div class="input-card-title"><span class="input-card-title-main"><span class="input-card-icon">🎤</span>'+t('orderChat.voiceSectionTitle')+'</span></div>'+
-              '<div class="voice-panel" id="voicePanel">'+
-                '<button class="voice-btn" id="voiceBtn" type="button" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
-              '</div>'+
-              '<div class="voice-transcript" id="voiceTranscript">'+
-                '<div class="voice-transcript-label">'+t('orderChat.voiceTranscriptLabel')+'</div>'+
-                '<textarea class="voice-transcript-text" id="voiceTranscriptText" placeholder="'+t('orderChat.voiceTranscriptPlaceholder')+'" oninput="onVoiceTranscriptInput()"></textarea>'+
-              '</div>'+
-            '</div>'+
-            '<div class="input-card input-section">'+
-              '<div class="input-card-title primary"><span class="input-card-title-main"><span class="input-card-icon">🔗</span>'+t('orderChat.linkSectionTitle')+'</span></div>'+
-              '<div class="link-row"><input id="linkIn" placeholder="'+t('orderChat.linkPlaceholder')+'" oninput="updateParseButtonState()"></div>'+
-            '</div>'+
-            '<div class="input-card">'+
-              '<div class="input-card-title">'+
-                '<span class="input-card-title-main"><span class="input-card-icon">📎</span>'+t('orderChat.uploadMaterialsTitle')+'</span>'+
-                '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
-              '</div>'+
-              '<div class="upload-card-actions">'+
-                '<button class="upload-card-btn primary" type="button" onclick="doUpload(\'photo\')">'+
-                  '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>'+
-                  t('orderChat.cameraCapture')+
-                '</button>'+
-                '<button class="upload-card-btn" type="button" onclick="openProductFilePicker()">'+
-                  '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>'+
-                  t('orderChat.uploadDocOptional')+
-                '</button>'+
-              '</div>'+
-              '<div class="uploaded-files" id="uploadedFiles"></div>'+
-            '</div>'+
-          '</div>'+
-          '<button class="parse-btn" id="parseBtn" type="button" onclick="doParse()" disabled>'+t('orderChat.parseBtn')+'</button>'+
-          '<button class="manual-fill" onclick="startManualFill()">'+t('orderChat.noDataFill')+'</button>'+
-        '</div>';
-      botMsg(card, true);
+      botMsg(buildAiInputCardHtml({
+        title: t('orderChat.uploadTitle'),
+        showTips: true,
+        showManual: true
+      }), true);
+    }
+
+    /** After partial recognition: show slim AI card (voice / link / files) to fill gaps. */
+    function askAiSupplement(btn){
+      removeActionRow(btn);
+      userMsg(t('orderChat.chipAiSupplement'));
+      retirePreviousInputPanels();
+      resetAiInputSession();
+      botMsg(t('orderChat.aiSupplementPrompt'), false);
+      botMsg(buildAiInputCardHtml({
+        title: t('orderChat.aiSupplementTitle'),
+        showTips: false,
+        showManual: false
+      }), true);
+      setTimeout(function(){ updateParseButtonState(); }, 0);
     }
 
     let voiceRecording = false;
@@ -3215,7 +3271,7 @@
         if(fallback && fallback.fields && Object.keys(fallback.fields).some(function(k){ return fallback.fields[k]; })){
           runRecognize(src, fallback);
         } else {
-          botMsg(chipsRow(I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')+I18n.chipHtml('orderChat.noDataFill','plus','startManualFill()')), true);
+          botMsg(completeInfoChips(I18n.chipHtml('orderChat.noDataFill','plus','startManualFill()')), true);
         }
       });
     }
@@ -3592,7 +3648,7 @@
       const missingCore = getMissingRequiredFields();
       if(!missingCore.length) return;
       botMsg(tHtml('orderChat.continueFillMissing', { count: missingCore.length }), false);
-      botMsg(chipsRow(I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')), true);
+      botMsg(completeInfoChips(), true);
     }
 
     function selectFieldCard(item, source){
@@ -4447,9 +4503,9 @@
 
           if(needForm){
             botMsg(t('orderChat.fillMissingInForm'), false);
-            botMsg(chipsRow(I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')), true);
+            botMsg(completeInfoChips(), true);
           } else {
-            botMsg(chipsRow(I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')+I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')), true);
+            botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')), true);
           }
         }, 600);
       }, 500);
@@ -5000,7 +5056,7 @@
       } else {
         botMsg(tHtml('orderChat.savedEditPartial', {percent: completion, count: missing.length}), false);
         botMsg(t('orderChat.fillMissingInForm'), false);
-        botMsg(chipsRow(I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')+I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
+        botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
       }
     }
 
@@ -5050,7 +5106,8 @@
         fields: labels
       }), false);
       botMsg(chipsRow(
-        I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')+
+        I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)')+
+        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')+
         I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
       ), true);
       return true;
@@ -5189,10 +5246,7 @@
         } else {
           botMsg(tHtml('orderChat.savedEditPartial', {percent: calculateRequiredCompletion(), count: missing.length}), false);
           botMsg(t('orderChat.fillMissingInForm'), false);
-          botMsg(chipsRow(
-            I18n.chipHtml('orderChat.chipReviewForm','edit','openManualFormModalForComplete()')+
-            I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')
-          ), true);
+          botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
         }
       }, 500);
     }
