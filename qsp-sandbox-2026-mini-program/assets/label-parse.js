@@ -156,17 +156,25 @@
       return 'eyewear';
     }
     // 5) Electric — only with concrete powered evidence (never from category guess alone)
+    // Skip when user explicitly said 不带电 / 非电 (do not match 带电 inside 不带电)
+    var electricNegated = /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric|without\s+batter|no\s+batter|battery[-\s]?free|__ELECTRIC_NO__/i.test(blob) ||
+      /非电(?:产品)?|不带电|不含电池|无电池|不带电源/.test(t);
+    var electricBlob = blob.replace(
+      /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric(?:\s+product)?|without\s+batter(?:y|ies)|no\s+batter(?:y|ies)|battery[-\s]?free|__ELECTRIC_NO__/gi,
+      ' '
+    );
     if (
-      electricHint ||
+      !electricNegated &&
+      (electricHint ||
       /__ELECTRIC_YES__/i.test(t) ||
-      /\b(?:electric\s+fan|electric\s+product|electronics?|voltage|charger|motor|adapter)\b/i.test(blob) ||
-      /电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电/.test(blob) ||
-      /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(blob)
+      /\b(?:electric\s+fan|electric\s+product|electronics?|voltage|charger|motor|adapter)\b/i.test(electricBlob) ||
+      /电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电/.test(electricBlob) ||
+      /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(electricBlob))
     ) {
       var toyCue = /\b(?:toy|toys|en\s*71|cpsia)\b/i.test(blob) || /玩具|机器人玩具|积木|毛绒/.test(blob);
       var electricName = /\b(?:fan|lamp|light|heater|blender|mixer|vacuum|speaker|headphones?|earphones?|shaver|straightener|hair\s*dryer)\b/i.test(blob) ||
-        /耳机|风扇|台灯|吹风机|充电器|剃须刀|直发器|带电产品|电子产品/.test(blob) ||
-        /electric\s+product/i.test(blob);
+        /耳机|风扇|台灯|吹风机|充电器|剃须刀|直发器|带电产品|电子产品/.test(electricBlob) ||
+        /electric\s+product/i.test(electricBlob);
       if (electricName || (electricHint && !toyCue)) {
         return 'electric';
       }
@@ -283,8 +291,12 @@
     var matched = matchProgramFromText(hintText, {
       productName: out['Product Name'] || '',
       electricYes: out['Electric Product'] === '__ELECTRIC_YES__' ||
-        /带电|electric\s*yes|^electric$/i.test(String(out['Electric Product'] || ''))
+        (/带电|electric\s*yes|^electric$/i.test(String(out['Electric Product'] || '')) &&
+          !/非电|不带电|__ELECTRIC_NO__/i.test(String(out['Electric Product'] || '')))
     });
+    var electricNo = out['Electric Product'] === '__ELECTRIC_NO__' ||
+      /非电|不带电/i.test(String(out['Electric Product'] || '')) ||
+      /不带电|非电(?:产品)?/.test(hintText);
     if (existing) {
       // Reconcile: only override with HIGH-CONFIDENCE detector categories
       // (chemical->MSDS, electric, eyewear, sh_self) where keyword evidence is
@@ -293,7 +305,16 @@
       var STRONG = { msds: 1, electric: 1, eyewear: 1, sh_self: 1 };
       var existingCat = programLabelCategory(existing);
       var detectedCat = programLabelCategory(matched);
+      // User said 不带电 → drop Electric program even if LLM had picked it
+      if (electricNo && existingCat === 'electric') {
+        out.Program = (detectedCat && detectedCat !== 'electric' ? matched : '') || PROGRAM_BY_KEY.default;
+        return out;
+      }
       if (detectedCat && STRONG[detectedCat] && detectedCat !== existingCat) {
+        if (detectedCat === 'electric' && electricNo) {
+          out.Program = existingCat === 'electric' ? (PROGRAM_BY_KEY.default) : existing;
+          return out;
+        }
         var payer = /temu\s*pay|temu付款/i.test(existing) ? 'temu' : 'seller';
         var key = detectedCat === 'non_sleepwear' ? 'non_sleepwear_' + payer : detectedCat + '_' + payer;
         if (!PROGRAM_BY_KEY[key]) {
@@ -460,8 +481,9 @@
     )[0];
 
     // Cut Chinese trailing clauses / form neighbors (规格|标准|型号…)
+    // Put 不带电/非电产品 BEFORE bare 带电 so "产品不带电" does not become "产品不"
     name = name.split(
-      /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/
+      /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|不带电|非电(?:产品)?|不含电池|无电池|样品收集方式|快递公司|承运商|带电|非电|样本|送样|寄送)/
     )[0];
 
     // Drop leading articles / quantifiers
@@ -527,7 +549,11 @@
   function looksLikeNonProductName(s) {
     var t = String(s || '').replace(/\s+/g, ' ').trim();
     if (!t) return true;
-    if (/^(?:型号|名称|品名|规格|标准|Manufacturer|Model|Rating|Address|Product)$/i.test(t)) {
+    if (/^(?:型号|名称|品名|规格|标准|产品|Product|Manufacturer|Model|Rating|Address)$/i.test(t)) {
+      return true;
+    }
+    // Truncated junk from "产品不带电…" etc.
+    if (/^产品不|^品名不|^名称不/.test(t) || t.length <= 3 && /产品|品名/.test(t)) {
       return true;
     }
     // Watermark / site junk from scanned docs
@@ -867,21 +893,9 @@
         // Restrict to the demo carrier catalog; blank anything else
         candidate = resolveCarrierCatalog(raw);
       } else if (key === 'Electric Product') {
-        // Require concrete electrical evidence before accepting "带电产品"
-        // from LLM/OCR. No evidence → leave empty (待确认), never guess.
-        // Do NOT use Product Description as evidence — LLM often invents
-        // "带电产品：电池" there, which would circularly confirm itself.
-        var elecLower = String(candidate || '').toLowerCase();
-        var saysYes = /__ELECTRIC_YES__|带电产品|带电|electric|yes/i.test(elecLower);
-        var saysNo = /__ELECTRIC_NO__|非电产品|非电|non[-\s]?electric|no/i.test(elecLower);
+        // Sentinels first — never let /electric|no/ match inside __ELECTRIC_NO__
         var elecEvidenceText = [rawExcerpt, flat['Product Name'], flat['Item#/model#']].join('\n');
-        if (saysYes && !saysNo) {
-          candidate = hasElectricEvidence(elecEvidenceText) ? '__ELECTRIC_YES__' : '';
-        } else if (saysNo && !saysYes) {
-          candidate = '__ELECTRIC_NO__';
-        } else {
-          candidate = '';
-        }
+        candidate = normalizeElectricCandidate(candidate, elecEvidenceText);
       } else if (key === 'Product Description') {
         // Cleaned after Electric Product is known (see below)
         candidate = raw;
@@ -1011,8 +1025,15 @@
 
     var cleaned = cleanProductName(candidate);
     if (cleaned) return cleaned;
+    // Supplement-only utterances (不带电 / 顺丰…) must NOT become Product Name
+    if (/不带电|非电|样品收集|快递公司|承运商|运单号|tracking/i.test(raw) &&
+      !/产品名称|品名|产品(?:叫|是|名为)|product\s*name/i.test(raw)) {
+      return '';
+    }
     // Last resort: clean the whole utterance (handles service wrappers / I-need-testing-for)
-    return cleanProductName(raw);
+    var whole = cleanProductName(raw);
+    if (whole && looksLikeNonProductName(whole)) return '';
+    return whole;
   }
 
   function normalizeOrigin(raw) {
@@ -1705,7 +1726,34 @@
   function hasElectricEvidence(text) {
     var t = String(text || '');
     if (!t) return false;
+    // Strip negated phrases first so "不带电" / "非电产品" never count as 带电 evidence
+    t = t.replace(
+      /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric(?:\s+product)?|without\s+batter(?:y|ies)|no\s+batter(?:y|ies)|battery[-\s]?free/gi,
+      ' '
+    );
     return /(?:\b\d+(?:\.\d+)?\s*(?:V(?:olt)?|W(?:att)?|Hz|mA|A)\b)|battery|batteries|rechargeable|锂电池|干电池|纽扣电池|蓄电池|充电电池|电池|charger|充电|adapter|适配器|电源|电机|马达|电动|Rated|Rating|Input|Output|Power\s*supply|USB|Type-?C|DC\s*in|AC\s*adapter|电压|功率|电流|带电|electric\s+product|带电产品/i.test(t);
+  }
+
+  /** Normalize Electric Product candidate; sentinels first (avoid /electric|no/ matching __ELECTRIC_NO__). */
+  function normalizeElectricCandidate(raw, evidenceText) {
+    var v = String(raw || '').trim();
+    if (!v) return '';
+    if (/^__ELECTRIC_YES__$/i.test(v)) {
+      return hasElectricEvidence(evidenceText) ? '__ELECTRIC_YES__' : '';
+    }
+    if (/^__ELECTRIC_NO__$/i.test(v)) return '__ELECTRIC_NO__';
+    var lower = v.toLowerCase();
+    var saysNo = /非电产品|非电|不带电|不含电池|无电池|non[-\s]?electric|without\s+batter|no\s+batter|battery[-\s]?free|^no$/i.test(v);
+    var saysYes = /带电产品|^带电$|electric\s+product|contains?\s+batter|^yes$|^electric$/i.test(v);
+    if (saysNo && !saysYes) return '__ELECTRIC_NO__';
+    if (saysYes && !saysNo) {
+      return hasElectricEvidence(evidenceText) ? '__ELECTRIC_YES__' : '';
+    }
+    // Bare Chinese "带电" without 不/非
+    if (/(?:^|[^不非])带电/.test(v) && !/不带电|非电/.test(v)) {
+      return hasElectricEvidence(evidenceText || v) ? '__ELECTRIC_YES__' : '';
+    }
+    return '';
   }
 
   function extractSpokenRegions(text) {
@@ -1759,7 +1807,12 @@
     if (/现场收集|服务时收集|检验时收集|上门取样|QIMA\s*将?在|启迈.*收集/i.test(text)) {
       return 'collect';
     }
-    if (/寄送|邮寄|快递.*样本|我们.*寄|供应商.*寄|送样/i.test(text)) {
+    // "样品收集方式是顺丰" → user will ship samples via that carrier
+    if (
+      /样品收集方式\s*[是为：:]?\s*(?:顺丰|中通|圆通|韵达|京东|极兔|申通|SF|ZTO|YTO|STO|Yunda|JD|JT)/i.test(text) ||
+      /(?:用|通过|走)?(?:顺丰|中通|圆通|韵达|京东|极兔|申通).{0,12}(?:寄|送样|样本|快递)/i.test(text) ||
+      /寄送|邮寄|快递.*样本|我们.*寄|供应商.*寄|送样/i.test(text)
+    ) {
       return 'ship';
     }
     return '';
@@ -1839,10 +1892,11 @@
 
     var carrier = pick(text, [
       /承运商\s*[是为：:]\s*([^\n，。,]{2,40})/,
-      /快递\s*[是为：:]\s*([^\n，。,]{2,40})/,
-      /(?:顺丰|中通|圆通|韵达|京东|DHL|UPS|FedEx)/
+      /快递(?:公司)?\s*[是为：:]\s*([^\n，。,]{2,40})/,
+      /样品收集方式\s*[是为：:]\s*([^\n，。,]{2,40})/,
+      /((?:顺丰(?:速运|快递)?|中通(?:快递)?|圆通(?:速递)?|韵达(?:快递)?|京东(?:物流|快递)?|极兔(?:速递)?|申通(?:快递)?|SF\s*Express|DHL|UPS|FedEx))/i
     ]);
-    if (carrier && /顺丰|SF/i.test(carrier)) carrier = '顺丰速运';
+    carrier = resolveCarrierCatalog(carrier) || '';
     var tracking = pick(text, [
       /运单号\s*[是为：:]\s*([A-Za-z0-9]{6,40})/,
       /快递单号\s*[是为：:]\s*([A-Za-z0-9]{6,40})/,
@@ -1901,17 +1955,34 @@
         out[key] = av + '；' + bv;
         return;
       }
-      // Prefer explicit electric yes/no when either side has it
+      // Prefer explicit electric yes/no when either side has it.
+      // Explicit NO wins over YES when either side is NO (user correction / 不带电).
       if (key === 'Electric Product') {
+        if (av === '__ELECTRIC_NO__' || bv === '__ELECTRIC_NO__') {
+          out[key] = '__ELECTRIC_NO__';
+          return;
+        }
+        if (av === '__ELECTRIC_YES__' || bv === '__ELECTRIC_YES__') {
+          out[key] = '__ELECTRIC_YES__';
+          return;
+        }
         out[key] = av || bv;
-        if (av === '__ELECTRIC_YES__' || bv === '__ELECTRIC_YES__') out[key] = '__ELECTRIC_YES__';
-        else if (av === '__ELECTRIC_NO__' || bv === '__ELECTRIC_NO__') out[key] = out[key] || '__ELECTRIC_NO__';
+        return;
+      }
+      // Prefer longer / existing-looking product names over junk like "产品"
+      if (key === 'Product Name') {
+        var nameA = av ? (cleanProductName(av) || '') : '';
+        var nameB = bv ? (cleanProductName(bv) || '') : '';
+        if (nameA && looksLikeNonProductName(nameA)) nameA = '';
+        if (nameB && looksLikeNonProductName(nameB)) nameB = '';
+        if (nameA && nameB) {
+          out[key] = nameA.length >= nameB.length ? nameA : nameB;
+        } else {
+          out[key] = nameA || nameB;
+        }
         return;
       }
       out[key] = av || bv;
-      if (key === 'Product Name' && out[key]) {
-        out[key] = cleanProductName(out[key]) || '';
-      }
     });
     var summaryA = (primary && primary.product_summary) || {};
     var summaryB = (secondary && secondary.product_summary) || {};

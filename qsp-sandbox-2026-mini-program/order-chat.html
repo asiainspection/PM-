@@ -1094,12 +1094,12 @@
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260722a"></script>
-<script src="assets/i18n/en.js?v=20260722a"></script>
+<script src="assets/i18n/zh.js?v=20260714c"></script>
+<script src="assets/i18n/en.js?v=20260714c"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
-<script src="assets/label-parse.js?v=20260722a"></script>
+<script src="assets/label-parse.js?v=20260716b"></script>
 </head>
 <body>
   <div class="phone">
@@ -2189,7 +2189,7 @@
       resetAiInputSession();
       botMsg(t('orderChat.aiSupplementPrompt'), false);
       botMsg(buildAiInputCardHtml({
-        title: t('orderChat.aiSupplementTitle'),
+        title: '',
         showTips: false,
         showManual: false
       }), true);
@@ -2914,8 +2914,47 @@
         const cleaned = QimaLabelParse.sanitizeParseResult({ fields: normalized });
         normalized = (cleaned && cleaned.fields) || normalized;
       }
+      // Keys the user can explicitly correct via AI supplement (overwrite allowed)
+      const correctionKeys = {
+        'Electric Product': 1,
+        'Product Description': 1,
+        'Sample Collection Method': 1,
+        Carrier: 1,
+        'Tracking Number': 1,
+        'Shipping Remark': 1
+      };
+      const hadAnyAnswers = Object.keys(manualAnswers).some(function(k){
+        return !!(manualAnswers[k] && String(manualAnswers[k]).trim());
+      });
       Object.keys(normalized).forEach(function(key){
-        if(normalized[key]) manualAnswers[key] = normalized[key];
+        const next = normalized[key];
+        if(!next) return;
+        const prev = manualAnswers[key];
+        if(key === 'Product Name'){
+          // Never replace a good name with junk / shorter garbage (e.g. "产品")
+          if(prev){
+            const prevOk = !window.QimaLabelParse ||
+              typeof QimaLabelParse.isPlausibleField !== 'function' ||
+              QimaLabelParse.isPlausibleField('Product Name', prev);
+            const nextOk = !window.QimaLabelParse ||
+              typeof QimaLabelParse.isPlausibleField !== 'function' ||
+              QimaLabelParse.isPlausibleField('Product Name', next);
+            if(prevOk && (!nextOk || String(next).length < String(prev).length)) return;
+          }
+        }
+        // AI supplement: only fill blanks, except explicit corrections (electric / sample / carrier)
+        if(hadAnyAnswers && prev && !correctionKeys[key]){
+          if(key === 'Program'){
+            // Allow dropping wrong Electric program when user said 不带电
+            const elec = normalized['Electric Product'] || '';
+            const electricNo = elec === '__ELECTRIC_NO__' || /非电|不带电/i.test(String(elec));
+            const prevElectric = /electric\s*product|电子产品/i.test(String(prev));
+            if(!(electricNo && prevElectric)) return;
+          } else {
+            return;
+          }
+        }
+        manualAnswers[key] = next;
       });
       resolveParsedSamplePlaceholders();
       fillManualFormFromAnswers();
@@ -4451,7 +4490,19 @@
 
     // 3) AI 识别 → 字段提取卡 + 进度 + 缺失确认
     function productSummaryCard(summary, fields){
-      const name = (summary && summary.name) || (fields && fields['Product Name']) || '';
+      const fieldName = (fields && fields['Product Name']) || '';
+      const summaryName = (summary && summary.name) || '';
+      // Prefer form field; ignore junk summary names like "产品"
+      let name = fieldName || summaryName;
+      if(fieldName && summaryName && window.QimaLabelParse && typeof QimaLabelParse.isPlausibleField === 'function'){
+        const fieldOk = QimaLabelParse.isPlausibleField('Product Name', fieldName);
+        const summaryOk = QimaLabelParse.isPlausibleField('Product Name', summaryName);
+        if(fieldOk) name = fieldName;
+        else if(summaryOk) name = summaryName;
+        else name = '';
+      } else if(summaryName && !fieldName && window.QimaLabelParse && typeof QimaLabelParse.isPlausibleField === 'function'){
+        if(!QimaLabelParse.isPlausibleField('Product Name', summaryName)) name = '';
+      }
       const brand = (summary && summary.brand) || '';
       const hint = (summary && summary.hint) || '';
       const displayName = name || t('orderChat.productUnrecognized');
