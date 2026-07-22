@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wireframe · Payments · 2 versions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #181818;
+      --ink-2: #444;
+      --ink-3: #777;
+      --line: #1c1c1c;
+      --line-soft: #c4c4c0;
+      --fill: #f2f2ef;
+      --fill-2: #e6e6e1;
+      --paper: #f7f7f3;
+      --ease: cubic-bezier(0.2, 0, 0, 1);
+      --font-a: "IBM Plex Sans", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+      --font-b: "Space Grotesk", system-ui, sans-serif;
+      --serif-b: "Newsreader", Georgia, serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: var(--font-a);
+      color: var(--ink);
+      background: var(--paper);
+      min-height: 100vh;
+      line-height: 1.4;
+    }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; background: none; border: none; }
+    .mono { font-family: var(--mono); font-size: 12px; }
+    .anno {
+      font-size: 11px; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--ink-3); font-weight: 600;
+    }
+    .hidden { display: none !important; }
+
+    /* —— Switcher chrome —— */
+    .switcher {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 12px;
+      padding: 12px 20px;
+      border-bottom: 2px solid var(--line);
+      background: #fff;
+    }
+    .switcher h1 { font-size: 15px; font-weight: 700; margin-right: 8px; }
+    .switcher .hint { font-size: 12px; color: var(--ink-3); flex: 1; min-width: 180px; }
+    .ver-btns { display: inline-flex; border: 2px solid var(--line); }
+    .ver-btns button {
+      padding: 8px 14px; font-size: 12px; font-weight: 700;
+      border-right: 2px solid var(--line);
+      background: #fff;
+    }
+    .ver-btns button:last-child { border-right: none; }
+    .ver-btns button.on { background: var(--ink); color: #fff; }
+    .ver-btns button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: 20px 16px 100px; }
+    .diff {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 720px) { .diff { grid-template-columns: 1fr; } }
+    .diff article {
+      border: 1.5px dashed var(--line-soft);
+      padding: 10px 12px; background: #fff; font-size: 12px; color: var(--ink-2);
+    }
+    .diff strong { color: var(--ink); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+
+    .toast {
+      position: fixed; right: 16px; bottom: 16px; z-index: 60;
+      border: 2px solid var(--line); background: #fff; padding: 12px 14px;
+      max-width: 300px; font-size: 13px;
+      box-shadow: 5px 5px 0 rgba(0,0,0,.1);
+      opacity: 0; transform: translateY(12px); pointer-events: none;
+      transition: opacity .2s var(--ease), transform .2s var(--ease);
+    }
+    .toast.show { opacity: 1; transform: none; }
+
+    /* ===================== VERSION A: Dense table ===================== */
+    .va .shell {
+      display: grid; grid-template-columns: 56px 1fr;
+      border: 2px solid var(--line); background: #fff; min-height: 620px;
+    }
+    .va .rail {
+      border-right: 2px solid var(--line); background: var(--fill);
+      padding: 12px 6px; display: flex; flex-direction: column; gap: 8px; align-items: center;
+    }
+    .va .ico {
+      width: 34px; height: 34px; border: 1.5px solid var(--line);
+      display: grid; place-items: center; font-size: 10px; font-weight: 700; background: #fff;
+      position: relative;
+    }
+    .va .ico.on { background: var(--ink); color: #fff; }
+    .va .ico .b {
+      position: absolute; top: -5px; right: -5px; min-width: 14px; height: 14px;
+      border: 1.5px solid var(--line); background: #fff; color: var(--ink);
+      font-size: 9px; font-weight: 700; display: grid; place-items: center; padding: 0 2px;
+    }
+    .va .main { display: flex; flex-direction: column; min-width: 0; }
+    .va .hdr { padding: 14px 16px 0; border-bottom: 2px solid var(--line); }
+    .va .hdr h2 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .va .tabs { display: flex; margin-top: 10px; }
+    .va .tabs button {
+      padding: 8px 14px; font-weight: 600; color: var(--ink-3);
+      border: 1.5px solid transparent; border-bottom: none; margin-bottom: -2px;
+    }
+    .va .tabs button.on {
+      color: var(--ink); border-color: var(--line); background: #fff; border-bottom: 2px solid #fff;
+    }
+    .va .toolbar {
+      padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: var(--fill); border-bottom: 1.5px solid var(--line);
+    }
+    .va .chip, .va .btn, .va .field {
+      border: 1.5px solid var(--line); background: #fff; padding: 6px 10px; font-size: 12px; font-weight: 500;
+    }
+    .va .chip.on, .va .btn.pri { background: var(--ink); color: #fff; }
+    .va .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .va .seg { display: inline-flex; border: 1.5px solid var(--line); background: #fff; }
+    .va .seg button { border: none; border-right: 1.5px solid var(--line); padding: 6px 10px; font-size: 12px; font-weight: 600; }
+    .va .seg button:last-child { border-right: none; }
+    .va .seg button.on { background: var(--ink); color: #fff; }
+    .va .field { color: var(--ink-3); min-width: 160px; flex: 1; max-width: 220px; }
+    .va .grow { flex: 1; }
+    .va .filters {
+      padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .va .callout {
+      margin: 10px 16px 0; padding: 8px 10px; border: 1.5px dashed var(--line);
+      background: var(--fill-2); font-size: 12px; color: var(--ink-2); display: none;
+    }
+    .va .callout.show { display: block; }
+    .va .tbl-wrap { overflow-x: auto; padding-bottom: 64px; }
+    .va table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    .va th {
+      text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .04em;
+      color: var(--ink-3); padding: 8px 10px; border-bottom: 2px solid var(--line); background: #fff;
+    }
+    .va td { padding: 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; font-size: 13px; }
+    .va tr.inv.sel td { background: var(--fill-2); }
+    .va tr.ord td { background: var(--fill); font-size: 12px; color: var(--ink-2); border-bottom: 1px dashed var(--line-soft); }
+    .va tr.ord.hide { display: none; }
+    .va .cb { width: 16px; height: 16px; accent-color: #111; }
+    .va .idrow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .va .chev {
+      width: 20px; height: 20px; border: 1.5px solid var(--line); background: #fff;
+      display: grid; place-items: center; font-size: 9px; transition: transform .2s var(--ease);
+    }
+    .va .chev.open { transform: rotate(90deg); }
+    .va .pill {
+      display: inline-block; border: 1.5px solid var(--line); padding: 0 6px;
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em;
+    }
+    .va .pill.fill { background: var(--ink); color: #fff; }
+    .va .pill.stripe {
+      background: repeating-linear-gradient(-45deg,#fff,#fff 2px,var(--fill-2) 2px,var(--fill-2) 5px);
+    }
+    .va .muted { color: var(--ink-3); font-size: 11px; margin-top: 2px; }
+    .va .hot { text-decoration: underline; text-decoration-thickness: 2px; font-weight: 600; }
+    .va .amt { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .va .amt small { display: block; font-weight: 500; color: var(--ink-3); font-size: 11px; }
+    .va .acts { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; }
+    .va .indent { padding-left: 30px !important; }
+    .va .svc { border: 1px solid var(--line); padding: 0 4px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+    .va .foot {
+      position: sticky; bottom: 0; margin-top: -56px; z-index: 5;
+      border-top: 2px solid var(--line); background: #fff;
+      padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .va .foot .tot { font-weight: 700; }
+    .va .foot .hint { font-size: 11px; color: var(--ink-3); }
+    .va .foot .btn.pri { margin-left: auto; padding: 9px 14px; }
+
+    /* ===================== VERSION B: Card stack + Melio bar ===================== */
+    .vb { font-family: var(--font-b); }
+    .vb .shell {
+      border: 2px solid var(--line); background: #fff; overflow: hidden;
+      box-shadow: 10px 10px 0 rgba(0,0,0,.06);
+    }
+    .vb .topnav {
+      display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+      padding: 10px 16px; border-bottom: 2px solid var(--line); background: var(--fill);
+    }
+    .vb .brand {
+      font-family: var(--serif-b); font-size: 18px; font-weight: 600;
+      margin-right: 12px; letter-spacing: -.02em;
+    }
+    .vb .tnav {
+      padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--ink-3);
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .vb .tnav.on { color: var(--ink); border-bottom-color: var(--line); background: #fff; border: 1.5px solid var(--line); border-bottom-width: 2px; }
+    .vb .tnav .b {
+      display: inline-block; margin-left: 4px; border: 1.5px solid var(--line);
+      padding: 0 5px; font-size: 10px; background: #fff;
+    }
+    .vb .hero {
+      padding: 20px 20px 12px;
+      display: grid; grid-template-columns: 1.2fr auto; gap: 16px; align-items: end;
+      border-bottom: 1.5px solid var(--line);
+    }
+    .vb .hero h2 {
+      font-family: var(--serif-b); font-size: 34px; font-weight: 600;
+      letter-spacing: -.03em; line-height: 1.05;
+    }
+    .vb .hero p { color: var(--ink-2); font-size: 13px; margin-top: 6px; max-width: 40ch; font-family: var(--font-a); }
+    .vb .kpis { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .vb .kpi {
+      border: 1.5px solid var(--line); padding: 8px 12px; min-width: 88px; background: var(--fill);
+      text-align: right;
+    }
+    .vb .kpi b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+    .vb .kpi span { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-family: var(--font-a); }
+    .vb .controls {
+      padding: 12px 20px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      border-bottom: 1.5px solid var(--line-soft); font-family: var(--font-a);
+    }
+    .vb .chip, .vb .btn {
+      border: 1.5px solid var(--line); padding: 7px 11px; font-size: 12px; font-weight: 600; background: #fff;
+    }
+    .vb .chip.on { background: var(--ink); color: #fff; }
+    .vb .btn.ghost { background: transparent; }
+    .vb .btn.pri { background: var(--ink); color: #fff; }
+    .vb .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .vb .toggle {
+      display: inline-flex; margin-left: auto; border: 1.5px solid var(--line); overflow: hidden;
+    }
+    .vb .toggle button {
+      padding: 7px 12px; font-size: 12px; font-weight: 600; font-family: var(--font-a);
+      background: #fff; border-right: 1.5px solid var(--line);
+    }
+    .vb .toggle button:last-child { border-right: none; }
+    .vb .toggle button.on { background: var(--fill-2); }
+    .vb .search {
+      width: 100%; max-width: 280px; border: 1.5px solid var(--line);
+      padding: 8px 12px; font-family: var(--font-a); font-size: 13px; color: var(--ink-3);
+    }
+    .vb .callout {
+      margin: 12px 20px 0; padding: 10px 12px; border: 1.5px dashed var(--line);
+      font-family: var(--font-a); font-size: 12px; color: var(--ink-2); display: none; background: var(--fill);
+    }
+    .vb .callout.show { display: block; }
+    .vb .stack { padding: 12px 20px 88px; display: grid; gap: 10px; }
+    .vb .card {
+      border: 1.5px solid var(--line); background: #fff;
+      display: grid; grid-template-columns: 28px 1fr auto; gap: 12px;
+      padding: 14px 14px 14px 12px; align-items: start;
+      transition: background .15s var(--ease);
+    }
+    .vb .card.sel { background: var(--fill); }
+    .vb .card .cb { width: 18px; height: 18px; margin-top: 4px; accent-color: #111; }
+    .vb .card .meta { min-width: 0; font-family: var(--font-a); }
+    .vb .card .title {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      font-family: var(--font-b); font-weight: 700; font-size: 15px;
+    }
+    .vb .card .badge {
+      border: 1.5px solid var(--line); padding: 1px 7px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+      font-family: var(--font-a);
+    }
+    .vb .card .badge.hot { background: var(--ink); color: #fff; }
+    .vb .card .badge.part {
+      background: repeating-linear-gradient(-45deg,#fff,#fff 2px,var(--fill-2) 2px,var(--fill-2) 5px);
+    }
+    .vb .card .sub { margin-top: 4px; font-size: 12px; color: var(--ink-3); }
+    .vb .card .dates {
+      margin-top: 8px; display: flex; flex-wrap: wrap; gap: 12px;
+      font-size: 12px; color: var(--ink-2);
+    }
+    .vb .card .dates em { font-style: normal; font-weight: 600; color: var(--ink); }
+    .vb .card .dates .late { text-decoration: underline; text-decoration-thickness: 2px; }
+    .vb .side { text-align: right; display: grid; gap: 8px; justify-items: end; }
+    .vb .side .money {
+      font-size: 20px; font-weight: 700; letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .vb .side .money small {
+      display: block; font-size: 11px; font-weight: 500; color: var(--ink-3);
+      font-family: var(--font-a); margin-top: 2px;
+    }
+    .vb .side .row-acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .vb .expand {
+      grid-column: 2 / -1; margin-top: 4px;
+      border-top: 1px dashed var(--line-soft); padding-top: 10px;
+      font-family: var(--font-a); font-size: 12px;
+    }
+    .vb .expand.hide { display: none; }
+    .vb .expand-btn {
+      margin-top: 8px; font-size: 12px; font-weight: 600; text-decoration: underline;
+      font-family: var(--font-a); color: var(--ink-2);
+    }
+    .vb .ord {
+      display: grid; grid-template-columns: 72px 1fr auto; gap: 8px;
+      padding: 6px 0; border-bottom: 1px solid var(--fill-2);
+    }
+    .vb .ord:last-child { border-bottom: none; }
+    .vb .bar {
+      position: sticky; bottom: 0; z-index: 5;
+      margin: 0; background: var(--ink); color: #fff;
+      padding: 14px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-family: var(--font-a);
+    }
+    .vb .bar .tot { font-size: 16px; font-weight: 700; font-family: var(--font-b); }
+    .vb .bar .sub { font-size: 12px; opacity: .75; }
+    .vb .bar .pay {
+      margin-left: auto; background: #fff; color: var(--ink);
+      border: none; padding: 10px 18px; font-weight: 700; font-size: 13px;
+    }
+    .vb .bar .pay:disabled { opacity: .4; cursor: not-allowed; }
+
+    @media (max-width: 800px) {
+      .va .shell { grid-template-columns: 1fr; }
+      .va .rail { flex-direction: row; border-right: none; border-bottom: 2px solid var(--line); }
+      .vb .hero { grid-template-columns: 1fr; }
+      .vb .card { grid-template-columns: 28px 1fr; }
+      .vb .side { grid-column: 2; text-align: left; justify-items: start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="switcher">
+    <h1>Payments wireframe</h1>
+    <div class="ver-btns" role="group" aria-label="切换线框版本">
+      <button type="button" class="on" data-ver="a" id="btnA">版本 A · 密表</button>
+      <button type="button" data-ver="b" id="btnB">版本 B · 卡片栈</button>
+    </div>
+    <p class="hint" id="verHint">A：侧栏 + 数据表 + 浅色底栏（ERP / HighRadius 向）</p>
+  </div>
+
+  <div class="page">
+    <div class="diff">
+      <article id="diffA">
+        <strong>版本 A · Dense table</strong>
+        侧栏导航、列式表格、展开嵌套订单行、浅色 sticky footer。适合扫描多列日期/币种。
+      </article>
+      <article id="diffB" class="hidden">
+        <strong>版本 B · Card stack</strong>
+        顶栏导航、KPI 摘要条、发票卡片纵排、大金额右对齐、深色 Melio 式底栏「Review and pay」。
+      </article>
+    </div>
+
+    <div id="stage"></div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const invoices = [
+      {
+        id: "INV-2501082", status: "pastdue", badge: "Past due",
+        invDate: "08-May-2025", due: "15-May-2025", dueHot: true,
+        currency: "USD", dueAmt: 1860, paid: 0,
+        orders: [
+          { id: "R-859041", svc: "PSI", date: "02-May-2025", supplier: "Supplier A", amt: 620 },
+          { id: "R-859042", svc: "PSI", date: "03-May-2025", supplier: "Supplier A", amt: 620 },
+          { id: "R-859050", svc: "Audit", date: "05-May-2025", supplier: "Supplier B", amt: 620 }
+        ]
+      },
+      {
+        id: "INV-2502109", status: "partial", badge: "Partially paid",
+        invDate: "01-Jun-2025", due: "30-Jun-2025", dueHot: false,
+        currency: "USD", dueAmt: 2400, paid: 900,
+        orders: [
+          { id: "R-860101", svc: "PSI", date: "20-May-2025", supplier: "Supplier C", amt: 1200 },
+          { id: "R-860102", svc: "PSI", date: "22-May-2025", supplier: "Supplier C", amt: 1200 }
+        ]
+      },
+      {
+        id: "INV-2503011", status: "unpaid", badge: "Unpaid",
+        invDate: "10-Jun-2025", due: "10-Jul-2025", dueHot: false,
+        currency: "EUR", dueAmt: 980, paid: 0,
+        orders: [
+          { id: "R-861200", svc: "PSI", date: "08-Jun-2025", supplier: "Supplier D", amt: 980 }
+        ]
+      },
+      {
+        id: "await-1", kind: "awaiting", status: "awaiting", badge: "Awaiting invoice",
+        invDate: "—", due: "—", dueHot: false, currency: "USD", dueAmt: 450, paid: 0,
+        label: "R-862010",
+        orders: [
+          { id: "R-862010", svc: "PSI", date: "18-Jun-2025", supplier: "Supplier E", amt: 450 }
+        ]
+      }
+    ];
+
+    const state = {
+      ver: "a",
+      group: "invoice",
+      filter: "all",
+      open: new Set(["INV-2501082"]),
+      selected: new Set()
+    };
+
+    const $ = (s, el = document) => el.querySelector(s);
+    const money = (n, ccy) => `${ccy} ${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const rem = (inv) => Math.max(0, inv.dueAmt - (inv.paid || 0));
+
+    function toast(msg) {
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+    }
+
+    function visible() {
+      return invoices.filter(inv => state.filter === "all" || inv.status === state.filter);
+    }
+
+    function selectionMeta() {
+      const rows = [...state.selected].map(id => invoices.find(i => i.id === id)).filter(Boolean);
+      if (!rows.length) return { ok: true, total: 0, ccy: null, count: 0, reason: "" };
+      const kinds = new Set(rows.map(r => r.kind === "awaiting" ? "await" : "official"));
+      const ccys = new Set(rows.map(r => r.currency));
+      if (kinds.size > 1) return { ok: false, total: 0, ccy: null, count: rows.length, reason: "mix" };
+      if (ccys.size > 1) return { ok: false, total: 0, ccy: null, count: rows.length, reason: "fx" };
+      return { ok: true, total: rows.reduce((s, r) => s + rem(r), 0), ccy: [...ccys][0], count: rows.length, reason: "" };
+    }
+
+    function kpiCounts() {
+      return {
+        all: invoices.length,
+        pastdue: invoices.filter(i => i.status === "pastdue").length,
+        partial: invoices.filter(i => i.status === "partial").length,
+        awaiting: invoices.filter(i => i.status === "awaiting").length
+      };
+    }
+
+    function pillA(inv) {
+      if (inv.status === "partial") return "pill stripe";
+      if (inv.status === "pastdue") return "pill fill";
+      return "pill";
+    }
+
+    function badgeB(inv) {
+      if (inv.status === "partial") return "badge part";
+      if (inv.status === "pastdue") return "badge hot";
+      return "badge";
+    }
+
+    /* —— Version A markup —— */
+    function htmlA() {
+      const list = visible();
+      const meta = selectionMeta();
+      const invMode = state.group === "invoice";
+
+      const rows = invMode ? list.map(inv => {
+        const open = state.open.has(inv.id);
+        const isAwait = inv.kind === "awaiting";
+        const title = isAwait ? inv.label : inv.id;
+        const cta = inv.status === "partial" ? "Pay remaining" : "Pay Now";
+        const kids = inv.orders.map(o => `
+          <tr class="ord ${open ? "" : "hide"}" data-parent="${inv.id}">
+            <td></td>
+            <td class="indent" colspan="2">
+              <span class="svc">${o.svc}</span><span class="mono">${o.id}</span>
+              <div class="muted">${o.supplier} · ${o.date}</div>
+            </td>
+            <td colspan="2" class="muted">${isAwait ? "Pre-invoice order" : "Included in " + inv.id}</td>
+            <td class="amt">${money(o.amt, inv.currency)}</td>
+            <td></td>
+          </tr>`).join("");
+
+        return `
+          <tr class="inv ${state.selected.has(inv.id) ? "sel" : ""}" data-id="${inv.id}">
+            <td><input type="checkbox" class="cb row-cb" data-id="${inv.id}" ${state.selected.has(inv.id) ? "checked" : ""}></td>
+            <td>
+              <div class="idrow">
+                <button type="button" class="chev ${open ? "open" : ""}" data-toggle="${inv.id}">▶</button>
+                <strong class="mono">${title}</strong>
+                <span class="${pillA(inv)}">${inv.badge}</span>
+              </div>
+              <div class="muted">${isAwait ? "No official NS invoice yet" : `Official · ${inv.orders.length} orders`}</div>
+            </td>
+            <td>${inv.invDate}</td>
+            <td class="${inv.dueHot ? "hot" : ""}">${inv.due}</td>
+            <td>${inv.orders.length}</td>
+            <td class="amt">${money(rem(inv), inv.currency)}${inv.paid ? `<small>Paid ${money(inv.paid, inv.currency)} / Due ${money(inv.dueAmt, inv.currency)}</small>` : ""}</td>
+            <td><div class="acts">
+              ${isAwait ? "" : `<button type="button" class="btn" data-dl="${inv.id}">Download</button>`}
+              <button type="button" class="btn pri" data-pay="${inv.id}">${cta}</button>
+            </div></td>
+          </tr>${kids}`;
+      }).join("") : list.flatMap(inv => inv.orders.map(o => {
+        const grouped = inv.kind !== "awaiting";
+        const checked = !grouped && state.selected.has(inv.id) ? "checked" : "";
+        const cb = grouped
+          ? `<input type="checkbox" class="cb" disabled>`
+          : `<input type="checkbox" class="cb row-cb" data-id="${inv.id}" ${checked}>`;
+        return `<tr>
+          <td>${cb}</td>
+          <td><strong class="mono">${o.id}</strong><div class="muted">${grouped ? "Grouped · pay parent" : "Awaiting invoice"}</div></td>
+          <td><span class="svc">${o.svc}</span>${o.date}</td>
+          <td class="mono" colspan="2">${grouped ? inv.id : "—"}</td>
+          <td class="amt">${money(o.amt, inv.currency)}</td>
+          <td><div class="acts">${grouped
+            ? `<button type="button" class="btn" disabled>Pay Now</button>`
+            : `<button type="button" class="btn pri" data-pay="${inv.id}">Pay Now</button>`}</div></td>
+        </tr>`;
+      })).join("");
+
+      const footLabel = !meta.ok
+        ? `${meta.count} selected · blocked`
+        : meta.count ? `${meta.count} selected · ${money(meta.total, meta.ccy)}` : "0 selected · $0.00";
+      const footHint = !meta.ok
+        ? (meta.reason === "fx" ? "跨币种不可批付" : "官方发票不可与 Awaiting/PI 混批")
+        : "勾选同币种后可批付";
+
+      return `<div class="va"><div class="shell">
+        <aside class="rail">
+          <div class="ico">H</div><div class="ico">O</div>
+          <div class="ico on">P<span class="b">${invoices.length}</span></div>
+          <div class="ico">R</div>
+        </aside>
+        <div class="main">
+          <div class="hdr">
+            <h2>Payments</h2>
+            <div class="tabs">
+              <button type="button" class="on">Unpaid</button>
+              <button type="button" data-toast="Paid tab：同样按发票展示（示意）">Paid</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="chip">All services ▾</button>
+            <button type="button" class="btn">Export</button>
+            <button type="button" class="btn" ${[...state.selected].some(id => invoices.find(i => i.id === id)?.kind === "awaiting") ? "" : "disabled"} data-toast="Generate PI">Generate PI</button>
+            <div class="grow"></div>
+            <div class="seg">
+              <button type="button" class="${invMode ? "on" : ""}" data-group="invoice">Group: Invoice</button>
+              <button type="button" class="${!invMode ? "on" : ""}" data-group="order">Group: Order</button>
+            </div>
+            <input class="field" type="search" placeholder="Search invoice / order #">
+          </div>
+          <div class="filters">
+            <span class="anno">Status</span>
+            ${["all","pastdue","partial","awaiting"].map(f => {
+              const label = { all: "All", pastdue: "Past due", partial: "Partially paid", awaiting: "Awaiting invoice" }[f];
+              return `<button type="button" class="chip ${state.filter === f ? "on" : ""}" data-filter="${f}">${label}</button>`;
+            }).join("")}
+          </div>
+          <div class="callout ${!invMode ? "show" : ""}">Order view：已归票订单不可单独付。</div>
+          <div class="callout ${!meta.ok ? "show" : ""}">${footHint}</div>
+          <div class="tbl-wrap"><table>
+            <thead><tr>
+              <th style="width:36px"><input type="checkbox" class="cb" id="selAll" ${list.length && list.every(i => state.selected.has(i.id)) ? "checked" : ""}></th>
+              <th>Invoice / Status</th><th>Invoice date</th><th>Due date</th><th>Orders</th><th>Amount due</th><th style="text-align:right">Actions</th>
+            </tr></thead>
+            <tbody>${rows || `<tr><td colspan="7" style="padding:24px;color:var(--ink-3)">No rows</td></tr>`}</tbody>
+          </table></div>
+          <div class="foot">
+            <div><div class="tot">${footLabel}</div><div class="hint">${meta.ok ? "行上也可单票 Pay Now" : footHint}</div></div>
+            <button type="button" class="btn pri" id="footPay" ${!meta.ok || !meta.count ? "disabled" : ""}>Pay Now</button>
+          </div>
+        </div>
+      </div></div>`;
+    }
+
+    /* —— Version B markup —— */
+    function htmlB() {
+      const list = visible();
+      const meta = selectionMeta();
+      const k = kpiCounts();
+      const invMode = state.group === "invoice";
+
+      const cards = list.map(inv => {
+        const open = state.open.has(inv.id);
+        const isAwait = inv.kind === "awaiting";
+        const title = isAwait ? inv.label : inv.id;
+        const cta = inv.status === "partial" ? "Pay remaining" : "Pay Now";
+        const ords = inv.orders.map(o => `
+          <div class="ord">
+            <span class="mono">${o.svc}</span>
+            <div><strong class="mono">${o.id}</strong> · ${o.supplier}<div style="color:var(--ink-3)">${o.date}</div></div>
+            <strong>${money(o.amt, inv.currency)}</strong>
+          </div>`).join("");
+
+        if (!invMode && inv.kind !== "awaiting") {
+          return inv.orders.map(o => `
+            <article class="card">
+              <input type="checkbox" class="cb" disabled>
+              <div class="meta">
+                <div class="title"><span class="mono">${o.id}</span><span class="badge">Grouped</span></div>
+                <div class="sub">Pay parent ${inv.id} · ${o.svc} · ${o.supplier}</div>
+              </div>
+              <div class="side">
+                <div class="money">${money(o.amt, inv.currency)}</div>
+                <div class="row-acts"><button type="button" class="btn" disabled>Pay Now</button></div>
+              </div>
+            </article>`).join("");
+        }
+
+        return `
+          <article class="card ${state.selected.has(inv.id) ? "sel" : ""}">
+            <input type="checkbox" class="cb row-cb" data-id="${inv.id}" ${state.selected.has(inv.id) ? "checked" : ""}>
+            <div class="meta">
+              <div class="title">
+                <span class="mono">${title}</span>
+                <span class="${badgeB(inv)}">${inv.badge}</span>
+              </div>
+              <div class="sub">${isAwait ? "Awaiting official NS invoice · payable per policy" : `Official invoice · ${inv.orders.length} orders grouped`}</div>
+              <div class="dates">
+                <span>Invoice <em>${inv.invDate}</em></span>
+                <span class="${inv.dueHot ? "late" : ""}">Due <em>${inv.due}</em></span>
+              </div>
+              <button type="button" class="expand-btn" data-toggle="${inv.id}">${open ? "Hide orders ▴" : "Show orders ▾"}</button>
+              <div class="expand ${open ? "" : "hide"}">${ords}</div>
+            </div>
+            <div class="side">
+              <div class="money">${money(rem(inv), inv.currency)}${inv.paid ? `<small>Paid ${money(inv.paid, inv.currency)} of ${money(inv.dueAmt, inv.currency)}</small>` : ""}</div>
+              <div class="row-acts">
+                ${isAwait ? "" : `<button type="button" class="btn ghost" data-dl="${inv.id}">Download</button>`}
+                <button type="button" class="btn pri" data-pay="${inv.id}">${cta}</button>
+              </div>
+            </div>
+          </article>`;
+      }).join("");
+
+      const barTot = !meta.ok
+        ? `${meta.count} selected · blocked`
+        : meta.count ? `Total ${money(meta.total, meta.ccy)}` : "Nothing selected";
+      const barSub = !meta.ok
+        ? (meta.reason === "fx" ? "Cross-currency batch blocked" : "Don’t mix official + awaiting")
+        : meta.count ? `${meta.count} invoice(s) · Review before pay` : "Select same-currency invoices";
+
+      return `<div class="vb"><div class="shell">
+        <div class="topnav">
+          <div class="brand">myQIMA</div>
+          <button type="button" class="tnav">Home</button>
+          <button type="button" class="tnav">Orders</button>
+          <button type="button" class="tnav on">Payments <span class="b">${invoices.length}</span></button>
+          <button type="button" class="tnav">Reports</button>
+        </div>
+        <div class="hero">
+          <div>
+            <p class="anno">Unpaid · invoice-first</p>
+            <h2>What needs settling</h2>
+            <p>Official invoice is the pay unit. Expand a card to see orders. Batch only same currency.</p>
+          </div>
+          <div class="kpis">
+            <div class="kpi"><b>${k.all}</b><span>Open</span></div>
+            <div class="kpi"><b>${k.pastdue}</b><span>Past due</span></div>
+            <div class="kpi"><b>${k.partial}</b><span>Partial</span></div>
+            <div class="kpi"><b>${k.awaiting}</b><span>Awaiting</span></div>
+          </div>
+        </div>
+        <div class="controls">
+          ${["all","pastdue","partial","awaiting"].map(f => {
+            const label = { all: "All", pastdue: "Past due", partial: "Partial", awaiting: "Awaiting" }[f];
+            return `<button type="button" class="chip ${state.filter === f ? "on" : ""}" data-filter="${f}">${label}</button>`;
+          }).join("")}
+          <div class="toggle">
+            <button type="button" class="${invMode ? "on" : ""}" data-group="invoice">By invoice</button>
+            <button type="button" class="${!invMode ? "on" : ""}" data-group="order">By order</button>
+          </div>
+          <input class="search" type="search" placeholder="Search invoice or order">
+        </div>
+        <div class="callout ${!meta.ok ? "show" : ""}">${barSub}</div>
+        <div class="stack">${cards || `<p style="color:var(--ink-3);padding:20px">No rows for this filter.</p>`}</div>
+        <div class="bar">
+          <div>
+            <div class="tot">${barTot}</div>
+            <div class="sub">${barSub}</div>
+          </div>
+          <button type="button" class="pay" id="footPay" ${!meta.ok || !meta.count ? "disabled" : ""}>Review and pay</button>
+        </div>
+      </div></div>`;
+    }
+
+    function render() {
+      const stage = $("#stage");
+      stage.innerHTML = state.ver === "a" ? htmlA() : htmlB();
+      $("#diffA").classList.toggle("hidden", state.ver !== "a");
+      $("#diffB").classList.toggle("hidden", state.ver !== "b");
+      $("#btnA").classList.toggle("on", state.ver === "a");
+      $("#btnB").classList.toggle("on", state.ver === "b");
+      $("#verHint").textContent = state.ver === "a"
+        ? "A：侧栏 + 数据表 + 浅色底栏（ERP / HighRadius 向）"
+        : "B：顶栏 + KPI + 卡片栈 + 深色底栏 Review and pay（Melio 向）";
+      try { localStorage.setItem("payments-wire-ver", state.ver); } catch (_) {}
+    }
+
+    /* events */
+    $("#btnA").addEventListener("click", () => { state.ver = "a"; render(); });
+    $("#btnB").addEventListener("click", () => { state.ver = "b"; render(); });
+
+    document.addEventListener("click", (e) => {
+      const ver = e.target.closest("[data-ver]");
+      if (ver) return;
+      const g = e.target.closest("[data-group]");
+      if (g) { state.group = g.dataset.group; render(); return; }
+      const f = e.target.closest("[data-filter]");
+      if (f) { state.filter = f.dataset.filter; render(); return; }
+      const t = e.target.closest("[data-toggle]");
+      if (t) {
+        const id = t.dataset.toggle;
+        if (state.open.has(id)) state.open.delete(id); else state.open.add(id);
+        render(); return;
+      }
+      const pay = e.target.closest("[data-pay]");
+      if (pay) {
+        const inv = invoices.find(i => i.id === pay.dataset.pay);
+        toast(`Checkout · ${inv.kind === "awaiting" ? inv.label : inv.id} · ${money(rem(inv), inv.currency)}`);
+        return;
+      }
+      const dl = e.target.closest("[data-dl]");
+      if (dl) { toast(`Download PDF · ${dl.dataset.dl}`); return; }
+      if (e.target.id === "footPay") {
+        const meta = selectionMeta();
+        if (meta.ok && meta.count) toast(`Batch · ${meta.count} · ${money(meta.total, meta.ccy)}`);
+        return;
+      }
+      const toastBtn = e.target.closest("[data-toast]");
+      if (toastBtn) toast(toastBtn.dataset.toast);
+    });
+
+    document.addEventListener("change", (e) => {
+      if (e.target.id === "selAll") {
+        const on = e.target.checked;
+        visible().forEach(inv => on ? state.selected.add(inv.id) : state.selected.delete(inv.id));
+        render(); return;
+      }
+      if (e.target.classList.contains("row-cb") || (e.target.classList.contains("cb") && e.target.dataset.id)) {
+        const id = e.target.dataset.id;
+        if (!id) return;
+        if (e.target.checked) state.selected.add(id); else state.selected.delete(id);
+        render();
+      }
+    });
+
+    try {
+      const saved = localStorage.getItem("payments-wire-ver");
+      if (saved === "a" || saved === "b") state.ver = saved;
+    } catch (_) {}
+
+    render();
+  </script>
+</body>
+</html>
