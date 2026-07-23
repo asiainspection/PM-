@@ -327,7 +327,6 @@ const SVG={
 
 function renderList(view,cfg){
  const head=`
-  <div class="crumb">权限管理 <span class="sep">/</span> <span>${cfg.title}</span></div>
   <div class="page-head">
     <div class="meta"><div class="eyebrow">${view==='module'?'MODULES':view==='role'?'ROLES & RESOURCES':view==='user'?'INTERNAL USERS':view==='customer'?'CUSTOMER ACCESS KEYS':view==='platform'?'PLATFORM ACCESS KEYS':'HISTORY'}</div><h1>${cfg.title}</h1><div class="desc">${cfg.desc}</div></div>
     <div class="spacer">${listActions(view)}</div>
@@ -418,7 +417,6 @@ function bindDetail(){}
 function renderDetail(view,r,i){
  const cfg=VIEWS[view];
  const head=`
-  <div class="crumb"><a onclick="backToList()">${cfg.title}</a> <span class="sep">/</span> <span>${detailCrumb(view,r)}</span></div>
   <div class="detail-head">
     <div class="meta"><h2>${detailTitle(view,r)} ${detailStatus(view,r)}</h2><div class="sub">${detailSub(view,r)}</div></div>
   </div>`;
