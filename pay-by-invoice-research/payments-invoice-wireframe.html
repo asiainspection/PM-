@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Wireframe · Payments · 2 versions</title>
+  <title>Wireframe · Payments · 3 versions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --ink: #181818;
@@ -22,6 +22,8 @@
       --mono: "IBM Plex Mono", ui-monospace, monospace;
       --font-b: "Space Grotesk", system-ui, sans-serif;
       --serif-b: "Newsreader", Georgia, serif;
+      --font-c: "Syne", system-ui, sans-serif;
+      --mono-c: "JetBrains Mono", ui-monospace, monospace;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 15px; }
@@ -63,10 +65,10 @@
 
     .page { max-width: 1200px; margin: 0 auto; padding: 20px 16px 100px; }
     .diff {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
       margin-bottom: 16px;
     }
-    @media (max-width: 720px) { .diff { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .diff { grid-template-columns: 1fr; } }
     .diff article {
       border: 1.5px dashed var(--line-soft);
       padding: 10px 12px; background: #fff; font-size: 12px; color: var(--ink-2);
@@ -317,12 +319,144 @@
     }
     .vb .bar .pay:disabled { opacity: .4; cursor: not-allowed; }
 
+    /* ===================== VERSION C: Master–detail workbench ===================== */
+    .vc { font-family: var(--font-a); }
+    .vc .shell {
+      border: 2px solid var(--line); background: #fff; min-height: 640px;
+      display: grid; grid-template-rows: auto 1fr auto;
+    }
+    .vc .top {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+      padding: 12px 16px; border-bottom: 2px solid var(--line); background: #fff;
+    }
+    .vc .top h2 {
+      font-family: var(--font-c); font-size: 20px; font-weight: 700;
+      letter-spacing: -.03em; margin-right: 8px;
+    }
+    .vc .crumbs {
+      font-family: var(--mono-c); font-size: 11px; color: var(--ink-3);
+      margin-right: auto;
+    }
+    .vc .ftab {
+      border: none; border-bottom: 2px solid transparent; padding: 6px 4px; margin: 0 6px -14px;
+      font-size: 12px; font-weight: 600; color: var(--ink-3);
+    }
+    .vc .ftab.on { color: var(--ink); border-bottom-color: var(--line); }
+    .vc .btn, .vc .chip {
+      border: 1.5px solid var(--line); padding: 6px 10px; font-size: 12px; font-weight: 600; background: #fff;
+    }
+    .vc .btn.pri { background: var(--ink); color: #fff; }
+    .vc .btn:disabled { opacity: .35; cursor: not-allowed; }
+    .vc .split {
+      display: grid; grid-template-columns: minmax(260px, 34%) 1fr; min-height: 520px;
+    }
+    .vc .master {
+      border-right: 2px solid var(--line); background: var(--fill);
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .vc .master-hd {
+      padding: 10px 12px; border-bottom: 1.5px solid var(--line);
+      display: flex; align-items: center; gap: 8px; background: #fff;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .vc .list { overflow: auto; flex: 1; }
+    .vc .row {
+      display: grid; grid-template-columns: 22px 1fr auto; gap: 8px;
+      padding: 12px; border-bottom: 1px solid var(--line-soft);
+      cursor: pointer; background: transparent; width: 100%; text-align: left;
+      align-items: start;
+    }
+    .vc .row:hover { background: rgba(255,255,255,.55); }
+    .vc .row.focus { background: #fff; box-shadow: inset 3px 0 0 var(--line); }
+    .vc .row .cb { width: 16px; height: 16px; margin-top: 2px; accent-color: #111; }
+    .vc .row .id { font-family: var(--mono-c); font-size: 12px; font-weight: 600; }
+    .vc .row .st {
+      display: inline-block; margin-top: 4px; border: 1.5px solid var(--line);
+      padding: 0 5px; font-size: 9px; font-weight: 700; text-transform: uppercase;
+    }
+    .vc .row .st.hot { background: var(--ink); color: #fff; }
+    .vc .row .st.part {
+      background: repeating-linear-gradient(-45deg,#fff,#fff 2px,var(--fill-2) 2px,var(--fill-2) 5px);
+    }
+    .vc .row .amt {
+      font-family: var(--mono-c); font-size: 12px; font-weight: 600;
+      white-space: nowrap; text-align: right;
+    }
+    .vc .row .meta { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+    .vc .detail { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .vc .detail.empty {
+      align-items: center; justify-content: center; color: var(--ink-3); font-size: 13px;
+    }
+    .vc .d-head {
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: flex-start;
+      padding-bottom: 14px; border-bottom: 2px solid var(--line);
+    }
+    .vc .d-head h3 {
+      font-family: var(--font-c); font-size: 26px; font-weight: 700;
+      letter-spacing: -.03em; line-height: 1.1;
+    }
+    .vc .d-head .mono { font-family: var(--mono-c); }
+    .vc .d-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .vc .tag {
+      border: 1.5px solid var(--line); padding: 2px 8px; font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .vc .tag.fill { background: var(--ink); color: #fff; }
+    .vc .tag.stripe {
+      background: repeating-linear-gradient(-45deg,#fff,#fff 2px,var(--fill-2) 2px,var(--fill-2) 5px);
+    }
+    .vc .d-amt {
+      text-align: right; font-family: var(--mono-c); font-size: 28px; font-weight: 600;
+      letter-spacing: -.03em;
+    }
+    .vc .d-amt small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 500; margin-top: 4px; }
+    .vc .grid2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .vc .cell {
+      border: 1.5px solid var(--line); padding: 10px 12px; background: var(--fill);
+    }
+    .vc .cell .l { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-weight: 700; }
+    .vc .cell .v { font-family: var(--mono-c); font-size: 14px; font-weight: 600; margin-top: 4px; }
+    .vc .cell .v.late { text-decoration: underline; text-decoration-thickness: 2px; }
+    .vc .panel {
+      border: 1.5px solid var(--line); padding: 0; overflow: hidden;
+    }
+    .vc .panel h4 {
+      padding: 10px 12px; border-bottom: 1.5px solid var(--line); background: var(--fill);
+      font-size: 11px; text-transform: uppercase; letter-spacing: .05em; font-weight: 700;
+    }
+    .vc .oline {
+      display: grid; grid-template-columns: 64px 1fr auto; gap: 10px;
+      padding: 10px 12px; border-bottom: 1px solid var(--line-soft); font-size: 12px;
+    }
+    .vc .oline:last-child { border-bottom: none; }
+    .vc .oline .svc {
+      border: 1px solid var(--line); padding: 0 5px; font-size: 10px; font-weight: 700;
+      height: fit-content; width: fit-content;
+    }
+    .vc .d-acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+    .vc .note {
+      border: 1.5px dashed var(--line); padding: 10px 12px; font-size: 12px; color: var(--ink-2);
+      background: var(--fill-2);
+    }
+    .vc .foot {
+      border-top: 2px solid var(--line); padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #fff;
+    }
+    .vc .foot .tot { font-family: var(--mono-c); font-weight: 600; font-size: 14px; }
+    .vc .foot .hint { font-size: 11px; color: var(--ink-3); }
+    .vc .foot .btn.pri { margin-left: auto; }
+
     @media (max-width: 800px) {
       .va .shell { grid-template-columns: 1fr; }
       .va .rail { flex-direction: row; border-right: none; border-bottom: 2px solid var(--line); }
       .vb .hero { grid-template-columns: 1fr; }
       .vb .card { grid-template-columns: 28px 1fr; }
       .vb .side { grid-column: 2; text-align: left; justify-items: start; }
+      .vc .split { grid-template-columns: 1fr; }
+      .vc .master { border-right: none; border-bottom: 2px solid var(--line); max-height: 280px; }
+      .vc .grid2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -332,6 +466,7 @@
     <div class="ver-btns" role="group" aria-label="切换线框版本">
       <button type="button" class="on" data-ver="a" id="btnA">版本 A · 密表</button>
       <button type="button" data-ver="b" id="btnB">版本 B · 卡片栈</button>
+      <button type="button" data-ver="c" id="btnC">版本 C · 主从</button>
     </div>
     <p class="hint" id="verHint">A：侧栏 + 数据表 + 浅色底栏（ERP / HighRadius 向）</p>
   </div>
@@ -345,6 +480,10 @@
       <article id="diffB" class="hidden">
         <strong>版本 B · Card stack</strong>
         顶栏导航、KPI 摘要条、发票卡片纵排、大金额右对齐、深色 Melio 式底栏「Review and pay」。
+      </article>
+      <article id="diffC" class="hidden">
+        <strong>版本 C · Master–detail</strong>
+        左列表选焦点、右详情工作台（字段格 + 订单面板 + 主 CTA）。偏 SAP / Oracle 式拆分。
       </article>
     </div>
 
@@ -396,6 +535,7 @@
       ver: "a",
       group: "invoice",
       filter: "all",
+      focus: "INV-2501082",
       open: new Set(["INV-2501082"]),
       selected: new Set()
     };
@@ -675,26 +815,156 @@
       </div></div>`;
     }
 
+    /* —— Version C markup —— */
+    function htmlC() {
+      const list = visible();
+      const meta = selectionMeta();
+      let focus = invoices.find(i => i.id === state.focus);
+      if (!focus || (state.filter !== "all" && focus.status !== state.filter)) {
+        focus = list[0] || null;
+        if (focus) state.focus = focus.id;
+      }
+
+      const rows = list.map(inv => {
+        const isAwait = inv.kind === "awaiting";
+        const title = isAwait ? inv.label : inv.id;
+        const st = inv.status === "pastdue" ? "st hot" : inv.status === "partial" ? "st part" : "st";
+        return `
+          <button type="button" class="row ${state.focus === inv.id ? "focus" : ""}" data-focus="${inv.id}">
+            <input type="checkbox" class="cb row-cb" data-id="${inv.id}" ${state.selected.has(inv.id) ? "checked" : ""} onclick="event.stopPropagation()">
+            <div>
+              <div class="id">${title}</div>
+              <span class="${st}">${inv.badge}</span>
+              <div class="meta">${isAwait ? "Pre-invoice" : inv.orders.length + " orders"} · ${inv.currency}</div>
+            </div>
+            <div class="amt">${money(rem(inv), inv.currency)}</div>
+          </button>`;
+      }).join("");
+
+      let detail = `<div class="detail empty">Select an invoice on the left</div>`;
+      if (focus) {
+        const isAwait = focus.kind === "awaiting";
+        const title = isAwait ? focus.label : focus.id;
+        const cta = focus.status === "partial" ? "Pay remaining" : "Pay Now";
+        const tagClass = focus.status === "pastdue" ? "tag fill" : focus.status === "partial" ? "tag stripe" : "tag";
+        const ords = focus.orders.map(o => `
+          <div class="oline">
+            <span class="svc">${o.svc}</span>
+            <div><span class="mono">${o.id}</span><div style="color:var(--ink-3);margin-top:2px">${o.supplier} · ${o.date}</div></div>
+            <strong class="mono">${money(o.amt, focus.currency)}</strong>
+          </div>`).join("");
+
+        detail = `
+          <div class="detail">
+            <div class="d-head">
+              <div>
+                <p class="anno">${isAwait ? "Order · awaiting official invoice" : "Official NetSuite invoice"}</p>
+                <h3 class="mono">${title}</h3>
+                <div class="d-badges">
+                  <span class="${tagClass}">${focus.badge}</span>
+                  ${!isAwait ? `<span class="tag">${focus.orders.length} orders</span>` : ""}
+                  <span class="tag">${focus.currency}</span>
+                </div>
+              </div>
+              <div class="d-amt">
+                ${money(rem(focus), focus.currency)}
+                ${focus.paid ? `<small>Paid ${money(focus.paid, focus.currency)} / Due ${money(focus.dueAmt, focus.currency)}</small>` : `<small>Amount due</small>`}
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="cell"><div class="l">Invoice date</div><div class="v">${focus.invDate}</div></div>
+              <div class="cell"><div class="l">Due date</div><div class="v ${focus.dueHot ? "late" : ""}">${focus.due}</div></div>
+            </div>
+            ${isAwait ? `<div class="note">No official invoice yet — payable per pre-invoice policy. When NS issues an invoice, this becomes one invoice row (no duplicate).</div>` : ""}
+            <div class="panel">
+              <h4>${isAwait ? "Order detail" : "Included orders (read-only)"}</h4>
+              ${ords}
+            </div>
+            <div class="d-acts">
+              ${isAwait ? "" : `<button type="button" class="btn" data-dl="${focus.id}">Download invoice</button>`}
+              <button type="button" class="btn pri" data-pay="${focus.id}">${cta}</button>
+              <button type="button" class="btn" data-id="${focus.id}" id="addFocusSel">${state.selected.has(focus.id) ? "Selected for batch ✓" : "Add to batch"}</button>
+            </div>
+          </div>`;
+      }
+
+      const footLabel = !meta.ok
+        ? `${meta.count} selected · blocked`
+        : meta.count ? `${meta.count} in batch · ${money(meta.total, meta.ccy)}` : "Batch empty";
+      const footHint = !meta.ok
+        ? (meta.reason === "fx" ? "跨币种不可批付" : "官方发票不可与 Awaiting 混批")
+        : "左侧勾选进批；右侧看详情并单票支付";
+
+      return `<div class="vc"><div class="shell">
+        <div class="top">
+          <h2>Payments</h2>
+          <span class="crumbs">myQIMA / CP / Unpaid</span>
+          ${["all","pastdue","partial","awaiting"].map(f => {
+            const label = { all: "All", pastdue: "Past due", partial: "Partial", awaiting: "Awaiting" }[f];
+            return `<button type="button" class="ftab ${state.filter === f ? "on" : ""}" data-filter="${f}">${label}</button>`;
+          }).join("")}
+          <button type="button" class="btn" data-group="invoice" style="margin-left:8px;opacity:${state.group==="invoice"?1:.5}">Invoice view</button>
+          <button type="button" class="btn" data-group="order" style="opacity:${state.group==="order"?1:.5}">Order view</button>
+        </div>
+        <div class="split">
+          <div class="master">
+            <div class="master-hd">
+              <input type="checkbox" class="cb" id="selAll" ${list.length && list.every(i => state.selected.has(i.id)) ? "checked" : ""}>
+              <span>Invoices · ${list.length}</span>
+            </div>
+            <div class="list">${rows || `<p style="padding:16px;color:var(--ink-3);font-size:12px">No rows</p>`}</div>
+          </div>
+          ${detail}
+        </div>
+        <div class="foot">
+          <div>
+            <div class="tot">${footLabel}</div>
+            <div class="hint">${footHint}</div>
+          </div>
+          <button type="button" class="btn pri" id="footPay" ${!meta.ok || !meta.count ? "disabled" : ""}>Pay selected</button>
+        </div>
+      </div></div>`;
+    }
+
     function render() {
       const stage = $("#stage");
-      stage.innerHTML = state.ver === "a" ? htmlA() : htmlB();
+      stage.innerHTML = state.ver === "a" ? htmlA() : state.ver === "b" ? htmlB() : htmlC();
       $("#diffA").classList.toggle("hidden", state.ver !== "a");
       $("#diffB").classList.toggle("hidden", state.ver !== "b");
+      $("#diffC").classList.toggle("hidden", state.ver !== "c");
       $("#btnA").classList.toggle("on", state.ver === "a");
       $("#btnB").classList.toggle("on", state.ver === "b");
-      $("#verHint").textContent = state.ver === "a"
-        ? "A：侧栏 + 数据表 + 浅色底栏（ERP / HighRadius 向）"
-        : "B：顶栏 + KPI + 卡片栈 + 深色底栏 Review and pay（Melio 向）";
+      $("#btnC").classList.toggle("on", state.ver === "c");
+      const hints = {
+        a: "A：侧栏 + 数据表 + 浅色底栏（ERP / HighRadius 向）",
+        b: "B：顶栏 + KPI + 卡片栈 + 深色底栏 Review and pay（Melio 向）",
+        c: "C：左列表焦点 + 右详情工作台（SAP / Oracle 主从向）"
+      };
+      $("#verHint").textContent = hints[state.ver] || hints.a;
       try { localStorage.setItem("payments-wire-ver", state.ver); } catch (_) {}
     }
 
     /* events */
     $("#btnA").addEventListener("click", () => { state.ver = "a"; render(); });
     $("#btnB").addEventListener("click", () => { state.ver = "b"; render(); });
+    $("#btnC").addEventListener("click", () => { state.ver = "c"; render(); });
 
     document.addEventListener("click", (e) => {
       const ver = e.target.closest("[data-ver]");
       if (ver) return;
+      const focusBtn = e.target.closest("[data-focus]");
+      if (focusBtn && !e.target.classList.contains("row-cb") && e.target.type !== "checkbox") {
+        state.focus = focusBtn.dataset.focus;
+        render();
+        return;
+      }
+      if (e.target.id === "addFocusSel") {
+        const id = e.target.dataset.id;
+        if (state.selected.has(id)) state.selected.delete(id);
+        else state.selected.add(id);
+        render();
+        return;
+      }
       const g = e.target.closest("[data-group]");
       if (g) { state.group = g.dataset.group; render(); return; }
       const f = e.target.closest("[data-filter]");
@@ -738,7 +1008,7 @@
 
     try {
       const saved = localStorage.getItem("payments-wire-ver");
-      if (saved === "a" || saved === "b") state.ver = saved;
+      if (saved === "a" || saved === "b" || saved === "c") state.ver = saved;
     } catch (_) {}
 
     render();
