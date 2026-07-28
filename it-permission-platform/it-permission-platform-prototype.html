@@ -129,7 +129,6 @@ button{cursor:pointer;background:none;border:0}
 .card-head .chev{width:20px;height:20px;flex:none;color:var(--pool-900);transition:transform var(--dur) var(--ease)}
 .card.collapsed .card-head .chev{transform:rotate(-90deg)}
 .card-head h3{flex:1;min-width:0;font:400 14px/20px var(--font);color:var(--pool-900)}
-.card-head .hint{font:400 12px/16px var(--font);color:var(--pool-600);white-space:nowrap}
 .card-head .acts{display:flex;align-items:center;gap:8px}
 .card-head .acts .btn-tertiary:hover,.card-head .acts .btn-secondary:hover{background:var(--pool-200)}
 .card-body{padding:16px 24px}
@@ -483,9 +482,9 @@ function goDetail(view,i){
 }
 function backToList(){render();window.scrollTo(0,0);}
 
-function card(title,hint,acts,body,subtabs){
+function card(title,acts,body,subtabs){
  return `<div class="card">
-  <div class="card-head" onclick="toggleCard(this)">${SVG.chev}<h3>${title}</h3>${hint?`<span class="hint">${hint}</span>`:''}${acts?`<div class="acts" onclick="event.stopPropagation()">${acts}</div>`:''}</div>
+  <div class="card-head" onclick="toggleCard(this)">${SVG.chev}<h3>${title}</h3>${acts?`<div class="acts" onclick="event.stopPropagation()">${acts}</div>`:''}</div>
   ${subtabs||''}
   <div class="card-body${body.flush?' flush':''}">${body.html!==undefined?body.html:body}</div>
  </div>`;
@@ -504,9 +503,9 @@ function detailBody(view,r){
 function moduleDetail(r){
  const i=idxOf('module',r);
  const roleRows=DATA.role.filter(x=>x.module===r.name);
- return card('模块信息','基础属性',btn('编辑','btn-secondary',SVG.edit,`openModal('moduleEdit',${i})`),
+ return card('模块信息',btn('编辑','btn-secondary',SVG.edit,`openModal('moduleEdit',${i})`),
    `<div class="kv">${kv('模块 ID',r.id)}${kv('名称',r.name)}${kv('描述',r.desc)}${kv('数据隔离维度',isoBadge(r.isolation))}</div>`)
- + card('关联资源',`${r.resources} 项 · Web = PAGE / BUTTON`,
+ + card('关联资源',
    btn('管理资源','btn-secondary',SVG.link,`openModal('resourceManage','module')`),
    {html:`
      <div class="subpane active" data-p="web"><div class="chips">
@@ -520,7 +519,7 @@ function moduleDetail(r){
        <div style="margin-top:16px">${btn('配置数据隔离','btn-secondary',SVG.shield,`openModal('isoConfig',${i})`)}</div>
      </div>`},
    subtabs([{p:'web',label:'Web'},{p:'api',label:'API'},{p:'data',label:'Data'}]))
- + card('模块内角色',`${r.roles} 个`,btn('管理角色','btn-secondary',SVG.edit,`openModal('roleManage')`),
+ + card('模块内角色',btn('管理角色','btn-secondary',SVG.edit,`openModal('roleManage')`),
    {flush:true,html:`<div class="table-wrap"><table><thead><tr><th>角色 Key</th><th>描述</th><th>Web</th><th>API</th><th>数据隔离</th></tr></thead><tbody>
      ${roleRows.map(x=>`<tr class="clickable" onclick="jumpToRole('${x.id}')"><td><span class="cell-link">${x.name}</span></td><td>${x.desc}</td><td><span class="count">${x.web}</span></td><td><span class="count">${x.api}</span></td><td>${x.data?'<span class="badge badge-mango">已配置</span>':'<span class="badge badge-grey">无</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">该模块暂无角色</td></tr>'}
    </tbody></table></div>`});
@@ -529,17 +528,17 @@ function moduleDetail(r){
 function roleDetail(r){
  const i=idxOf('role',r);
  const users=DATA.user.filter(u=>u.roles.includes(r.name));
- return card('角色信息','',btn('编辑','btn-secondary',SVG.edit,`openModal('roleEdit',${i})`),
+ return card('角色信息',btn('编辑','btn-secondary',SVG.edit,`openModal('roleEdit',${i})`),
    `<div class="kv">${kv('角色 Key',r.name)}${kv('模块前缀',r.module)}${kv('描述',r.desc)}</div>
     <div class="note" style="margin-top:16px">角色 Key 冒号前为模块前缀，但角色可跨模块绑定资源（例如 Tiktok admin 绑定 customer service 接口）。</div>`)
- + card('关联资源','分 Web / API / Data 三类',
+ + card('关联资源',
    btn('绑定 Web','btn-secondary',SVG.link,`openModal('bindWeb',${i})`)+btn('绑定 API','btn-tertiary',SVG.link,`openModal('bindApi',${i})`)+btn('数据隔离','btn-tertiary',SVG.shield,`openModal('bindData',${i})`),
    {html:`
      <div class="subpane active" data-p="web"><div class="chips"><span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span><span class="chip">lab.report.view</span><span class="chip chip-add" onclick="openModal('bindWeb',${i})">绑定 Web</span></div></div>
      <div class="subpane" data-p="api"><div class="chips"><span class="chip">GET /v1/lab/samples</span><span class="chip">POST /v1/lab/test</span><span class="chip">GET /v1/lab/report</span><span class="chip chip-add" onclick="openModal('bindApi',${i})">绑定 API</span></div></div>
      <div class="subpane" data-p="data"><div class="chips">${r.data?'<span class="chip">维度：BU</span><span class="chip">值：700万 BU</span>':'<span class="muted">该角色无数据隔离</span>'}<span class="chip chip-add" onclick="openModal('bindData',${i})">配置隔离</span></div></div>`},
    subtabs([{p:'web',label:`Web (${r.web})`},{p:'api',label:`API (${r.api})`},{p:'data',label:`Data (${r.data})`}]))
- + card('已授权用户','点击行跳转用户详情','',
+ + card('已授权用户','',
    {flush:true,html:`<div class="table-wrap"><table><thead><tr><th>用户</th><th>邮箱</th><th>部门</th></tr></thead><tbody>
      ${users.map(u=>`<tr class="clickable" onclick="jumpToUser('${u.id}')"><td><span class="cell-link">${u.name}</span></td><td>${u.email}</td><td>${u.dept}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">暂无授权用户</td></tr>'}
    </tbody></table></div>`});
@@ -547,23 +546,23 @@ function roleDetail(r){
 
 function userDetail(r){
  const i=idxOf('user',r);
- return card('用户信息','只读 · 来自 user-service','',
+ return card('用户信息','',
    `<div class="kv">${kv('用户 ID',r.id)}${kv('姓名',r.name)}${kv('邮箱',r.email)}${kv('部门',r.dept)}</div>`)
- + card('用户角色','点击角色跳转角色详情',btn('编辑角色','btn-secondary',SVG.edit,`openModal('userRole',${i})`),
+ + card('用户角色',btn('编辑角色','btn-secondary',SVG.edit,`openModal('userRole',${i})`),
    r.roles.length?`<div class="chips">${r.roles.map(rl=>`<span class="chip chip-link" onclick="jumpToRole('${rl}')">${rl}</span>`).join('')}</div>`:'<div class="empty">该用户暂无权限角色</div>');
 }
 
 function akDetail(view,r){
  const i=idxOf(view,r), isPlat=view==='platform';
- return card('AccessKey 信息','',btn('编辑','btn-secondary',SVG.edit,`openModal('akEdit',${i})`),
+ return card('AccessKey 信息',btn('编辑','btn-secondary',SVG.edit,`openModal('akEdit',${i})`),
    `<div class="kv">${kv('AccessKey ID',r.id)}${kv(isPlat?'平台':'客户',r.client)}${kv('登录账号',r.login)}${kv('Key',r.key)}${kv('模式',r.mode==='inherit'?'inherit（继承角色）':'direct（直接绑资源）')}${kv('状态',statusBadge(r.status))}${kv('创建日期',r.created)}</div>`)
- + card('关联资源',isPlat?'平台 DIRECT 绑定':'Web / API',
+ + card('关联资源',
    btn('绑定资源','btn-secondary',SVG.link,`openModal('akBind',${i})`),
    {html:`
      <div class="subpane active" data-p="web"><div class="chips">${r.web?'<span class="chip">customer.portal</span><span class="chip">customer.order.list</span>':'<span class="muted">无 Web 资源</span>'}<span class="chip chip-add" onclick="openModal('akBind',${i})">绑定</span></div></div>
      <div class="subpane" data-p="api"><div class="chips"><span class="chip">GET /v1/order/list</span><span class="chip">POST /v1/order/create</span><span class="chip">GET /v1/report</span><span class="chip chip-add" onclick="openModal('akBind',${i})">绑定 API</span></div></div>`},
    subtabs([{p:'web',label:`Web (${r.web})`},{p:'api',label:`API (${r.api})`}]))
- + card('访问日志','accessKey log',btn('查看全部','btn-tertiary',SVG.log,`openModal('akLog',${i})`),
+ + card('访问日志',btn('查看全部','btn-tertiary',SVG.log,`openModal('akLog',${i})`),
    `<div class="timeline">
      <div class="tl-item"><div class="tl-time">23-Jul-2026 13:55</div><div class="tl-act">POST /v1/order/create</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 142 ms</div></div>
      <div class="tl-item"><div class="tl-time">23-Jul-2026 13:12</div><div class="tl-act">GET /v1/order/list</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 88 ms</div></div>
@@ -610,11 +609,11 @@ const MODALS={
  moduleCreate:{title:'新建模块',body:()=>`
   <div class="grid-2">${field('模块 ID',inp('如 lab'))}${field('名称',inp('Lab'))}</div>
   ${field('描述',`<textarea placeholder="模块用途…"></textarea>`)}
-  ${field('数据隔离维度',sel(['None','BU','Legal Entity','Region']),'后续可在模块详情中修改')}`},
+  ${field('数据隔离维度',sel(['None','BU','Legal Entity','Region']))}`},
  moduleEdit:{title:'编辑模块信息',body:i=>{const r=DATA.module[i];return `
   <div class="grid-2">${field('模块 ID',inp('',r.id,true))}${field('名称',inp('',r.name))}</div>
   ${field('描述',`<textarea>${r.desc}</textarea>`)}`;}},
- isoConfig:{title:'配置数据隔离',body:i=>{const r=DATA.module[i];return field('隔离维度',sel(['None','BU','Legal Entity','Region'].map(v=>({v,sel:v===r.isolation}))),'主数据维度，决定模块内资源的行级隔离');}},
+ isoConfig:{title:'配置数据隔离',body:i=>{const r=DATA.module[i];return field('隔离维度',sel(['None','BU','Legal Entity','Region'].map(v=>({v,sel:v===r.isolation}))));}},
  roleCreate:{title:'新建角色',body:()=>`
   <div class="grid-2">${field('角色 Key',inp('module:roleName'))}${field('模块前缀',sel(DATA.module.map(m=>m.name)))}</div>
   ${field('描述',inp('角色用途…'))}
