@@ -6,248 +6,262 @@
 <title>IT 权限管理平台 · 原型</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ===== QSP / ACA design tokens (Figma: QSP Sandbox 2025) ===== */
 :root{
-  --qima-red:#E4002B;--qima-red-dark:#C71A21;--qima-red-900:#9E141B;--qima-red-bg:#FDEFEF;--brand-labs:#1F2547;
-  --pool:#4169E1;--pool-dark:#1E46BD;--pool-900:#1E46BD;--pool-bg:#EEF2FF;--pool-100:rgba(65,105,225,.4);
-  --white:#fff;--mist:#F7F7F7;--seal:#F0F0F0;--cloud:#DEDEDE;--pearl:#BFBFBF;
-  --ash:#979797;--stone:#737373;--slate:#3E3E3E;--carbon:#191919;
-  --cherry-050:#FDEFEF;--cherry-500:#E5353D;--cherry-900:#9E141B;
-  --orange-050:#FCF2E6;--orange-500:#F58F00;--orange-900:#B26309;
-  --lemon-050:#FFF9E7;--lemon-900:#BD8A00;
+  /* Neutral */
+  --carbon:#191919;--seal:#737373;--smoke:#B3B3B3;--pearl:#DEDEDE;
+  --line:#E6E6E6;--mist:#F0F0F0;--cloud:#F7F7F7;--white:#fff;
+  --nav-active:#EAEAEA;--header-line:#D6D6D6;
+  /* Accent · Pool */
+  --pool-100:#E6ECFB;--pool-200:#D3DCF8;--pool-500:#4169E1;--pool-600:#1E46BD;--pool-900:#153184;
+  /* Semantic */
   --kiwi-050:#EAF6F2;--kiwi-500:#00A876;--kiwi-900:#006648;
-  --border:rgba(0,0,0,.1);--shadow-0:0 1px 2px rgba(25,25,25,.08);--shadow-1:0 2px 10px rgba(25,25,25,.05);--shadow-2:0 4px 12px rgba(25,25,25,.15);
-  --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--font-cjk:'Noto Sans SC','Inter',sans-serif;--font-mono:'DM Mono',ui-monospace,Menlo,monospace;
+  --cherry-050:#FDEFEF;--cherry-500:#E5353D;--cherry-900:#9E141B;
+  --mango-050:#FCF2E6;--mango-500:#F58F00;--mango-900:#B26309;
+  /* Brand */
+  --qima-red:#E4002B;--peach:#FF8261;
+  /* Radii · per DS: 4 chip / 6 nav / 8 control / 16 container */
+  --r-chip:4px;--r-nav:6px;--r-ctl:8px;--r-card:16px;
+  --font:'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --ease:cubic-bezier(.2,0,0,1);--dur:200ms;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-*:not(textarea)::-webkit-scrollbar{width:6px;height:6px}
-*:not(textarea)::-webkit-scrollbar-thumb{border-radius:16px;background:var(--cloud)}
-*:not(textarea)::-webkit-scrollbar-thumb:hover{background:#b3b3b3}
-body{min-height:100vh;font:400 14px/1.5 var(--font-cjk);color:var(--carbon);background:var(--mist);-webkit-font-smoothing:antialiased}
+*:not(textarea)::-webkit-scrollbar{width:8px;height:8px}
+*:not(textarea)::-webkit-scrollbar-thumb{border-radius:8px;background:var(--pearl)}
+*:not(textarea)::-webkit-scrollbar-thumb:hover{background:var(--smoke)}
+body{min-height:100vh;font:400 14px/20px var(--font);color:var(--carbon);background:var(--cloud);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit}
-button{cursor:pointer}
-a{color:var(--pool);text-decoration:none}
-a:hover{text-decoration:underline}
+button{cursor:pointer;background:none;border:0}
 
-/* topbar */
-.topbar{position:sticky;z-index:999;top:0;width:100vw;height:72px;display:flex;align-items:center;gap:16px;padding:0 20px;background:var(--white);border-bottom:1px solid var(--border);box-shadow:var(--shadow-0)}
-.brand{display:flex;align-items:center;gap:12px;min-width:0}
-.icon-btn{height:40px;width:40px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:8px;background:var(--white);color:var(--stone);transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
-.icon-btn:hover{background:var(--mist);color:var(--carbon)}
-.icon-btn svg{width:20px;height:20px}
-.brand .qima-logo{height:22px;width:auto;display:block}
-.brand-title{padding-left:12px;border-left:1px solid var(--border)}
-.brand .title{font:600 15px/20px var(--font-sans);letter-spacing:-.01em;color:var(--carbon)}
-.brand .sub{font:400 12px/16px var(--font-sans);color:var(--stone)}
-.system-switcher{height:40px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--stone);white-space:nowrap;font:500 13px/16px var(--font-sans);transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
-.system-switcher:hover{background:var(--mist);color:var(--carbon)}
-.system-switcher svg{width:14px;height:14px}
-.top-actions{margin-left:auto;display:flex;align-items:center;gap:12px}
-.avatar{width:40px;height:40px;border-radius:50%;background:var(--orange-050);color:var(--orange-900);font-weight:700;display:grid;place-items:center;font:700 12px/16px var(--font-sans)}
+/* ===== app header · 72px ===== */
+.appbar{position:sticky;z-index:900;top:0;height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 24px;background:var(--white);box-shadow:inset 0 -1px 0 var(--header-line)}
+.appbar-l{display:flex;align-items:center;gap:16px;padding-left:4px;min-width:0}
+.wordmark{display:flex;align-items:flex-end;gap:12px}
+.wordmark .qima{height:20px;width:auto;display:block}
+.wordmark .suffix{font:400 20px/20px var(--font);letter-spacing:2px;color:var(--pool-600)}
+.appbar-r{display:flex;align-items:center;gap:16px}
+.env{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:var(--r-ctl);color:var(--carbon);font:400 14px/20px var(--font);white-space:nowrap;transition:background var(--dur) var(--ease)}
+.env:hover{background:var(--cloud)}
+.env .dot{width:8px;height:8px;border-radius:50%;background:var(--kiwi-500)}
+.env svg{width:20px;height:20px;color:var(--seal)}
+.divider-v{width:1px;height:36px;background:var(--pearl)}
+.iconbtn{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--r-ctl);color:var(--carbon);transition:background var(--dur) var(--ease)}
+.iconbtn:hover{background:var(--pool-100)}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn.on{background:var(--pool-100);color:var(--pool-500)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--peach);color:var(--white);display:grid;place-items:center;font:600 12px/12px var(--font);text-transform:uppercase}
 
-/* layout */
-.layout{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:calc(100vh - 72px)}
-.sidebar{position:sticky;top:72px;left:0;z-index:30;width:240px;height:calc(100vh - 72px);background:var(--mist);border-right:1px solid var(--border);overflow-y:auto;padding:16px 12px}
-.side-title{font:600 11px/12px var(--font-sans);color:var(--ash);letter-spacing:.08em;padding:8px 12px 8px;text-transform:uppercase}
-.nav{display:grid;gap:4px}
-.nav button{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:var(--stone);text-align:left;font:500 13.5px/18px var(--font-cjk);transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
-.nav button svg{width:18px;height:18px;flex-shrink:0;color:var(--stone)}
-.nav button:hover{background:var(--white);color:var(--slate)}
-.nav button.active{background:var(--pool-bg);color:var(--pool-dark);font-weight:600}
-.nav button.active svg{color:var(--pool)}
-.nav .badge{margin-left:auto;font:600 11px/16px var(--font-sans);color:var(--stone);background:var(--seal);border-radius:999px;padding:0 8px;height:20px;display:inline-flex;align-items:center}
-.nav button.active .badge{background:var(--white);color:var(--pool-dark)}
-.side-foot{margin-top:36px;padding:12px;border:1px solid var(--border);border-radius:16px;background:var(--white);color:var(--stone);font:400 12px/16px var(--font-cjk)}
-.side-foot strong{display:block;margin-bottom:4px;color:var(--carbon);font-size:13px}
+/* ===== layout ===== */
+.layout{display:grid;grid-template-columns:116px minmax(0,1fr);min-height:calc(100vh - 72px)}
 
-.main{min-width:0;padding:36px;max-width:1320px;width:100%}
+/* left rail · icon + label, 116px */
+.rail{position:sticky;top:72px;height:calc(100vh - 72px);background:var(--cloud);box-shadow:inset -1px 0 0 var(--line);padding:16px 8px;overflow-y:auto}
+.rail-items{display:flex;flex-direction:column;gap:12px;align-items:center}
+.rail-items button{width:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;border-radius:var(--r-nav);color:var(--seal);font:400 12px/16px var(--font);text-align:center;transition:background var(--dur) var(--ease),color var(--dur) var(--ease)}
+.rail-items button svg{width:16px;height:16px;flex:none}
+.rail-items button:hover{background:var(--mist);color:var(--carbon)}
+.rail-items button.active{background:var(--nav-active);color:var(--carbon)}
 
-/* breadcrumb + page head */
-.crumb{font:400 12px/16px var(--font-sans);color:var(--stone);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.crumb a{color:var(--pool);cursor:pointer}
-.crumb a:hover{text-decoration:underline}
-.crumb .sep{color:var(--pearl)}
-.page-head{display:flex;align-items:flex-start;gap:24px;margin-bottom:20px;flex-wrap:wrap}
-.eyebrow{margin-bottom:6px;color:var(--stone);font:600 11px/12px var(--font-sans);letter-spacing:.08em;text-transform:uppercase}
-.page-head h1{font:400 32px/40px var(--font-cjk);letter-spacing:-.02em;color:var(--carbon)}
-.page-head .desc{max-width:760px;margin-top:6px;font:400 15px/24px var(--font-cjk);color:var(--stone)}
-.page-head .spacer{margin-left:auto;display:flex;gap:8px;align-items:flex-start}
+.col{min-width:0;display:flex;flex-direction:column}
 
-/* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:0 16px;border:1px solid var(--border);border-radius:4px;background:var(--white);color:var(--carbon);font:600 13px/18px var(--font-sans);transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease)}
-.btn:hover{background:var(--seal)}
-.btn svg{width:15px;height:15px}
-.btn-primary{border-color:var(--pool);background:var(--pool);color:#fff}
-.btn-primary:hover{background:var(--pool-dark)}
-.btn-secondary{background:#E6ECFB;border-color:transparent;color:var(--pool-dark)}
-.btn-secondary:hover{background:#d8e1fa}
-.btn-danger{border-color:var(--cherry-500);color:var(--cherry-900);background:var(--cherry-050)}
-.btn-danger:hover{background:var(--cherry-050)}
-.btn-ghost{border-color:transparent;background:transparent;color:var(--pool-dark)}
-.btn-ghost:hover{background:var(--pool-bg)}
-.btn-sm{min-height:30px;padding:0 10px;font:600 12px/16px var(--font-sans)}
+/* ===== page bar (sticky under app header) ===== */
+.pagebar{position:sticky;top:72px;z-index:100;background:var(--white);box-shadow:inset 0 -1px 0 var(--line);padding:12px 24px}
+.pagebar-row{display:flex;align-items:center;gap:8px;min-height:36px}
+.pagebar h1{font:600 16px/20px var(--font);color:var(--carbon);white-space:nowrap}
+.pagebar .grow{flex:1;min-width:0}
+.pagebar .tools{display:flex;align-items:center;gap:8px}
+.crumbs{display:flex;align-items:center;gap:12px;font:400 16px/20px var(--font);color:var(--carbon);min-width:0}
+.crumbs .sep{color:var(--carbon)}
+.crumbs .cur{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumbs a{color:var(--carbon);text-decoration:none;cursor:pointer}
+.crumbs a:hover{color:var(--pool-500)}
+.counter{position:relative;display:inline-flex}
+.counter[data-n]::after{content:attr(data-n);position:absolute;z-index:1;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--pool-500);color:var(--white);font:400 11px/18px var(--font);text-align:center;box-shadow:0 0 0 2px var(--white)}
 
-/* list toolbar */
-.list-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
-.search{position:relative;flex:1;min-width:260px;max-width:520px;height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border:1px solid var(--border);border-radius:8px;background:var(--mist)}
-.search svg{width:16px;height:16px;color:var(--ash)}
-.search input{width:100%;border:0;outline:0;background:transparent;font:400 13px/20px var(--font-cjk);color:var(--carbon)}
-.search input::placeholder{color:var(--ash)}
-.search:focus-within{border-color:var(--pool);background:var(--white);box-shadow:0 0 0 3px var(--pool-bg)}
-.filter{display:flex;align-items:center;gap:6px;height:40px;padding:0 8px 0 12px;border:1px solid var(--border);border-radius:8px;background:var(--white);color:var(--stone);font:400 13px/20px var(--font-cjk)}
-.filter select{border:0;background:transparent;font:400 13px/20px var(--font-cjk);color:var(--carbon);cursor:pointer}
-.filter select:focus{outline:none}
+/* ===== tabs ===== */
+.tabs{display:flex;align-items:center;margin-top:8px}
+.tab{padding:8px 12px;font:400 14px/20px var(--font);color:var(--seal);border-bottom:2px solid transparent;transition:color var(--dur) var(--ease)}
+.tab:hover{color:var(--carbon)}
+.tab.active{color:var(--carbon);border-bottom-color:var(--pool-500)}
 
-/* table */
-.table-wrap{background:var(--white);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-1)}
-table{width:100%;border-collapse:collapse;font:400 13px/20px var(--font-cjk);color:var(--carbon)}
-thead th{height:44px;background:var(--mist);font:600 13px/16px var(--font-sans);color:var(--carbon);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border);white-space:nowrap}
-tbody td{padding:14px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--slate);vertical-align:middle}
-tbody tr{cursor:pointer;transition:background var(--dur) var(--ease)}
-tbody tr:hover{background:var(--qima-red-bg)}
+/* ===== buttons · h36 / r8 / 14px regular ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:8px 16px;border-radius:var(--r-ctl);background:var(--white);border:1px solid var(--pearl);color:var(--carbon);font:400 14px/20px var(--font);white-space:nowrap;transition:background var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.btn:hover{background:var(--cloud)}
+.btn svg{width:20px;height:20px;flex:none}
+.btn-primary{background:var(--pool-500);border-color:var(--pool-500);color:var(--white)}
+.btn-primary:hover{background:var(--pool-600);border-color:var(--pool-600)}
+.btn-secondary{background:var(--pool-100);border-color:transparent;color:var(--pool-500);padding:8px 12px}
+.btn-secondary:hover{background:var(--pool-200)}
+.btn-tertiary{background:transparent;border-color:transparent;color:var(--pool-500);padding:8px 12px}
+.btn-tertiary:hover{background:var(--pool-100)}
+.btn-danger{background:var(--cherry-050);border-color:transparent;color:var(--cherry-900);padding:8px 12px}
+.btn-danger:hover{background:#fbe2e3}
+.btn-icon{width:36px;padding:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== fields · label 12/16 + control h36 r8 border smoke ===== */
+.field{display:flex;flex-direction:column;gap:4px}
+.field > label{font:400 12px/16px var(--font);color:var(--carbon)}
+.field input,.field select,.field textarea{width:100%;height:36px;padding:0 16px;border:1px solid var(--smoke);border-radius:var(--r-ctl);background:var(--white);font:400 14px/20px var(--font);color:var(--carbon);outline:0}
+.field select{cursor:pointer;padding-right:40px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23191919' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M6 9.5l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:20px 20px}
+.field textarea{height:auto;min-height:76px;padding:8px 16px;resize:vertical}
+.field input::placeholder,.field textarea::placeholder{color:var(--smoke)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--pool-500);box-shadow:0 0 0 3px var(--pool-100)}
+.field input:disabled{background:var(--mist);color:var(--seal)}
+.field .hint{font:400 12px/16px var(--font);color:var(--seal)}
+.filters{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:12px 8px}
+.filterbar{margin-bottom:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.seg{display:flex;border:1px solid var(--smoke);border-radius:var(--r-ctl);overflow:hidden;height:36px}
+.seg label{flex:1;display:flex;align-items:center;justify-content:center;padding:0 12px;font:400 14px/20px var(--font);color:var(--seal);cursor:pointer;background:var(--white);box-shadow:inset -1px 0 0 var(--pearl)}
+.seg label:last-child{box-shadow:none}
+.seg input{display:none}
+.seg input:checked+label{background:var(--pool-100);color:var(--pool-500)}
+
+/* ===== content ===== */
+.content{flex:1;padding:20px 24px 40px;min-width:0}
+
+/* ===== collapsible container card ===== */
+.card{background:var(--white);border:1px solid var(--pearl);border-radius:var(--r-card);margin-bottom:16px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 16px 6px 24px;background:var(--pool-100);cursor:pointer}
+.card-head .chev{width:20px;height:20px;flex:none;color:var(--pool-900);transition:transform var(--dur) var(--ease)}
+.card.collapsed .card-head .chev{transform:rotate(-90deg)}
+.card-head h3{flex:1;min-width:0;font:400 14px/20px var(--font);color:var(--pool-900)}
+.card-head .hint{font:400 12px/16px var(--font);color:var(--pool-600);white-space:nowrap}
+.card-head .acts{display:flex;align-items:center;gap:8px}
+.card-head .acts .btn-tertiary:hover,.card-head .acts .btn-secondary:hover{background:var(--pool-200)}
+.card-body{padding:16px 24px}
+.card.collapsed .card-body,.card.collapsed .subtabs{display:none}
+.card-body.flush{padding:0}
+
+/* key/value */
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px 24px}
+.kv-item{display:flex;flex-direction:column;gap:4px;min-width:0}
+.kv-item .k{font:400 12px/16px var(--font);color:var(--seal)}
+.kv-item .v{font:400 14px/20px var(--font);color:var(--carbon);word-break:break-word}
+
+/* ===== table · header 48 / row 52 ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{height:48px;padding:0 8px;background:var(--white);box-shadow:inset 0 -1px 0 var(--line);font:600 14px/20px var(--font);color:var(--carbon);text-align:left;white-space:nowrap}
+thead th:first-child{padding-left:24px}
+thead th:last-child{padding-right:24px}
+tbody td{height:52px;padding:6px 8px;border-bottom:1px solid var(--pearl);font:400 14px/20px var(--font);color:var(--seal);vertical-align:middle}
+tbody td:first-child{padding-left:24px}
+tbody td:last-child{padding-right:24px}
+tbody tr{transition:background var(--dur) var(--ease)}
+tbody tr.clickable{cursor:pointer}
+tbody tr.clickable:hover{background:var(--cloud)}
 tbody tr:last-child td{border-bottom:0}
-.mono{font-family:var(--font-mono);font-size:12px}
-.muted{color:var(--stone)}
-.row-id{font-weight:600;color:var(--pool-900);font-family:var(--font-mono);font-size:12px}
-.link-cell{color:var(--pool);font-weight:500}
+.cell-link{font:600 14px/20px var(--font);color:var(--pool-500);text-decoration:underline;text-underline-position:from-font}
+.strong{font-weight:600;color:var(--carbon)}
+.muted{color:var(--seal)}
 
-/* badges / tags (pill, tint+text pairs) */
-.tag{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font:600 12px/16px var(--font-sans);white-space:nowrap}
-.tag-pool{background:var(--pool-bg);color:var(--pool-dark)}
-.tag-kiwi{background:var(--kiwi-050);color:var(--kiwi-900)}
-.tag-orange{background:var(--orange-050);color:var(--orange-900)}
-.tag-red{background:var(--cherry-050);color:var(--cherry-900)}
-.tag-grey{background:var(--seal);color:var(--slate)}
-.tag .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+/* ===== badges & chips ===== */
+.badge{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 8px;border:1px solid var(--pearl);border-radius:var(--r-ctl);background:var(--white);font:600 12px/16px var(--font);color:var(--pool-500);white-space:nowrap}
+.badge-kiwi{color:var(--kiwi-900);background:var(--kiwi-050);border-color:#BFE3D8}
+.badge-cherry{color:var(--cherry-900);background:var(--cherry-050);border-color:#F5CACC}
+.badge-mango{color:var(--mango-900);background:var(--mango-050);border-color:#F3DBB9}
+.badge-grey{color:var(--seal);background:var(--mist);border-color:var(--pearl)}
+.badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.count{display:inline-flex;align-items:center;justify-content:center;height:20px;min-width:24px;padding:0 6px;border-radius:var(--r-chip);background:var(--mist);font:400 12px/16px var(--font);color:var(--carbon)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border:1px solid var(--pearl);border-radius:var(--r-ctl);background:var(--white);font:400 12px/16px var(--font);color:var(--carbon);white-space:nowrap}
+.chip .x{color:var(--seal);cursor:pointer;font-size:14px;line-height:1}
+.chip .x:hover{color:var(--cherry-500)}
+.chip-link{color:var(--pool-500);cursor:pointer;font-weight:600}
+.chip-add{border-style:dashed;border-color:var(--pool-200);background:var(--pool-100);color:var(--pool-500);cursor:pointer}
+.chip-add:hover{background:var(--pool-200)}
 
-/* detail */
-.back{display:inline-flex;align-items:center;gap:6px;font:500 13px/18px var(--font-sans);color:var(--stone);margin-bottom:12px;cursor:pointer}
-.back:hover{color:var(--pool)}
-.detail-head{display:flex;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
-.detail-head .meta{flex:1;min-width:240px}
-.detail-head h2{font:500 18px/24px var(--font-cjk);color:var(--carbon);display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
-.detail-head .sub{font:400 13px/20px var(--font-cjk);color:var(--stone);margin-top:4px}
-.detail-actions{display:flex;gap:8px;flex-wrap:wrap}
+/* ===== pagination · h56 ===== */
+.pager{display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px;padding:0 24px;box-shadow:inset 0 1px 0 var(--line);font:400 14px/20px var(--font);color:var(--seal)}
+.pager-nav{display:flex;align-items:center;gap:4px}
+.pager-nav button{min-width:32px;height:32px;padding:0 8px;border-radius:var(--r-ctl);color:var(--carbon);font:400 14px/20px var(--font)}
+.pager-nav button:hover{background:var(--pool-100)}
+.pager-nav button.active{background:var(--pool-500);color:var(--white)}
+.pager-nav button:disabled{color:var(--smoke);cursor:not-allowed}
+.pager-nav button:disabled:hover{background:none}
 
-/* cards / sections */
-.section{background:var(--white);border:1px solid var(--border);border-radius:16px;margin-bottom:16px;box-shadow:var(--shadow-1);overflow:hidden}
-.section-head{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border)}
-.section-head h3{font:600 16px/20px var(--font-cjk);letter-spacing:-.01em;color:var(--carbon)}
-.section-head .hint{font:400 12px/16px var(--font-cjk);color:var(--stone)}
-.section-head .spacer{margin-left:auto;display:flex;gap:6px;align-items:center}
-.section-body{padding:20px}
-.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px 28px}
-.kv-item{display:flex;flex-direction:column;gap:4px}
-.kv-item .k{font:600 11px/12px var(--font-sans);color:var(--ash);letter-spacing:.08em;text-transform:uppercase}
-.kv-item .v{font:500 13.5px/20px var(--font-cjk);color:var(--carbon)}
-.kv-item .v.mono{font-family:var(--font-mono);font-weight:400;font-size:13px}
-
-/* resource sub-tabs */
-.subtabs{display:flex;gap:32px;padding:0 20px;border-bottom:1px solid var(--border);background:var(--white);overflow-x:auto}
-.subtab{padding:12px 0;font:600 13px/16px var(--font-sans);color:var(--stone);border:0;background:transparent;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
-.subtab:hover{color:var(--slate)}
-.subtab.active{color:var(--pool-dark);border-bottom-color:var(--pool)}
+/* ===== sub tabs inside a card ===== */
+.subtabs{display:flex;align-items:center;gap:0;padding:0 24px;box-shadow:inset 0 -1px 0 var(--line);overflow-x:auto}
 .subpane{display:none}
 .subpane.active{display:block}
 
-/* chips */
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{display:inline-flex;align-items:center;gap:6px;font:500 12px/16px var(--font-cjk);padding:4px 10px;border:1px solid var(--border);border-radius:999px;background:var(--white);color:var(--slate)}
-.chip .x{color:var(--ash);cursor:pointer;font-size:14px;line-height:1}
-.chip-add{border:1px dashed var(--cloud);color:var(--pool-dark);background:var(--pool-bg);cursor:pointer}
-.chip-add:hover{background:#e2e8fb}
+/* ===== timeline ===== */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:var(--pearl)}
+.tl-item{position:relative;padding:0 0 16px 8px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:"";position:absolute;left:-19px;top:5px;width:11px;height:11px;border-radius:50%;background:var(--white);border:2px solid var(--pool-500)}
+.tl-time{font:400 12px/16px var(--font);color:var(--seal)}
+.tl-act{font:600 14px/20px var(--font);color:var(--carbon);margin:2px 0}
+.tl-meta{font:400 12px/16px var(--font);color:var(--seal)}
 
-/* modal */
-.overlay{position:fixed;inset:0;background:rgba(25,25,25,.42);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:60px 16px;overflow-y:auto}
+/* ===== resource tree ===== */
+.tree{font:400 14px/20px var(--font)}
+.tree .row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--r-nav);cursor:pointer;color:var(--carbon)}
+.tree .row:hover{background:var(--cloud)}
+.tree .caret{width:14px;color:var(--seal)}
+.tree-children{margin-left:11px;padding-left:12px;box-shadow:inset 1px 0 0 var(--pearl)}
+
+/* ===== modal ===== */
+.overlay{position:fixed;inset:0;z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:64px 16px;background:rgba(25,25,25,.42);overflow-y:auto}
 .overlay.show{display:flex}
-.modal{width:100%;max-width:560px;background:var(--white);border-radius:16px;box-shadow:var(--shadow-2);overflow:hidden}
-.modal-lg{max-width:760px}
-.modal-head{display:flex;align-items:center;gap:10px;padding:18px 22px;border-bottom:1px solid var(--border)}
-.modal-head h3{font:600 16px/20px var(--font-cjk);color:var(--carbon)}
-.modal-head .spacer{margin-left:auto}
-.modal-body{padding:22px;max-height:64vh;overflow-y:auto}
-.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:16px 22px;border-top:1px solid var(--border);background:var(--mist)}
-.field{margin-bottom:16px}
-.field label{display:block;font:600 12px/16px var(--font-sans);color:var(--stone);margin-bottom:6px}
-.field input,.field select,.field textarea{width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:8px;background:var(--white);font:400 13px/20px var(--font-cjk);color:var(--carbon)}
-.field textarea{height:auto;padding:10px 12px;min-height:76px;resize:vertical}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--pool);box-shadow:0 0 0 3px var(--pool-bg)}
-.field .hint{font:400 11px/16px var(--font-cjk);color:var(--ash);margin-top:5px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.seg{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
-.seg label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;font:500 13px/16px var(--font-cjk);color:var(--stone);cursor:pointer;background:var(--white);border:0;border-right:1px solid var(--border)}
-.seg label:last-child{border-right:0}
-.seg input{display:none}
-.seg input:checked+label{background:var(--pool-bg);color:var(--pool-dark);font-weight:600}
+.modal{width:100%;max-width:600px;background:var(--white);border-radius:var(--r-card);overflow:hidden;box-shadow:0 8px 32px rgba(25,25,25,.2)}
+.modal-head{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 16px 6px 24px;background:var(--pool-100)}
+.modal-head h3{flex:1;font:400 14px/20px var(--font);color:var(--pool-900)}
+.modal-body{padding:20px 24px;max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;box-shadow:inset 0 1px 0 var(--line)}
+.note{padding:12px 16px;border-radius:var(--r-ctl);background:var(--pool-100);color:var(--pool-900);font:400 12px/18px var(--font)}
 
-/* empty */
-.empty{padding:48px 20px;text-align:center;color:var(--stone)}
-.empty svg{width:42px;height:42px;color:var(--cloud);margin-bottom:10px}
-.empty p{font-size:13px}
-
-/* history timeline */
-.timeline{position:relative;padding-left:22px}
-.timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--seal)}
-.tl-item{position:relative;padding:0 0 18px 6px}
-.tl-item::before{content:"";position:absolute;left:-19px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--white);border:2px solid var(--pool)}
-.tl-item .tl-time{font:400 11px/16px var(--font-mono);color:var(--ash)}
-.tl-item .tl-act{font:600 13px/18px var(--font-cjk);color:var(--carbon);margin:2px 0}
-.tl-item .tl-meta{font:400 12px/16px var(--font-cjk);color:var(--stone)}
-
-.close-x{width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:var(--stone);display:grid;place-items:center;font-size:18px}
-.close-x:hover{background:var(--mist);color:var(--carbon)}
-
-/* resource tree mini */
-.tree{font:400 13px/20px var(--font-cjk)}
-.tree-node{padding:3px 0}
-.tree-node .row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;cursor:pointer}
-.tree-node .row:hover{background:var(--mist)}
-.tree-node .caret{width:14px;color:var(--ash)}
-.tree-children{padding-left:18px;border-left:1px dashed var(--cloud);margin-left:7px}
-
-.stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.stat{flex:1;min-width:140px;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow-1)}
-.stat .n{font:400 28px/32px var(--font-sans);letter-spacing:-.02em;color:var(--carbon)}
-.stat .l{font:500 12px/16px var(--font-sans);color:var(--stone);margin-top:4px}
+/* ===== empty ===== */
+.empty{padding:48px 24px;text-align:center;color:var(--seal);font:400 14px/20px var(--font)}
 </style>
 </head>
 <body>
-<div class="topbar">
-  <div class="brand">
-    <button class="icon-btn" type="button" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-    <svg class="qima-logo" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA"><path fill="#E4002B" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></svg>
-    <div class="brand-title">
-      <div class="title">IT 权限管理平台</div>
-      <div class="sub">Access Control · auth2 管理台</div>
+
+<header class="appbar">
+  <div class="appbar-l">
+    <button class="iconbtn" type="button" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="wordmark">
+      <svg class="qima" viewBox="0 0 411 91.301" xmlns="http://www.w3.org/2000/svg" aria-label="QIMA"><path fill="#E4002B" d="M138.024 8.424a7.167 7.167 0 0 1 14.334 0V76.95a7.167 7.167 0 0 1-14.334 0ZM331.726 74.153l30.3-67.594a9.247 9.247 0 0 1 8.74-5.827 9.728 9.728 0 0 1 9.091 5.827l30.302 67.594a7.754 7.754 0 0 1 .815 3.03 6.718 6.718 0 0 1-6.759 6.876c-3.38 0-5.49-2.01-6.992-5.011l-6.644-15.267h-39.623l-6.877 15.733c-1.522 3.002-3.612 4.545-6.642 4.545a6.567 6.567 0 0 1-6.643-6.643 7.77 7.77 0 0 1 .932-3.263Zm53.376-23.075-14.334-32.981-14.335 32.981ZM89.206 79.093 78.039 67.927a43.081 43.081 0 1 0-10.112 10.112l11.166 11.167a7.15 7.15 0 0 0 10.113-10.113ZM14.302 43.012a28.71 28.71 0 1 1 28.71 28.71 28.742 28.742 0 0 1-28.71-28.71ZM206.932 8.657c0-7.796 10.943-10.276 15.383-3.38l24.707 38.692L271.844 5.16c3.944-6.786 15.267-4.333 15.267 3.496V76.95a7.09 7.09 0 0 1-7.226 7.11 7.015 7.015 0 0 1-6.875-7.11V28.206s-16.885 25.183-20.04 29.748c-3.181 4.603-8.82 4.588-11.912 0l-20.025-29.718v48.83a6.966 6.966 0 0 1-7.11 6.993 6.868 6.868 0 0 1-6.992-6.992Z"/></svg>
+      <span class="suffix">access</span>
     </div>
   </div>
-  <button class="system-switcher" type="button">PROD &middot; permission_master <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></button>
-  <div class="top-actions">
-    <div class="avatar">IT</div>
+  <div class="appbar-r">
+    <button class="env" type="button"><span class="dot"></span>PROD · permission_master<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9.5l6 6 6-6"/></svg></button>
+    <div class="divider-v"></div>
+    <button class="iconbtn" type="button" aria-label="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 113.2 2.4c-.5.2-.7.6-.7 1.1v.5"/><circle cx="12" cy="16.8" r=".9" fill="currentColor" stroke="none"/></svg></button>
+    <button class="iconbtn" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 15V10a6 6 0 10-12 0v5l-1.5 3h15L18 15z"/><path d="M10 20a2 2 0 004 0"/></svg></button>
+    <div class="divider-v"></div>
+    <div class="avatar">it</div>
   </div>
-</div>
+</header>
 
 <div class="layout">
-  <aside class="sidebar">
-    <nav class="nav" id="nav">
-      <button data-view="module" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v4H4zM4 11h16v4H4zM4 17h16v4H4z"/></svg>模块</button>
-      <button data-view="role"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 100-8 4 4 0 000 8zm-6 9v-2a6 6 0 0112 0v2"/></svg>角色 & 资源</button>
-      <button data-view="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 11a4 4 0 10-8 0 4 4 0 008 0zM4 21v-1a7 7 0 0114 0v1"/></svg>内部用户</button>
-      <button data-view="customer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4zm0 5l9 4 9-4M3 17l9 4 9-4"/></svg>客户权限</button>
-      <button data-view="platform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 4-9 4-9-4 9-4zM3 12l9 4 9-4M3 18l9 4 9-4"/></svg>平台权限</button>
-      <button data-view="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>历史记录</button>
-    </nav>
+  <aside class="rail">
+    <div class="rail-items" id="nav">
+      <button data-view="module" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="5" rx="1"/><rect x="3" y="12" width="18" height="8" rx="1"/></svg>模块</button>
+      <button data-view="role"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20v-1.5a6.5 6.5 0 0113 0V20"/></svg>角色 &amp; 资源</button>
+      <button data-view="user"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20v-1a6 6 0 0112 0v1"/><path d="M16 6.2a3.2 3.2 0 010 6M18 20v-1a5 5 0 00-1.6-3.6"/></svg>内部用户</button>
+      <button data-view="customer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2"/><circle cx="12" cy="14" r="1.6"/></svg>客户权限</button>
+      <button data-view="platform"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l8 4-8 4-8-4 8-4z"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4"/></svg>平台权限</button>
+      <button data-view="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg>历史记录</button>
+    </div>
   </aside>
 
-  <main class="main" id="main"></main>
+  <div class="col">
+    <div id="pagebar"></div>
+    <div class="content" id="content"></div>
+  </div>
 </div>
 
 <div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()"></div>
+
 <script id="app-script">
-const ICON={};
+/* ================= data ================= */
 const DATA={
  module:[
   {id:'lab',name:'Lab',desc:'实验室业务模块',roles:5,resources:42,isolation:'BU'},
@@ -278,84 +292,154 @@ const DATA={
   {id:'u1008',email:'emma.hu@qima.com',name:'Emma Hu',dept:'Finance',roles:[]}
  ],
  customer:[
-  {id:'ak-c01',client:'Mistress Foods',login:'mistress.api',key:'ak_live_8fa2…',status:'Active',mode:'inherit',web:12,api:18,created:'2026-05-12'},
-  {id:'ak-c02',client:'GlobalGourmet',login:'gg.integration',key:'ak_live_3c91…',status:'Active',mode:'direct',web:0,api:9,created:'2026-06-01'},
-  {id:'ak-c03',client:'FreshCo',login:'freshco.svc',key:'ak_test_1b7d…',status:'Suspended',mode:'inherit',web:7,api:11,created:'2026-06-20'},
-  {id:'ak-c04',client:'PureHarvest',login:'pureharvest',key:'ak_live_55e0…',status:'Active',mode:'direct',web:0,api:5,created:'2026-07-02'}
+  {id:'ak-c01',client:'Mistress Foods',login:'mistress.api',key:'ak_live_8fa2…',status:'Active',mode:'inherit',web:12,api:18,created:'12-May-2026'},
+  {id:'ak-c02',client:'GlobalGourmet',login:'gg.integration',key:'ak_live_3c91…',status:'Active',mode:'direct',web:0,api:9,created:'01-Jun-2026'},
+  {id:'ak-c03',client:'FreshCo',login:'freshco.svc',key:'ak_test_1b7d…',status:'Suspended',mode:'inherit',web:7,api:11,created:'20-Jun-2026'},
+  {id:'ak-c04',client:'PureHarvest',login:'pureharvest',key:'ak_live_55e0…',status:'Active',mode:'direct',web:0,api:5,created:'02-Jul-2026'}
  ],
  platform:[
-  {id:'ak-p01',client:'Mesa',login:'mesa.platform',key:'ak_plt_9d2f…',status:'Active',mode:'direct',web:0,api:14,created:'2026-04-10'},
-  {id:'ak-p02',client:'ICP',login:'icp.sync',key:'ak_plt_4a8c…',status:'Active',mode:'direct',web:0,api:22,created:'2026-05-22'},
-  {id:'ak-p03',client:'NetSuite',login:'netsuite.fin',key:'ak_plt_7e1b…',status:'Active',mode:'direct',web:0,api:17,created:'2026-06-15'}
+  {id:'ak-p01',client:'Mesa',login:'mesa.platform',key:'ak_plt_9d2f…',status:'Active',mode:'direct',web:0,api:14,created:'10-Apr-2026'},
+  {id:'ak-p02',client:'ICP',login:'icp.sync',key:'ak_plt_4a8c…',status:'Active',mode:'direct',web:0,api:22,created:'22-May-2026'},
+  {id:'ak-p03',client:'NetSuite',login:'netsuite.fin',key:'ak_plt_7e1b…',status:'Active',mode:'direct',web:0,api:17,created:'15-Jun-2026'}
  ],
  history:[
-  {time:'2026-07-23 14:32',actor:'leo.chen@qima.com',act:'创建角色 report:generator',meta:'Report 模块 · 关联 10 web / 14 api'},
-  {time:'2026-07-23 11:08',actor:'leo.chen@qima.com',act:'为用户 u1004 增加 customer:admin 角色',meta:'Ava Wang · Customer'},
-  {time:'2026-07-22 16:45',actor:'ryan.wu@qima.com',act:'创建客户 AccessKey · Mistress Foods',meta:'mode=inherit · ak_live_8fa2…'},
-  {time:'2026-07-22 09:20',actor:'leo.chen@qima.com',act:'更新模块 Finance 数据隔离为 BU',meta:'原: Legal Entity'},
-  {time:'2026-07-21 17:03',actor:'leo.chen@qima.com',act:'创建平台 AccessKey · Mesa',meta:'mode=direct · 14 api 资源'},
-  {time:'2026-07-21 10:14',actor:'ryan.wu@qima.com',act:'移除用户 u1008 的 finance:admin 角色',meta:'Emma Hu'}
+  {time:'23-Jul-2026 14:32',actor:'leo.chen@qima.com',act:'创建角色 report:generator',meta:'Report 模块 · 关联 10 web / 14 api'},
+  {time:'23-Jul-2026 11:08',actor:'leo.chen@qima.com',act:'为用户 u1004 增加 customer:admin 角色',meta:'Ava Wang · Customer'},
+  {time:'22-Jul-2026 16:45',actor:'ryan.wu@qima.com',act:'创建客户 AccessKey · Mistress Foods',meta:'mode=inherit · ak_live_8fa2…'},
+  {time:'22-Jul-2026 09:20',actor:'leo.chen@qima.com',act:'更新模块 Finance 数据隔离为 BU',meta:'原: Legal Entity'},
+  {time:'21-Jul-2026 17:03',actor:'leo.chen@qima.com',act:'创建平台 AccessKey · Mesa',meta:'mode=direct · 14 api 资源'},
+  {time:'21-Jul-2026 10:14',actor:'ryan.wu@qima.com',act:'移除用户 u1008 的 finance:admin 角色',meta:'Emma Hu'}
  ]
 };
 
-const $=s=>document.querySelector(s);
-const main=$('#main');
-let currentView='module';
-
 const VIEWS={
- module:{title:'模块',desc:'权限目录的顶层模块。模块详情含关联资源、角色与数据隔离定义。'},
- role:{title:'角色 & 资源',desc:'跨模块角色检索。详情内绑定 Web / API / Data 三类资源。'},
- user:{title:'内部用户',desc:'只读来自 user-service 的用户列表。详情可编辑用户角色，角色可跳转角色页。'},
- customer:{title:'客户权限',desc:'客户 AccessKey 列表（含 client name）。详情含关联资源与访问日志。'},
- platform:{title:'平台权限',desc:'平台 AccessKey 列表。详情含 DIRECT 绑定资源与访问日志。'},
- history:{title:'历史记录',desc:'权限变更审计日志：谁创建/更新了模块、角色、用户角色与 AccessKey。'}
+ module:{title:'模块'},
+ role:{title:'角色 & 资源'},
+ user:{title:'内部用户'},
+ customer:{title:'客户权限'},
+ platform:{title:'平台权限'},
+ history:{title:'历史记录'}
 };
 
-function render(){
- const cfg=VIEWS[currentView];
- main.innerHTML=renderList(currentView,cfg);
- bindList();
-}
-
-function btn(label,cls,svg,fn){
- return `<button class="btn ${cls||''}" ${fn?`onclick="${fn}"`:''}>${svg||''}${label}</button>`;
-}
 const SVG={
- plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
- edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4v16h16v-7M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
- trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
- back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
- search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>'
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5.5v13M5.5 12h13"/></svg>',
+ edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M11 4.5H4.5v15h15V13"/><path d="M18.2 2.8a2 2 0 012.9 2.9L12 14.8l-3.9 1 1-3.9 9.1-9.1z"/></svg>',
+ link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 13.5a3.5 3.5 0 005 0l3-3a3.5 3.5 0 00-5-5l-1 1"/><path d="M14 10.5a3.5 3.5 0 00-5 0l-3 3a3.5 3.5 0 005 5l1-1"/></svg>',
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 12H5.5M11 5.5L4.5 12l6.5 6.5"/></svg>',
+ search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></svg>',
+ erase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 19h11M4.5 15.5l7-7 5 5-6.5 6.5H7l-2.5-2.5z"/></svg>',
+ columns:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4.5" width="16" height="15" rx="1.5"/><path d="M10 4.5v15M15 4.5v15"/></svg>',
+ download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 4v10M8 10.5l4 4 4-4M5 19.5h14"/></svg>',
+ filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4.5 6.5h15M7 12h10M10 17.5h4"/></svg>',
+ chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 9.5l6 6 6-6"/></svg>',
+ sync:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12a8 8 0 0113.7-5.6M20 12a8 8 0 01-13.7 5.6"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>',
+ shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3.5l7 2.5v5.5c0 4.3-2.9 7.5-7 9-4.1-1.5-7-4.7-7-9V6l7-2.5z"/></svg>',
+ log:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3.5h9l4 4v13H6z"/><path d="M9 11h7M9 15h5"/></svg>'
 };
 
-function renderList(view,cfg){
- const head=`
-  <div class="page-head">
-    <div class="meta"><div class="eyebrow">${view==='module'?'MODULES':view==='role'?'ROLES & RESOURCES':view==='user'?'INTERNAL USERS':view==='customer'?'CUSTOMER ACCESS KEYS':view==='platform'?'PLATFORM ACCESS KEYS':'HISTORY'}</div><h1>${cfg.title}</h1></div>
-    <div class="spacer">${listActions(view)}</div>
+const $=s=>document.querySelector(s);
+const pagebar=$('#pagebar'), content=$('#content');
+let currentView='module', showFilters=true;
+
+/* ================= helpers ================= */
+function btn(label,cls,svg,fn){
+ return `<button class="btn ${cls||''}"${fn?` onclick="${fn}"`:''}>${svg||''}${label?`<span>${label}</span>`:''}</button>`;
+}
+function iconBtn(svg,title,fn,cls){
+ return `<button class="iconbtn ${cls||''}" title="${title}" aria-label="${title}"${fn?` onclick="${fn}"`:''}>${svg}</button>`;
+}
+function kv(k,v){return `<div class="kv-item"><div class="k">${k}</div><div class="v">${v}</div></div>`;}
+function field(label,control,hint){return `<div class="field"><label>${label}</label>${control}${hint?`<div class="hint">${hint}</div>`:''}</div>`;}
+function idxOf(view,r){return DATA[view].indexOf(r);}
+
+function isoBadge(v){return v==='None'?'<span class="badge badge-grey">无</span>':`<span class="badge badge-mango">${v}</span>`;}
+function statusBadge(s){return s==='Active'?'<span class="badge badge-kiwi"><span class="dot"></span>Active</span>':'<span class="badge badge-cherry"><span class="dot"></span>Suspended</span>';}
+function modeBadge(m){return m==='inherit'?'<span class="badge">inherit</span>':'<span class="badge badge-mango">direct</span>';}
+
+/* ================= page bar ================= */
+function listPagebar(view){
+ const cfg=VIEWS[view];
+ const filterCount=view==='role'?1:(view==='customer'||view==='platform')?2:view==='user'?1:0;
+ return `<div class="pagebar">
+  <div class="pagebar-row">
+    <h1>${cfg.title}</h1>
+    <span class="count">${DATA[view].length}</span>
+    <div class="grow"></div>
+    <div class="tools">
+      ${iconBtn(SVG.search,'搜索',`focusSearch()`)}
+      ${iconBtn(SVG.erase,'重置筛选',`resetFilters()`)}
+      ${iconBtn(SVG.columns,'列设置')}
+      ${iconBtn(SVG.download,'导出')}
+      <span class="counter"${filterCount?` data-n="${filterCount}"`:''}>${iconBtn(SVG.filter,'筛选',`toggleFilters()`,showFilters?'on':'')}</span>
+      ${listAction(view)}
+    </div>
   </div>
-  <div class="list-toolbar">
-    <div class="search">${SVG.search}<input placeholder="搜索 ${cfg.title}…" oninput="filterList(this.value)"></div>
-    ${listFilters(view)}
-  </div>`;
- return head+`<div class="table-wrap">${listTable(view)}</div>`;
+  ${listTabs(view)}
+ </div>`;
 }
 
-function listActions(view){
+function listTabs(view){
+ if(view==='customer'||view==='platform')return `<div class="tabs">
+   <button class="tab ${view==='customer'?'active':''}" onclick="switchView('customer')">客户 AccessKey</button>
+   <button class="tab ${view==='platform'?'active':''}" onclick="switchView('platform')">平台 AccessKey</button>
+ </div>`;
+ if(view==='module'||view==='role')return `<div class="tabs">
+   <button class="tab ${view==='module'?'active':''}" onclick="switchView('module')">模块</button>
+   <button class="tab ${view==='role'?'active':''}" onclick="switchView('role')">角色 &amp; 资源</button>
+ </div>`;
+ return '';
+}
+
+function listAction(view){
  if(view==='module')return btn('新建模块','btn-primary',SVG.plus,`openModal('moduleCreate')`);
  if(view==='role')return btn('新建角色','btn-primary',SVG.plus,`openModal('roleCreate')`);
  if(view==='customer')return btn('创建客户 AccessKey','btn-primary',SVG.plus,`openModal('akCreate','customer')`);
  if(view==='platform')return btn('创建平台 AccessKey','btn-primary',SVG.plus,`openModal('akCreate','platform')`);
- if(view==='user')return '';
- if(view==='history')return '';
  return '';
 }
 
-function listFilters(view){
- if(view==='role')return `<div class="filter">模块 <select><option>全部</option><option>Lab</option><option>Customer</option><option>Finance</option></select></div>`;
- if(view==='customer'||view==='platform')return `<div class="filter">状态 <select><option>全部</option><option>Active</option><option>Suspended</option></select></div><div class="filter">模式 <select><option>全部</option><option>inherit</option><option>direct</option></select></div>`;
- if(view==='user')return `<div class="filter">部门 <select><option>全部</option><option>IT</option><option>Lab</option><option>Finance</option><option>Customer</option><option>Inspector</option></select></div>`;
+function detailPagebar(view,r){
+ return `<div class="pagebar">
+  <div class="pagebar-row">
+    ${btn('Back','btn-tertiary',SVG.back,`backToList()`)}
+    <div class="crumbs">
+      <span class="sep">/</span><a onclick="backToList()">${VIEWS[view].title}</a>
+      <span class="sep">/</span><span class="cur">${detailTitle(view,r)}</span>
+    </div>
+    <div class="grow"></div>
+    <div class="tools">${detailStatus(view,r)}${detailPrimary(view,r)}</div>
+  </div>
+ </div>`;
+}
+function detailTitle(view,r){return view==='customer'||view==='platform'?r.id:r.name;}
+function detailStatus(view,r){return (view==='customer'||view==='platform')?statusBadge(r.status):'';}
+function detailPrimary(view,r){
+ if(view==='user')return btn('编辑用户角色','btn-primary',SVG.edit,`openModal('userRole',${idxOf(view,r)})`);
+ if(view==='module')return btn('管理资源','btn-primary',SVG.link,`openModal('resourceManage','module')`);
+ if(view==='role')return btn('绑定资源','btn-primary',SVG.link,`openModal('bindWeb',${idxOf(view,r)})`);
+ if(view==='customer'||view==='platform')return btn('绑定资源','btn-primary',SVG.link,`openModal('akBind',${idxOf(view,r)})`);
  return '';
+}
+
+/* ================= list ================= */
+function render(){
+ pagebar.innerHTML=listPagebar(currentView);
+ content.innerHTML=filterCard(currentView)+`<div class="card"><div class="card-body flush"><div class="table-wrap">${listTable(currentView)}</div></div>${pager(DATA[currentView].length)}</div>`;
+}
+
+function filterCard(view){
+ if(!showFilters)return '';
+ const sel=(label,opts)=>field(label,`<select>${opts.map(o=>`<option>${o}</option>`).join('')}</select>`);
+ let extra='';
+ if(view==='role')extra=sel('模块前缀',['全部','Lab','Customer','Finance','Report','Inspector','Admin'])+sel('数据隔离',['全部','已配置','未配置']);
+ if(view==='user')extra=sel('部门',['全部','IT','Lab','Finance','Customer','Inspector'])+sel('角色数',['全部','有角色','无角色']);
+ if(view==='customer'||view==='platform')extra=sel('状态',['全部','Active','Suspended'])+sel('模式',['全部','inherit','direct']);
+ if(view==='module')extra=sel('数据隔离维度',['全部','BU','Legal Entity','Region','None']);
+ if(view==='history')extra=sel('操作人',['全部','leo.chen@qima.com','ryan.wu@qima.com'])+sel('对象类型',['全部','模块','角色','用户角色','AccessKey']);
+ return `<div class="filterbar"><div class="filters">
+   ${field('关键字',`<input id="q" placeholder="Type to search..." oninput="filterList(this.value)">`)}
+   ${extra}
+ </div></div>`;
 }
 
 function listTable(view){
@@ -364,212 +448,220 @@ function listTable(view){
 }
 
 function listHead(view){
- const map={
+ return {
   module:`<tr><th>模块 ID</th><th>名称</th><th>描述</th><th>角色</th><th>资源</th><th>数据隔离</th></tr>`,
   role:`<tr><th>角色 Key</th><th>模块前缀</th><th>描述</th><th>Web</th><th>API</th><th>数据隔离</th></tr>`,
   user:`<tr><th>用户 ID</th><th>姓名</th><th>邮箱</th><th>部门</th><th>角色数</th></tr>`,
-  customer:`<tr><th>AccessKey ID</th><th>客户名称</th><th>登录账号</th><th>模式</th><th>状态</th><th>创建</th></tr>`,
-  platform:`<tr><th>AccessKey ID</th><th>平台名称</th><th>登录账号</th><th>模式</th><th>状态</th><th>创建</th></tr>`,
+  customer:`<tr><th>AccessKey ID</th><th>客户名称</th><th>登录账号</th><th>模式</th><th>状态</th><th>创建日期</th></tr>`,
+  platform:`<tr><th>AccessKey ID</th><th>平台名称</th><th>登录账号</th><th>模式</th><th>状态</th><th>创建日期</th></tr>`,
   history:`<tr><th>时间</th><th>操作人</th><th>操作</th><th>对象</th></tr>`
- };
- return map[view];
+ }[view];
 }
 
 function listRow(view,r,i){
- const onclk=`data-idx="${i}" onclick="goDetail('${view}',${i})"`;
- if(view==='module')return `<tr ${onclk}><td class="row-id mono">${r.id}</td><td>${r.name}</td><td class="muted">${r.desc}</td><td><span class="tag tag-pool">${r.roles}</span></td><td>${r.resources}</td><td>${isoTag(r.isolation)}</td></tr>`;
- if(view==='role')return `<tr ${onclk}><td class="row-id mono">${r.name}</td><td>${r.module}</td><td class="muted">${r.desc}</td><td>${r.web}</td><td>${r.api}</td><td>${r.data?'<span class="tag tag-orange"><span class="dot"></span>隔离</span>':'—'}</td></tr>`;
- if(view==='user')return `<tr ${onclk}><td class="row-id mono">${r.id}</td><td>${r.name}</td><td class="mono">${r.email}</td><td>${r.dept}</td><td>${r.roles.length?`<span class="tag tag-pool">${r.roles.length}</span>`:'<span class="tag tag-grey">0</span>'}</td></tr>`;
- if(view==='customer'||view==='platform')return `<tr ${onclk}><td class="row-id mono">${r.id}</td><td>${r.client}</td><td class="mono">${r.login}</td><td>${modeTag(r.mode)}</td><td>${statusTag(r.status)}</td><td class="muted">${r.created}</td></tr>`;
- if(view==='history')return `<tr><td class="mono">${r.time}</td><td class="mono">${r.actor}</td><td>${r.act}</td><td class="muted">${r.meta}</td></tr>`;
+ const cl=`class="clickable" data-idx="${i}" onclick="goDetail('${view}',${i})"`;
+ if(view==='module')return `<tr ${cl}><td><span class="cell-link">${r.id}</span></td><td class="strong">${r.name}</td><td>${r.desc}</td><td><span class="count">${r.roles}</span></td><td><span class="count">${r.resources}</span></td><td>${isoBadge(r.isolation)}</td></tr>`;
+ if(view==='role')return `<tr ${cl}><td><span class="cell-link">${r.name}</span></td><td class="strong">${r.module}</td><td>${r.desc}</td><td><span class="count">${r.web}</span></td><td><span class="count">${r.api}</span></td><td>${r.data?'<span class="badge badge-mango"><span class="dot"></span>已配置</span>':'<span class="badge badge-grey">无</span>'}</td></tr>`;
+ if(view==='user')return `<tr ${cl}><td><span class="cell-link">${r.id}</span></td><td class="strong">${r.name}</td><td>${r.email}</td><td>${r.dept}</td><td>${r.roles.length?`<span class="count">${r.roles.length}</span>`:'<span class="badge badge-grey">0</span>'}</td></tr>`;
+ if(view==='customer'||view==='platform')return `<tr ${cl}><td><span class="cell-link">${r.id}</span></td><td class="strong">${r.client}</td><td>${r.login}</td><td>${modeBadge(r.mode)}</td><td>${statusBadge(r.status)}</td><td>${r.created}</td></tr>`;
+ if(view==='history')return `<tr><td>${r.time}</td><td>${r.actor}</td><td class="strong">${r.act}</td><td>${r.meta}</td></tr>`;
  return '';
 }
 
-function isoTag(v){return v==='None'?'<span class="tag tag-grey">无</span>':`<span class="tag tag-orange">${v}</span>`;}
-function statusTag(s){return s==='Active'?'<span class="tag tag-kiwi">Active</span>':'<span class="tag tag-red">Suspended</span>';}
-function modeTag(m){return m==='inherit'?'<span class="tag tag-pool">inherit</span>':'<span class="tag tag-orange">direct</span>';}
-
-function filterList(q){
- q=(q||'').toLowerCase();
- const rows=DATA[currentView];
- const tbody=$('#tbody');
- tbody.innerHTML=rows.map((r,i)=>{
-  const hay=JSON.stringify(r).toLowerCase();
-  return hay.includes(q)?listRow(currentView,r,i):'';
- }).join('');
+function pager(total){
+ return `<div class="pager"><span>共 ${total} 条 · 每页 10 条</span>
+  <div class="pager-nav"><button disabled>‹</button><button class="active">1</button><button disabled>›</button></div></div>`;
 }
 
+/* ================= detail ================= */
 function goDetail(view,i){
  const r=DATA[view][i];
- if(!r)return;
- if(view==='history')return;
- main.innerHTML=renderDetail(view,r,i);
- bindDetail();
+ if(!r||view==='history')return;
+ pagebar.innerHTML=detailPagebar(view,r);
+ content.innerHTML=detailBody(view,r);
  window.scrollTo(0,0);
 }
-
 function backToList(){render();window.scrollTo(0,0);}
 
-function bindList(){
- document.querySelectorAll('#nav button').forEach(b=>{
-  b.onclick=()=>{currentView=b.dataset.view;document.querySelectorAll('#nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render();};
- });
+function card(title,hint,acts,body,subtabs){
+ return `<div class="card">
+  <div class="card-head" onclick="toggleCard(this)">${SVG.chev}<h3>${title}</h3>${hint?`<span class="hint">${hint}</span>`:''}${acts?`<div class="acts" onclick="event.stopPropagation()">${acts}</div>`:''}</div>
+  ${subtabs||''}
+  <div class="card-body${body.flush?' flush':''}">${body.html!==undefined?body.html:body}</div>
+ </div>`;
 }
-function bindDetail(){}
-
-function renderDetail(view,r,i){
- const cfg=VIEWS[view];
- const head=`
-  <div class="detail-head">
-    <div class="meta"><h2>${detailTitle(view,r)} ${detailStatus(view,r)}</h2><div class="sub">${detailSub(view,r)}</div></div>
-  </div>`;
- return head+detailBody(view,r,i);
+function subtabs(items){
+ return `<div class="subtabs">${items.map((t,i)=>`<button class="tab${i===0?' active':''}" data-p="${t.p}">${t.label}</button>`).join('')}</div>`;
 }
 
-function detailCrumb(view,r){
- if(view==='module')return r.name;
- if(view==='role')return r.name;
- if(view==='user')return r.name;
- if(view==='customer'||view==='platform')return r.id;
- return '';
-}
-function detailTitle(view,r){
- if(view==='module')return r.name;
- if(view==='role')return r.name;
- if(view==='user')return r.name;
- if(view==='customer'||view==='platform')return r.id;
- return '';
-}
-function detailSub(view,r){
- if(view==='module')return `${r.desc} · 模块 ID ${r.id}`;
- if(view==='role')return `${r.desc} · 所属模块 ${r.module}`;
- if(view==='user')return `${r.email} · ${r.dept} · 来自 user-service（只读）`;
- if(view==='customer')return `${r.client} · 登录 ${r.login}`;
- if(view==='platform')return `${r.client} · 登录 ${r.login}`;
- return '';
-}
-function detailStatus(view,r){
- if(view==='customer'||view==='platform')return statusTag(r.status);
- return '';
-}
-function detailActions(view,r){
- const a=[];
- if(view==='module'){a.push(btn('编辑模块信息','btn',SVG.edit,`openModal('moduleEdit',${idxOf(view,r)})`));a.push(btn('管理资源','btn',SVG.edit,`openModal('resourceManage','${view}')`));a.push(btn('管理角色','btn',SVG.edit,`openModal('roleManage')`));a.push(btn('配置数据隔离','btn',SVG.edit,`openModal('isoConfig',${idxOf(view,r)})`));}
- if(view==='role'){a.push(btn('编辑角色','btn',SVG.edit,`openModal('roleEdit',${idxOf(view,r)})`));a.push(btn('绑定 Web 资源','btn',SVG.edit,`openModal('bindWeb',${idxOf(view,r)})`));a.push(btn('绑定 API 资源','btn',SVG.edit,`openModal('bindApi',${idxOf(view,r)})`));a.push(btn('配置数据隔离','btn',SVG.edit,`openModal('bindData',${idxOf(view,r)})`));}
- if(view==='user'){a.push(btn('编辑用户角色','btn-primary',SVG.edit,`openModal('userRole',${idxOf(view,r)})`));}
- if(view==='customer'||view==='platform'){a.push(btn('编辑 AccessKey','btn',SVG.edit,`openModal('akEdit',${idxOf(view,r)})`));a.push(btn('绑定资源','btn',SVG.edit,`openModal('akBind',${idxOf(view,r)})`));a.push(btn('查看访问日志','btn',SVG.edit,`openModal('akLog',${idxOf(view,r)})`));}
- return a.join('');
-}
-function idxOf(view,r){return DATA[view].indexOf(r);}
-
-function detailBody(view,r,i){
+function detailBody(view,r){
  if(view==='module')return moduleDetail(r);
  if(view==='role')return roleDetail(r);
  if(view==='user')return userDetail(r);
- if(view==='customer'||view==='platform')return akDetail(view,r);
- return '';
+ return akDetail(view,r);
 }
 
-function kv(k,v,mono){return `<div class="kv-item"><div class="k">${k}</div><div class="v ${mono?'mono':''}">${v}</div></div>`;}
-
 function moduleDetail(r){
- return `
-  <div class="section"><div class="section-head"><h3>模块信息</h3><span class="hint">基础属性</span><div class="spacer">${btn('编辑模块信息','btn-sm',SVG.edit,`openModal('moduleEdit',${idxOf('module',r)})`)}</div></div><div class="section-body"><div class="kv">
-    ${kv('模块 ID',r.id,true)}${kv('名称',r.name)}${kv('描述',r.desc)}${kv('数据隔离维度',r.isolation)}
-  </div></div></div>
-  <div class="section"><div class="section-head"><h3>关联资源</h3><span class="hint">${r.resources} 项 · Web = PAGE/BUTTON</span><div class="spacer">${btn('管理资源','btn-sm',SVG.edit,`openModal('resourceManage','${'module'}')`)}</div></div>
-    <div class="subtabs"><button class="subtab active" data-p="web">Web</button><button class="subtab" data-p="api">API</button><button class="subtab" data-p="data">Data</button></div>
-    <div class="section-body">
-      <div class="subpane active" data-p="web"><div class="chips">
-        <span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span><span class="chip">lab.sample.detail</span><span class="chip">lab.report.view</span><span class="chip">lab.test.assign</span><span class="chip chip-add">+ 添加资源</span>
-      </div></div>
-      <div class="subpane" data-p="api"><div class="chips">
-        <span class="chip">GET /v1/lab/samples</span><span class="chip">POST /v1/lab/test</span><span class="chip">GET /v1/lab/report</span><span class="chip chip-add">+ 添加 API</span>
-      </div></div>
-      <div class="subpane" data-p="data"><div class="kv">
-        ${kv('隔离维度',r.isolation==='None'?'未配置':r.isolation)}${kv('说明','按该维度对模块内资源访问做行级数据隔离；主数据维度在此配置')}
-      </div><div style="margin-top:12px">${btn('配置数据隔离','btn-sm',SVG.edit,`openModal('isoConfig',${idxOf('module',r)})`)}</div></div>
-    </div>
-  </div>
-  <div class="section"><div class="section-head"><h3>模块内角色</h3><span class="hint">${r.roles} 个</span><div class="spacer">${btn('管理角色','btn-sm',SVG.edit,`openModal('roleManage')`)}</div></div><div class="section-body">
-    <table style="width:100%"><thead><tr><th>角色 Key</th><th>描述</th><th>Web</th><th>API</th></tr></thead><tbody>
-      ${DATA.role.filter(x=>x.module===r.name).map(x=>`<tr onclick="jumpToRole('${x.id}')" style="cursor:pointer"><td class="row-id mono">${x.name}</td><td class="muted">${x.desc}</td><td>${x.web}</td><td>${x.api}</td></tr>`).join('')}
-    </tbody></table>
-  </div></div>`;
+ const i=idxOf('module',r);
+ const roleRows=DATA.role.filter(x=>x.module===r.name);
+ return card('模块信息','基础属性',btn('编辑','btn-secondary',SVG.edit,`openModal('moduleEdit',${i})`),
+   `<div class="kv">${kv('模块 ID',r.id)}${kv('名称',r.name)}${kv('描述',r.desc)}${kv('数据隔离维度',isoBadge(r.isolation))}</div>`)
+ + card('关联资源',`${r.resources} 项 · Web = PAGE / BUTTON`,
+   btn('管理资源','btn-secondary',SVG.link,`openModal('resourceManage','module')`),
+   {html:`
+     <div class="subpane active" data-p="web"><div class="chips">
+       <span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span><span class="chip">lab.sample.detail</span><span class="chip">lab.report.view</span><span class="chip">lab.test.assign</span><span class="chip chip-add" onclick="openModal('resourceManage','module')">${SVG.plus.replace('<svg','<svg style="width:14px;height:14px"')}添加资源</span>
+     </div></div>
+     <div class="subpane" data-p="api"><div class="chips">
+       <span class="chip">GET /v1/lab/samples</span><span class="chip">POST /v1/lab/test</span><span class="chip">GET /v1/lab/report</span><span class="chip chip-add" onclick="openModal('resourceManage','module')">添加 API</span>
+     </div></div>
+     <div class="subpane" data-p="data">
+       <div class="kv">${kv('隔离维度',r.isolation==='None'?'未配置':isoBadge(r.isolation))}${kv('说明','按该维度对模块内资源访问做行级数据隔离，主数据维度在此配置')}</div>
+       <div style="margin-top:16px">${btn('配置数据隔离','btn-secondary',SVG.shield,`openModal('isoConfig',${i})`)}</div>
+     </div>`},
+   subtabs([{p:'web',label:'Web'},{p:'api',label:'API'},{p:'data',label:'Data'}]))
+ + card('模块内角色',`${r.roles} 个`,btn('管理角色','btn-secondary',SVG.edit,`openModal('roleManage')`),
+   {flush:true,html:`<div class="table-wrap"><table><thead><tr><th>角色 Key</th><th>描述</th><th>Web</th><th>API</th><th>数据隔离</th></tr></thead><tbody>
+     ${roleRows.map(x=>`<tr class="clickable" onclick="jumpToRole('${x.id}')"><td><span class="cell-link">${x.name}</span></td><td>${x.desc}</td><td><span class="count">${x.web}</span></td><td><span class="count">${x.api}</span></td><td>${x.data?'<span class="badge badge-mango">已配置</span>':'<span class="badge badge-grey">无</span>'}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">该模块暂无角色</td></tr>'}
+   </tbody></table></div>`});
 }
 
 function roleDetail(r){
- return `
-  <div class="section"><div class="section-head"><h3>角色信息</h3><div class="spacer">${btn('编辑角色','btn-sm',SVG.edit,`openModal('roleEdit',${idxOf('role',r)})`)}</div></div><div class="section-body"><div class="kv">
-    ${kv('角色 Key',r.name,true)}${kv('模块前缀',r.module)}${kv('描述',r.desc)}
-  </div><div class="hint" style="margin-top:12px;color:var(--ash);font-size:12px">角色 Key 冒号前为模块前缀，但角色可跨模块绑定资源（如 Tiktok admin 绑定 customer service 接口）。</div></div></div>
-  <div class="section"><div class="section-head"><h3>关联资源</h3><span class="hint">分 Web / API / Data 三类</span><div class="spacer">${btn('绑定 Web','btn-sm',SVG.edit,`openModal('bindWeb',${idxOf('role',r)})`)}${btn('绑定 API','btn-sm',SVG.edit,`openModal('bindApi',${idxOf('role',r)})`)}${btn('配置数据隔离','btn-sm',SVG.edit,`openModal('bindData',${idxOf('role',r)})`)}</div></div>
-    <div class="subtabs" id="roleSub"><button class="subtab active" data-p="web">Web (${r.web})</button><button class="subtab" data-p="api">API (${r.api})</button><button class="subtab" data-p="data">Data (${r.data})</button></div>
-    <div class="section-body">
-      <div class="subpane active" data-p="web"><div class="chips"><span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span><span class="chip">lab.report.view</span><span class="chip chip-add">+ 绑定 Web</span></div></div>
-      <div class="subpane" data-p="api"><div class="chips"><span class="chip">GET /v1/lab/samples</span><span class="chip">POST /v1/lab/test</span><span class="chip">GET /v1/lab/report</span><span class="chip chip-add">+ 绑定 API</span></div></div>
-      <div class="subpane" data-p="data"><div class="chips">${r.data?'<span class="chip">BU: 700万 BU</span><span class="chip">维度: BU</span>':'<span class="muted">该角色无数据隔离</span>'}<span class="chip chip-add">+ 配置隔离</span></div></div>
-    </div>
-  </div>
-  <div class="section"><div class="section-head"><h3>已授权用户</h3><span class="hint">点击用户跳转用户详情</span></div><div class="section-body">
-    <table style="width:100%"><thead><tr><th>用户</th><th>邮箱</th><th>部门</th></tr></thead><tbody>
-      ${DATA.user.filter(u=>u.roles.includes(r.name)).map(u=>`<tr onclick="jumpToUser('${u.id}')" style="cursor:pointer"><td class="row-id">${u.name}</td><td class="mono">${u.email}</td><td>${u.dept}</td></tr>`).join('')||'<tr><td class="muted">暂无</td><td></td><td></td></tr>'}
-    </tbody></table>
-  </div></div>`;
+ const i=idxOf('role',r);
+ const users=DATA.user.filter(u=>u.roles.includes(r.name));
+ return card('角色信息','',btn('编辑','btn-secondary',SVG.edit,`openModal('roleEdit',${i})`),
+   `<div class="kv">${kv('角色 Key',r.name)}${kv('模块前缀',r.module)}${kv('描述',r.desc)}</div>
+    <div class="note" style="margin-top:16px">角色 Key 冒号前为模块前缀，但角色可跨模块绑定资源（例如 Tiktok admin 绑定 customer service 接口）。</div>`)
+ + card('关联资源','分 Web / API / Data 三类',
+   btn('绑定 Web','btn-secondary',SVG.link,`openModal('bindWeb',${i})`)+btn('绑定 API','btn-tertiary',SVG.link,`openModal('bindApi',${i})`)+btn('数据隔离','btn-tertiary',SVG.shield,`openModal('bindData',${i})`),
+   {html:`
+     <div class="subpane active" data-p="web"><div class="chips"><span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span><span class="chip">lab.report.view</span><span class="chip chip-add" onclick="openModal('bindWeb',${i})">绑定 Web</span></div></div>
+     <div class="subpane" data-p="api"><div class="chips"><span class="chip">GET /v1/lab/samples</span><span class="chip">POST /v1/lab/test</span><span class="chip">GET /v1/lab/report</span><span class="chip chip-add" onclick="openModal('bindApi',${i})">绑定 API</span></div></div>
+     <div class="subpane" data-p="data"><div class="chips">${r.data?'<span class="chip">维度：BU</span><span class="chip">值：700万 BU</span>':'<span class="muted">该角色无数据隔离</span>'}<span class="chip chip-add" onclick="openModal('bindData',${i})">配置隔离</span></div></div>`},
+   subtabs([{p:'web',label:`Web (${r.web})`},{p:'api',label:`API (${r.api})`},{p:'data',label:`Data (${r.data})`}]))
+ + card('已授权用户','点击行跳转用户详情','',
+   {flush:true,html:`<div class="table-wrap"><table><thead><tr><th>用户</th><th>邮箱</th><th>部门</th></tr></thead><tbody>
+     ${users.map(u=>`<tr class="clickable" onclick="jumpToUser('${u.id}')"><td><span class="cell-link">${u.name}</span></td><td>${u.email}</td><td>${u.dept}</td></tr>`).join('')||'<tr><td colspan="3" class="empty">暂无授权用户</td></tr>'}
+   </tbody></table></div>`});
 }
 
 function userDetail(r){
- return `
-  <div class="section"><div class="section-head"><h3>用户信息</h3><span class="hint">只读 · 来自 user-service</span></div><div class="section-body"><div class="kv">
-    ${kv('用户 ID',r.id,true)}${kv('姓名',r.name)}${kv('邮箱',r.email,true)}${kv('部门',r.dept)}
-  </div></div></div>
-  <div class="section"><div class="section-head"><h3>用户角色</h3><span class="hint">点击角色跳转角色详情</span><div class="spacer">${btn('编辑角色','btn-sm',SVG.edit,`openModal('userRole',${idxOf('user',r)})`)}</div></div><div class="section-body">
-    ${r.roles.length?`<div class="chips">${r.roles.map(rl=>`<span class="chip" onclick="jumpToRole('${rl}')" style="cursor:pointer;color:var(--pool)">${rl}</span>`).join('')}</div>`:'<div class="muted">该用户暂无权限角色</div>'}
-  </div></div>`;
+ const i=idxOf('user',r);
+ return card('用户信息','只读 · 来自 user-service','',
+   `<div class="kv">${kv('用户 ID',r.id)}${kv('姓名',r.name)}${kv('邮箱',r.email)}${kv('部门',r.dept)}</div>`)
+ + card('用户角色','点击角色跳转角色详情',btn('编辑角色','btn-secondary',SVG.edit,`openModal('userRole',${i})`),
+   r.roles.length?`<div class="chips">${r.roles.map(rl=>`<span class="chip chip-link" onclick="jumpToRole('${rl}')">${rl}</span>`).join('')}</div>`:'<div class="empty">该用户暂无权限角色</div>');
 }
 
 function akDetail(view,r){
- const isPlat=view==='platform';
- return `
-  <div class="section"><div class="section-head"><h3>AccessKey 信息</h3><div class="spacer">${btn('编辑 AccessKey','btn-sm',SVG.edit,`openModal('akEdit',${idxOf(view,r)})`)}</div></div><div class="section-body"><div class="kv">
-    ${kv('AccessKey ID',r.id,true)}${kv(isPlat?'平台':'客户',r.client)}${kv('登录账号',r.login,true)}${kv('Key',r.key,true)}${kv('模式',r.mode==='inherit'?'inherit（继承角色）':'direct（直接绑资源）')}${kv('状态',r.status)}${kv('创建时间',r.created)}
-  </div></div></div>
-  <div class="section"><div class="section-head"><h3>关联资源</h3><span class="hint">${isPlat?'平台 DIRECT 绑定':'Web / API'}</span><div class="spacer">${btn('绑定资源','btn-sm',SVG.edit,`openModal('akBind',${idxOf(view,r)})`)}</div></div>
-    <div class="subtabs"><button class="subtab ${isPlat?'':'active'}" data-p="web">Web (${r.web})</button><button class="subtab ${isPlat?'active':''}" data-p="api">API (${r.api})</button></div>
-    <div class="section-body">
-      <div class="subpane ${isPlat?'':'active'}" data-p="web"><div class="chips">${r.web?'<span class="chip">customer.portal</span><span class="chip">customer.order.list</span>':'<span class="muted">无 Web 资源</span>'}<span class="chip chip-add">+ 绑定</span></div></div>
-      <div class="subpane ${isPlat?'active':''}" data-p="api"><div class="chips"><span class="chip">GET /v1/order/list</span><span class="chip">POST /v1/order/create</span><span class="chip">GET /v1/report</span><span class="chip chip-add">+ 绑定 API</span></div></div>
-    </div>
-  </div>
-  <div class="section"><div class="section-head"><h3>访问日志</h3><span class="hint">accessKey log</span><div class="spacer">${btn('查看全部','btn-sm',SVG.edit,`openModal('akLog',${idxOf(view,r)})`)}</div></div><div class="section-body">
-    <div class="timeline">
-      <div class="tl-item"><div class="tl-time">2026-07-23 13:55</div><div class="tl-act">调用 POST /v1/order/create</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 142ms</div></div>
-      <div class="tl-item"><div class="tl-time">2026-07-23 13:12</div><div class="tl-act">调用 GET /v1/order/list</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 88ms</div></div>
-      <div class="tl-item"><div class="tl-time">2026-07-23 09:40</div><div class="tl-act">调用 GET /v1/report</div><div class="tl-meta">IP 10.2.4.8 · 403 Forbidden · 资源未授权</div></div>
-    </div>
-  </div></div>`;
+ const i=idxOf(view,r), isPlat=view==='platform';
+ return card('AccessKey 信息','',btn('编辑','btn-secondary',SVG.edit,`openModal('akEdit',${i})`),
+   `<div class="kv">${kv('AccessKey ID',r.id)}${kv(isPlat?'平台':'客户',r.client)}${kv('登录账号',r.login)}${kv('Key',r.key)}${kv('模式',r.mode==='inherit'?'inherit（继承角色）':'direct（直接绑资源）')}${kv('状态',statusBadge(r.status))}${kv('创建日期',r.created)}</div>`)
+ + card('关联资源',isPlat?'平台 DIRECT 绑定':'Web / API',
+   btn('绑定资源','btn-secondary',SVG.link,`openModal('akBind',${i})`),
+   {html:`
+     <div class="subpane active" data-p="web"><div class="chips">${r.web?'<span class="chip">customer.portal</span><span class="chip">customer.order.list</span>':'<span class="muted">无 Web 资源</span>'}<span class="chip chip-add" onclick="openModal('akBind',${i})">绑定</span></div></div>
+     <div class="subpane" data-p="api"><div class="chips"><span class="chip">GET /v1/order/list</span><span class="chip">POST /v1/order/create</span><span class="chip">GET /v1/report</span><span class="chip chip-add" onclick="openModal('akBind',${i})">绑定 API</span></div></div>`},
+   subtabs([{p:'web',label:`Web (${r.web})`},{p:'api',label:`API (${r.api})`}]))
+ + card('访问日志','accessKey log',btn('查看全部','btn-tertiary',SVG.log,`openModal('akLog',${i})`),
+   `<div class="timeline">
+     <div class="tl-item"><div class="tl-time">23-Jul-2026 13:55</div><div class="tl-act">POST /v1/order/create</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 142 ms</div></div>
+     <div class="tl-item"><div class="tl-time">23-Jul-2026 13:12</div><div class="tl-act">GET /v1/order/list</div><div class="tl-meta">IP 10.2.4.8 · 200 OK · 88 ms</div></div>
+     <div class="tl-item"><div class="tl-time">23-Jul-2026 09:40</div><div class="tl-act">GET /v1/report</div><div class="tl-meta">IP 10.2.4.8 · 403 Forbidden · 资源未授权</div></div>
+   </div>`);
 }
 
-function jumpToRole(id){const i=DATA.role.findIndex(x=>x.id===id);if(i>=0){currentView='role';document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view==='role'));goDetail('role',i);}}
-function jumpToUser(id){const i=DATA.user.findIndex(x=>x.id===id);if(i>=0){currentView='user';document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view==='user'));goDetail('user',i);}}
+/* ================= interactions ================= */
+function switchView(v){
+ currentView=v;
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+ render();window.scrollTo(0,0);
+}
+function toggleCard(head){head.parentElement.classList.toggle('collapsed');}
+function toggleFilters(){showFilters=!showFilters;render();}
+function resetFilters(){render();}
+function focusSearch(){if(!showFilters){showFilters=true;render();}const q=$('#q');if(q)q.focus();}
 
-/* ---------- modals ---------- */
+function filterList(q){
+ q=(q||'').toLowerCase();
+ const tbody=$('#tbody');if(!tbody)return;
+ tbody.innerHTML=DATA[currentView].map((r,i)=>JSON.stringify(r).toLowerCase().includes(q)?listRow(currentView,r,i):'').join('')
+  ||`<tr><td colspan="6" class="empty">未找到匹配记录</td></tr>`;
+}
+
+function jumpToRole(key){
+ const i=DATA.role.findIndex(x=>x.id===key||x.name===key);
+ if(i<0)return;currentView='role';
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view==='role'));
+ goDetail('role',i);
+}
+function jumpToUser(id){
+ const i=DATA.user.findIndex(x=>x.id===id);
+ if(i<0)return;currentView='user';
+ document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view==='user'));
+ goDetail('user',i);
+}
+
+/* ================= modals ================= */
+const inp=(ph,val,dis)=>`<input placeholder="${ph||''}"${val!==undefined?` value="${val}"`:''}${dis?' disabled':''}>`;
+const sel=opts=>`<select>${opts.map(o=>`<option${o.sel?' selected':''}>${o.v!==undefined?o.v:o}</option>`).join('')}</select>`;
+
 const MODALS={
- moduleCreate:{title:'新建模块',body:()=>`<div class="grid-2"><div class="field"><label>模块 ID</label><input placeholder="如 lab"></div><div class="field"><label>名称</label><input placeholder="Lab"></div></div><div class="field"><label>描述</label><textarea placeholder="模块用途…"></textarea></div><div class="field"><label>数据隔离维度</label><select><option>None</option><option>BU</option><option>Legal Entity</option><option>Region</option></select><div class="hint">后续可在模块详情修改</div></div>`},
- moduleEdit:{title:'编辑模块信息',body:i=>{const r=DATA.module[i];return `<div class="grid-2"><div class="field"><label>模块 ID</label><input value="${r.id}" disabled></div><div class="field"><label>名称</label><input value="${r.name}"></div></div><div class="field"><label>描述</label><textarea>${r.desc}</textarea></div>`;}},
- isoConfig:{title:'配置数据隔离',body:i=>{const r=DATA.module[i];return `<div class="field"><label>隔离维度</label><select><option ${r.isolation==='None'?'selected':''}>None</option><option ${r.isolation==='BU'?'selected':''}>BU</option><option ${r.isolation==='Legal Entity'?'selected':''}>Legal Entity</option><option ${r.isolation==='Region'?'selected':''}>Region</option></select><div class="hint">主数据维度，决定模块内资源的行级隔离</div></div>`;}},
- roleCreate:{title:'新建角色',body:()=>`<div class="grid-2"><div class="field"><label>角色 Key</label><input placeholder="module:roleName"></div><div class="field"><label>所属模块</label><select>${DATA.module.map(m=>`<option>${m.name}</option>`).join('')}</select></div></div><div class="field"><label>描述</label><input placeholder="角色用途…"></div>`},
- roleEdit:{title:'编辑角色',body:i=>{const r=DATA.role[i];return `<div class="grid-2"><div class="field"><label>角色 Key</label><input value="${r.name}"></div><div class="field"><label>所属模块</label><input value="${r.module}" disabled></div></div><div class="field"><label>描述</label><input value="${r.desc}"></div>`;}},
- userRole:{title:'编辑用户角色',body:i=>{const r=DATA.user[i];return `<div class="field"><label>用户</label><input value="${r.name} · ${r.email}" disabled></div><div class="field"><label>已分配角色</label><div class="chips" id="userRoleChips">${r.roles.map(rl=>`<span class="chip">${rl}<span class="x" onclick="this.parentElement.remove()">×</span></span>`).join('')}</div></div><div class="field"><label>添加角色</label><select><option>选择角色…</option>${DATA.role.map(x=>`<option>${x.name}</option>`).join('')}</select></div>`;}},
- akCreate:{title:(t)=>t==='platform'?'创建平台 AccessKey':'创建客户 AccessKey',body:(t)=>`<div class="field"><label>${t==='platform'?'平台':'客户'}名称</label><input placeholder="搜索 ${t==='platform'?'平台':'公司'}…" ></div><div class="grid-2"><div class="field"><label>登录账号</label><input placeholder="login id"></div><div class="field"><label>模式</label><div class="seg"><input type="radio" name="m" id="m1" ${t==='platform'?'':'checked'}><label for="m1">inherit</label><input type="radio" name="m" id="m2" ${t==='platform'?'checked':''}><label for="m2">direct</label></div></div></div><div class="field"><label>备注</label><input placeholder="用途说明…"></div><div class="hint">${t==='platform'?'平台 AccessKey 由后台直接创建并 DIRECT 绑定资源。':'后台代创建：原流程需客户先登录后自生成，此入口供 IT 直接为客户创建 AccessKey（新接口）。'} 创建后生成 access key 与 secret，仅展示一次。</div>`},
- akEdit:{title:'编辑 AccessKey',body:i=>{const r=DATA.customer[i]||DATA.platform[i];return `<div class="field"><label>AccessKey ID</label><input value="${r.id}" disabled></div><div class="grid-2"><div class="field"><label>${r.client}</label><input value="${r.login}"></div><div class="field"><label>状态</label><select><option ${r.status==='Active'?'selected':''}>Active</option><option ${r.status==='Suspended'?'selected':''}>Suspended</option></select></div></div>`;}},
- akLog:{title:'AccessKey 访问日志',body:i=>`<div class="timeline"><div class="tl-item"><div class="tl-time">2026-07-23 13:55</div><div class="tl-act">POST /v1/order/create</div><div class="tl-meta">200 OK · 142ms</div></div><div class="tl-item"><div class="tl-time">2026-07-23 13:12</div><div class="tl-act">GET /v1/order/list</div><div class="tl-meta">200 OK · 88ms</div></div><div class="tl-item"><div class="tl-time">2026-07-23 09:40</div><div class="tl-act">GET /v1/report</div><div class="tl-meta">403 · 资源未授权</div></div></div>`},
- bindWeb:{title:'绑定 Web 资源',body:()=>`<div class="field"><label>搜索资源</label><input placeholder="lab.dashboard…"></div><div class="field"><label>已选</label><div class="chips"><span class="chip">lab.dashboard</span><span class="chip">lab.sample.list</span></div></div>`},
- bindApi:{title:'绑定 API 资源',body:()=>`<div class="field"><label>搜索接口</label><input placeholder="GET /v1/…"></div><div class="field"><label>已选</label><div class="chips"><span class="chip">GET /v1/lab/samples</span></div></div>`},
- bindData:{title:'配置数据隔离',body:()=>`<div class="field"><label>隔离维度</label><select><option>BU</option><option>Legal Entity</option><option>Region</option></select></div><div class="field"><label>隔离值</label><input placeholder="如 700万 BU"></div>`},
- akBind:{title:'绑定资源',body:()=>`<div class="field"><label>资源类型</label><div class="seg"><input type="radio" name="t" id="t1" checked><label for="t1">Web</label><input type="radio" name="t" id="t2"><label for="t2">API</label></div></div><div class="field"><label>搜索</label><input placeholder="资源 / 接口…"></div>`},
- resourceManage:{title:'管理模块资源',body:()=>`<div class="field"><label>资源类型</label><div class="seg"><input type="radio" name="rt" id="rt1" checked><label for="rt1">PAGE</label><input type="radio" name="rt" id="rt2"><label for="rt2">BUTTON</label><input type="radio" name="rt" id="rt3"><label for="rt3">API</label></div></div><div class="field"><label>资源树</label><div class="tree"><div class="tree-node"><div class="row"><span class="caret">▾</span>lab.dashboard</div><div class="tree-children"><div class="tree-node"><div class="row"><span class="caret">▸</span>lab.sample.list</div></div><div class="tree-node"><div class="row"><span class="caret">▸</span>lab.report.view</div></div></div></div></div></div>`},
- roleManage:{title:'管理模块内角色',body:()=>`<div class="field"><label>角色列表</label><div class="chips">${DATA.role.map(r=>`<span class="chip">${r.name}</span>`).join('')}</div></div><div class="field"><label>新建角色</label><input placeholder="module:roleName"></div>`}
+ moduleCreate:{title:'新建模块',body:()=>`
+  <div class="grid-2">${field('模块 ID',inp('如 lab'))}${field('名称',inp('Lab'))}</div>
+  ${field('描述',`<textarea placeholder="模块用途…"></textarea>`)}
+  ${field('数据隔离维度',sel(['None','BU','Legal Entity','Region']),'后续可在模块详情中修改')}`},
+ moduleEdit:{title:'编辑模块信息',body:i=>{const r=DATA.module[i];return `
+  <div class="grid-2">${field('模块 ID',inp('',r.id,true))}${field('名称',inp('',r.name))}</div>
+  ${field('描述',`<textarea>${r.desc}</textarea>`)}`;}},
+ isoConfig:{title:'配置数据隔离',body:i=>{const r=DATA.module[i];return field('隔离维度',sel(['None','BU','Legal Entity','Region'].map(v=>({v,sel:v===r.isolation}))),'主数据维度，决定模块内资源的行级隔离');}},
+ roleCreate:{title:'新建角色',body:()=>`
+  <div class="grid-2">${field('角色 Key',inp('module:roleName'))}${field('模块前缀',sel(DATA.module.map(m=>m.name)))}</div>
+  ${field('描述',inp('角色用途…'))}
+  <div class="note">模块前缀仅用于命名归属，角色仍可跨模块绑定资源。</div>`},
+ roleEdit:{title:'编辑角色',body:i=>{const r=DATA.role[i];return `
+  <div class="grid-2">${field('角色 Key',inp('',r.name))}${field('模块前缀',inp('',r.module,true))}</div>
+  ${field('描述',inp('',r.desc))}`;}},
+ userRole:{title:'编辑用户角色',body:i=>{const r=DATA.user[i];return `
+  ${field('用户',inp('',`${r.name} · ${r.email}`,true))}
+  ${field('已分配角色',`<div class="chips">${r.roles.map(rl=>`<span class="chip">${rl}<span class="x" onclick="this.parentElement.remove()">×</span></span>`).join('')||'<span class="muted">暂无</span>'}</div>`)}
+  ${field('添加角色',sel(['选择角色…',...DATA.role.map(x=>x.name)]))}`;}},
+ akCreate:{title:t=>t==='platform'?'创建平台 AccessKey':'创建客户 AccessKey',body:t=>`
+  ${field(`${t==='platform'?'平台':'客户'}名称`,inp(`Type to search...`))}
+  <div class="grid-2">${field('登录账号',inp('login id'))}${field('模式',`<div class="seg"><input type="radio" name="m" id="m1"${t==='platform'?'':' checked'}><label for="m1">inherit</label><input type="radio" name="m" id="m2"${t==='platform'?' checked':''}><label for="m2">direct</label></div>`)}</div>
+  ${field('备注',inp('用途说明…'))}
+  <div class="note">${t==='platform'?'平台 AccessKey 由后台直接创建并 DIRECT 绑定资源。':'后台代创建：原流程需客户先登录后自行生成，此入口供 IT 直接为客户创建 AccessKey（新接口）。'}创建后生成 access key 与 secret，仅展示一次。</div>`},
+ akEdit:{title:'编辑 AccessKey',body:i=>{const r=DATA[currentView][i];return `
+  ${field('AccessKey ID',inp('',r.id,true))}
+  <div class="grid-2">${field('登录账号',inp('',r.login))}${field('状态',sel(['Active','Suspended'].map(v=>({v,sel:v===r.status}))))}</div>`;}},
+ akLog:{title:'AccessKey 访问日志',body:()=>`<div class="timeline">
+  <div class="tl-item"><div class="tl-time">23-Jul-2026 13:55</div><div class="tl-act">POST /v1/order/create</div><div class="tl-meta">200 OK · 142 ms</div></div>
+  <div class="tl-item"><div class="tl-time">23-Jul-2026 13:12</div><div class="tl-act">GET /v1/order/list</div><div class="tl-meta">200 OK · 88 ms</div></div>
+  <div class="tl-item"><div class="tl-time">23-Jul-2026 09:40</div><div class="tl-act">GET /v1/report</div><div class="tl-meta">403 Forbidden · 资源未授权</div></div>
+ </div>`},
+ bindWeb:{title:'绑定 Web 资源',body:()=>`
+  ${field('搜索资源',inp('lab.dashboard…'))}
+  ${field('已选',`<div class="chips"><span class="chip">lab.dashboard<span class="x">×</span></span><span class="chip">lab.sample.list<span class="x">×</span></span></div>`)}`},
+ bindApi:{title:'绑定 API 资源',body:()=>`
+  ${field('搜索接口',inp('GET /v1/…'))}
+  ${field('已选',`<div class="chips"><span class="chip">GET /v1/lab/samples<span class="x">×</span></span></div>`)}`},
+ bindData:{title:'配置数据隔离',body:()=>`
+  ${field('隔离维度',sel(['BU','Legal Entity','Region']))}
+  ${field('隔离值',inp('如 700万 BU'))}`},
+ akBind:{title:'绑定资源',body:()=>`
+  ${field('资源类型',`<div class="seg"><input type="radio" name="t" id="t1" checked><label for="t1">Web</label><input type="radio" name="t" id="t2"><label for="t2">API</label></div>`)}
+  ${field('搜索',inp('资源 / 接口…'))}`},
+ resourceManage:{title:'管理模块资源',body:()=>`
+  ${field('资源类型',`<div class="seg"><input type="radio" name="rt" id="rt1" checked><label for="rt1">PAGE</label><input type="radio" name="rt" id="rt2"><label for="rt2">BUTTON</label><input type="radio" name="rt" id="rt3"><label for="rt3">API</label></div>`)}
+  ${field('资源树',`<div class="tree">
+    <div class="row"><span class="caret">▾</span>lab.dashboard</div>
+    <div class="tree-children">
+      <div class="row"><span class="caret">▸</span>lab.sample.list</div>
+      <div class="row"><span class="caret">▸</span>lab.report.view</div>
+    </div></div>`)}`},
+ roleManage:{title:'管理模块内角色',body:()=>`
+  ${field('角色列表',`<div class="chips">${DATA.role.map(r=>`<span class="chip">${r.name}</span>`).join('')}</div>`)}
+  ${field('新建角色',inp('module:roleName'))}`}
 };
 
 function openModal(key,arg){
@@ -577,26 +669,26 @@ function openModal(key,arg){
  const title=typeof m.title==='function'?m.title(arg):m.title;
  const body=typeof m.body==='function'?m.body(arg):m.body;
  $('#overlay').innerHTML=`<div class="modal">
-   <div class="modal-head"><h3>${title}</h3><div class="spacer"></div><button class="close-x" onclick="closeModal()">×</button></div>
-   <div class="modal-body">${body}</div>
-   <div class="modal-foot"><button class="btn" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="closeModal()">保存</button></div>
+  <div class="modal-head"><h3>${title}</h3>${iconBtn('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>','关闭','closeModal()')}</div>
+  <div class="modal-body">${body}</div>
+  <div class="modal-foot">${btn('取消','btn-tertiary','','closeModal()')}${btn('保存','btn-primary','','closeModal()')}</div>
  </div>`;
  $('#overlay').classList.add('show');
 }
 function closeModal(){$('#overlay').classList.remove('show');$('#overlay').innerHTML='';}
 
-/* subtabs inside detail */
+/* sub tabs inside cards */
 document.addEventListener('click',e=>{
- const st=e.target.closest('.subtab');
+ const st=e.target.closest('.subtabs .tab');
  if(!st)return;
  const wrap=st.parentElement;
- wrap.querySelectorAll('.subtab').forEach(x=>x.classList.remove('active'));
+ wrap.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
  st.classList.add('active');
- const p=st.dataset.p;
- const body=wrap.parentElement.querySelector('.section-body');
- if(body){body.querySelectorAll('.subpane').forEach(x=>x.classList.toggle('active',x.dataset.p===p));}
+ const body=wrap.parentElement.querySelector('.card-body');
+ if(body)body.querySelectorAll('.subpane').forEach(x=>x.classList.toggle('active',x.dataset.p===st.dataset.p));
 });
 
+document.querySelectorAll('#nav button').forEach(b=>{b.onclick=()=>switchView(b.dataset.view);});
 render();
 </script>
 </body>
