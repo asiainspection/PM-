@@ -305,6 +305,43 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   width: 326px;
   text-align: center;
 }
+.wxbind-success-icon {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 8px;
+  animation: wxbind-pop .32s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+/* Ring then tick, so the check reads as "just completed" */
+.wxbind-success-ring {
+  stroke-dasharray: 164;
+  stroke-dashoffset: 164;
+  animation: wxbind-draw .45s ease-out .06s forwards;
+}
+.wxbind-success-tick {
+  stroke-dasharray: 34;
+  stroke-dashoffset: 34;
+  animation: wxbind-draw .3s ease-out .34s forwards;
+}
+
+@keyframes wxbind-pop {
+  from { transform: scale(.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes wxbind-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wxbind-success-icon,
+  .wxbind-success-ring,
+  .wxbind-success-tick {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
+  }
+}
 .wxbind-success .wxbind-success-title {
   font-size: 16px;
   line-height: 24px;

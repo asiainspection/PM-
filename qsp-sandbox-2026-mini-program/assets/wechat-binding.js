@@ -138,6 +138,12 @@
             '</div>' +
 
             '<div class="wxbind-success" id="wxbindSuccess" hidden>' +
+              '<svg class="wxbind-success-icon" viewBox="0 0 56 56" aria-hidden="true">' +
+                '<circle class="wxbind-success-ring" cx="28" cy="28" r="26" fill="none" ' +
+                  'stroke="#16a34a" stroke-width="3" />' +
+                '<path class="wxbind-success-tick" d="M17 28.8l7.4 7.2L39 21.5" fill="none" ' +
+                  'stroke="#16a34a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />' +
+              '</svg>' +
               '<div class="wxbind-success-title" data-i18n="binding.successTitle">' + tr('binding.successTitle') + '</div>' +
               '<div class="wxbind-success-desc" data-i18n="binding.successDesc">' + tr('binding.successDesc') + '</div>' +
             '</div>' +
