@@ -184,7 +184,7 @@ window.I18N_EN = {
   'index.manufacturer': 'Manufacturer',
   'index.manufacturerPlaceholder': 'Search or type manufacturer (free text OK)',
   'index.manufacturerWarn': '⚠ Provide the complete factory legal name — no abbreviations',
-  'index.manufacturerSuggestHint': 'Edit freely, pick a recommendation, or run Web search. Address auto-fills when you select a result.',
+  'index.manufacturerSuggestHint': 'Edit freely or pick a recommendation — web search runs as you type. Address auto-fills when you select a result.',
   'index.manufacturerClear': 'Clear',
   'index.manufacturerWebSearch': 'Web search',
   'index.manufacturerSearching': 'Searching the web…',

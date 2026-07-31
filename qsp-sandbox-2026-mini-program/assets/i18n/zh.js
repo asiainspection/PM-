@@ -184,7 +184,7 @@ window.I18N_ZH = {
   'index.manufacturer': '制造商',
   'index.manufacturerPlaceholder': '搜索或直接输入制造商（可自由修改）',
   'index.manufacturerWarn': '⚠ 请务必提供完整的工厂全称，不可简写',
-  'index.manufacturerSuggestHint': '可直接改字、点选推荐，或点「联网搜索」。选中结果后会自动带出地址。',
+  'index.manufacturerSuggestHint': '可直接改字、点选推荐；输入时会自动联网搜索。选中结果后会自动带出地址。',
   'index.manufacturerClear': '清空',
   'index.manufacturerWebSearch': '联网搜索',
   'index.manufacturerSearching': '正在联网搜索…',

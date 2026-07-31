@@ -1369,9 +1369,8 @@
               <div class="fm-suggest-results" id="mf_manufacturerResults"></div>
             </div>
             <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; flex-wrap:wrap;">
-              <div style="font-size:11px; color:#b8860b; line-height:16px; flex:1; min-width:140px;"><span data-i18n="index.manufacturerSuggestHint">可直接改字、点选推荐，或点「联网搜索」。选中结果后会自动带出地址。</span></div>
+              <div style="font-size:11px; color:#b8860b; line-height:16px; flex:1; min-width:140px;"><span data-i18n="index.manufacturerSuggestHint">可直接改字、点选推荐；输入时会自动联网搜索。选中结果后会自动带出地址。</span></div>
               <div style="display:flex; gap:6px; flex-shrink:0;">
-                <button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="searchManufacturerOnline('mf')" data-i18n="index.manufacturerWebSearch">联网搜索</button>
                 <button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField('mf')" data-i18n="index.manufacturerClear">清空</button>
               </div>
             </div>
@@ -4181,6 +4180,8 @@
     }
 
     function applyManufacturerSelection(name, address){
+      cancelManufacturerOnlineSearch('mf');
+      manufacturerLastQuery.mf = String(name || '').trim();
       const nameEl = document.getElementById('mf_manufacturer');
       const addrEl = document.getElementById('mf_manufacturerAddr');
       if(nameEl) nameEl.value = name || '';
@@ -4199,6 +4200,8 @@
 
     function clearManufacturerField(scope){
       if(scope === 'fe'){
+        cancelManufacturerOnlineSearch('fe');
+        manufacturerLastQuery.fe = '';
         const nameEl = document.getElementById('fe_manufacturer');
         const addrEl = document.getElementById('fe_manufacturerAddr');
         if(nameEl) nameEl.value = '';
@@ -4207,6 +4210,8 @@
         if(nameEl) nameEl.focus();
         return;
       }
+      cancelManufacturerOnlineSearch('mf');
+      manufacturerLastQuery.mf = '';
       const nameEl = document.getElementById('mf_manufacturer');
       const addrEl = document.getElementById('mf_manufacturerAddr');
       if(nameEl) nameEl.value = '';
@@ -4268,6 +4273,8 @@
       const address = (btn && btn.dataset.address) ? btn.dataset.address.trim() : '';
       if(!name) return;
       if(scope === 'fe'){
+        cancelManufacturerOnlineSearch('fe');
+        manufacturerLastQuery.fe = name;
         const nameEl = document.getElementById('fe_manufacturer');
         const addrEl = document.getElementById('fe_manufacturerAddr');
         if(nameEl) nameEl.value = name;
@@ -4278,42 +4285,95 @@
       applyManufacturerSelection(name, address || '');
     }
 
-    let manufacturerSearchBusy = false;
-    function searchManufacturerOnline(scope){
-      const els = manufacturerInputEls(scope || 'mf');
+    let manufacturerSearchSeq = 0;
+    const manufacturerSearchTimers = { mf: null, fe: null };
+    const manufacturerLastQuery = { mf: '', fe: '' };
+
+    function cancelManufacturerOnlineSearch(scope){
+      const key = scope === 'fe' ? 'fe' : 'mf';
+      if(manufacturerSearchTimers[key]){
+        clearTimeout(manufacturerSearchTimers[key]);
+        manufacturerSearchTimers[key] = null;
+      }
+    }
+
+    function scheduleManufacturerOnlineSearch(scope){
+      const key = scope === 'fe' ? 'fe' : 'mf';
+      cancelManufacturerOnlineSearch(key);
+      const els = manufacturerInputEls(key);
       const q = String((els.input && els.input.value) || '').trim();
       if(q.length < 2){
-        renderManufacturerWebResults(scope, [], t('index.manufacturerSearchNeedQuery'));
+        manufacturerLastQuery[key] = '';
         return;
       }
-      if(manufacturerSearchBusy) return;
-      manufacturerSearchBusy = true;
-      renderManufacturerWebResults(scope, null, t('index.manufacturerSearching'));
+      // Same query already fetched — keep local suggestions; skip duplicate request
+      if(q === manufacturerLastQuery[key]) return;
+      manufacturerSearchTimers[key] = setTimeout(function(){
+        manufacturerSearchTimers[key] = null;
+        searchManufacturerOnline(key, { silent: true });
+      }, 420);
+    }
+
+    function searchManufacturerOnline(scope, opts){
+      const key = scope === 'fe' ? 'fe' : 'mf';
+      const silent = !!(opts && opts.silent);
+      const els = manufacturerInputEls(key);
+      const q = String((els.input && els.input.value) || '').trim();
+      if(q.length < 2){
+        if(!silent) renderManufacturerWebResults(key, [], t('index.manufacturerSearchNeedQuery'));
+        return;
+      }
+      const seq = ++manufacturerSearchSeq;
+      manufacturerLastQuery[key] = q;
+      // Keep local catalog visible while searching; only show spinner when dropdown is empty
+      const hasOptions = els.results && els.results.querySelector('.fm-suggest-option[data-name]');
+      if(!hasOptions){
+        renderManufacturerWebResults(key, null, t('index.manufacturerSearching'));
+      }
       const api = window.QimaSupabase;
       const remote = (api && typeof api.searchManufacturer === 'function')
         ? api.searchManufacturer(q)
         : Promise.reject(Object.assign(new Error('missing_client'), { code: 'missing_client' }));
       remote.then(function(data){
-        renderManufacturerWebResults(scope, (data && data.results) || [], '');
+        if(seq !== manufacturerSearchSeq) return;
+        const current = String((els.input && els.input.value) || '').trim();
+        if(current !== q) return;
+        const webHits = (data && data.results) || [];
+        // Merge local catalog + web (local first), de-dupe by name
+        const local = filterManufacturerOptions(q).map(function(item){
+          return { name: item.name, address: item.address, source: 'catalog' };
+        });
+        const seen = {};
+        const merged = [];
+        local.concat(webHits).forEach(function(item){
+          const name = String((item && item.name) || '').trim();
+          if(!name) return;
+          const k = name.toLowerCase();
+          if(seen[k]) return;
+          seen[k] = true;
+          merged.push(item);
+        });
+        renderManufacturerWebResults(key, merged, '');
       }).catch(function(err){
+        if(seq !== manufacturerSearchSeq) return;
+        const current = String((els.input && els.input.value) || '').trim();
+        if(current !== q) return;
         console.warn('manufacturer web search failed', err);
-        // Fall back to local catalog filter so the button still does something useful
         const local = filterManufacturerOptions(q).map(function(item){
           return { name: item.name, address: item.address, source: 'catalog' };
         });
         if(local.length){
-          renderManufacturerWebResults(scope, local, '');
-        } else {
-          renderManufacturerWebResults(scope, [], t('index.manufacturerSearchFailed'));
+          renderManufacturerWebResults(key, local, '');
+        } else if(!silent){
+          renderManufacturerWebResults(key, [], t('index.manufacturerSearchFailed'));
         }
-      }).finally(function(){
-        manufacturerSearchBusy = false;
       });
     }
 
     function onManufacturerInput(){
       // Free typing only — never rewrite value while deleting/editing (alias snap-back bug)
       renderManufacturerSuggestions();
+      scheduleManufacturerOnlineSearch('mf');
     }
 
     function onManufacturerKeydown(e){
@@ -4831,7 +4891,6 @@
         '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; flex-wrap:wrap;">'+
           '<div style="font-size:11px; color:#b8860b; line-height:16px; flex:1; min-width:140px;">'+escapeHtml(t('index.manufacturerSuggestHint'))+'</div>'+
           '<div style="display:flex; gap:6px; flex-shrink:0;">'+
-            '<button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="searchManufacturerOnline(\'fe\')">'+escapeHtml(t('index.manufacturerWebSearch'))+'</button>'+
             '<button type="button" class="edit-add-btn" style="height:28px; padding:0 10px; font-size:11px;" onclick="clearManufacturerField(\'fe\')">'+escapeHtml(t('index.manufacturerClear'))+'</button>'+
           '</div>'+
         '</div>'+
@@ -4883,6 +4942,7 @@
     function onFieldEditorManufacturerInput(){
       // Free edit — never rewrite while typing/deleting
       renderFieldEditorManufacturerSuggestions();
+      scheduleManufacturerOnlineSearch('fe');
     }
 
     function onFieldEditorManufacturerKeydown(e){
