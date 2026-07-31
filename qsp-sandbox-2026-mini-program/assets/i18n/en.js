@@ -672,5 +672,27 @@ window.I18N_EN = {
   'reportPreview.pageHint': 'Page 1 of 12',
   'reportPreview.pageHint1': 'Page 1 of 12',
   'reportPreview.pageHint2': 'Page 2 of 12',
-  'reportPreview.downloaded': 'Download started'
+  'reportPreview.downloaded': 'Download started',
+
+  /* ── WeChat account linking (onboarding) ── */
+  'binding.title': 'Link your account',
+  'binding.infoSupplier': 'Once your supplier account is linked, you will receive date and factory address confirmations through WeChat.',
+  'binding.infoQima': 'Once your QIMA account is linked, you will receive order confirmations, inspection progress and report notifications through WeChat.',
+  'binding.emailLabel': 'Email address',
+  'binding.emailPlaceholder': 'you@company.com',
+  'binding.emailHelp': 'Use the email address registered in the QIMA system. We will send you a 6-digit verification code.',
+  'binding.emailNotFound': 'This email address was not found in the system',
+  'binding.clearEmail': 'Clear email address',
+  'binding.codeLabel': 'Verification code',
+  'binding.codePlaceholder': 'Enter the 6-digit code',
+  'binding.sendCode': 'Get code',
+  'binding.resendIn': '{seconds}s',
+  'binding.codeSent': 'Verification code sent',
+  'binding.submit': 'Verify and link account',
+  'binding.successTitle': 'Account linked',
+  'binding.successDesc': 'Your WeChat is now linked to your QIMA account. Taking you to the home page…',
+  'binding.skip': 'Skip',
+  'binding.wechatAlt': 'WeChat',
+  'binding.qimaAlt': 'QIMA',
+  'binding.linkAlt': 'Linked'
 };

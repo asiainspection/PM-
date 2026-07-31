@@ -1,0 +1,359 @@
+/**
+ * WeChat account-linking onboarding overlay.
+ * Lives inside the .phone shell (not the browser viewport) so the demo still
+ * reads as a mini program on desktop. See assets/wechat-binding.js.
+ */
+
+/* Hide the home page underneath until the overlay is injected. */
+html.qima-wxbind-active .phone > *:not(.wxbind) {
+  visibility: hidden;
+}
+
+.wxbind {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #ff5f4e;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
+  color: #191919;
+  animation: wxbind-fade-in .28s ease-out;
+}
+
+@keyframes wxbind-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wxbind.is-leaving {
+  animation: wxbind-fade-out .24s ease-in forwards;
+}
+
+@keyframes wxbind-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.wxbind-gradient {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== Panel: nav + card sitting on the light brand curve ===== */
+.wxbind-panel {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 44px;
+}
+
+.wxbind-curve {
+  position: absolute;
+  left: 0;
+  bottom: -16px;
+  width: 100%;
+  height: 989px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== Navigation bar (mirrors index.html chrome, on white) ===== */
+.wxbind-nav {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  padding-bottom: 3px;
+}
+
+.wxbind-statusbar {
+  height: 47px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 27px 0 0;
+}
+.wxbind-statusbar .wxbind-time {
+  width: 134px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -.4px;
+  padding-top: 4px;
+}
+.wxbind-statusbar .wxbind-indicators {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 4px;
+}
+.wxbind-statusbar .wxbind-indicators img { display: block; }
+
+.wxbind-navbar {
+  position: relative;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px 0 15px;
+}
+.wxbind-navbar .wxbind-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 16px;
+}
+.wxbind-back {
+  width: 9px;
+  height: 16.5px;
+  display: block;
+}
+.wxbind-capsule {
+  width: 83px;
+  height: 30px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, .7);
+  border: .35px solid #dedede;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.wxbind-capsule img { width: 17px; height: 17px; }
+.wxbind-capsule .wxbind-divider { width: 1px; height: 18px; background: #d2d2d2; }
+
+/* ===== Card ===== */
+.wxbind-card {
+  position: relative;
+  z-index: 1;
+  width: 358px;
+  margin: 16px auto 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  filter: drop-shadow(0 2px 5px rgba(25, 25, 25, .12));
+}
+
+.wxbind-marks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.wxbind-marks .wxbind-mark { width: 38px; height: 38px; display: block; }
+.wxbind-marks .wxbind-link { width: 16px; height: 16px; display: block; transform: rotate(180deg); }
+
+.wxbind-title {
+  width: 326px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 27px;
+  letter-spacing: -.36px;
+  color: #191919;
+}
+
+.wxbind-note {
+  position: relative;
+  width: 326px;
+  min-height: 59px;
+  border-radius: 8px;
+  background: #e6ecfb;
+  padding: 10px 12px 10px 36px;
+  box-sizing: border-box;
+}
+.wxbind-note img {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: 16px;
+  height: 16px;
+}
+.wxbind-note p {
+  font-size: 13px;
+  line-height: 19.5px;
+  color: #153184;
+}
+
+.wxbind-form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  align-items: flex-start;
+}
+.wxbind-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: flex-start;
+}
+.wxbind-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  width: 326px;
+}
+.wxbind-label {
+  font-size: 14px;
+  line-height: 21px;
+  color: #737373;
+}
+
+.wxbind-input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  color: #191919;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.wxbind-input::placeholder { color: rgba(25, 25, 25, .5); }
+.wxbind-input:focus {
+  border-color: #4169e1;
+  box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
+}
+
+/* Email row carries an inline clear button in the error state. */
+.wxbind-input-wrap { position: relative; width: 100%; }
+.wxbind-input-wrap .wxbind-input { padding-right: 40px; }
+.wxbind-clear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  display: none;
+}
+.wxbind-clear img { width: 16px; height: 16px; display: block; }
+
+.wxbind-field.is-error .wxbind-input,
+.wxbind-field.is-error .wxbind-input:focus {
+  border: 2px solid #e5353d;
+  box-shadow: 0 0 0 3px rgba(229, 53, 61, .25);
+}
+.wxbind-field.is-error .wxbind-clear { display: block; }
+
+.wxbind-help {
+  width: 322px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #737373;
+}
+.wxbind-help.is-error { color: #9e141b; line-height: 16px; }
+.wxbind-help.is-ok { color: #00a876; }
+.wxbind-help:empty { display: none; }
+
+.wxbind-code-row {
+  display: flex;
+  gap: 4px;
+  align-items: flex-start;
+  width: 100%;
+}
+.wxbind-code-row .wxbind-input { width: 202px; flex: 0 0 202px; }
+
+.wxbind-btn {
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #737373;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 21px;
+  cursor: not-allowed;
+  transition: background-color .15s ease, color .15s ease;
+}
+.wxbind-btn.is-enabled {
+  background: #4169e1;
+  color: #fff;
+  cursor: pointer;
+}
+.wxbind-btn.is-enabled:active { background: #3557c4; }
+.wxbind-code-row .wxbind-btn { width: 120px; flex: 0 0 120px; }
+.wxbind-submit { width: 326px; }
+
+/* ===== Success state ===== */
+.wxbind-form[hidden],
+.wxbind-success[hidden] { display: none; }
+
+.wxbind-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 326px;
+  text-align: center;
+}
+.wxbind-success .wxbind-success-title {
+  font-size: 16px;
+  line-height: 24px;
+  color: #191919;
+}
+.wxbind-success .wxbind-success-desc {
+  font-size: 13px;
+  line-height: 19.5px;
+  color: #737373;
+}
+
+/* ===== Skip button (bottom-right of the phone viewport) ===== */
+.wxbind-skip {
+  position: absolute;
+  right: 16px;
+  bottom: 28px;
+  z-index: 3;
+  height: 34px;
+  padding: 0 8px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: .5px solid rgba(255, 255, 255, .6);
+  border-radius: 17px;
+  background: rgba(255, 255, 255, .82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(25, 25, 25, .14);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1;
+  color: #191919;
+  cursor: pointer;
+}
+.wxbind-skip:active { background: rgba(255, 255, 255, .95); }
+.wxbind-skip svg { width: 14px; height: 14px; display: block; }
+
+@media (max-width: 640px) {
+  .wxbind-statusbar {
+    padding-top: var(--safe-top, 0px);
+    height: calc(47px + var(--safe-top, 0px));
+    box-sizing: border-box;
+  }
+  .wxbind-card { width: min(358px, calc(100vw - 32px)); }
+  .wxbind-title,
+  .wxbind-note,
+  .wxbind-field,
+  .wxbind-submit { width: 100%; }
+  .wxbind-help { width: 100%; }
+  .wxbind-code-row .wxbind-input { flex: 1 1 auto; width: auto; }
+  .wxbind-skip { bottom: calc(28px + var(--safe-bottom, 0px)); }
+}

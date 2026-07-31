@@ -1,0 +1,12 @@
+<!--
+  Decorative brand curve for the WeChat binding screen.
+  Cropped from Figma "Vector" (2493x589) to the 390px phone window (source x 835..1225)
+  and flipped vertically, with headroom above so the light panel reaches the status bar.
+  The curve's lowest point sits 16px above the bottom edge of this artboard.
+-->
+<svg preserveAspectRatio="none" width="390" height="989" viewBox="835 -400 390 989" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="835" y="-400" width="390" height="401" fill="#F7F7F7"/>
+  <g transform="translate(0,589) scale(1,-1)">
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M0 213.916L103.875 163.905C207.75 113.894 415.5 13.8711 623.25 1.36826C831 -11.1345 1038.75 63.8823 1246.5 151.402C1454.25 238.922 1662 338.944 1869.75 338.944C2077.5 338.944 2285.25 238.922 2389.12 188.91L2493 138.899V589H2389.12C2285.25 589 2077.5 589 1869.75 589C1662 589 1454.25 589 1246.5 589C1038.75 589 831 589 623.25 589C415.5 589 207.75 589 103.875 589H0V213.916Z" fill="#F7F7F7"/>
+  </g>
+</svg>

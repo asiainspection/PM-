@@ -672,5 +672,27 @@ window.I18N_ZH = {
   'reportPreview.pageHint': '第 1 页 · 共 12 页',
   'reportPreview.pageHint1': '第 1 页 · 共 12 页',
   'reportPreview.pageHint2': '第 2 页 · 共 12 页',
-  'reportPreview.downloaded': '报告已开始下载'
+  'reportPreview.downloaded': '报告已开始下载',
+
+  /* ── WeChat account linking (onboarding) ── */
+  'binding.title': '绑定账号',
+  'binding.infoSupplier': '成功绑定供应商账号后，您将通过微信接收日期和工厂地址确认通知。',
+  'binding.infoQima': '成功绑定 QIMA 账号后，您将通过微信接收订单确认、检测进度及报告通知。',
+  'binding.emailLabel': '邮箱地址',
+  'binding.emailPlaceholder': 'you@company.com',
+  'binding.emailHelp': '请使用您在 QIMA 系统中注册的邮箱地址，系统将发送6位验证码。',
+  'binding.emailNotFound': '系统中找不到此邮箱地址',
+  'binding.clearEmail': '清除邮箱地址',
+  'binding.codeLabel': '验证码',
+  'binding.codePlaceholder': '请输入6位数验证码',
+  'binding.sendCode': '获取验证码',
+  'binding.resendIn': '{seconds}s',
+  'binding.codeSent': '验证码已发送',
+  'binding.submit': '验证并绑定帐号',
+  'binding.successTitle': '绑定成功',
+  'binding.successDesc': '您的微信已与 QIMA 账号关联，正在进入首页…',
+  'binding.skip': '跳过',
+  'binding.wechatAlt': '微信',
+  'binding.qimaAlt': 'QIMA',
+  'binding.linkAlt': '关联'
 };

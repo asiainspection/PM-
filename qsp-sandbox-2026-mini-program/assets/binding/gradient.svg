@@ -1,0 +1,16 @@
+<!--
+  Decorative QIMA brand gradient for the WeChat binding screen.
+  Cropped from the Figma "Background" artboard (1440x860) to the 390px phone
+  window (source x 560..950), which is the slice the binding frame sits over.
+-->
+<svg preserveAspectRatio="none" width="390" height="860" viewBox="560 0 390 860" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M1440 0H0V860H1440V0Z" fill="url(#qimaBindWarm)"/>
+  <path opacity="0.6" fill-rule="evenodd" clip-rule="evenodd" d="M1440 425.817V0H422.322C695.971 228.025 1030.83 374.957 1388.69 420.065C1405.79 422.22 1422.89 424.137 1440 425.817Z" fill="#FFBE0F"/>
+  <path d="M1440 0H0V860H1440V0Z" fill="white" fill-opacity="0.05"/>
+  <defs>
+    <linearGradient id="qimaBindWarm" x1="972" y1="38" x2="468" y2="794" gradientUnits="userSpaceOnUse">
+      <stop offset="0.0413307" stop-color="#FFBE0F"/>
+      <stop offset="1" stop-color="#FF5F4E"/>
+    </linearGradient>
+  </defs>
+</svg>
