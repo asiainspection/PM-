@@ -1689,10 +1689,10 @@
 
     function placeOrderChips(extra){
       var missing = (typeof getOrderBlockers === 'function') ? getOrderBlockers() : [];
+      // While fields are missing, 手动补充信息 already opens the form — no separate 编辑字段
       var html = missing.length
         ? I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)') +
-          I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()') +
-          I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
+          I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')
         : I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)') +
           I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)');
       if(extra) html += extra;
@@ -5218,8 +5218,7 @@
       }), false);
       botMsg(chipsRow(
         I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)')+
-        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')+
-        I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
+        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')
       ), true);
       return true;
     }
