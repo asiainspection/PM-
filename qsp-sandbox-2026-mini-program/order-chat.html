@@ -427,24 +427,6 @@
     margin-top: 8px;
     font-size: 12px; line-height: 1.45; color: var(--seal);
   }
-
-  /* ===== 演示快捷入口（仅用于走查，不属于产品流程） ===== */
-  .demo-fab {
-    position: absolute; right: 14px; bottom: 20px; z-index: 30;
-    display: flex; align-items: center; gap: 6px;
-    height: 34px; padding: 0 13px;
-    border: .5px solid rgba(255, 255, 255, .7); border-radius: 17px;
-    background: rgba(25, 25, 25, .78);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 3px 10px rgba(25, 25, 25, .22);
-    font-family: inherit; font-size: 12px; line-height: 1; color: #fff;
-    cursor: pointer;
-  }
-  .demo-fab:active { background: rgba(25, 25, 25, .92); }
-  .demo-fab svg { width: 14px; height: 14px; display: block; flex-shrink: 0; }
-  @media (max-width: 640px) {
-    .demo-fab { bottom: calc(20px + var(--safe-bottom, 0px)); }
-  }
   /* First AI-input card: data-use / privacy link shown before submit */
   .privacy-note {
     display: flex; align-items: center; justify-content: center; gap: 4px;
@@ -1181,13 +1163,15 @@
 <link rel="stylesheet" href="assets/phone-shell.css" />
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
+<link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803d"></script>
-<script src="assets/i18n/en.js?v=20260803d"></script>
+<script src="assets/i18n/zh.js?v=20260803e"></script>
+<script src="assets/i18n/en.js?v=20260803e"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
 <script src="assets/label-parse.js?v=20260716b"></script>
+<script src="assets/demo-shortcuts.js?v=20260803e"></script>
 </head>
 <body>
   <div class="phone">
@@ -1586,16 +1570,6 @@
       <input class="box" id="chatInput" type="text" placeholder="请输入您的消息..." data-i18n-placeholder="orderChat.chatPlaceholder" onkeydown="handleInputKey(event)" />
       <button class="send-btn" type="button" onclick="sendChatInput()" data-i18n="orderChat.send">发送</button>
     </div>
-
-    <!-- 演示快捷入口：直接跳到 AI 解析失败态 -->
-    <button class="demo-fab" type="button" onclick="openParseFailureDemo()">
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="M10 3.2 18 16.8H2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-        <path d="M10 8v3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-        <circle cx="10" cy="14.2" r=".95" fill="currentColor"/>
-      </svg>
-      <span data-i18n="orderChat.demoParseFail">解析失败演示</span>
-    </button>
   </div>
 
   <script>
@@ -3095,6 +3069,10 @@
     }
 
     function openParseFailureDemo(){ runDemoParseFailure(false); }
+    window.openParseFailureDemo = openParseFailureDemo;
+    if (/[?&]demo=parse-fail(?:&|$)/.test(String(location.search || ''))) {
+      setTimeout(function(){ openParseFailureDemo(); }, 450);
+    }
 
     function withTimeout(promise, ms, code){
       let timer = null;

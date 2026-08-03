@@ -8,6 +8,9 @@ window.I18N_EN = {
   'title.reports': 'QIMA Mini Program - Reports',
 
   /* ── Common / shared ── */
+  'demo.menu': 'Demo',
+  'demo.login': 'Pre-login',
+  'demo.parseFail': 'Parse failure',
   'common.tab.home': 'Home',
   'common.tab.orders': 'Orders',
   'common.tab.reports': 'Reports',

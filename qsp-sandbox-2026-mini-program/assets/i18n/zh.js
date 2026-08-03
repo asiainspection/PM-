@@ -8,6 +8,9 @@ window.I18N_ZH = {
   'title.reports': 'QIMA 小程序 - 报告中心',
 
   /* ── Common / shared ── */
+  'demo.menu': '演示',
+  'demo.login': '未登录',
+  'demo.parseFail': '解析失败',
   'common.tab.home': '首页',
   'common.tab.orders': '订单',
   'common.tab.reports': '报告',

@@ -1,0 +1,85 @@
+/**
+ * Demo walkthrough shortcuts — not part of the product UI.
+ * One bottom-right control expands into jump targets (pre-login, parse failure…).
+ */
+.demo-shortcuts {
+  position: absolute;
+  right: 14px;
+  bottom: 20px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.demo-shortcuts-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.demo-shortcuts-menu[hidden] {
+  display: none !important;
+}
+
+.demo-shortcuts-item,
+.demo-shortcuts-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 12px;
+  border: .5px solid rgba(255, 255, 255, .7);
+  border-radius: 17px;
+  background: rgba(25, 25, 25, .78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 3px 10px rgba(25, 25, 25, .22);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.demo-shortcuts-item:active,
+.demo-shortcuts-toggle:active {
+  background: rgba(25, 25, 25, .92);
+}
+
+.demo-shortcuts-toggle {
+  font-weight: 600;
+}
+
+.demo-shortcuts.is-open .demo-shortcuts-toggle {
+  background: rgba(65, 105, 225, .92);
+  border-color: rgba(255, 255, 255, .85);
+}
+
+.demo-shortcuts-toggle svg,
+.demo-shortcuts-item svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.demo-shortcuts-chevron {
+  width: 10px;
+  height: 10px;
+  transition: transform .18s ease;
+}
+
+.demo-shortcuts.is-open .demo-shortcuts-chevron {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 640px) {
+  .demo-shortcuts {
+    bottom: calc(20px + var(--safe-bottom, 0px));
+  }
+}

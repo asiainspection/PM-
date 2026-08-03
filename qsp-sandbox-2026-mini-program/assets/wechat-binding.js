@@ -10,7 +10,8 @@
  * home page is already mounted underneath and "skip" is an instant dismiss rather
  * than a page navigation. Mirrors the assets/access-gate.js pattern.
  *
- * Replay the flow with ?bind=1 (or #bind), or window.QimaWechatBinding.reset().
+ * Replay the flow with ?bind=1 (or #bind), window.QimaWechatBinding.reset(),
+ * or window.QimaWechatBinding.open() / the shared Demo shortcuts menu.
  */
 (function (global) {
   'use strict';
@@ -959,11 +960,43 @@
     state.code = readCode();
   }
 
+  function resetDemoState() {
+    stopCountdown();
+    state.screen = 'password';
+    state.username = '';
+    state.password = '';
+    state.showPassword = false;
+    state.keepSignedIn = false;
+    state.usernameError = false;
+    state.passwordError = false;
+    state.formError = false;
+    state.email = '';
+    state.emailError = '';
+    state.showEmailClear = false;
+    state.code = '';
+    state.codeError = false;
+    state.remaining = 0;
+    state.showRegPassword = false;
+  }
+
+  function openOverlay() {
+    try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
+    resetDemoState();
+    var existing = document.querySelector('.wxbind');
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    root = null;
+    el = {};
+    document.documentElement.classList.add('qima-wxbind-active');
+    mount();
+  }
+
   global.QimaWechatBinding = {
     STORAGE_KEY: STORAGE_KEY,
     reset: function () {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
     },
+    /** Remount the pre-login overlay (demo shortcut / ?bind=1). */
+    open: openOverlay,
     /** Debug helper: jump straight to a screen state without typing. */
     goTo: function (stateName) {
       if (!root) return;
