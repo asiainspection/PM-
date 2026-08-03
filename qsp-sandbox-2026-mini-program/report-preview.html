@@ -18,6 +18,7 @@
     --pool-050: #f2f5fd;
     --border: #dedede;
     --kiwi: #1f9d6b;
+    --cherry: #e5353d;
   }
   html, body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
@@ -72,9 +73,12 @@
   .meta-bar {
     position: relative; z-index: 2;
     padding: 4px 16px 10px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .meta-top {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
   }
-  .meta-left { min-width: 0; }
+  .meta-left { min-width: 0; flex: 1; }
   .meta-id {
     font-size: 14px; font-weight: 700; color: var(--carbon);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -88,6 +92,124 @@
     font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; gap: 4px;
   }
+
+  .meta-decision {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .meta-decision[hidden],
+  .meta-decision-result[hidden] { display: none; }
+  .dec-btn {
+    flex: 1; height: 32px; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    background: #fff;
+  }
+  .dec-btn.approve {
+    color: var(--kiwi);
+    border: 1.5px solid #9ed9c0;
+    background: #f3fbf7;
+  }
+  .dec-btn.approve:active { background: #e4f6ee; }
+  .dec-btn.reject {
+    color: var(--cherry);
+    border: 1.5px solid #f3b6b9;
+    background: #fdf4f4;
+  }
+  .dec-btn.reject:active { background: #fceaea; }
+  .dec-btn:disabled {
+    opacity: .4; cursor: not-allowed;
+    filter: grayscale(.35);
+  }
+
+  .meta-decision-result {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    background: #f3fbf7; border: 1px solid #c9ecdc;
+  }
+  .meta-decision-result.is-rejected {
+    background: #fdf4f4; border-color: #f3b6b9;
+  }
+  .decision-text {
+    min-width: 0; flex: 1;
+    font-size: 12px; line-height: 16px; font-weight: 600;
+    color: var(--kiwi);
+  }
+  .meta-decision-result.is-rejected .decision-text { color: var(--cherry); }
+  .decision-undo {
+    flex-shrink: 0; height: 26px; padding: 0 10px; border-radius: 6px;
+    border: 1px solid #d9dee8; background: #fff;
+    color: var(--seal); font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .decision-undo:active { background: #f5f6f8; }
+
+  .decision-mask {
+    position: fixed; inset: 0; z-index: 80;
+    background: rgba(25,25,25,.42);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .decision-mask.show { opacity: 1; visibility: visible; }
+  .decision-sheet {
+    width: 100%; background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(18px); transition: transform .22s ease;
+  }
+  .decision-mask.show .decision-sheet { transform: translateY(0); }
+  .decision-sheet-title {
+    font-size: 16px; font-weight: 700; color: var(--carbon);
+  }
+  .decision-sheet-tip {
+    margin-top: 8px; font-size: 12.5px; line-height: 18px; color: var(--seal);
+  }
+  .decision-toggle {
+    margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 12px; border-radius: 10px; background: #f6f7fa;
+  }
+  .decision-toggle span { font-size: 13px; font-weight: 500; color: var(--carbon); }
+  .switch {
+    position: relative; width: 42px; height: 24px; flex-shrink: 0;
+    border-radius: 12px; background: #d5d9e2; border: none; cursor: pointer;
+    transition: background .18s ease;
+  }
+  .switch.on { background: var(--kiwi); }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    transition: transform .18s ease;
+  }
+  .switch.on::after { transform: translateX(18px); }
+  .decision-comment {
+    margin-top: 12px;
+  }
+  .decision-comment[hidden] { display: none; }
+  .decision-comment label {
+    display: block; font-size: 12px; color: var(--seal); margin-bottom: 6px;
+  }
+  .decision-comment textarea {
+    width: 100%; min-height: 72px; resize: none;
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 12px; font: inherit; font-size: 13px; color: var(--carbon);
+    outline: none; background: #fff;
+  }
+  .decision-comment textarea:focus { border-color: #9eb4f0; box-shadow: 0 0 0 3px rgba(65,105,225,.12); }
+  .decision-sheet-actions {
+    margin-top: 16px; display: flex; gap: 10px;
+  }
+  .decision-sheet-actions button {
+    flex: 1; height: 42px; border-radius: 11px;
+    font-size: 15px; font-weight: 600; cursor: pointer; border: none;
+  }
+  .decision-sheet-actions .ghost {
+    background: #fff; color: var(--seal); border: 1px solid #d9dee8;
+  }
+  .decision-sheet-actions .solid {
+    color: #fff;
+  }
+  .decision-sheet-actions .solid.approve { background: var(--kiwi); }
+  .decision-sheet-actions .solid.reject { background: var(--cherry); }
+  .decision-sheet-actions button:active { opacity: .9; }
 
   .preview-scroll {
     position: relative; z-index: 1;
@@ -157,9 +279,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reportPreview';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js"></script>
+<script src="assets/i18n/zh.js?v=20260803n"></script>
+<script src="assets/i18n/en.js?v=20260803n"></script>
+<script src="assets/i18n-runtime.js?v=20260803n"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 </head>
 <body>
@@ -187,13 +309,29 @@
     </div>
 
     <div class="meta-bar">
-      <div class="meta-left">
-        <div class="meta-id" id="reportId">T-24106085-11-R1</div>
-        <div class="meta-sub" id="reportMeta">LAB · SKU-65120</div>
+      <div class="meta-top">
+        <div class="meta-left">
+          <div class="meta-id" id="reportId">T-24106085-11-R1</div>
+          <div class="meta-sub" id="reportMeta">LAB · SKU-65120</div>
+        </div>
+        <div class="status-pill" id="reportStatus">
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="reports.status.pass">PASS</span>
+        </div>
       </div>
-      <div class="status-pill" id="reportStatus">
-        <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span data-i18n="reports.status.pass">PASS</span>
+      <div class="meta-decision" id="decisionActions">
+        <button class="dec-btn approve" type="button" id="approveBtn" onclick="openDecision('approve')">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="reportPreview.approve">Approve</span>
+        </button>
+        <button class="dec-btn reject" type="button" id="rejectBtn" onclick="openDecision('reject')">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span data-i18n="reportPreview.reject">Reject</span>
+        </button>
+      </div>
+      <div class="meta-decision-result" id="decisionResult" hidden>
+        <div class="decision-text" id="decisionText"></div>
+        <button class="decision-undo" type="button" id="undoBtn" onclick="undoDecision()" data-i18n="reportPreview.undo">Undo</button>
       </div>
     </div>
 
@@ -220,6 +358,25 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <div class="decision-mask" id="decisionMask" onclick="closeDecisionMask(event)">
+      <div class="decision-sheet" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+        <div class="decision-sheet-title" id="decisionSheetTitle">Approve report</div>
+        <div class="decision-sheet-tip" id="decisionSheetTip"></div>
+        <div class="decision-toggle">
+          <span data-i18n="reportPreview.informSupplier">Inform the supplier</span>
+          <button class="switch" type="button" id="informSwitch" aria-pressed="false" onclick="toggleInform()"></button>
+        </div>
+        <div class="decision-comment" id="decisionComment" hidden>
+          <label for="supplierComment" data-i18n="reportPreview.commentsSupplier">Comments to supplier</label>
+          <textarea id="supplierComment" data-i18n-placeholder="reportPreview.commentsPlaceholder" placeholder="Optional: reason for your decision"></textarea>
+        </div>
+        <div class="decision-sheet-actions">
+          <button class="ghost" type="button" onclick="closeDecision()" data-i18n="reportPreview.cancel">Cancel</button>
+          <button class="solid approve" type="button" id="confirmDecisionBtn" onclick="confirmDecision()" data-i18n="reportPreview.confirm">Confirm</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -233,22 +390,64 @@
       'SKU-38771': { id: 'T-24106089-11-R1', tag: 'CSR', sku: 'SKU-38771', status: 'pass', nameKey: 'reports.product.food' }
     };
 
+    const DECISION_STORAGE_KEY = 'qima-report-decision-v1';
+    let pendingDecision = null;
+
+    function t(key) {
+      return (window.I18n && I18n.t) ? I18n.t(key) : key;
+    }
+
     function getSku() {
       return new URLSearchParams(window.location.search).get('sku') || 'SKU-65120';
     }
 
+    function currentMeta() {
+      return REPORT_META[getSku()] || REPORT_META['SKU-65120'];
+    }
+
+    function canDecide(meta) {
+      // myQIMA: approve/reject only when the report result is final (not pending).
+      return meta.status === 'pass' || meta.status === 'fail';
+    }
+
+    function loadDecisions() {
+      try {
+        return JSON.parse(localStorage.getItem(DECISION_STORAGE_KEY) || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveDecision(sku, decision) {
+      const all = loadDecisions();
+      if (decision) all[sku] = decision;
+      else delete all[sku];
+      localStorage.setItem(DECISION_STORAGE_KEY, JSON.stringify(all));
+    }
+
+    function getDecision(sku) {
+      return loadDecisions()[sku] || null;
+    }
+
+    function formatDecisionDate(iso) {
+      const d = iso ? new Date(iso) : new Date();
+      if (Number.isNaN(d.getTime())) return '—';
+      const pad = function (n) { return String(n).padStart(2, '0'); };
+      return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+        ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
     function applyMeta() {
-      const meta = REPORT_META[getSku()] || REPORT_META['SKU-65120'];
+      const meta = currentMeta();
       const idEl = document.getElementById('reportId');
       const metaEl = document.getElementById('reportMeta');
       const statusEl = document.getElementById('reportStatus');
       if (idEl) idEl.textContent = meta.id;
       if (metaEl) {
-        const name = (window.I18n && I18n.t) ? I18n.t(meta.nameKey) : meta.nameKey;
-        metaEl.textContent = meta.tag + ' · ' + meta.sku + ' · ' + name;
+        metaEl.textContent = meta.tag + ' · ' + meta.sku + ' · ' + t(meta.nameKey);
       }
       if (statusEl) {
-        const label = (window.I18n && I18n.t) ? I18n.t('reports.status.' + meta.status) : meta.status.toUpperCase();
+        const label = t('reports.status.' + meta.status);
         statusEl.className = 'status-pill' + (meta.status === 'fail' ? ' fail' : meta.status === 'pending' ? ' pending' : '');
         statusEl.innerHTML =
           (meta.status === 'fail'
@@ -271,11 +470,109 @@
           statusEl.style.borderColor = '';
         }
       }
+      renderDecision();
+    }
+
+    function renderDecision() {
+      const meta = currentMeta();
+      const decision = getDecision(meta.sku);
+      const actions = document.getElementById('decisionActions');
+      const result = document.getElementById('decisionResult');
+      const text = document.getElementById('decisionText');
+      const approveBtn = document.getElementById('approveBtn');
+      const rejectBtn = document.getElementById('rejectBtn');
+      const allowed = canDecide(meta);
+
+      if (decision) {
+        actions.hidden = true;
+        result.hidden = false;
+        result.classList.toggle('is-rejected', decision.state === 'rejected');
+        const stateLabel = t(decision.state === 'approved' ? 'reportPreview.approved' : 'reportPreview.rejected');
+        text.textContent = t('reportPreview.decisionBy')
+          .replace('{{state}}', stateLabel)
+          .replace('{{name}}', decision.approver || t('reportPreview.approverName'))
+          .replace('{{date}}', formatDecisionDate(decision.at));
+        return;
+      }
+
+      result.hidden = true;
+      actions.hidden = false;
+      approveBtn.disabled = !allowed;
+      rejectBtn.disabled = !allowed;
+      approveBtn.title = allowed ? '' : t('reportPreview.decisionUnavailable');
+      rejectBtn.title = allowed ? '' : t('reportPreview.decisionUnavailable');
+    }
+
+    function openDecision(state) {
+      const meta = currentMeta();
+      if (!canDecide(meta)) {
+        showToast('reportPreview.decisionUnavailable');
+        return;
+      }
+      pendingDecision = state;
+      const mask = document.getElementById('decisionMask');
+      const title = document.getElementById('decisionSheetTitle');
+      const tip = document.getElementById('decisionSheetTip');
+      const confirmBtn = document.getElementById('confirmDecisionBtn');
+      const inform = document.getElementById('informSwitch');
+      const commentWrap = document.getElementById('decisionComment');
+      const comment = document.getElementById('supplierComment');
+
+      title.textContent = t(state === 'approve' ? 'reportPreview.approveReport' : 'reportPreview.rejectReport');
+      tip.textContent = t(state === 'approve' ? 'reportPreview.decisionTipApprove' : 'reportPreview.decisionTipReject');
+      confirmBtn.className = 'solid ' + state;
+      confirmBtn.textContent = t('reportPreview.confirm');
+      inform.classList.remove('on');
+      inform.setAttribute('aria-pressed', 'false');
+      commentWrap.hidden = true;
+      comment.value = '';
+      mask.classList.add('show');
+    }
+
+    function closeDecision() {
+      document.getElementById('decisionMask').classList.remove('show');
+      pendingDecision = null;
+    }
+
+    function closeDecisionMask(event) {
+      if (event.target === event.currentTarget) closeDecision();
+    }
+
+    function toggleInform() {
+      const inform = document.getElementById('informSwitch');
+      const on = !inform.classList.contains('on');
+      inform.classList.toggle('on', on);
+      inform.setAttribute('aria-pressed', on ? 'true' : 'false');
+      document.getElementById('decisionComment').hidden = !on;
+    }
+
+    function confirmDecision() {
+      if (!pendingDecision) return;
+      const meta = currentMeta();
+      const inform = document.getElementById('informSwitch').classList.contains('on');
+      const comment = (document.getElementById('supplierComment').value || '').trim();
+      saveDecision(meta.sku, {
+        state: pendingDecision === 'approve' ? 'approved' : 'rejected',
+        approver: t('reportPreview.approverName'),
+        informSupplier: inform,
+        comment: inform ? comment : '',
+        at: new Date().toISOString()
+      });
+      closeDecision();
+      renderDecision();
+      showToast('reportPreview.decisionSaved');
+    }
+
+    function undoDecision() {
+      if (!window.confirm(t('reportPreview.undoConfirm'))) return;
+      saveDecision(currentMeta().sku, null);
+      renderDecision();
+      showToast('reportPreview.decisionUndone');
     }
 
     function showToast(key) {
       const toast = document.getElementById('toast');
-      toast.textContent = (window.I18n && I18n.t) ? I18n.t(key) : key;
+      toast.textContent = t(key);
       toast.classList.add('show');
       clearTimeout(showToast.timer);
       showToast.timer = setTimeout(function () { toast.classList.remove('show'); }, 1600);
