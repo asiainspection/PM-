@@ -81,7 +81,7 @@
     background: linear-gradient(120deg, #eef2fd 0%, #f7f4fd 100%);
     border: 1px solid #e6ecfb;
     border-radius: 16px;
-    padding: 18px 18px;
+    padding: 18px 14px 18px 18px;
     display: flex; align-items: center; justify-content: space-between;
     overflow: hidden;
   }
@@ -92,9 +92,10 @@
   }
   .hero-num .unit { font-size: 15px; font-weight: 600; color: var(--carbon); margin-left: 6px; }
   .hero-label { margin-top: 6px; font-size: 12px; color: rgba(99,99,99,.9); }
-  .hero-art {
-    font-size: 46px; line-height: 1;
-    filter: drop-shadow(0 6px 10px rgba(65,105,225,.18));
+  .hero-art { flex-shrink: 0; line-height: 0; }
+  .hero-art img {
+    display: block; width: 84px; height: auto;
+    filter: drop-shadow(0 10px 16px rgba(65,105,225,.28)) drop-shadow(0 3px 5px rgba(31,42,68,.12));
   }
 
   /* 筛选标签 */
@@ -338,7 +339,7 @@
         <div class="hero-num">128<span class="unit" data-i18n="reports.statUnit">Reports</span></div>
         <div class="hero-label" data-i18n="reports.statLabel">全部报告</div>
       </div>
-      <div class="hero-art">📚</div>
+      <div class="hero-art"><img src="assets/reports-hero-books.png" alt="" /></div>
     </div>
 
     <!-- 筛选标签：目前只保留 Lab testing -->
