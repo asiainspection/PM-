@@ -77,7 +77,7 @@
 
     var root = document.createElement('div');
     root.id = 'demoShortcuts';
-    root.className = 'demo-shortcuts';
+    root.className = 'demo-shortcuts' + (document.querySelector('.tabbar') ? ' has-tabbar' : '');
     root.innerHTML =
       '<div class="demo-shortcuts-menu" id="demoShortcutsMenu" hidden>' +
         '<button class="demo-shortcuts-item" type="button" data-action="login">' +

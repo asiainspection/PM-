@@ -78,8 +78,17 @@
   transform: rotate(180deg);
 }
 
+/* Tab-bar pages: clear the bar and its centre order button. */
+.demo-shortcuts.has-tabbar {
+  bottom: 84px;
+}
+
 @media (max-width: 640px) {
   .demo-shortcuts {
     bottom: calc(20px + var(--safe-bottom, 0px));
+  }
+
+  .demo-shortcuts.has-tabbar {
+    bottom: calc(84px + var(--safe-bottom, 0px));
   }
 }

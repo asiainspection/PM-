@@ -6,6 +6,7 @@ window.I18N_ZH = {
   'title.orderDetail': 'QIMA 小程序 - 订单详情',
   'title.orderChat': 'QIMA 小程序 - 下单助手',
   'title.reports': 'QIMA 小程序 - 报告中心',
+  'title.me': 'QIMA 小程序 - 我的',
 
   /* ── Common / shared ── */
   'demo.menu': '演示',
@@ -814,5 +815,25 @@ window.I18N_ZH = {
   'signup.required': '此项为必填',
   'signup.legalHtml': '联系 QIMA 即表示您同意我们的<a class="lg-link" href="https://www.qima.com/privacy-policy" target="_blank" rel="noopener noreferrer">隐私政策</a>与<a class="lg-link" href="https://www.qima.com/conditions-of-service" target="_blank" rel="noopener noreferrer">服务条款</a>。',
   'signup.successTitle': '账号已创建',
-  'signup.successDesc': '您的 QIMA 账号已就绪并已关联微信，正在进入首页…'
+  'signup.successDesc': '您的 QIMA 账号已就绪并已关联微信，正在进入首页…',
+
+  /* ── 我的 ── */
+  'me.userName': 'Lyon',
+  'me.linked': '已绑定',
+  'me.accountInfo': '账户信息',
+  'me.email1': '邮箱1',
+  'me.company1': '公司1',
+  'me.company2': '公司2',
+  'me.company3': '公司3',
+  'me.companyDemo': '深圳ABC制造有限公司',
+  'me.notifyPrefs': '通知偏好设置',
+  'me.orderStatusChange': '订单状态变更',
+  'me.orderStatusChangeDesc': '包括确认，更新，取消订单的相关通知',
+  'me.switchOn': '开启',
+  'me.switchOff': '关闭',
+  'me.unbindWechat': '解绑微信',
+  'me.unbindTitle': '解绑微信？',
+  'me.unbindDesc': '解绑后需要重新登录 QIMA 账号才能下单和查看报告。',
+  'me.unbindConfirm': '解绑',
+  'me.unbindDone': '已解绑微信'
 };

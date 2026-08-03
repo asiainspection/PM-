@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<link rel="stylesheet" href="assets/access-gate.css" />
+<script src="assets/access-gate.js?v=20260716a"></script>
+<title>QIMA 小程序 - 我的</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --carbon: #191919;
+    --seal: #737373;
+    --pool-500: #4169e1;
+    --border: #dedede;
+    --kiwi: #00a876;
+    --page-bg: #f8f9fb;
+  }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
+    background: #c9ced8;
+    color: var(--carbon);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body { display: flex; justify-content: center; }
+
+  .phone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--page-bg);
+    overflow: hidden;
+  }
+
+  /* 顶部白色导航区（状态栏 + 导航栏） */
+  .header { background: #fff; flex-shrink: 0; }
+  .statusbar {
+    height: 47px; width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 27px 0 0;
+  }
+  .statusbar .time { width: 134px; text-align: center; font-weight: 600; font-size: 17px; letter-spacing: -.4px; padding-top: 4px; }
+  .statusbar .indicators { display: flex; align-items: center; gap: 7px; padding-top: 4px; }
+  .statusbar .indicators img { display: block; }
+
+  .navbar {
+    position: relative;
+    height: 41px; width: 100%;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 17px;
+  }
+  .navbar .back { width: 12px; height: 20px; display: block; }
+  .navbar .logo {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    width: 72px; height: 16px;
+  }
+  .nav-capsule {
+    width: 83px; height: 30px; border-radius: 15px;
+    background: rgba(255,255,255,.7); border: .5px solid var(--border);
+    display: flex; align-items: center; justify-content: space-around; position: relative;
+  }
+  .nav-capsule img { width: 17px; height: 17px; }
+  .nav-capsule .divider { width: 1px; height: 18px; background: #d2d2d2; }
+
+  /* 内容区 */
+  .content {
+    flex: 1; min-height: 0;
+    display: flex; flex-direction: column; gap: 12px;
+    padding: 12px 16px 0;
+    overflow-y: auto;
+  }
+  .content::-webkit-scrollbar { display: none; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(25,25,25,.08);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* 个人信息卡 */
+  .profile {
+    height: 92px;
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 16px;
+    box-shadow: 0 2px 5px rgba(25,25,25,.08);
+  }
+  .avatar {
+    flex-shrink: 0;
+    width: 52px; height: 52px; border-radius: 26px;
+    background: #ff8261;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 600; color: #fff; line-height: 30px;
+  }
+  .profile-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .profile-name {
+    font-size: 17px; line-height: 25.5px; letter-spacing: -.34px; color: var(--carbon);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .profile-email {
+    font-size: 12px; line-height: 18px; color: var(--seal);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .linked {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 11px; line-height: 16.5px; color: var(--kiwi);
+    white-space: nowrap;
+  }
+  .linked img { width: 13px; height: 13px; display: block; }
+
+  /* 卡片标题行 */
+  .card-head {
+    height: 48px;
+    display: flex; align-items: center; gap: 8px;
+    padding: 14px 16px 0;
+    border-bottom: .5px solid var(--border);
+  }
+  .card-head img { display: block; }
+  .card-head .head-icon-16 { width: 16px; height: 16px; }
+  .card-head .head-icon-18 { width: 18px; height: 18px; }
+  .card-head .head-text {
+    font-size: 13px; font-weight: 500; line-height: 19.5px;
+    letter-spacing: .26px; color: var(--seal);
+  }
+
+  /* 信息行 */
+  .me-block {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 8px 16px 8.5px;
+    border-bottom: .5px solid var(--border);
+  }
+  .card > .me-block:last-child { border-bottom: 0; }
+  .me-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .me-label { flex-shrink: 0; font-size: 14px; line-height: 21px; color: var(--seal); }
+  .me-value {
+    flex: 1; min-width: 0;
+    font-size: 13px; line-height: 19.5px; color: var(--carbon); text-align: right;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* 通知偏好行 */
+  .pref-block { padding: 4px 16px; }
+  .pref-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 0;
+  }
+  .pref-text { display: flex; flex-direction: column; min-width: 0; }
+  .pref-title { font-size: 12px; line-height: 16px; color: var(--carbon); }
+  .pref-desc { font-size: 10px; line-height: 16px; color: var(--seal); }
+  .pref-switch { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+  .pref-state { font-size: 12px; line-height: 16px; color: var(--seal); }
+
+  .switch {
+    width: 36px; height: 20px; border-radius: 10px;
+    background: #d2d2d2; border: 0; padding: 0;
+    position: relative; cursor: pointer;
+    transition: background .2s ease;
+  }
+  .switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 2px rgba(25,25,25,.2);
+    transition: transform .2s ease;
+  }
+  .switch[aria-checked="true"] { background: var(--pool-500); }
+  .switch[aria-checked="true"]::after { transform: translateX(16px); }
+
+  /* 操作行 */
+  .action-row {
+    width: 100%;
+    height: 49.5px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px;
+    background: none; border: 0;
+    font-family: inherit; font-size: 14px; line-height: 21px; color: var(--carbon);
+    cursor: pointer;
+  }
+  .action-row:active { background: #f5f6f9; }
+  .action-row img { width: 18px; height: 18px; display: block; }
+
+  /* 解绑确认 */
+  .confirm-mask {
+    position: absolute; inset: 0; z-index: 60;
+    background: rgba(25,25,25,.4);
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 40px;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .confirm-mask.show { opacity: 1; visibility: visible; }
+  .confirm-box {
+    width: 100%; background: #fff; border-radius: 14px; overflow: hidden;
+    transform: scale(.94); transition: transform .2s cubic-bezier(.2,.8,.25,1);
+  }
+  .confirm-mask.show .confirm-box { transform: scale(1); }
+  .confirm-body { padding: 20px 20px 16px; text-align: center; }
+  .confirm-title { font-size: 15px; font-weight: 600; color: var(--carbon); }
+  .confirm-desc { margin-top: 6px; font-size: 12px; line-height: 18px; color: var(--seal); }
+  .confirm-actions { display: flex; border-top: .5px solid var(--border); }
+  .confirm-btn {
+    flex: 1; height: 46px; background: none; border: 0;
+    font-family: inherit; font-size: 15px; color: var(--seal); cursor: pointer;
+  }
+  .confirm-btn + .confirm-btn { border-left: .5px solid var(--border); }
+  .confirm-btn.danger { color: #e4002b; font-weight: 600; }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%);
+    z-index: 70;
+    max-width: 260px;
+    padding: 10px 16px; border-radius: 10px;
+    background: rgba(25,25,25,.86); color: #fff;
+    font-size: 13px; line-height: 18px; text-align: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .toast.show { opacity: 1; visibility: visible; }
+
+  /* Tab Bar */
+  .tabbar {
+    position: relative; z-index: 3;
+    width: 100%; height: 71.5px; flex-shrink: 0;
+    background: #fff; border-radius: 12px 12px 0 0;
+    box-shadow: 0 -1px 6px rgba(0,0,0,.06);
+    display: flex; align-items: flex-start;
+  }
+  .tab {
+    flex: 1; height: 71px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 4px; padding: 10px 0 20px; text-decoration: none;
+  }
+  .tab img { width: 22px; height: 22px; }
+  .tab .label { font-size: 10px; letter-spacing: .1px; color: var(--seal); }
+  .tab.active .label { color: var(--pool-500); font-weight: 600; }
+  .tab .icon-spacer { width: 20.2px; height: 15px; }
+
+  .fab {
+    position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--pool-500);
+    box-shadow: 0 6px 16px rgba(65,105,225,.4);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 4;
+  }
+  .fab img { width: 24px; height: 24px; }
+</style>
+<link rel="stylesheet" href="assets/phone-shell.css" />
+<link rel="stylesheet" href="assets/lang-toggle.css" />
+<link rel="stylesheet" href="assets/i18n-en.css" />
+<link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
+<script>window.PAGE_TITLE_KEY = 'title.me';</script>
+<script src="assets/i18n/zh.js?v=20260803f"></script>
+<script src="assets/i18n/en.js?v=20260803f"></script>
+<script src="assets/i18n-runtime.js"></script>
+<script src="assets/demo-shortcuts.js?v=20260803e"></script>
+</head>
+<body>
+  <div class="phone">
+    <!-- 顶部：状态栏 + 导航栏 -->
+    <div class="header">
+      <div class="statusbar">
+        <div class="time">9:41</div>
+        <div class="indicators">
+          <img src="assets/signal.svg" alt="" width="18" height="12" />
+          <img src="assets/wifi.svg" alt="" width="17" height="12" />
+          <img src="assets/battery.svg" alt="" width="27" height="13" />
+        </div>
+      </div>
+      <div class="navbar">
+        <a href="index.html"><img class="back" src="assets/vector52.svg" alt="返回" data-i18n-alt="common.back" /></a>
+        <img class="logo" src="assets/frame207.svg" alt="QIMA" />
+        <div class="nav-capsule">
+          <img src="assets/share.svg" alt="" />
+          <div class="divider"></div>
+          <img src="assets/home.svg" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- 个人信息 -->
+      <div class="card profile">
+        <div class="avatar">L</div>
+        <div class="profile-main">
+          <div class="profile-name" data-i18n="me.userName">Lyon</div>
+          <div class="profile-email">Lyon1234@example.com</div>
+        </div>
+        <div class="linked">
+          <img src="assets/notif_check.svg" alt="" />
+          <span data-i18n="me.linked">已绑定</span>
+        </div>
+      </div>
+
+      <!-- 账户信息 -->
+      <div class="card">
+        <div class="card-head">
+          <img class="head-icon-16" src="assets/tab_me.svg" alt="" />
+          <span class="head-text" data-i18n="me.accountInfo">账户信息</span>
+        </div>
+        <div class="me-block">
+          <div class="me-row">
+            <span class="me-label" data-i18n="me.email1">邮箱1</span>
+            <span class="me-value">joyce.wang1@example.com</span>
+          </div>
+        </div>
+        <div class="me-block">
+          <div class="me-row">
+            <span class="me-label" data-i18n="me.company1">公司1</span>
+            <span class="me-value" data-i18n="me.companyDemo">深圳ABC制造有限公司</span>
+          </div>
+          <div class="me-row">
+            <span class="me-label" data-i18n="me.company2">公司2</span>
+            <span class="me-value" data-i18n="me.companyDemo">深圳ABC制造有限公司</span>
+          </div>
+          <div class="me-row">
+            <span class="me-label" data-i18n="me.company3">公司3</span>
+            <span class="me-value" data-i18n="me.companyDemo">深圳ABC制造有限公司</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通知偏好设置 -->
+      <div class="card">
+        <div class="card-head">
+          <img class="head-icon-18" src="assets/icon_bell.svg" alt="" />
+          <span class="head-text" data-i18n="me.notifyPrefs">通知偏好设置</span>
+        </div>
+        <div class="me-block pref-block">
+          <div class="pref-row">
+            <div class="pref-text">
+              <span class="pref-title" data-i18n="me.orderStatusChange">订单状态变更</span>
+              <span class="pref-desc" data-i18n="me.orderStatusChangeDesc">包括确认，更新，取消订单的相关通知</span>
+            </div>
+            <div class="pref-switch">
+              <span class="pref-state" id="orderNotifyState" data-i18n="me.switchOn">开启</span>
+              <button class="switch" type="button" id="orderNotifySwitch"
+                role="switch" aria-checked="true" aria-labelledby="orderNotifyLabel"
+                onclick="toggleOrderNotify()"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 解绑微信 -->
+      <div class="card">
+        <button class="action-row" type="button" onclick="openUnbindConfirm()">
+          <span data-i18n="me.unbindWechat">解绑微信</span>
+          <img src="assets/chevron_row.svg" alt="" />
+        </button>
+      </div>
+    </div>
+
+    <!-- 底部 Tab Bar -->
+    <div class="tabbar">
+      <a class="tab" href="index.html">
+        <img src="assets/tab_home.svg" alt="" />
+        <span class="label" data-i18n="common.tab.home">首页</span>
+      </a>
+      <a class="tab" href="orders.html">
+        <img src="assets/tab_order.svg" alt="" />
+        <span class="label" data-i18n="common.tab.orders">订单</span>
+      </a>
+      <a class="tab center" href="#">
+        <span class="icon-spacer"></span>
+      </a>
+      <a class="tab" href="reports.html">
+        <img src="assets/tab_report.svg" alt="" />
+        <span class="label" data-i18n="common.tab.reports">报告</span>
+      </a>
+      <a class="tab active" href="me.html">
+        <img src="assets/tab_me_active.svg" alt="" />
+        <span class="label" data-i18n="common.tab.me">我的</span>
+      </a>
+      <div class="fab"><img src="assets/fab_add.svg" alt="下单" data-i18n-alt="common.fabOrder" /></div>
+    </div>
+
+    <!-- 解绑确认 -->
+    <div class="confirm-mask" id="unbindConfirm" role="dialog" aria-modal="true" aria-labelledby="unbindTitle">
+      <div class="confirm-box">
+        <div class="confirm-body">
+          <div class="confirm-title" id="unbindTitle" data-i18n="me.unbindTitle">解绑微信？</div>
+          <div class="confirm-desc" data-i18n="me.unbindDesc">解绑后需要重新登录 QIMA 账号才能下单和查看报告。</div>
+        </div>
+        <div class="confirm-actions">
+          <button class="confirm-btn" type="button" onclick="closeUnbindConfirm()" data-i18n="common.cancel">取消</button>
+          <button class="confirm-btn danger" type="button" onclick="confirmUnbind()" data-i18n="me.unbindConfirm">解绑</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script>
+    function t(key){ return (window.I18n && I18n.t) ? I18n.t(key) : key; }
+
+    let orderNotifyOn = true;
+
+    function renderOrderNotify(){
+      const btn = document.getElementById('orderNotifySwitch');
+      const state = document.getElementById('orderNotifyState');
+      btn.setAttribute('aria-checked', orderNotifyOn ? 'true' : 'false');
+      state.setAttribute('data-i18n', orderNotifyOn ? 'me.switchOn' : 'me.switchOff');
+      state.textContent = t(orderNotifyOn ? 'me.switchOn' : 'me.switchOff');
+    }
+
+    function toggleOrderNotify(){
+      orderNotifyOn = !orderNotifyOn;
+      renderOrderNotify();
+    }
+
+    function openUnbindConfirm(){
+      document.getElementById('unbindConfirm').classList.add('show');
+    }
+
+    function closeUnbindConfirm(){
+      document.getElementById('unbindConfirm').classList.remove('show');
+    }
+
+    function showToast(message){
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(function(){ el.classList.remove('show'); }, 1600);
+    }
+
+    /** Unlinking drops the WeChat binding, so the demo returns to the sign-in overlay. */
+    function confirmUnbind(){
+      closeUnbindConfirm();
+      showToast(t('me.unbindDone'));
+      setTimeout(function(){
+        if (window.QimaDemoShortcuts && typeof QimaDemoShortcuts.openLogin === 'function') {
+          QimaDemoShortcuts.openLogin();
+          return;
+        }
+        location.href = 'index.html?bind=1';
+      }, 900);
+    }
+
+    document.getElementById('unbindConfirm').addEventListener('click', function(e){
+      if (e.target === this) closeUnbindConfirm();
+    });
+
+    if (window.I18n) {
+      I18n.initLangToggle({ onLangApplied: renderOrderNotify });
+    }
+    renderOrderNotify();
+  </script>
+</body>
+</html>

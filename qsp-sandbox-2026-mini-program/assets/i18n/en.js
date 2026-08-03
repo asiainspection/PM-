@@ -6,6 +6,7 @@ window.I18N_EN = {
   'title.orderDetail': 'QIMA Mini Program - Order Details',
   'title.orderChat': 'QIMA Mini Program - Order Assistant',
   'title.reports': 'QIMA Mini Program - Reports',
+  'title.me': 'QIMA Mini Program - Me',
 
   /* ── Common / shared ── */
   'demo.menu': 'Demo',
@@ -814,5 +815,25 @@ window.I18N_EN = {
   'signup.required': 'This field is required',
   'signup.legalHtml': 'By contacting QIMA you agree to our <a class="lg-link" href="https://www.qima.com/privacy-policy" target="_blank" rel="noopener noreferrer">privacy policy</a> and <a class="lg-link" href="https://www.qima.com/conditions-of-service" target="_blank" rel="noopener noreferrer">terms and conditions</a>.',
   'signup.successTitle': 'Account created',
-  'signup.successDesc': 'Your QIMA account is ready and linked to WeChat. Taking you to the home page…'
+  'signup.successDesc': 'Your QIMA account is ready and linked to WeChat. Taking you to the home page…',
+
+  /* ── Me ── */
+  'me.userName': 'Lyon',
+  'me.linked': 'Linked',
+  'me.accountInfo': 'Account info',
+  'me.email1': 'Email 1',
+  'me.company1': 'Company 1',
+  'me.company2': 'Company 2',
+  'me.company3': 'Company 3',
+  'me.companyDemo': 'Shenzhen ABC Manufacturing Co., Ltd.',
+  'me.notifyPrefs': 'Notification preferences',
+  'me.orderStatusChange': 'Order status changes',
+  'me.orderStatusChangeDesc': 'Includes order confirmation, update and cancellation notices',
+  'me.switchOn': 'On',
+  'me.switchOff': 'Off',
+  'me.unbindWechat': 'Unlink WeChat',
+  'me.unbindTitle': 'Unlink WeChat?',
+  'me.unbindDesc': 'You will need to sign in to your QIMA account again to place orders and view reports.',
+  'me.unbindConfirm': 'Unlink',
+  'me.unbindDone': 'WeChat unlinked'
 };
