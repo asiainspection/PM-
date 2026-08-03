@@ -1523,7 +1523,27 @@
             'index.sampleCollect',
             'index.sampleReceived'
           ]},
-          { key: 'carrier', labelKey: 'carrier.label', type: 'text' },
+          { key: 'carrier', labelKey: 'carrier.label', type: 'select', optionValues: [
+            '',
+            '顺丰速运',
+            '中通快递',
+            '圆通速递',
+            '申通快递',
+            '韵达快递',
+            '京东物流',
+            '极兔速递',
+            '其他'
+          ], optionKeys: [
+            'carrier.selectPlaceholder',
+            'carrier.sf',
+            'carrier.zto',
+            'carrier.yto',
+            'carrier.sto',
+            'carrier.yunda',
+            'carrier.jd',
+            'carrier.jt',
+            'carrier.other'
+          ]},
           { key: 'trackingNumber', labelKey: 'carrier.trackingNo', type: 'text' },
           { key: 'shippingRemark', labelKey: 'index.shippingRemark', type: 'textarea' }
         ]
@@ -1893,13 +1913,18 @@
         return renderEditRecipientsField(field);
       }
       if(field.type === 'select'){
+        let selected = current;
+        if(selected === 'N/A' || selected === 'n/a') selected = '';
         const optionValues = field.optionValues ? [...field.optionValues] : [...(field.options || [])];
-        if(current && !optionValues.includes(current)) optionValues.unshift(current);
-        const optionKeys = field.optionKeys || [];
+        const optionKeys = field.optionKeys ? [...field.optionKeys] : [];
+        if(selected && !optionValues.includes(selected)){
+          optionValues.unshift(selected);
+          optionKeys.unshift('');
+        }
         const options = optionValues.map(function (opt, index) {
-          const selected = opt === current ? ' selected' : '';
+          const selectedAttr = opt === selected ? ' selected' : '';
           const labelText = optionKeys[index] ? t(optionKeys[index]) : opt;
-          return '<option value="'+escapeHtml(opt)+'"'+selected+'>'+escapeHtml(labelText || t('common.selectPlaceholder'))+'</option>';
+          return '<option value="'+escapeHtml(opt)+'"'+selectedAttr+'>'+escapeHtml(labelText || t('common.selectPlaceholder'))+'</option>';
         }).join('');
         return '<div class="edit-item">'+
           '<label>'+escapeHtml(label)+req+'</label>'+
