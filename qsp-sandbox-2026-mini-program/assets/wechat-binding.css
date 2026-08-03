@@ -1,7 +1,11 @@
 /**
- * WeChat account-linking onboarding overlay.
- * Lives inside the .phone shell (not the browser viewport) so the demo still
- * reads as a mini program on desktop. See assets/wechat-binding.js.
+ * WeChat sign-in / account-linking overlay.
+ *
+ * The form mirrors the myQIMA (my.qima.com/v2/login) sign-in card — same
+ * tokens: Pool-500 #4169e1 primary, Pool-100 #e6ecfb secondary, Smoke #b3b3b3
+ * borders, 8px radii, 48px controls. It lives inside the .phone shell (not the
+ * browser viewport) so the demo still reads as a mini program on desktop.
+ * See assets/wechat-binding.js.
  */
 
 /* Hide the home page underneath until the overlay is injected. */
@@ -17,7 +21,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   display: flex;
   flex-direction: column;
   background: #ff5f4e;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
   color: #191919;
   animation: wxbind-fade-in .28s ease-out;
 }
@@ -134,11 +138,10 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   margin: 16px auto 0;
   background: #fff;
   border-radius: 16px;
-  padding: 20px 16px;
+  padding: 20px 16px 24px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 18px;
+  gap: 14px;
   filter: drop-shadow(0 2px 5px rgba(25, 25, 25, .12));
 }
 
@@ -148,28 +151,66 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   justify-content: center;
   gap: 12px;
 }
-.wxbind-marks .wxbind-mark { width: 38px; height: 38px; display: block; }
+.wxbind-marks .wxbind-mark { width: 34px; height: 34px; display: block; }
 .wxbind-marks .wxbind-link { width: 16px; height: 16px; display: block; transform: rotate(180deg); }
 
-.wxbind-title {
-  width: 326px;
+/* ===== Heading row: "Sign In" + "New to QIMA? Sign up" ===== */
+.lg-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lg-head.is-stacked {
+  justify-content: center;
   text-align: center;
-  font-size: 18px;
+}
+.lg-head[hidden] { display: none; }
+
+.lg-heading {
+  font-size: 22px;
   font-weight: 400;
-  line-height: 27px;
-  letter-spacing: -.36px;
+  line-height: 30px;
+  letter-spacing: -.3px;
   color: #191919;
+  margin: 0;
 }
 
+.lg-signup {
+  font-size: 13px;
+  line-height: 19px;
+  color: #737373;
+  margin: 0;
+  text-align: right;
+}
+.lg-signup[hidden] { display: none; }
+
+.lg-lead {
+  font-size: 13px;
+  line-height: 19.5px;
+  color: #191919;
+  margin: -4px 0 0;
+}
+.lg-lead[hidden] { display: none; }
+/* Give the address its own line so it never breaks mid-domain. */
+.lg-lead strong {
+  display: block;
+  font-weight: 600;
+  color: #191919;
+  overflow-wrap: break-word;
+}
+.lg-head.is-stacked + .lg-lead { text-align: center; color: #737373; }
+
+/* ===== Context note (why linking matters) ===== */
 .wxbind-note {
   position: relative;
-  width: 326px;
   min-height: 59px;
   border-radius: 8px;
   background: #e6ecfb;
   padding: 10px 12px 10px 36px;
   box-sizing: border-box;
 }
+.wxbind-note[hidden] { display: none; }
 .wxbind-note img {
   position: absolute;
   left: 12px;
@@ -183,35 +224,29 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   color: #153184;
 }
 
-.wxbind-form {
+/* ===== Screens ===== */
+.lg-screen {
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  align-items: flex-start;
+  gap: 14px;
 }
-.wxbind-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  align-items: flex-start;
-}
-.wxbind-field {
+.lg-screen[hidden] { display: none; }
+
+.lg-field {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  align-items: flex-start;
-  width: 326px;
 }
-.wxbind-label {
+.lg-label {
   font-size: 14px;
   line-height: 21px;
   color: #737373;
 }
 
-.wxbind-input {
+.lg-input {
   width: 100%;
-  height: 40px;
-  border: 1px solid #dedede;
+  height: 48px;
+  border: 1px solid #b3b3b3;
   border-radius: 8px;
   background: #fff;
   padding: 0 16px;
@@ -223,78 +258,222 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.wxbind-input::placeholder { color: rgba(25, 25, 25, .5); }
-.wxbind-input:focus {
+.lg-input::placeholder { color: rgba(25, 25, 25, .45); }
+.lg-input:focus {
   border-color: #4169e1;
   box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
 }
 
-/* Email row carries an inline clear button in the error state. */
-.wxbind-input-wrap { position: relative; width: 100%; }
-.wxbind-input-wrap .wxbind-input { padding-right: 40px; }
-.wxbind-clear {
+.lg-input-wrap { position: relative; width: 100%; }
+.lg-input-wrap .lg-input { padding-right: 46px; }
+
+.lg-eye,
+.lg-clear {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
   border: 0;
   padding: 0;
   background: none;
   cursor: pointer;
-  display: none;
+  display: block;
+  color: #191919;
 }
-.wxbind-clear img { width: 16px; height: 16px; display: block; }
+.lg-eye { width: 20px; height: 20px; }
+.lg-eye svg { width: 20px; height: 20px; display: block; }
+/* Slash only shows while the password is revealed. */
+.lg-eye .lg-eye-slash { opacity: 0; transition: opacity .15s ease; }
+.lg-eye.is-visible .lg-eye-slash { opacity: 1; }
 
-.wxbind-field.is-error .wxbind-input,
-.wxbind-field.is-error .wxbind-input:focus {
+.lg-clear { width: 16px; height: 16px; }
+.lg-clear[hidden] { display: none; }
+.lg-clear img { width: 16px; height: 16px; display: block; }
+
+.lg-field.is-error .lg-input,
+.lg-field.is-error .lg-input:focus {
   border: 2px solid #e5353d;
-  box-shadow: 0 0 0 3px rgba(229, 53, 61, .25);
+  box-shadow: 0 0 0 3px rgba(229, 53, 61, .2);
 }
-.wxbind-field.is-error .wxbind-clear { display: block; }
 
-.wxbind-help {
-  width: 322px;
+.lg-error {
   font-size: 12px;
   line-height: 18px;
-  color: #737373;
+  color: #9e141b;
 }
-.wxbind-help.is-error { color: #9e141b; line-height: 16px; }
-.wxbind-help.is-ok { color: #00a876; }
-.wxbind-help:empty { display: none; }
-
-.wxbind-code-row {
-  display: flex;
-  gap: 4px;
-  align-items: flex-start;
-  width: 100%;
-}
-.wxbind-code-row .wxbind-input { width: 202px; flex: 0 0 202px; }
-
-.wxbind-btn {
-  height: 40px;
-  border: 0;
+.lg-error[hidden] { display: none; }
+.lg-error-center { text-align: center; }
+.lg-error-banner {
   border-radius: 8px;
-  background: #f0f0f0;
-  color: #737373;
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 21px;
-  cursor: not-allowed;
-  transition: background-color .15s ease, color .15s ease;
+  background: #fdeaeb;
+  padding: 8px 12px;
+  margin-top: -2px;
 }
-.wxbind-btn.is-enabled {
-  background: #4169e1;
-  color: #fff;
+
+/* ===== Remember me / forgot password ===== */
+.lg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: -2px;
+}
+
+/* 12px keeps "Keep me signed in for 30 days" + "Forgot password?" on one line
+   inside the 326px card. */
+.lg-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #191919;
   cursor: pointer;
 }
-.wxbind-btn.is-enabled:active { background: #3557c4; }
-.wxbind-code-row .wxbind-btn { width: 120px; flex: 0 0 120px; }
-.wxbind-submit { width: 326px; }
+.lg-row .lg-link {
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.lg-check input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.lg-check-box {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #b3b3b3;
+  border-radius: 4px;
+  background: #fff;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.lg-check-box svg { width: 12px; height: 12px; opacity: 0; }
+.lg-check input:checked + .lg-check-box {
+  background: #4169e1;
+  border-color: #4169e1;
+}
+.lg-check input:checked + .lg-check-box svg { opacity: 1; }
+.lg-check input:focus-visible + .lg-check-box {
+  box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
+}
+
+/* ===== Links ===== */
+.lg-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 19px;
+  color: #4169e1;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.lg-link:active { color: #1e46bd; }
+.lg-link:disabled {
+  color: #b3b3b3;
+  text-decoration: none;
+  cursor: default;
+}
+.lg-link-block {
+  align-self: center;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* ===== Buttons ===== */
+.lg-btn {
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 21px;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease;
+}
+.lg-btn-primary {
+  background: #4169e1;
+  color: #fff;
+}
+.lg-btn-primary:active { background: #1e46bd; }
+.lg-btn-primary:disabled {
+  background: #f0f0f0;
+  color: #b3b3b3;
+  cursor: not-allowed;
+}
+.lg-btn-secondary {
+  background: #e6ecfb;
+  color: #4169e1;
+}
+.lg-btn-secondary:active { background: #d6e0f8; }
+
+/* ===== "or" divider ===== */
+.lg-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #737373;
+  font-size: 13px;
+  line-height: 19px;
+}
+.lg-divider::before,
+.lg-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #dedede;
+}
+
+/* ===== One-time code boxes ===== */
+.lg-code-boxes {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.lg-code-box {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 52px;
+  border: 1px solid #b3b3b3;
+  border-radius: 8px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  text-align: center;
+  color: #191919;
+  outline: none;
+  padding: 0;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.lg-code-box:focus {
+  border-color: #4169e1;
+  box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
+}
+.lg-code-boxes.is-error .lg-code-box {
+  border-color: #e5353d;
+}
+
+.lg-resend {
+  text-align: center;
+  font-size: 13px;
+  line-height: 19px;
+  color: #737373;
+  margin: -2px 0 0;
+}
 
 /* ===== Success state ===== */
-.wxbind-form[hidden],
 .wxbind-success[hidden] { display: none; }
 
 .wxbind-success {
@@ -302,8 +481,8 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 326px;
   text-align: center;
+  padding: 12px 0 8px;
 }
 .wxbind-success-icon {
   width: 56px;
@@ -386,11 +565,5 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
     box-sizing: border-box;
   }
   .wxbind-card { width: min(358px, calc(100vw - 32px)); }
-  .wxbind-title,
-  .wxbind-note,
-  .wxbind-field,
-  .wxbind-submit { width: 100%; }
-  .wxbind-help { width: 100%; }
-  .wxbind-code-row .wxbind-input { flex: 1 1 auto; width: auto; }
   .wxbind-skip { bottom: calc(28px + var(--safe-bottom, 0px)); }
 }

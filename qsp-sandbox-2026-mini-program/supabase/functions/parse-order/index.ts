@@ -204,13 +204,23 @@ function detectProgramCategory(
     return "eyewear";
   }
   // 5) Electric — only with concrete powered evidence (never from category guess alone)
-  if (
-    electricHint ||
-    /__ELECTRIC_YES__/i.test(t) ||
-    /\b(?:electric\s+fan|electric\s+product|electronics?|voltage|charger|motor|adapter)\b/i
+  // Skip when user explicitly said 不带电 / 非电 (do not match 带电 inside 不带电)
+  const electricNegated =
+    /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric|without\s+batter|no\s+batter|battery[-\s]?free|__ELECTRIC_NO__/i
       .test(blob) ||
-    /电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电/.test(blob) ||
-    /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(blob)
+    /非电(?:产品)?|不带电|不含电池|无电池|不带电源/.test(t);
+  const electricBlob = blob.replace(
+    /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric(?:\s+product)?|without\s+batter(?:y|ies)|no\s+batter(?:y|ies)|battery[-\s]?free|__ELECTRIC_NO__/gi,
+    " ",
+  );
+  if (
+    !electricNegated &&
+    (electricHint ||
+      /__ELECTRIC_YES__/i.test(t) ||
+      /\b(?:electric\s+fan|electric\s+product|electronics?|voltage|charger|motor|adapter)\b/i
+        .test(electricBlob) ||
+      /电源|电机|充电|电池|电压|功率|电子产品|电风扇|带电/.test(electricBlob) ||
+      /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz/i.test(electricBlob))
   ) {
     const toyCue =
       /\b(?:toy|toys|en\s*71|cpsia)\b/i.test(blob) ||
@@ -218,8 +228,8 @@ function detectProgramCategory(
     const electricName =
       /\b(?:fan|lamp|light|heater|blender|mixer|vacuum|speaker|headphones?|earphones?|shaver|straightener|hair\s*dryer)\b/i
         .test(blob) ||
-      /耳机|风扇|台灯|吹风机|充电器|剃须刀|直发器|带电产品|电子产品/.test(blob) ||
-      /electric\s+product/i.test(blob);
+      /耳机|风扇|台灯|吹风机|充电器|剃须刀|直发器|带电产品|电子产品/.test(electricBlob) ||
+      /electric\s+product/i.test(electricBlob);
     if (electricName || (electricHint && !toyCue)) return "electric";
     if (!toyCue) return "electric";
   }
@@ -341,12 +351,17 @@ function ensureProgramMatched(
     fields["Electric Product"] || "",
     fields["Shipping Remark"] || "",
   ].join("\n");
+  const electricField = String(fields["Electric Product"] || "");
+  const electricNo =
+    electricField === "__ELECTRIC_NO__" ||
+    /非电|不带电/i.test(electricField) ||
+    /不带电|非电(?:产品)?/.test(hintText);
   const matched = matchProgramFromText(hintText, {
     productName: fields["Product Name"] || "",
     electricYes:
-      /带电|electric\s*yes|^electric$/i.test(
-        String(fields["Electric Product"] || ""),
-      ),
+      electricField === "__ELECTRIC_YES__" ||
+      (/带电|electric\s*yes|^electric$/i.test(electricField) &&
+        !/非电|不带电|__ELECTRIC_NO__/i.test(electricField)),
   });
   if (existing) {
     // Reconcile: only override with HIGH-CONFIDENCE detector categories
@@ -356,7 +371,20 @@ function ensureProgramMatched(
     const STRONG: Record<string, 1> = { msds: 1, electric: 1, eyewear: 1, sh_self: 1 };
     const existingCat = programLabelCategory(existing);
     const detectedCat = programLabelCategory(matched);
+    // User said 不带电 → drop Electric program even if LLM had picked it
+    if (electricNo && existingCat === "electric") {
+      fields.Program =
+        (detectedCat && detectedCat !== "electric" ? matched : "") ||
+        PROGRAM_BY_KEY.default;
+      return fields;
+    }
     if (detectedCat && STRONG[detectedCat] && detectedCat !== existingCat) {
+      if (detectedCat === "electric" && electricNo) {
+        fields.Program = existingCat === "electric"
+          ? PROGRAM_BY_KEY.default
+          : existing;
+        return fields;
+      }
       const payer = /temu\s*pay|temu付款/i.test(existing) ? "temu" : "seller";
       let key = detectedCat === "non_sleepwear"
         ? `non_sleepwear_${payer}`
@@ -487,7 +515,7 @@ function cleanProductName(raw: string): string {
     /\s+(?:sold\s+(?:in|to|for)|manufactured\s+by|made\s+(?:by|in)|produced\s+by|exported\s+to|shipped\s+to|distribut(?:ed|ion)\s+(?:in|to|for)|intended\s+for|for\s+(?:the\s+)?(?:US|U\.S\.|USA|UK|EU|European|American|Chinese|market)|from\s+(?:the\s+)?(?:factory|manufacturer|supplier)|that\s+(?:is|are|was|were|has|have)|which\s+(?:is|are|was|were)|and\s+(?:I|we|the|it)|(?:I|we)\s+(?:need|want|will)|with\s+(?:batter|power)|Model\b|型号|item\s*(?:no\.?|number|#)|SKU|P\s*\/?\s*N)\b/i,
   )[0];
   name = name.split(
-    /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|带电|非电|样本|送样|寄送)/,
+    /(?:[，,。；;]\s*)?(?:销往|销售(?:国家|地区|市场)?|出口到?|运往|发往|制造商(?:名称|全称)?|厂家|工厂|生产商|厂商|原产(?:国家或地区|国|地)|产自|产地|型号|货号|规格|标准|SKU|需要(?:做)?(?:检测|测试)|做(?:实验室)?检测|检测服务|不带电|非电(?:产品)?|不含电池|无电池|样品收集方式|快递公司|承运商|带电|非电|样本|送样|寄送)/,
   )[0];
   name = name.replace(/^(?:一款|一个|一台|一件|这种|这个|那个|该|a|an|the|my|our|this|that)\s+/i, "").trim();
   name = name.replace(/(?:做(?:实验室)?(?:检测|测试)|的检测|的测试|for\s+(?:lab\s+)?(?:testing|test|inspection))$/i, "").trim();
@@ -552,9 +580,13 @@ function looksLikeNonProductName(s: string): boolean {
   const t = String(s || "").replace(/\s+/g, " ").trim();
   if (!t) return true;
   if (
-    /^(?:型号|名称|品名|规格|标准|Manufacturer|Model|Rating|Address|Product)$/i
+    /^(?:型号|名称|品名|规格|标准|产品|Manufacturer|Model|Rating|Address|Product)$/i
       .test(t)
   ) {
+    return true;
+  }
+  // Truncated junk from "产品不带电…" etc.
+  if (/^产品不|^品名不|^名称不/.test(t) || (t.length <= 3 && /产品|品名/.test(t))) {
     return true;
   }
   if (/(?:wenku\.baidu|baidu\.com|docin\.com|http)/i.test(t)) return true;
@@ -632,8 +664,13 @@ function looksLikeCompanyName(s: string): boolean {
 
 /** Concrete electrical evidence actually visible in the source text. */
 function hasElectricEvidence(text: string): boolean {
-  const t = String(text || "");
+  let t = String(text || "");
   if (!t) return false;
+  // Strip negated phrases first so "不带电" / "非电产品" never count as 带电 evidence
+  t = t.replace(
+    /非电(?:产品)?|不带电|不含电池|无电池|不带电源|non[-\s]?electric(?:\s+product)?|without\s+batter(?:y|ies)|no\s+batter(?:y|ies)|battery[-\s]?free/gi,
+    " ",
+  );
   return /(?:\b\d+(?:\.\d+)?\s*(?:V(?:olt)?|W(?:att)?|Hz|mA|A)\b)|battery|batteries|rechargeable|锂电池|干电池|纽扣电池|蓄电池|充电电池|电池|charger|充电|adapter|适配器|电源|电机|马达|电动|Rated|Rating|Input|Output|Power\s*supply|USB|Type-?C|DC\s*in|AC\s*adapter|电压|功率|电流|带电|electric\s+product|带电产品/i
     .test(t);
 }
@@ -871,15 +908,34 @@ function sanitizeParsedFields(
     } else if (key === "Program") {
       candidate = resolveProgramLabel(raw) || "";
     } else if (key === "Electric Product") {
-      const elecLower = String(candidate || "").toLowerCase();
-      const saysYes = /__ELECTRIC_YES__|带电产品|带电|electric|yes/i.test(elecLower);
-      const saysNo = /__ELECTRIC_NO__|非电产品|非电|non[-\s]?electric|no/i.test(elecLower);
-      if (saysYes && !saysNo) {
-        candidate = hasElectricEvidence(opts?.rawExcerpt || "") ? "__ELECTRIC_YES__" : "";
-      } else if (saysNo && !saysYes) {
+      // Sentinels first — never let /electric|no/ match inside __ELECTRIC_NO__
+      // Also treat 不带电 carefully (contains 带电 substring)
+      if (/^__ELECTRIC_YES__$/i.test(candidate)) {
+        candidate = hasElectricEvidence(opts?.rawExcerpt || "")
+          ? "__ELECTRIC_YES__"
+          : "";
+      } else if (/^__ELECTRIC_NO__$/i.test(candidate)) {
         candidate = "__ELECTRIC_NO__";
       } else {
-        candidate = "";
+        const saysNo =
+          /非电产品|非电|不带电|不含电池|无电池|non[-\s]?electric|without\s+batter|no\s+batter|battery[-\s]?free|^no$/i
+            .test(candidate);
+        const saysYes =
+          /带电产品|^带电$|electric\s+product|contains?\s+batter|^yes$|^electric$/i
+            .test(candidate);
+        if (saysNo && !saysYes) {
+          candidate = "__ELECTRIC_NO__";
+        } else if (saysYes && !saysNo) {
+          candidate = hasElectricEvidence(opts?.rawExcerpt || "")
+            ? "__ELECTRIC_YES__"
+            : "";
+        } else if (/(?:^|[^不非])带电/.test(candidate) && !/不带电|非电/.test(candidate)) {
+          candidate = hasElectricEvidence(opts?.rawExcerpt || candidate)
+            ? "__ELECTRIC_YES__"
+            : "";
+        } else {
+          candidate = "";
+        }
       }
     }
     if (!candidate || !isPlausibleField(key, candidate)) {
@@ -1559,9 +1615,12 @@ function seedFieldsFromLabels(
       [ratingForElec, label.Rating, label["Product Description"], label["ocr_text"]].join("\n"),
     );
     if (elec && !seed["Electric Product"]) {
-      if (/非电|non[-\s]?electric|no/i.test(elec)) {
+      if (/非电|不带电|non[-\s]?electric|^no$/i.test(elec)) {
         seed["Electric Product"] = "非电产品";
-      } else if (/带电|electric|yes/i.test(elec) && labelElecEvidence) {
+      } else if (
+        /带电产品|^带电$|electric\s+product|^yes$/i.test(elec) &&
+        labelElecEvidence
+      ) {
         seed["Electric Product"] = "带电产品";
       }
     }
@@ -1592,7 +1651,8 @@ function seedFieldsFromLabels(
       ].join("\n");
       seed.Program = matchProgramFromText(hintBlob, {
         productName: seed["Product Name"] || "",
-        electricYes: /带电|electric/i.test(seed["Electric Product"] || ""),
+        electricYes: seed["Electric Product"] === "带电产品" ||
+          seed["Electric Product"] === "__ELECTRIC_YES__",
       });
     }
     const extraRemark = buildShippingRemark(label);
@@ -2118,15 +2178,15 @@ function seedFromProductPage(signals: ProductPageSignals | null): FieldMap {
     seed["Product Description"] = signals.description.slice(0, 200);
   }
   // Infer electric / program from page text
-  const electricYes =
-    /\d+\s*V(?:olt)?|\d+\s*W(?:att)?|\d+\s*Hz|battery|charger|motor|voltage|电源|电机|充电|电池|电压|功率|电子产品|带电|electric\s+(?:fan|product)/i
+  const electricNo =
+    /非电|不带电|不含电池|无电池|non[-\s]?electric|unelectrified|without\s+batter|battery[-\s]?free/i
       .test(blob);
-  const electricNo = /非电|non[-\s]?electric|unelectrified/i.test(blob);
+  const electricYes = !electricNo && hasElectricEvidence(blob);
   if (electricYes) seed["Electric Product"] = "带电产品";
   else if (electricNo) seed["Electric Product"] = "非电产品";
   const program = matchProgramFromText(blob, {
     productName: seed["Product Name"] || "",
-    electricYes: electricYes || /带电|electric/i.test(seed["Electric Product"] || ""),
+    electricYes: electricYes,
   });
   if (program) seed.Program = program;
 
