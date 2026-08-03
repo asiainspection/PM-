@@ -777,6 +777,17 @@ window.I18N_EN = {
   'reports.product.hardline': 'Hardline testing',
   'reports.product.food': 'Food-contact testing',
   'reports.emptyHint': 'No reports yet',
+  'reports.supplierLabel': 'Supplier',
+  'reports.decisionLabel': 'Decision',
+  'reports.decision.pending': 'Pending',
+  'reports.decision.approved': 'Approved',
+  'reports.decision.rejected': 'Rejected',
+  'reports.supplier.psi': 'Ningbo Harbor Apparel Co., Ltd.',
+  'reports.supplier.textile': 'Shaoxing Jincheng Textile Co., Ltd.',
+  'reports.supplier.toys': 'Shenzhen Zhichuang Toys Co., Ltd.',
+  'reports.supplier.electronics': 'Dongguan Xinglian Electronics Co., Ltd.',
+  'reports.supplier.hardline': 'Foshan Yonggu Hardware Factory',
+  'reports.supplier.food': 'Yiwu Anshi Packaging Co., Ltd.',
 
   /* ── Report PDF preview ── */
   'title.reportPreview': 'QIMA Mini Program - Report Preview',

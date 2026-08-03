@@ -163,6 +163,32 @@
   .rlist-meta svg { color: #9aa0ad; flex-shrink: 0; width: 12px; height: 12px; }
   .rlist-meta .report-no { color: var(--carbon); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rlist-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #c4cad6; flex-shrink: 0; }
+  .rlist-facts {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
+    margin-top: 10px;
+  }
+  .rlist-fact {
+    min-width: 0;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .rlist-fact-label {
+    font-size: 10.5px; line-height: 14px; color: #a7aebb;
+  }
+  .rlist-fact-value {
+    font-size: 12px; line-height: 16px; color: var(--carbon); font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rlist-decision {
+    display: inline-flex; align-items: center; gap: 5px;
+    max-width: 100%;
+  }
+  .rlist-decision::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  .rlist-decision.is-pending { color: #b8860b; }
+  .rlist-decision.is-approved { color: var(--kiwi); }
+  .rlist-decision.is-rejected { color: var(--qima-red); }
   .rlist-bottom {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     margin-top: 10px; padding-top: 9px; border-top: .5px solid #eef0f4;
@@ -300,9 +326,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js"></script>
+<script src="assets/i18n/zh.js?v=20260803s"></script>
+<script src="assets/i18n/en.js?v=20260803s"></script>
+<script src="assets/i18n-runtime.js?v=20260803s"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -392,14 +418,15 @@
 
   <script>
     const USE_FOLDER_VIEW = false; // 旧文件夹视图开关，先关闭保留代码
+    const DECISION_STORAGE_KEY = 'qima-report-decision-v1';
 
     const REPORTS = [
-      { cat: 'psi',   color: 'c-blue',   tag: 'PSI',   nameKey: 'reports.product.psi',        sku: 'SKU-89231', status: 'pass',    reportId: 'T-24106084-11-R1', date: '2026-06-03' },
-      { cat: 'dupro', color: 'c-purple', tag: 'DUPRO', nameKey: 'reports.product.textile',    sku: 'SKU-77321', status: 'fail',    reportId: 'T-24106086-11-R1', date: '2026-06-02' },
-      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.toys',       sku: 'SKU-65120', status: 'pass',    reportId: 'T-24106085-11-R1', date: '2026-06-03' },
-      { cat: 'fri',   color: 'c-orange', tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-51840', status: 'pass',    reportId: 'T-24106087-11-R1', date: '2026-05-28' },
-      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.hardline',   sku: 'SKU-43902', status: 'pending', reportId: 'T-24106088-11-R1', date: '2026-05-20' },
-      { cat: 'csr',   color: 'c-purple', tag: 'CSR',   nameKey: 'reports.product.food',       sku: 'SKU-38771', status: 'pass',    reportId: 'T-24106089-11-R1', date: '2026-05-12' },
+      { cat: 'psi',   color: 'c-blue',   tag: 'PSI',   nameKey: 'reports.product.psi',        sku: 'SKU-89231', status: 'pass',    reportId: 'T-24106084-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.psi', decision: 'approved' },
+      { cat: 'dupro', color: 'c-purple', tag: 'DUPRO', nameKey: 'reports.product.textile',    sku: 'SKU-77321', status: 'fail',    reportId: 'T-24106086-11-R1', date: '2026-06-02', supplierKey: 'reports.supplier.textile', decision: 'rejected' },
+      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.toys',       sku: 'SKU-65120', status: 'pass',    reportId: 'T-24106085-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.toys', decision: 'pending' },
+      { cat: 'fri',   color: 'c-orange', tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-51840', status: 'pass',    reportId: 'T-24106087-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.electronics', decision: 'approved' },
+      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.hardline',   sku: 'SKU-43902', status: 'pending', reportId: 'T-24106088-11-R1', date: '2026-05-20', supplierKey: 'reports.supplier.hardline', decision: 'pending' },
+      { cat: 'csr',   color: 'c-purple', tag: 'CSR',   nameKey: 'reports.product.food',       sku: 'SKU-38771', status: 'pass',    reportId: 'T-24106089-11-R1', date: '2026-05-12', supplierKey: 'reports.supplier.food', decision: 'pending' },
     ];
 
     const ICONS = {
@@ -411,6 +438,33 @@
     let currentCat = 'lab';
 
     function t(key){ return (window.I18n && I18n.t) ? I18n.t(key) : key; }
+    function escapeHtml(str){
+      return window.I18n ? I18n.escapeHtml(str) : String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function loadDecisions(){
+      try {
+        return JSON.parse(localStorage.getItem(DECISION_STORAGE_KEY) || '{}') || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function resolveDecision(report){
+      // Pending test results cannot be approved/rejected yet.
+      if(report.status === 'pending') return 'pending';
+      const saved = loadDecisions()[report.sku];
+      if(saved && saved.state === 'approved') return 'approved';
+      if(saved && saved.state === 'rejected') return 'rejected';
+      return report.decision || 'pending';
+    }
+
+    function decisionLabel(state){
+      if(state === 'approved') return t('reports.decision.approved');
+      if(state === 'rejected') return t('reports.decision.rejected');
+      return t('reports.decision.pending');
+    }
 
     function filteredReports(){
       return REPORTS.filter(r => currentCat === 'all' || r.cat === currentCat);
@@ -424,28 +478,39 @@
         listEl.innerHTML = '<div style="text-align:center;color:var(--seal);font-size:13px;padding:40px 0;">'+t('reports.emptyHint')+'</div>';
         return;
       }
-      listEl.innerHTML = list.map(r =>
-        '<a class="rlist-card '+r.status+'" href="report-preview.html?sku='+encodeURIComponent(r.sku)+'">'+
+      listEl.innerHTML = list.map(function(r){
+        const decision = resolveDecision(r);
+        return '<a class="rlist-card '+r.status+'" href="report-preview.html?sku='+encodeURIComponent(r.sku)+'">'+
           '<div class="rlist-top">'+
             '<div class="rlist-title">'+
-              '<div class="rlist-name">'+t(r.nameKey)+'</div>'+
-              '<div class="rlist-sku">'+r.sku+'</div>'+
+              '<div class="rlist-name">'+escapeHtml(t(r.nameKey))+'</div>'+
+              '<div class="rlist-sku">'+escapeHtml(r.sku)+'</div>'+
             '</div>'+
-            '<div class="rlist-status '+r.status+'">'+t('reports.status.'+r.status)+'</div>'+
+            '<div class="rlist-status '+r.status+'">'+escapeHtml(t('reports.status.'+r.status))+'</div>'+
           '</div>'+
           '<div class="rlist-meta">'+
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H8a2 2 0 0 0-2 2v12"/><path d="M18 8H10a2 2 0 0 0-2 2v10h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Z"/><path d="M12 12h4M12 15h4"/></svg>'+
-            '<span>'+t('reportPreview.reportNo')+'</span>'+
-            '<span class="report-no">'+r.reportId+'</span>'+
+            '<span>'+escapeHtml(t('reportPreview.reportNo'))+'</span>'+
+            '<span class="report-no">'+escapeHtml(r.reportId)+'</span>'+
             '<span class="dot"></span>'+
-            '<span>'+r.date+'</span>'+
+            '<span>'+escapeHtml(r.date)+'</span>'+
+          '</div>'+
+          '<div class="rlist-facts">'+
+            '<div class="rlist-fact">'+
+              '<div class="rlist-fact-label">'+escapeHtml(t('reports.supplierLabel'))+'</div>'+
+              '<div class="rlist-fact-value">'+escapeHtml(t(r.supplierKey))+'</div>'+
+            '</div>'+
+            '<div class="rlist-fact">'+
+              '<div class="rlist-fact-label">'+escapeHtml(t('reports.decisionLabel'))+'</div>'+
+              '<div class="rlist-fact-value"><span class="rlist-decision is-'+decision+'">'+escapeHtml(decisionLabel(decision))+'</span></div>'+
+            '</div>'+
           '</div>'+
           '<div class="rlist-bottom">'+
-            '<span class="rlist-preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+t('reportPreview.title')+'</span>'+
+            '<span class="rlist-preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+escapeHtml(t('reportPreview.title'))+'</span>'+
             '<span class="rlist-chev"><svg viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'+
           '</div>'+
-        '</a>'
-      ).join('');
+        '</a>';
+      }).join('');
     }
 
     // 旧文件夹渲染：先保留，USE_FOLDER_VIEW=true 时可恢复

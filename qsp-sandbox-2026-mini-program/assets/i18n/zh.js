@@ -777,6 +777,17 @@ window.I18N_ZH = {
   'reports.product.hardline': '硬线检测',
   'reports.product.food': '食品接触检测',
   'reports.emptyHint': '暂无报告',
+  'reports.supplierLabel': '供应商名称',
+  'reports.decisionLabel': '决策状态',
+  'reports.decision.pending': '待决策',
+  'reports.decision.approved': '已批准',
+  'reports.decision.rejected': '已拒绝',
+  'reports.supplier.psi': '宁波海港服饰有限公司',
+  'reports.supplier.textile': '绍兴锦程纺织有限公司',
+  'reports.supplier.toys': '深圳智创玩具有限公司',
+  'reports.supplier.electronics': '东莞星联电子有限公司',
+  'reports.supplier.hardline': '佛山永固五金制品厂',
+  'reports.supplier.food': '义乌安食包装有限公司',
 
   /* ── Report PDF preview ── */
   'title.reportPreview': 'QIMA 小程序 - 报告预览',
