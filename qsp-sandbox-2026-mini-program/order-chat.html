@@ -437,6 +437,37 @@
   @media (max-width: 640px) {
     .demo-fab { bottom: calc(20px + var(--safe-bottom, 0px)); }
   }
+  /* First AI-input card: data-use / privacy link shown before submit */
+  .privacy-note {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    margin: 12px 0 2px;
+    font-size: 11px; line-height: 16px; color: var(--seal);
+    text-align: center;
+  }
+  .privacy-note-link {
+    border: none; background: transparent; padding: 0;
+    font-family: inherit; font-size: 11px; line-height: 16px;
+    font-weight: 600; color: var(--pool-500); cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .privacy-note-link:active { opacity: .72; }
+  .privacy-list {
+    margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .privacy-list li {
+    padding: 10px 12px;
+    border: 1px solid #e3e9fb; border-radius: 10px;
+    background: #f7f9ff;
+  }
+  .privacy-list .privacy-item-title {
+    font-size: 13px; font-weight: 600; color: var(--carbon);
+    margin-bottom: 4px;
+  }
+  .privacy-list .privacy-item-desc {
+    font-size: 12px; line-height: 18px; color: var(--seal);
+  }
+
   .manual-fill {
     width: 100%; margin-top: 10px; padding: 4px 0;
     border: none; background: transparent; color: var(--pool-500);
@@ -1143,8 +1174,8 @@
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803a"></script>
-<script src="assets/i18n/en.js?v=20260803a"></script>
+<script src="assets/i18n/zh.js?v=20260803b"></script>
+<script src="assets/i18n/en.js?v=20260803b"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1248,6 +1279,37 @@
               <div class="example-desc" data-i18n="orderChat.exampleLinkDesc">Amazon、TEMU、Shopify 商品页链接</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据用途与隐私说明（首次 AI 输入、提交前可查看） -->
+    <div class="examples-mask" id="aiPrivacySheet" onclick="closeAiPrivacySheet(event)">
+      <div class="examples-modal" onclick="event.stopPropagation()">
+        <div class="examples-head">
+          <div class="examples-title" data-i18n="orderChat.privacyTitle">数据用途与隐私说明</div>
+          <button class="examples-close" type="button" onclick="closeAiPrivacySheet()" aria-label="关闭" data-i18n-title="common.close">×</button>
+        </div>
+        <div class="examples-body">
+          <div class="examples-note" data-i18n="orderChat.privacyIntro">提交前请了解我们如何使用你提供的语音、链接与资料。你也可以随时改为手动填写。</div>
+          <ul class="privacy-list">
+            <li>
+              <div class="privacy-item-title" data-i18n="orderChat.privacyUseTitle">数据用途</div>
+              <div class="privacy-item-desc" data-i18n="orderChat.privacyUseDesc">用于识别并预填检测订单字段（如产品名称、检测项目、原产国、制造商等），减少重复录入。</div>
+            </li>
+            <li>
+              <div class="privacy-item-title" data-i18n="orderChat.privacyScopeTitle">处理范围</div>
+              <div class="privacy-item-desc" data-i18n="orderChat.privacyScopeDesc">仅处理你本次提交的语音转写、商品链接与上传文件内容，不会用于与本订单无关的用途。</div>
+            </li>
+            <li>
+              <div class="privacy-item-title" data-i18n="orderChat.privacyShareTitle">共享与安全</div>
+              <div class="privacy-item-desc" data-i18n="orderChat.privacyShareDesc">资料会发送至 QIMA 识别服务以完成解析。我们采取合理安全措施保护传输与处理过程中的信息。</div>
+            </li>
+            <li>
+              <div class="privacy-item-title" data-i18n="orderChat.privacyChoiceTitle">你的选择</div>
+              <div class="privacy-item-desc" data-i18n="orderChat.privacyChoiceDesc">可不上传资料，改为「暂无资料，直接填写」。识别结果提交前均可核对与修改。</div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -2168,6 +2230,8 @@
       var title = opts.title || t('orderChat.uploadTitle');
       var showTips = opts.showTips !== false;
       var showManual = opts.showManual !== false;
+      // First AI-input entry only: let users read data-use / privacy before submitting.
+      var showPrivacy = !!opts.showPrivacy;
       var html = '<div class="panel panel-pad">';
       if(title) html += '<div class="panel-title">'+title+'</div>';
       if(showTips){
@@ -2210,8 +2274,15 @@
             '</div>'+
             '<div class="uploaded-files" id="uploadedFiles"></div>'+
           '</div>'+
-        '</div>'+
-        '<button class="parse-btn" id="parseBtn" type="button" onclick="doParse()" disabled>'+t('orderChat.parseBtn')+'</button>';
+        '</div>';
+      if(showPrivacy){
+        html +=
+          '<div class="privacy-note">'+
+            '<span>'+t('orderChat.privacyBeforeSubmit')+'</span> '+
+            '<button class="privacy-note-link" type="button" onclick="showAiPrivacySheet()">'+t('orderChat.privacyLink')+'</button>'+
+          '</div>';
+      }
+      html += '<button class="parse-btn" id="parseBtn" type="button" onclick="doParse()" disabled>'+t('orderChat.parseBtn')+'</button>';
       if(showManual){
         html += '<button class="manual-fill" onclick="startManualFill()">'+t('orderChat.noDataFill')+'</button>';
       }
@@ -2228,6 +2299,21 @@
       uploadedFileList = [];
     }
 
+    var AI_PRIVACY_STORAGE_KEY = 'qima-ai-input-used';
+
+    /** First-time AI input: privacy link is available before any successful submit. */
+    function isFirstAiInput(){
+      try {
+        return !localStorage.getItem(AI_PRIVACY_STORAGE_KEY);
+      } catch (e) {
+        return true;
+      }
+    }
+
+    function markAiInputUsed(){
+      try { localStorage.setItem(AI_PRIVACY_STORAGE_KEY, '1'); } catch (e) { /* private mode */ }
+    }
+
     function askUpload(){
       retirePreviousInputPanels();
       resetAiInputSession();
@@ -2235,7 +2321,8 @@
       botMsg(buildAiInputCardHtml({
         title: t('orderChat.uploadTitle'),
         showTips: true,
-        showManual: true
+        showManual: true,
+        showPrivacy: isFirstAiInput()
       }), true);
     }
 
@@ -2666,6 +2753,17 @@
 
     function closeUploadExamples(){
       document.getElementById('uploadExamples').classList.remove('show');
+    }
+
+    function showAiPrivacySheet(){
+      var sheet = document.getElementById('aiPrivacySheet');
+      if(sheet) sheet.classList.add('show');
+    }
+
+    function closeAiPrivacySheet(event){
+      if(event && event.target !== event.currentTarget) return;
+      var sheet = document.getElementById('aiPrivacySheet');
+      if(sheet) sheet.classList.remove('show');
     }
 
     function openUploadSourcePicker(){
@@ -3374,6 +3472,9 @@
         const linkIn = document.getElementById('linkIn');
         if(linkIn) linkIn.value = v;
       }
+
+      // First-time privacy link only appears before the first AI submit.
+      markAiInputUsed();
 
       const parts = [];
       if(hasVoiceInput) parts.push('🎤 '+escapeHtml(voiceTranscript));
