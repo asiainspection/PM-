@@ -112,6 +112,14 @@
     background: transparent; color: var(--carbon); font-size: 13px;
   }
   .history-search input::placeholder { color: #aab0bc; }
+  .history-search input[type="search"]::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+  .copy-order-search { margin-top: 10px; margin-bottom: 7px; }
+  .copy-orders-result-meta {
+    min-height: 16px; margin-bottom: 5px;
+    color: var(--seal); font-size: 10px; line-height: 15px;
+  }
   .history-list { display: flex; flex-direction: column; gap: 8px; }
   .history-empty {
     display: none; padding: 12px 0 2px;
@@ -1174,8 +1182,8 @@
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803b"></script>
-<script src="assets/i18n/en.js?v=20260803b"></script>
+<script src="assets/i18n/zh.js?v=20260803c"></script>
+<script src="assets/i18n/en.js?v=20260803c"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1232,7 +1240,16 @@
             <div class="copy-orders-divider"></div>
             <div class="copy-orders-title" data-i18n="orderChat.copyHistory">复制历史订单</div>
             <div class="copy-orders-tip" data-i18n="orderChat.copyHistoryTip">点选订单号即可复用信息，无需多次选择</div>
+            <div class="history-search copy-order-search">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <input id="copyOrderSearch" type="search" autocomplete="off"
+                data-i18n-placeholder="orderChat.searchHistoryPlaceholder"
+                placeholder="搜索订单号、产品或日期"
+                oninput="filterCopyOrders(this.value)" />
+            </div>
+            <div class="copy-orders-result-meta" id="copyOrderResultMeta"></div>
             <div class="copy-order-list" id="copyOrderList"></div>
+            <div class="history-empty" id="copyOrderEmpty" data-i18n="orderChat.noHistoryMatch">没有匹配的历史记录</div>
           </div>
         </div>
       </div>
@@ -1950,23 +1967,49 @@
       }
     }
 
-    const recentCopyOrders = [
-      { id: 'T-25617004', date: '13-Jun-2026', badge: 'LT' },
-      { id: 'T-25617005', date: '28-Feb-2025', badge: 'LT' }
+    const allCopyOrders = [
+      { id: 'T-25617004', date: '13-Jun-2026', badge: 'LT', product: 'Robot Toy RBT-2025-X9', service: 'EN71 · Toys' },
+      { id: 'T-25617005', date: '28-Feb-2025', badge: 'LT', product: 'Building Blocks SKU-TOY-001', service: 'CPSIA · Toys' },
+      { id: 'T-25590011', date: '19-Dec-2024', badge: 'LT', product: 'Robot Toy', service: 'EN71 · Toys' },
+      { id: 'Q202349103', date: '08-Nov-2024', badge: 'LT', product: 'Black Fabric', service: 'Pre-shipment testing' },
+      { id: 'Q202310887', date: '21-Aug-2024', badge: 'LT', product: 'Building Blocks', service: 'Lab testing · Toys' }
     ];
 
-    function renderCopyOrderList(){
+    function copyOrderKeyword(order){
+      return [order.id, order.date, order.badge, order.product, order.service].join(' ').toLowerCase();
+    }
+
+    function renderCopyOrderList(orders, searching){
       const list = document.getElementById('copyOrderList');
       if(!list) return;
-      list.innerHTML = recentCopyOrders.map(order =>
+      const visibleOrders = orders || allCopyOrders.slice(0, 2);
+      list.innerHTML = visibleOrders.map(order =>
         '<div class="copy-order-item" onclick="pickCopyOrder(\''+order.id+'\')">'+
           '<div class="copy-order-badge">'+order.badge+'</div>'+
           '<div class="copy-order-body">'+
             '<div class="copy-order-name">'+order.id+'</div>'+
-            '<div class="copy-order-date">'+order.date+'</div>'+
+            '<div class="copy-order-date">'+escapeHtml(order.product)+' · '+order.date+'</div>'+
           '</div>'+
         '</div>'
       ).join('');
+      const empty = document.getElementById('copyOrderEmpty');
+      if(empty) empty.classList.toggle('show', visibleOrders.length === 0);
+      const meta = document.getElementById('copyOrderResultMeta');
+      if(meta){
+        meta.textContent = searching
+          ? t('orderChat.historyResultCount', { count: visibleOrders.length })
+          : t('orderChat.recentHistory');
+      }
+    }
+
+    function filterCopyOrders(rawKeyword){
+      const keyword = String(rawKeyword || '').trim().toLowerCase();
+      if(!keyword){
+        renderCopyOrderList(null, false);
+        return;
+      }
+      const matches = allCopyOrders.filter(order => copyOrderKeyword(order).includes(keyword));
+      renderCopyOrderList(matches, true);
     }
     renderCopyOrderList();
 
