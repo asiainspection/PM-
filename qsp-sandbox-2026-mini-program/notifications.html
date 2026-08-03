@@ -173,6 +173,7 @@
 <script src="assets/i18n/en.js?v=20260803l"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
+<script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
 <body>
   <div class="phone">
@@ -241,6 +242,22 @@
     function t(key, vars){ return (window.I18n && I18n.t) ? I18n.t(key, vars) : key; }
     function escapeHtml(str){ return window.I18n ? I18n.escapeHtml(str) : String(str == null ? '' : str); }
 
+    var READ_KEY = 'qima-notif-read-ids';
+
+    function loadReadIds(){
+      try {
+        var raw = localStorage.getItem(READ_KEY);
+        var list = raw ? JSON.parse(raw) : [];
+        return Array.isArray(list) ? list : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveReadIds(ids){
+      try { localStorage.setItem(READ_KEY, JSON.stringify(ids)); } catch (e) { /* ignore */ }
+    }
+
     /** Demo inbox. `group` buckets rows under a date heading. */
     const NOTIFICATIONS = [
       {
@@ -267,8 +284,22 @@
 
     const GROUP_LABELS = { today: 'notifications.groupToday', earlier: 'notifications.groupEarlier' };
 
+    function hydrateReadState(){
+      var readIds = loadReadIds();
+      // Opening the Notifications tab acknowledges the badge — treat inbox as seen.
+      NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+      var ids = NOTIFICATIONS.map(function(n){ return n.id; });
+      readIds.forEach(function(id){ if(ids.indexOf(id) === -1) ids.push(id); });
+      saveReadIds(ids);
+      if(window.NotifBadge) NotifBadge.clear();
+    }
+
     function unreadCount(){
       return NOTIFICATIONS.filter(function(n){ return n.unread; }).length;
+    }
+
+    function syncTabBadge(){
+      if(window.NotifBadge) NotifBadge.set(unreadCount());
     }
 
     function notifRowHtml(n){
@@ -311,18 +342,26 @@
       badge.style.display = count ? '' : 'none';
       markBtn.disabled = !count;
       markBtn.textContent = t('notifications.markAllRead');
+      syncTabBadge();
     }
 
     function openNotification(id){
       const item = NOTIFICATIONS.find(function(n){ return n.id === id; });
       if(!item || !item.href) return;
       item.unread = false;
+      var ids = loadReadIds();
+      if(ids.indexOf(id) === -1){
+        ids.push(id);
+        saveReadIds(ids);
+      }
+      syncTabBadge();
       location.href = item.href;
     }
 
     function markAllRead(){
       if(!unreadCount()) return;
       NOTIFICATIONS.forEach(function(n){ n.unread = false; });
+      saveReadIds(NOTIFICATIONS.map(function(n){ return n.id; }));
       renderNotifications();
       showToast(t('notifications.allRead'));
     }
@@ -334,6 +373,7 @@
       setTimeout(function(){ el.classList.remove('show'); }, 1600);
     }
 
+    hydrateReadState();
     if (window.I18n) {
       I18n.initLangToggle({ onLangApplied: renderNotifications });
     }
