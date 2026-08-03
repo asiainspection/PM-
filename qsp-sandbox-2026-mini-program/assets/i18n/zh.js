@@ -89,6 +89,8 @@ window.I18N_ZH = {
   'status.short.inQuotation': '报价中',
   'status.short.reporting': '出报告',
   'status.short.onHold': '已暂停',
+  'status.sampleReview': '样品审核中',
+  'status.short.sampleReview': '样品审核中',
 
   /* ── Mail types ── */
   'mailType.all': '所有邮件',
@@ -307,6 +309,7 @@ window.I18N_ZH = {
   'orders.productBlackWoven': '黑色机织面料',
   'orders.productGreyKnit': '灰色针织面料',
   'orders.productOnHoldToys': '彩色太阳镜样品',
+  'orders.productSampleReview': '儿童太阳镜样品',
 
   /* ── Order success ── */
   'orderSuccess.title': '下单成功',
@@ -343,6 +346,7 @@ window.I18N_ZH = {
   'orderDetail.nextHalted': '我们正在等待客户确认',
   'orderDetail.nextHaltedReason': '订单信息需澄清',
   'orderDetail.nextConfirmHold': '去确认',
+  'orderDetail.nextSampleReview': '已收到样品，正在进行样品审核与登记',
   'orderDetail.flowAligned': '进度对齐 myQIMA Lab Testing：待寄样 → 报价 → 检测 → 报告',
   'orderDetail.flowProvisional': '进度对齐 myQIMA Lab Testing：待寄样 → 报价 → 检测 → 报告',
   'orderDetail.orderNoLabel': '订单编号: {id}',

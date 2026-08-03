@@ -577,9 +577,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260803o"></script>
-<script src="assets/i18n/en.js?v=20260803o"></script>
-<script src="assets/i18n-runtime.js?v=20260803o"></script>
+<script src="assets/i18n/zh.js?v=20260803p"></script>
+<script src="assets/i18n/en.js?v=20260803p"></script>
+<script src="assets/i18n-runtime.js?v=20260803p"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -1054,6 +1054,51 @@
         recipientComments: 'None',
         thumbClass: '',
         updatedAt: '2026-08-03 16:34'
+      },
+      // myQIMA-aligned sample review example: sample received and being registered
+      '08008602': {
+        title: '实验室检测',
+        subtitle: '订单编号: T-25618602',
+        status: 'waiting_for_sample_review',
+        statusClass: 'blue',
+        serviceType: '实验室检测',
+        category: 'Toys',
+        productName: '儿童太阳镜样品',
+        productNameKey: 'orders.productSampleReview',
+        testType: '首次测试',
+        testingLocation: 'Hangzhou',
+        supplierName: 'Ningbo Kids Eyewear Co., Ltd.',
+        productRefNo: 'KSG-2026-08',
+        poNumber: 'PO-SR-8602',
+        skuValue: 'SKU-65121',
+        material: 'PC / Acrylic',
+        ageGrade: '3岁以上',
+        projectName: 'TEMU Toys- Seller Pay',
+        originCountry: '中国',
+        salesCountry: '欧盟，美国',
+        turnaroundTime: '5 Day Regular',
+        needQuotation: '是',
+        manufacturerName: 'Ningbo Kids Eyewear Factory',
+        skuNo: 'T-25618602',
+        fibreContent: 'N/A',
+        colorValue: 'Blue / Pink',
+        productType: 'Sunglasses',
+        sunLensCat: 'Cat. 3',
+        eanCode: '6 901234 567891',
+        brand: 'QIMA Kids',
+        batchNumber: 'B-8602',
+        spuId: 'N/A',
+        skcId: 'N/A',
+        collectionMethod: '您或者供应商会寄送样本',
+        carrier: '顺丰速运',
+        trackingNumber: 'SF8602123456',
+        shippingRemark: 'None',
+        orderRemark: 'None',
+        recipientEmail: '850600530@qq.com',
+        emailType: '所有邮件',
+        recipientComments: 'None',
+        thumbClass: '',
+        updatedAt: '2026-08-03 16:35'
       }
     };
 
@@ -1322,6 +1367,8 @@
       'in_quotation': 'quotation',
       'waiting_for_quotation': 'quotation',
       'waiting_for_sample_review': 'quotation',
+      'sample_review': 'quotation',
+      '样品审核中': 'quotation',
       '报价中': 'quotation',
       '报价': 'quotation',
       'in_progress': 'testing',
@@ -1405,6 +1452,9 @@
       }
       if(stage === 2){
         return { tone: 'info', textKey: 'orderDetail.nextTesting' };
+      }
+      if(['waiting_for_sample_review', 'sample_review', '样品审核中'].includes(String(status || '').trim())){
+        return { tone: 'info', textKey: 'orderDetail.nextSampleReview' };
       }
       if(stage === 1){
         return { tone: 'info', textKey: 'orderDetail.nextQuotation' };

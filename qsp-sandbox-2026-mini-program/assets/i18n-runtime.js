@@ -40,6 +40,10 @@
     'in quotation': 'blue',
     'in_quotation': 'blue',
     'reporting': 'blue',
+    'sample review': 'blue',
+    'sample_review': 'blue',
+    'waiting_for_sample_review': 'blue',
+    '样品审核中': 'blue',
     'on hold': 'orange',
     'on_hold': 'orange',
     'cancelled': 'orange'
@@ -102,6 +106,7 @@
     '报价': 'status.inQuotation',
     '出报告': 'status.reporting',
     '报告中': 'status.reporting',
+    '样品审核中': 'status.sampleReview',
     '已取消': 'status.cancelled',
     '已暂停': 'status.onHold',
     'On hold': 'status.onHold',
@@ -375,6 +380,8 @@
       in_quotation: 'status.inQuotation',
       waiting_for_quotation: 'status.inQuotation',
       reporting: 'status.reporting',
+      sample_review: 'status.sampleReview',
+      waiting_for_sample_review: 'status.sampleReview',
       on_hold: 'status.onHold',
       waiting_for_feedback: 'status.onHold'
     };

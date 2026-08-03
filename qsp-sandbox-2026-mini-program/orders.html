@@ -214,9 +214,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803o"></script>
-<script src="assets/i18n/en.js?v=20260803o"></script>
-<script src="assets/i18n-runtime.js?v=20260803o"></script>
+<script src="assets/i18n/zh.js?v=20260803p"></script>
+<script src="assets/i18n/en.js?v=20260803p"></script>
+<script src="assets/i18n-runtime.js?v=20260803p"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -344,6 +344,25 @@
         </div>
         <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
+
+      <!-- Sample review example (myQIMA: received, under review and registration) -->
+      <a class="ocard" href="order-detail.html?order=08008602">
+        <div class="ocard-thumb fabric-grey"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
+            <div class="pname" data-i18n="orders.productSampleReview">儿童太阳镜样品</div>
+            <div class="status blue" data-i18n="status.short.sampleReview">样品审核中</div>
+          </div>
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">08008602</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaOrdered">下单</span><span class="mv">2026-08-02</span></span>
+          </div>
+        </div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
+      </a>
     </div>
 
     <!-- 底部 Tab Bar -->
@@ -385,6 +404,8 @@
         pending_verification: 'status.short.pendingVerification',
         in_progress: 'status.short.inProgress',
         report_completed: 'status.short.reportCompleted',
+        sample_review: 'status.short.sampleReview',
+        waiting_for_sample_review: 'status.short.sampleReview',
         cancelled: 'status.short.pendingConfirmation'
       };
       var key = map[status];

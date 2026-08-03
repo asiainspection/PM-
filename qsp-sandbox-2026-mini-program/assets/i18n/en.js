@@ -89,6 +89,8 @@ window.I18N_EN = {
   'status.short.inQuotation': 'Quotation',
   'status.short.reporting': 'Reporting',
   'status.short.onHold': 'On hold',
+  'status.sampleReview': 'Sample review',
+  'status.short.sampleReview': 'Sample review',
 
   /* ── Mail types ── */
   'mailType.all': 'All emails',
@@ -307,6 +309,7 @@ window.I18N_EN = {
   'orders.productBlackWoven': 'Black woven fabric',
   'orders.productGreyKnit': 'Grey knit fabric',
   'orders.productOnHoldToys': 'Colorful sunglasses sample',
+  'orders.productSampleReview': 'Kids sunglasses sample',
 
   /* ── Order success ── */
   'orderSuccess.title': 'Order placed',
@@ -343,6 +346,7 @@ window.I18N_EN = {
   'orderDetail.nextHalted': 'We are awaiting the client\'s confirmation',
   'orderDetail.nextHaltedReason': 'Order clarification',
   'orderDetail.nextConfirmHold': 'Confirm',
+  'orderDetail.nextSampleReview': 'We received the sample. It is now under sample review and registration.',
   'orderDetail.flowAligned': 'Aligned with myQIMA Lab Testing: Samples → Quotation → Testing → Report',
   'orderDetail.flowProvisional': 'Aligned with myQIMA Lab Testing: Samples → Quotation → Testing → Report',
   'orderDetail.orderNoLabel': 'Order No.: {id}',
