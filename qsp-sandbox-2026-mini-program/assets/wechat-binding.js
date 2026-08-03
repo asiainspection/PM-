@@ -132,7 +132,9 @@
             '</div>' +
           '</div>' +
           '<div class="wxbind-navbar">' +
-            '<img class="wxbind-back" src="assets/vector52.svg" alt="" width="9" height="17" />' +
+            '<button class="wxbind-back" type="button" id="wxbindBack" data-i18n-aria-label="common.back" aria-label="' + tr('common.back') + '">' +
+              '<img src="assets/vector52.svg" alt="" width="9" height="17" />' +
+            '</button>' +
             '<img class="wxbind-logo" src="assets/frame207.svg" width="72" height="16" data-i18n-alt="binding.qimaAlt" alt="QIMA" />' +
             '<div class="wxbind-capsule">' +
               '<img src="assets/share.svg" alt="" width="17" height="17" />' +
@@ -848,12 +850,29 @@
     el.backFromCode.addEventListener('click', goToPasswordScreen);
   }
 
+  function goBack() {
+    if (!root) return;
+    if (state.screen === 'register' || state.screen === 'email') {
+      goToPasswordScreen();
+      return;
+    }
+    if (state.screen === 'code') {
+      stopCountdown();
+      clearCode();
+      showScreen('email', el.email);
+      return;
+    }
+    // Login / success: leave the linking overlay and enter the app.
+    dismiss(state.screen === 'success' ? 'bound' : 'skipped');
+  }
+
   function bindEvents() {
     bindPasswordEvents();
     bindRegisterEvents();
     bindEmailEvents();
     bindCodeEvents();
     el.skip.addEventListener('click', function () { dismiss('skipped'); });
+    if (el.back) el.back.addEventListener('click', goBack);
   }
 
   function mount() {
@@ -943,7 +962,8 @@
       backFromCode: root.querySelector('#lgBackFromCode'),
 
       success: root.querySelector('#wxbindSuccess'),
-      skip: root.querySelector('#wxbindSkip')
+      skip: root.querySelector('#wxbindSkip'),
+      back: root.querySelector('#wxbindBack')
     };
 
     bindEvents();

@@ -118,10 +118,24 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   height: 16px;
 }
 .wxbind-back {
+  width: 36px;
+  height: 36px;
+  margin-left: -8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wxbind-back img {
   width: 9px;
   height: 16.5px;
   display: block;
 }
+.wxbind-back:active { opacity: .55; }
 .wxbind-capsule {
   width: 83px;
   height: 30px;
