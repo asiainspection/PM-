@@ -520,7 +520,7 @@ window.I18N_EN = {
   'orderChat.missingError': 'Please complete the information required for the selected sample method.',
   'orderChat.missingErrorRef': 'Please select a product inspection order reference.',
   'orderChat.missingErrorLab': 'Please select a destination lab.',
-  'orderChat.missingErrorShipping': 'Please enter carrier and tracking number.',
+  'orderChat.missingErrorShipping': 'Please select a carrier.',
   'orderChat.missingErrorReport': 'Please enter the additional report fields.',
   'orderChat.confirmUpdateFields': 'Confirm and update fields',
   'orderChat.pendingRequiredTitle': 'Required fields still missing',

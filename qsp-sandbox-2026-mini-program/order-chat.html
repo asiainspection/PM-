@@ -5477,13 +5477,12 @@
       return REQUIRED_ORDER_FIELDS.filter(name => !getFieldDisplayValue(name));
     }
 
-    /** Required + conditional shipping when user ships samples themselves. */
+    /** Required + carrier when user ships samples themselves. Tracking is optional at order creation. */
     function getOrderBlockers(){
       const missing = getMissingRequiredFields().slice();
       const method = getFieldDisplayValue('Sample Collection Method');
       if(method && isSampleShip(method)){
         if(!getFieldDisplayValue('Carrier')) missing.push('Carrier');
-        if(!getFieldDisplayValue('Tracking Number')) missing.push('Tracking Number');
       }
       // de-dupe
       const seen = {};
@@ -5933,10 +5932,10 @@
         card.querySelector('#missingLab').focus();
         return;
       }
-      if(needsShipping && (!carrier || !tracking)){
+      if(needsShipping && !carrier){
         error.textContent = t('orderChat.missingErrorShipping');
         error.classList.add('show');
-        (carrier ? card.querySelector('#missingTracking') : card.querySelector('#missingCarrier')).focus();
+        card.querySelector('#missingCarrier').focus();
         return;
       }
       if(reportFields === t('common.yes') && !reportFieldsDetail){
@@ -6061,9 +6060,8 @@
     function finishConfirm(){
       const collectionMethod = manualAnswers['Sample Collection Method'] || getFieldValue('Sample Collection Method') || '';
       const carrier = manualAnswers['Carrier'] || getFieldValue('Carrier') || '';
-      const tracking = manualAnswers['Tracking Number'] || getFieldValue('Tracking Number') || '';
       const needShipping = !isSampleCollect(collectionMethod);
-      const shippingComplete = !needShipping || (carrier && tracking);
+      const shippingComplete = !needShipping || !!carrier;
       const pct = shippingComplete ? 100 : 85;
       const typingRow = botTyping();
       setTimeout(()=>{ typingRow.remove();

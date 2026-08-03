@@ -521,7 +521,7 @@ window.I18N_ZH = {
   'orderChat.missingError': '请先补充当前样品收集方式下需要的信息。',
   'orderChat.missingErrorRef': '请选择产品检验订单参考编号。',
   'orderChat.missingErrorLab': '请选择寄送实验室。',
-  'orderChat.missingErrorShipping': '请补充快递公司和运单号。',
+  'orderChat.missingErrorShipping': '请选择快递公司。',
   'orderChat.missingErrorReport': '请填写需要增加展示在报告上的字段。',
   'orderChat.confirmUpdateFields': '确认并更新字段',
   'orderChat.pendingRequiredTitle': '还需补充的必填字段',
