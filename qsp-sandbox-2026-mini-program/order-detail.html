@@ -76,11 +76,13 @@
     padding: 8px 16px 24px;
   }
   .detail-scroll::-webkit-scrollbar { display: none; }
+  /* Page-level header rather than a card: sits on the gradient and stays
+     outdented from the section cards below. */
   .summary-card {
-    background: #fff; border-radius: 14px;
-    box-shadow: 0 2px 10px rgba(25,25,25,.08);
-    padding: 16px;
-    margin-bottom: 12px;
+    background: transparent;
+    box-shadow: none;
+    padding: 6px 2px 14px;
+    margin-bottom: 4px;
   }
   .summary-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .summary-actions { display: flex; align-items: flex-start; flex-shrink: 0; }
