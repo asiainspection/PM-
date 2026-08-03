@@ -301,6 +301,11 @@ window.I18N_EN = {
   /* ── Orders page ── */
   'orders.title': 'Orders',
   'orders.chipSampleInfo': 'All',
+  'orders.chipAll': 'All',
+  'orders.bizSheetTitle': 'Choose business line',
+  'orders.bizAllDesc': 'Show orders across every business line',
+  'orders.emptyBizTitle': 'No orders in this business line',
+  'orders.emptyBizSub': 'Switch back to All or Lab Testing to see current orders',
   'orders.metaNo': 'No.',
   'orders.metaOrdered': 'Ordered',
   'orders.metaReport': 'Report',

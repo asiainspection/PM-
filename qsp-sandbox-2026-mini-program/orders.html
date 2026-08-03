@@ -79,11 +79,25 @@
   .filter-row1 { display: flex; align-items: center; gap: 8px; }
   .chip {
     display: flex; align-items: center; gap: 4px; flex-shrink: 0;
-    height: 36px; padding: 0 10px; border-radius: 8px;
+    height: 36px; max-width: 118px; padding: 0 10px; border-radius: 8px;
     background: #fff; border: 1px solid #e6e9f2;
-    font-size: 12px; color: var(--carbon); white-space: nowrap;
+    font: inherit; font-size: 12px; color: var(--carbon); white-space: nowrap;
+    cursor: pointer;
   }
-  .chip .caret { color: var(--seal); }
+  .chip:active { background: #f7f8fb; }
+  .chip.open {
+    border-color: #c9d6f7;
+    background: var(--pool-050);
+    color: var(--pool-500);
+  }
+  .chip .chip-label {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .chip .caret {
+    color: var(--seal); flex-shrink: 0;
+    transition: transform .18s ease;
+  }
+  .chip.open .caret { color: var(--pool-500); transform: rotate(180deg); }
   .search {
     flex: 1; min-width: 0; height: 36px; border-radius: 8px;
     background: #fff; border: 1px solid #e6e9f2;
@@ -207,6 +221,69 @@
     align-self: center; opacity: .35;
   }
 
+  .list-empty {
+    display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 24px 32px; text-align: center; gap: 8px;
+  }
+  .list-empty.show { display: flex; }
+  .list-empty-title {
+    font-size: 15px; font-weight: 600; color: var(--carbon); line-height: 22px;
+  }
+  .list-empty-sub {
+    font-size: 12.5px; line-height: 18px; color: var(--seal); max-width: 240px;
+  }
+
+  .biz-mask {
+    position: absolute; inset: 0; z-index: 80;
+    background: rgba(25,25,25,.42);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .biz-mask.show { opacity: 1; visibility: visible; }
+  .biz-sheet {
+    width: 100%;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(18px); transition: transform .22s ease;
+  }
+  .biz-mask.show .biz-sheet { transform: translateY(0); }
+  .biz-grabber {
+    width: 36px; height: 4px; border-radius: 2px; background: #e1e4ea;
+    margin: 0 auto 12px;
+  }
+  .biz-sheet-title {
+    font-size: 16px; font-weight: 700; color: var(--carbon); margin-bottom: 10px;
+  }
+  .biz-opt {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    padding: 13px 4px; border: none; background: transparent;
+    font: inherit; text-align: left; cursor: pointer;
+    border-bottom: 1px solid #f0f2f6;
+  }
+  .biz-opt:last-of-type { border-bottom: none; }
+  .biz-opt:active { background: #f7f8fb; }
+  .biz-opt-body { flex: 1; min-width: 0; }
+  .biz-opt-name {
+    font-size: 14.5px; font-weight: 600; color: var(--carbon); line-height: 20px;
+  }
+  .biz-opt-desc {
+    margin-top: 2px; font-size: 11.5px; line-height: 16px; color: var(--seal);
+  }
+  .biz-opt.selected .biz-opt-name { color: var(--pool-500); }
+  .biz-check {
+    width: 18px; height: 18px; flex-shrink: 0; color: var(--pool-500); opacity: 0;
+  }
+  .biz-opt.selected .biz-check { opacity: 1; }
+  .biz-cancel {
+    margin-top: 6px; height: 44px; border-radius: 11px;
+    border: 1px solid #e6e9f2; background: #f7f8fb;
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--seal);
+    cursor: pointer; width: 100%;
+  }
+  .biz-cancel:active { background: #eef0f4; }
+
 </style>
 <link rel="stylesheet" href="assets/tabbar.css?v=20260803j" />
 <link rel="stylesheet" href="assets/phone-shell.css" />
@@ -214,9 +291,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803p"></script>
-<script src="assets/i18n/en.js?v=20260803p"></script>
-<script src="assets/i18n-runtime.js?v=20260803p"></script>
+<script src="assets/i18n/zh.js?v=20260803q"></script>
+<script src="assets/i18n/en.js?v=20260803q"></script>
+<script src="assets/i18n-runtime.js?v=20260803q"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -251,10 +328,10 @@
     <!-- 筛选区 -->
     <div class="filterbar">
       <div class="filter-row1">
-        <div class="chip">
-          <span data-i18n="orders.chipSampleInfo">全部</span>
-          <svg class="caret" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
+        <button type="button" class="chip" id="bizChip" aria-haspopup="listbox" aria-expanded="false" onclick="openBizSheet()">
+          <span class="chip-label" id="bizChipLabel" data-i18n="orders.chipAll">全部</span>
+          <svg class="caret" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
         <div class="search">
           <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="请输入搜索关键词" data-i18n-placeholder="common.searchKeyword" />
@@ -269,7 +346,7 @@
     <!-- 订单列表 -->
     <div class="list" id="orderList">
       <!-- 卡片 1 -->
-      <a class="ocard" href="order-detail.html?order=08008571">
+      <a class="ocard" href="order-detail.html?order=08008571" data-biz="lab">
         <div class="ocard-thumb fabric-black"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -288,7 +365,7 @@
       </a>
 
       <!-- 卡片 2 -->
-      <a class="ocard" href="order-detail.html?order=080082671">
+      <a class="ocard" href="order-detail.html?order=080082671" data-biz="lab">
         <div class="ocard-thumb fabric-denim"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -308,7 +385,7 @@
       </a>
 
       <!-- 卡片 3 -->
-      <a class="ocard" href="order-detail.html?order=08008536">
+      <a class="ocard" href="order-detail.html?order=08008536" data-biz="lab">
         <div class="ocard-thumb fabric-grey"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -327,7 +404,7 @@
       </a>
 
       <!-- On hold example (myQIMA: awaiting client confirmation · Order clarification) -->
-      <a class="ocard" href="order-detail.html?order=08008601">
+      <a class="ocard" href="order-detail.html?order=08008601" data-biz="lab">
         <div class="ocard-thumb fabric-black"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -346,7 +423,7 @@
       </a>
 
       <!-- Sample review example (myQIMA: received, under review and registration) -->
-      <a class="ocard" href="order-detail.html?order=08008602">
+      <a class="ocard" href="order-detail.html?order=08008602" data-biz="lab">
         <div class="ocard-thumb fabric-grey"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -363,6 +440,11 @@
         </div>
         <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
+
+      <div class="list-empty" id="orderEmpty" aria-hidden="true">
+        <div class="list-empty-title" data-i18n="orders.emptyBizTitle">该业务线下暂无订单</div>
+        <div class="list-empty-sub" data-i18n="orders.emptyBizSub">切换回「全部」或「实验室检测」查看现有订单</div>
+      </div>
     </div>
 
     <!-- 底部 Tab Bar -->
@@ -388,6 +470,49 @@
         <img src="assets/tab_me.svg" alt="" />
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
+    </div>
+
+    <div class="biz-mask" id="bizMask" onclick="closeBizSheet(event)" aria-hidden="true">
+      <div class="biz-sheet" role="listbox" aria-labelledby="bizSheetTitle" onclick="event.stopPropagation()">
+        <div class="biz-grabber" aria-hidden="true"></div>
+        <div class="biz-sheet-title" id="bizSheetTitle" data-i18n="orders.bizSheetTitle">选择业务线</div>
+        <button type="button" class="biz-opt selected" role="option" aria-selected="true" data-biz="all" onclick="selectBizLine('all')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="orders.chipAll">全部</div>
+            <div class="biz-opt-desc" data-i18n="orders.bizAllDesc">查看所有业务线的订单</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="lab" onclick="selectBizLine('lab')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceLab">实验室检测</div>
+            <div class="biz-opt-desc" data-i18n="index.serviceLabDesc">Lab Testing · 产品合规与实验室检测</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="inspection" onclick="selectBizLine('inspection')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceInspection">产品检验</div>
+            <div class="biz-opt-desc" data-i18n="index.serviceInspectionDesc">Product Inspections · PSI / DUPRO / FRI</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="audit" onclick="selectBizLine('audit')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceAudit">供应商审核</div>
+            <div class="biz-opt-desc" data-i18n="index.serviceAuditDesc">Supplier Audits · 社会责任 / 工厂审核</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="cert" onclick="selectBizLine('cert')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceCert">认证服务</div>
+            <div class="biz-opt-desc" data-i18n="index.serviceCertDesc">Certifications · 体系与产品认证</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
+      </div>
     </div>
   </div>
   <script>
@@ -422,6 +547,83 @@
       return String(value).slice(0, 10);
     }
 
+    var BIZ_LABEL_KEYS = {
+      all: 'orders.chipAll',
+      lab: 'index.serviceLab',
+      inspection: 'index.serviceInspection',
+      audit: 'index.serviceAudit',
+      cert: 'index.serviceCert'
+    };
+    var currentBiz = 'all';
+
+    function bizLabel(id){
+      var key = BIZ_LABEL_KEYS[id] || BIZ_LABEL_KEYS.all;
+      return typeof t === 'function' ? t(key) : key;
+    }
+
+    function openBizSheet(){
+      var mask = document.getElementById('bizMask');
+      var chip = document.getElementById('bizChip');
+      if(!mask) return;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      if(chip){
+        chip.classList.add('open');
+        chip.setAttribute('aria-expanded', 'true');
+      }
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = 'hidden';
+    }
+
+    function closeBizSheet(event){
+      if(event && event.target && event.currentTarget && event.target !== event.currentTarget) return;
+      var mask = document.getElementById('bizMask');
+      var chip = document.getElementById('bizChip');
+      if(mask){
+        mask.classList.remove('show');
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      if(chip){
+        chip.classList.remove('open');
+        chip.setAttribute('aria-expanded', 'false');
+      }
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = '';
+    }
+
+    function selectBizLine(id){
+      currentBiz = BIZ_LABEL_KEYS[id] ? id : 'all';
+      document.querySelectorAll('.biz-opt').forEach(function(opt){
+        var on = opt.getAttribute('data-biz') === currentBiz;
+        opt.classList.toggle('selected', on);
+        opt.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      var label = document.getElementById('bizChipLabel');
+      if(label){
+        var key = BIZ_LABEL_KEYS[currentBiz];
+        label.setAttribute('data-i18n', key);
+        label.textContent = bizLabel(currentBiz);
+      }
+      applyBizFilter();
+      closeBizSheet();
+    }
+
+    function applyBizFilter(){
+      var cards = document.querySelectorAll('#orderList .ocard');
+      var visible = 0;
+      cards.forEach(function(card){
+        var biz = card.getAttribute('data-biz') || 'lab';
+        var show = currentBiz === 'all' || biz === currentBiz;
+        card.style.display = show ? '' : 'none';
+        if(show) visible += 1;
+      });
+      var empty = document.getElementById('orderEmpty');
+      if(empty){
+        empty.classList.toggle('show', visible === 0);
+        empty.setAttribute('aria-hidden', visible === 0 ? 'false' : 'true');
+      }
+    }
+
     function liveOrderCard(row){
       var ref = row.order_ref || row.application_no || '';
       var appNo = row.application_no || ref;
@@ -433,6 +635,7 @@
       var sub = row.service_type || row.project_name || row.program || '';
       if(sub && product && String(sub).toLowerCase() === String(product).toLowerCase()) sub = '';
       var label = function(key, fallback){ return typeof t === 'function' ? t(key) : fallback; };
+      var biz = inferBizFromRow(row);
       var subHtml = sub
         ? '<div class="ocard-sub"><span class="stext">' + escapeHtml(sub) + '</span></div>'
         : '';
@@ -440,7 +643,7 @@
         ? '<span class="meta-item"><span class="mk">' + label('orders.metaOrdered', '下单') + '</span>'+
           '<span class="mv">' + escapeHtml(ordered) + '</span></span>'
         : '';
-      return '<a class="ocard live" href="order-detail.html?order=' + encodeURIComponent(ref) + '">'+
+      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" href="order-detail.html?order=' + encodeURIComponent(ref) + '">'+
         '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
         '<div class="ocard-main">'+
           '<div class="ocard-title">'+
@@ -458,20 +661,32 @@
       '</a>';
     }
 
+    function inferBizFromRow(row){
+      var raw = String(row.service_type || row.program || row.project_name || '').toLowerCase();
+      if(/inspect|psi|dupro|fri|检验|验货/.test(raw)) return 'inspection';
+      if(/audit|审核/.test(raw)) return 'audit';
+      if(/cert|认证/.test(raw)) return 'cert';
+      return 'lab';
+    }
+
     function loadLiveOrders(){
       var api = window.QimaSupabase;
       var list = document.getElementById('orderList');
       if(!api || !api.ready() || !list) return;
       api.getFullOrders().then(function(rows){
         if(!rows || !rows.length) return;
+        var empty = document.getElementById('orderEmpty');
         var html = rows.slice(0, 20).map(liveOrderCard).join('');
-        list.insertAdjacentHTML('afterbegin', html);
+        if(empty) empty.insertAdjacentHTML('beforebegin', html);
+        else list.insertAdjacentHTML('afterbegin', html);
+        applyBizFilter();
       }).catch(function(err){
         console.warn('load live orders failed', err);
       });
     }
 
     if (window.I18n) I18n.initLangToggle();
+    applyBizFilter();
     loadLiveOrders();
   </script>
 </body>
