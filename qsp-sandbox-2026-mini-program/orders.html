@@ -288,6 +288,20 @@
   }
   .biz-cancel:active { background: #eef0f4; }
 
+  .toast {
+    position: absolute; left: 50%; bottom: 92px; z-index: 40;
+    transform: translateX(-50%) translateY(8px);
+    max-width: calc(100% - 48px);
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(25,25,25,.88); color: #fff;
+    font-size: 13px; line-height: 18px; text-align: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
+
 </style>
 <link rel="stylesheet" href="assets/tabbar.css?v=20260803j" />
 <link rel="stylesheet" href="assets/phone-shell.css" />
@@ -295,11 +309,12 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803r"></script>
-<script src="assets/i18n/en.js?v=20260803r"></script>
-<script src="assets/i18n-runtime.js?v=20260803r"></script>
+<script src="assets/i18n/zh.js?v=20260803t"></script>
+<script src="assets/i18n/en.js?v=20260803t"></script>
+<script src="assets/i18n-runtime.js?v=20260803t"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
+<script src="assets/order-drafts.js?v=20260803t"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
 </head>
@@ -539,6 +554,7 @@
         <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
       </div>
     </div>
+    <div class="toast" id="ordersToast" role="status" aria-live="polite"></div>
   </div>
   <script>
     function escapeHtml(str){
@@ -719,9 +735,68 @@
       });
     }
 
-    if (window.I18n) I18n.initLangToggle();
+    function savedDraftCard(row){
+      var label = function(key, fallback){ return typeof t === 'function' ? t(key) : fallback; };
+      var product = row.productName || label('orderChat.draftUntitled', 'Untitled draft order');
+      var saved = window.OrderDrafts ? OrderDrafts.formatSavedAt(row.savedAt) : '';
+      var service = label(row.serviceKey || 'common.serviceLabTest', 'Lab testing');
+      return '<a class="ocard saved-draft" href="order-chat.html?draft=' + encodeURIComponent(row.id) + '" data-biz="' + escapeHtml(row.biz || 'lab') + '" data-draft="' + escapeHtml(row.id) + '">'+
+        '<div class="ocard-thumb fabric-denim"></div>'+
+        '<div class="ocard-main">'+
+          '<div class="ocard-title">'+
+            '<div class="pname">' + escapeHtml(product) + '</div>'+
+            '<div class="status amber">' + escapeHtml(label('status.short.draft', 'Draft')) + '</div>'+
+          '</div>'+
+          '<div class="ocard-sub">'+
+            '<span class="stext">' + escapeHtml(service) + '</span>'+
+            '<span class="result-tag draft-hint">' + escapeHtml(label('orders.draftContinueHint', 'Resume order')) + '</span>'+
+          '</div>'+
+          '<div class="ocard-meta">'+
+            '<span class="meta-item"><span class="mk">' + escapeHtml(label('orders.metaDraft', 'Draft')) + '</span><span class="mv">' + escapeHtml(row.id) + '</span></span>'+
+            (saved ? '<span class="meta-item"><span class="mk">' + escapeHtml(label('orders.metaSaved', 'Saved')) + '</span><span class="mv">' + escapeHtml(saved) + '</span></span>' : '')+
+          '</div>'+
+        '</div>'+
+        '<img class="chev" src="assets/chevron_row.svg" alt="" />'+
+      '</a>';
+    }
+
+    function renderSavedDrafts(){
+      var list = document.getElementById('orderList');
+      if(!list || !window.OrderDrafts) return;
+      list.querySelectorAll('.ocard.saved-draft').forEach(function(el){ el.remove(); });
+      var html = OrderDrafts.list().map(savedDraftCard).join('');
+      if(!html) return;
+      var first = list.querySelector('.ocard');
+      if(first) first.insertAdjacentHTML('beforebegin', html);
+      else {
+        var empty = document.getElementById('orderEmpty');
+        if(empty) empty.insertAdjacentHTML('beforebegin', html);
+        else list.insertAdjacentHTML('afterbegin', html);
+      }
+    }
+
+    function showOrdersToast(message){
+      var el = document.getElementById('ordersToast');
+      if(!el || !message) return;
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(function(){ el.classList.remove('show'); }, 2200);
+    }
+
+    function maybeShowDraftSavedToast(){
+      try {
+        var id = sessionStorage.getItem('qima-draft-saved-toast');
+        if(!id) return;
+        sessionStorage.removeItem('qima-draft-saved-toast');
+        showOrdersToast(typeof t === 'function' ? t('orderChat.draftSavedToast') : 'Draft saved');
+      } catch (e) { /* ignore */ }
+    }
+
+    if (window.I18n) I18n.initLangToggle({ onLangApplied: function(){ renderSavedDrafts(); applyBizFilter(); } });
+    renderSavedDrafts();
     applyBizFilter();
     loadLiveOrders();
+    maybeShowDraftSavedToast();
   </script>
 </body>
 </html>
