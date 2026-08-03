@@ -417,7 +417,7 @@ window.I18N_ZH = {
   'orderChat.linkPlaceholder': '粘贴 Amazon / TEMU / Shopify 商品链接',
   'orderChat.parseBtn': '开始解析',
   'orderChat.noDataFill': '暂无资料，直接填写',
-  'orderChat.privacyBeforeSubmit': '提交前可查看',
+  'orderChat.privacyBeforeSubmit': '解析即视为同意',
   'orderChat.privacyLink': '数据用途与隐私说明',
   'orderChat.privacyTitle': '数据用途与隐私说明',
   'orderChat.privacyIntro': '提交前请了解我们如何使用你提供的语音、链接与资料。你也可以随时改为手动填写。',

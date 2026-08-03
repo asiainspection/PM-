@@ -417,7 +417,7 @@ window.I18N_EN = {
   'orderChat.linkPlaceholder': 'Paste Amazon / TEMU / Shopify product link',
   'orderChat.parseBtn': 'Parse now',
   'orderChat.noDataFill': 'No documents — fill manually',
-  'orderChat.privacyBeforeSubmit': 'Before submitting, you can review',
+  'orderChat.privacyBeforeSubmit': 'Parsing means you agree to',
   'orderChat.privacyLink': 'data usage & privacy',
   'orderChat.privacyTitle': 'Data usage & privacy',
   'orderChat.privacyIntro': 'Please review how we use the voice, links, and files you provide. You can switch to manual entry at any time.',
