@@ -26,6 +26,11 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   animation: wxbind-fade-in .28s ease-out;
 }
 
+.wxbind.is-register {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @keyframes wxbind-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -143,7 +148,85 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   flex-direction: column;
   gap: 14px;
   filter: drop-shadow(0 2px 5px rgba(25, 25, 25, .12));
+  box-sizing: border-box;
 }
+
+.wxbind.is-register .wxbind-card {
+  max-height: none;
+}
+
+.wxbind.is-register .wxbind-panel {
+  padding-bottom: 72px;
+}
+
+.wxbind.is-register .wxbind-skip {
+  position: sticky;
+  align-self: flex-end;
+  margin: 12px 16px 28px auto;
+  bottom: 28px;
+}
+
+/* Register: two fields on one row (First / Last name) */
+.lg-field-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.lg-field-row .lg-field { flex: 1 1 0; min-width: 0; }
+
+.lg-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23737373' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.lg-legal {
+  font-size: 11px;
+  line-height: 16px;
+  color: #737373;
+  text-align: center;
+  margin: -2px 0 0;
+}
+.lg-legal a,
+.lg-legal .lg-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4169e1;
+}
+
+.lg-check.is-block {
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  line-height: 18px;
+}
+.lg-check.is-block .lg-check-box { margin-top: 1px; }
+
+.lg-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f7f9ff;
+  border: 1px solid #e3e9fb;
+}
+.lg-benefits-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #24407a;
+}
+.lg-benefits ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  line-height: 17px;
+  color: #737373;
+}
+.lg-benefits li { margin-bottom: 2px; }
 
 .wxbind-marks {
   display: flex;
@@ -230,7 +313,17 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   flex-direction: column;
   gap: 14px;
 }
-.lg-screen[hidden] { display: none; }
+.lg-screen[hidden],
+.lg-field[hidden],
+.lg-error[hidden],
+.lg-lead[hidden],
+.lg-signup[hidden],
+.lg-head[hidden],
+.wxbind-note[hidden],
+.wxbind-success[hidden],
+.lg-clear[hidden] {
+  display: none !important;
+}
 
 .lg-field {
   display: flex;

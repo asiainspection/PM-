@@ -45,7 +45,8 @@
     showEmailClear: false,
     code: '',
     codeError: false,
-    remaining: 0
+    remaining: 0,
+    showRegPassword: false
   };
 
   var timer = null;
@@ -200,6 +201,146 @@
             '<button class="lg-btn lg-btn-secondary" type="button" id="lgOtpEntry" data-i18n="login.otpEntry">' + tr('login.otpEntry') + '</button>' +
           '</div>' +
 
+          // ===== Screen: Register (mirrors qima.com/register) =====
+          '<div class="lg-screen" id="lgRegisterScreen" hidden>' +
+            '<div class="lg-benefits">' +
+              '<div class="lg-benefits-title" data-i18n="signup.benefitsTitle">' + tr('signup.benefitsTitle') + '</div>' +
+              '<ul>' +
+                '<li data-i18n="signup.benefitFree">' + tr('signup.benefitFree') + '</li>' +
+                '<li data-i18n="signup.benefitNoCommit">' + tr('signup.benefitNoCommit') + '</li>' +
+                '<li data-i18n="signup.benefitTrusted">' + tr('signup.benefitTrusted') + '</li>' +
+              '</ul>' +
+            '</div>' +
+
+            '<div class="lg-field-row">' +
+              '<div class="lg-field" id="suFirstField">' +
+                '<label class="lg-label" for="suFirst" data-i18n="signup.firstName">' + tr('signup.firstName') + '</label>' +
+                '<input class="lg-input" id="suFirst" type="text" autocomplete="given-name" ' +
+                  'data-i18n-placeholder="signup.firstNamePh" placeholder="' + tr('signup.firstNamePh') + '" />' +
+                '<p class="lg-error" id="suFirstError"></p>' +
+              '</div>' +
+              '<div class="lg-field" id="suLastField">' +
+                '<label class="lg-label" for="suLast" data-i18n="signup.lastName">' + tr('signup.lastName') + '</label>' +
+                '<input class="lg-input" id="suLast" type="text" autocomplete="family-name" ' +
+                  'data-i18n-placeholder="signup.lastNamePh" placeholder="' + tr('signup.lastNamePh') + '" />' +
+                '<p class="lg-error" id="suLastError"></p>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suCompanyField">' +
+              '<label class="lg-label" for="suCompany" data-i18n="signup.company">' + tr('signup.company') + '</label>' +
+              '<input class="lg-input" id="suCompany" type="text" autocomplete="organization" ' +
+                'data-i18n-placeholder="signup.companyPh" placeholder="' + tr('signup.companyPh') + '" />' +
+              '<p class="lg-error" id="suCompanyError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suCountryField">' +
+              '<label class="lg-label" for="suCountry" data-i18n="signup.country">' + tr('signup.country') + '</label>' +
+              '<select class="lg-input lg-select" id="suCountry">' +
+                '<option value="">' + tr('signup.countryPh') + '</option>' +
+                '<option value="cn">' + tr('signup.country.cn') + '</option>' +
+                '<option value="us">' + tr('signup.country.us') + '</option>' +
+                '<option value="gb">' + tr('signup.country.gb') + '</option>' +
+                '<option value="de">' + tr('signup.country.de') + '</option>' +
+                '<option value="fr">' + tr('signup.country.fr') + '</option>' +
+                '<option value="jp">' + tr('signup.country.jp') + '</option>' +
+                '<option value="vn">' + tr('signup.country.vn') + '</option>' +
+                '<option value="in">' + tr('signup.country.in') + '</option>' +
+                '<option value="au">' + tr('signup.country.au') + '</option>' +
+                '<option value="other">' + tr('signup.country.other') + '</option>' +
+              '</select>' +
+              '<p class="lg-error" id="suCountryError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suStateField" hidden>' +
+              '<label class="lg-label" for="suState" data-i18n="signup.state">' + tr('signup.state') + '</label>' +
+              '<select class="lg-input lg-select" id="suState">' +
+                '<option value="">' + tr('signup.statePh') + '</option>' +
+                '<option value="CA">California</option>' +
+                '<option value="NY">New York</option>' +
+                '<option value="TX">Texas</option>' +
+                '<option value="FL">Florida</option>' +
+                '<option value="WA">Washington</option>' +
+                '<option value="IL">Illinois</option>' +
+              '</select>' +
+              '<p class="lg-error" id="suStateError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suIndustryField">' +
+              '<label class="lg-label" for="suIndustry" data-i18n="signup.industry">' + tr('signup.industry') + '</label>' +
+              '<select class="lg-input lg-select" id="suIndustry">' +
+                '<option value="">' + tr('signup.industryPh') + '</option>' +
+                '<option value="toys">' + tr('signup.industry.toys') + '</option>' +
+                '<option value="apparel">' + tr('signup.industry.apparel') + '</option>' +
+                '<option value="electronics">' + tr('signup.industry.electronics') + '</option>' +
+                '<option value="homeware">' + tr('signup.industry.homeware') + '</option>' +
+                '<option value="food">' + tr('signup.industry.food') + '</option>' +
+                '<option value="packaging">' + tr('signup.industry.packaging') + '</option>' +
+                '<option value="other">' + tr('signup.industry.other') + '</option>' +
+              '</select>' +
+              '<p class="lg-error" id="suIndustryError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suPhoneField">' +
+              '<label class="lg-label" for="suPhone" data-i18n="signup.phone">' + tr('signup.phone') + '</label>' +
+              '<input class="lg-input" id="suPhone" type="tel" autocomplete="tel" ' +
+                'data-i18n-placeholder="signup.phonePh" placeholder="' + tr('signup.phonePh') + '" />' +
+            '</div>' +
+
+            '<div class="lg-field" id="suEmailField">' +
+              '<label class="lg-label" for="suEmail" data-i18n="signup.email">' + tr('signup.email') + '</label>' +
+              '<input class="lg-input" id="suEmail" type="email" autocomplete="email" ' +
+                'data-i18n-placeholder="signup.emailPh" placeholder="' + tr('signup.emailPh') + '" />' +
+              '<p class="lg-error" id="suEmailError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suUserField">' +
+              '<label class="lg-label" for="suUser" data-i18n="signup.username">' + tr('signup.username') + '</label>' +
+              '<input class="lg-input" id="suUser" type="text" autocomplete="username" ' +
+                'data-i18n-placeholder="signup.usernamePh" placeholder="' + tr('signup.usernamePh') + '" />' +
+              '<p class="lg-error" id="suUserError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suPassField">' +
+              '<label class="lg-label" for="suPass" data-i18n="signup.password">' + tr('signup.password') + '</label>' +
+              '<div class="lg-input-wrap">' +
+                '<input class="lg-input" id="suPass" type="password" autocomplete="new-password" />' +
+                '<button class="lg-eye" type="button" id="suEye" aria-label="' + tr('login.showPassword') + '">' + eyeIcon() + '</button>' +
+              '</div>' +
+              '<p class="lg-error" id="suPassError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suServiceField">' +
+              '<label class="lg-label" for="suService" data-i18n="signup.service">' + tr('signup.service') + '</label>' +
+              '<select class="lg-input lg-select" id="suService">' +
+                '<option value="">' + tr('signup.servicePh') + '</option>' +
+                '<option value="inspections">' + tr('signup.service.inspections') + '</option>' +
+                '<option value="lab">' + tr('signup.service.lab') + '</option>' +
+                '<option value="audits">' + tr('signup.service.audits') + '</option>' +
+                '<option value="certification">' + tr('signup.service.certification') + '</option>' +
+                '<option value="esg">' + tr('signup.service.esg') + '</option>' +
+                '<option value="software">' + tr('signup.service.software') + '</option>' +
+              '</select>' +
+              '<p class="lg-error" id="suServiceError"></p>' +
+            '</div>' +
+
+            '<label class="lg-check is-block">' +
+              '<input type="checkbox" id="suSubscribe" />' +
+              '<span class="lg-check-box" aria-hidden="true">' +
+                '<svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.3l3 3 6-6.6" stroke="currentColor" ' +
+                  'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '</span>' +
+              '<span data-i18n="signup.subscribe">' + tr('signup.subscribe') + '</span>' +
+            '</label>' +
+
+            '<button class="lg-btn lg-btn-primary" type="button" id="suRegister" data-i18n="signup.register">' +
+              tr('signup.register') +
+            '</button>' +
+            '<p class="lg-legal" data-i18n-html="signup.legalHtml">' +
+              (typeof global.tHtml === 'function' ? global.tHtml('signup.legalHtml') : tr('signup.legalHtml')) +
+            '</p>' +
+          '</div>' +
+
           // ===== Screen 2: request an email code =====
           '<div class="lg-screen" id="lgEmailScreen" hidden>' +
             '<div class="lg-field" id="lgEmailField">' +
@@ -272,6 +413,7 @@
 
   function renderHead() {
     var onCode = state.screen === 'code';
+    var onRegister = state.screen === 'register';
     var onSuccess = state.screen === 'success';
 
     // The linked confirmation stands on its own — no sign-in heading or note.
@@ -282,8 +424,24 @@
       return;
     }
 
+    if (onRegister) {
+      el.heading.textContent = tr('signup.heading');
+      el.signup.hidden = false;
+      el.signupLead.textContent = tr('signup.haveAccount');
+      el.signupLink.textContent = tr('signup.backToSignIn');
+      el.head.classList.remove('is-stacked');
+      el.lead.hidden = true;
+      el.note.hidden = true;
+      if (root) root.classList.add('is-register');
+      return;
+    }
+
+    if (root) root.classList.remove('is-register');
+
     el.heading.textContent = onCode ? tr('login.checkInbox') : tr('login.heading');
     el.signup.hidden = onCode;
+    el.signupLead.textContent = tr('login.signupLead');
+    el.signupLink.textContent = tr('login.signupLink');
     el.head.classList.toggle('is-stacked', onCode);
 
     if (state.screen === 'email') {
@@ -320,6 +478,19 @@
     el.keep.checked = state.keepSignedIn;
   }
 
+  function renderRegisterScreen() {
+    var us = el.suCountry.value === 'us';
+    el.suStateField.hidden = !us;
+    if (!us) {
+      el.suState.value = '';
+      setError(el.suStateError, el.suStateField, '');
+    }
+
+    el.suPass.type = state.showRegPassword ? 'text' : 'password';
+    el.suEye.classList.toggle('is-visible', state.showRegPassword);
+    el.suEye.setAttribute('aria-label', tr(state.showRegPassword ? 'login.hidePassword' : 'login.showPassword'));
+  }
+
   function renderEmailScreen() {
     setError(el.emailError, el.emailField, state.emailError ? tr(state.emailError) : '');
     el.emailClear.hidden = !state.email;
@@ -346,6 +517,7 @@
   function render() {
     renderHead();
     if (state.screen === 'password') renderPasswordScreen();
+    if (state.screen === 'register') renderRegisterScreen();
     if (state.screen === 'email') renderEmailScreen();
     if (state.screen === 'code') renderCodeScreen();
   }
@@ -353,10 +525,14 @@
   function showScreen(name, focusTarget) {
     state.screen = name;
     el.passwordScreen.hidden = name !== 'password';
+    el.registerScreen.hidden = name !== 'register';
     el.emailScreen.hidden = name !== 'email';
     el.codeScreen.hidden = name !== 'code';
     el.success.hidden = name !== 'success';
     render();
+    if (name === 'register' && root) {
+      try { root.scrollTop = 0; } catch (e) { /* ignore */ }
+    }
     if (focusTarget) {
       try { focusTarget.focus(); } catch (e) { /* focus is best-effort */ }
     }
@@ -408,6 +584,12 @@
 
   function showSuccess() {
     stopCountdown();
+    if (root) root.classList.remove('is-register');
+    var fromRegister = state.screen === 'register';
+    var title = root.querySelector('.wxbind-success-title');
+    var desc = root.querySelector('.wxbind-success-desc');
+    if (title) title.textContent = tr(fromRegister ? 'signup.successTitle' : 'binding.successTitle');
+    if (desc) desc.textContent = tr(fromRegister ? 'signup.successDesc' : 'binding.successDesc');
     showScreen('success');
     setTimeout(function () { dismiss('bound'); }, 1800);
   }
@@ -472,6 +654,86 @@
     el.otpEntry.addEventListener('click', function () {
       state.emailError = '';
       showScreen('email', el.email);
+    });
+
+    el.signupLink.addEventListener('click', function () {
+      if (state.screen === 'register') {
+        goToPasswordScreen();
+        return;
+      }
+      if (state.screen === 'password' || state.screen === 'email') {
+        showScreen('register', el.suFirst);
+      }
+    });
+  }
+
+  function clearRegisterErrors() {
+    [
+      [el.suFirstError, el.suFirstField],
+      [el.suLastError, el.suLastField],
+      [el.suCompanyError, el.suCompanyField],
+      [el.suCountryError, el.suCountryField],
+      [el.suStateError, el.suStateField],
+      [el.suIndustryError, el.suIndustryField],
+      [el.suEmailError, el.suEmailField],
+      [el.suUserError, el.suUserField],
+      [el.suPassError, el.suPassField],
+      [el.suServiceError, el.suServiceField]
+    ].forEach(function (pair) {
+      setError(pair[0], pair[1], '');
+    });
+  }
+
+  function bindRegisterEvents() {
+    el.suCountry.addEventListener('change', function () { renderRegisterScreen(); });
+
+    el.suEye.addEventListener('click', function () {
+      state.showRegPassword = !state.showRegPassword;
+      renderRegisterScreen();
+      el.suPass.focus();
+    });
+
+    el.suRegister.addEventListener('click', function () {
+      clearRegisterErrors();
+      var first = el.suFirst.value.trim();
+      var last = el.suLast.value.trim();
+      var company = el.suCompany.value.trim();
+      var country = el.suCountry.value;
+      var stateVal = el.suState.value;
+      var industry = el.suIndustry.value;
+      var email = el.suEmail.value.trim();
+      var user = el.suUser.value.trim();
+      var pass = el.suPass.value;
+      var service = el.suService.value;
+      var ok = true;
+      var focusEl = null;
+
+      function fail(errorNode, field, messageKey, input) {
+        setError(errorNode, field, tr(messageKey));
+        if (!focusEl && input) focusEl = input;
+        ok = false;
+      }
+
+      if (!first) fail(el.suFirstError, el.suFirstField, 'signup.required', el.suFirst);
+      if (!last) fail(el.suLastError, el.suLastField, 'signup.required', el.suLast);
+      if (!company) fail(el.suCompanyError, el.suCompanyField, 'signup.required', el.suCompany);
+      if (!country) fail(el.suCountryError, el.suCountryField, 'signup.required', el.suCountry);
+      if (country === 'us' && !stateVal) fail(el.suStateError, el.suStateField, 'signup.required', el.suState);
+      if (!industry) fail(el.suIndustryError, el.suIndustryField, 'signup.required', el.suIndustry);
+      if (!email) fail(el.suEmailError, el.suEmailField, 'signup.required', el.suEmail);
+      else if (!EMAIL_RE.test(email)) fail(el.suEmailError, el.suEmailField, 'login.emailInvalid', el.suEmail);
+      if (!user) fail(el.suUserError, el.suUserField, 'signup.required', el.suUser);
+      if (!pass) fail(el.suPassError, el.suPassField, 'signup.required', el.suPass);
+      if (!service) fail(el.suServiceError, el.suServiceField, 'signup.required', el.suService);
+
+      if (!ok) {
+        if (focusEl) focusEl.focus();
+        return;
+      }
+
+      // Demo: creating an account also links WeChat, then lands on home.
+      state.email = email;
+      showSuccess();
     });
   }
 
@@ -587,6 +849,7 @@
 
   function bindEvents() {
     bindPasswordEvents();
+    bindRegisterEvents();
     bindEmailEvents();
     bindCodeEvents();
     el.skip.addEventListener('click', function () { dismiss('skipped'); });
@@ -607,6 +870,8 @@
       head: root.querySelector('#lgHead'),
       heading: root.querySelector('#lgHeading'),
       signup: root.querySelector('#lgSignup'),
+      signupLead: root.querySelector('#lgSignup [data-i18n="login.signupLead"]') || root.querySelector('#lgSignup span'),
+      signupLink: root.querySelector('#lgSignupLink'),
       lead: root.querySelector('#lgLead'),
       note: root.querySelector('#lgNote'),
       noteText: root.querySelector('#wxbindNote'),
@@ -623,6 +888,42 @@
       formError: root.querySelector('#lgFormError'),
       signIn: root.querySelector('#lgSignIn'),
       otpEntry: root.querySelector('#lgOtpEntry'),
+
+      registerScreen: root.querySelector('#lgRegisterScreen'),
+      suFirst: root.querySelector('#suFirst'),
+      suFirstField: root.querySelector('#suFirstField'),
+      suFirstError: root.querySelector('#suFirstError'),
+      suLast: root.querySelector('#suLast'),
+      suLastField: root.querySelector('#suLastField'),
+      suLastError: root.querySelector('#suLastError'),
+      suCompany: root.querySelector('#suCompany'),
+      suCompanyField: root.querySelector('#suCompanyField'),
+      suCompanyError: root.querySelector('#suCompanyError'),
+      suCountry: root.querySelector('#suCountry'),
+      suCountryField: root.querySelector('#suCountryField'),
+      suCountryError: root.querySelector('#suCountryError'),
+      suState: root.querySelector('#suState'),
+      suStateField: root.querySelector('#suStateField'),
+      suStateError: root.querySelector('#suStateError'),
+      suIndustry: root.querySelector('#suIndustry'),
+      suIndustryField: root.querySelector('#suIndustryField'),
+      suIndustryError: root.querySelector('#suIndustryError'),
+      suPhone: root.querySelector('#suPhone'),
+      suEmail: root.querySelector('#suEmail'),
+      suEmailField: root.querySelector('#suEmailField'),
+      suEmailError: root.querySelector('#suEmailError'),
+      suUser: root.querySelector('#suUser'),
+      suUserField: root.querySelector('#suUserField'),
+      suUserError: root.querySelector('#suUserError'),
+      suPass: root.querySelector('#suPass'),
+      suPassField: root.querySelector('#suPassField'),
+      suPassError: root.querySelector('#suPassError'),
+      suEye: root.querySelector('#suEye'),
+      suService: root.querySelector('#suService'),
+      suServiceField: root.querySelector('#suServiceField'),
+      suServiceError: root.querySelector('#suServiceError'),
+      suSubscribe: root.querySelector('#suSubscribe'),
+      suRegister: root.querySelector('#suRegister'),
 
       emailScreen: root.querySelector('#lgEmailScreen'),
       emailField: root.querySelector('#lgEmailField'),
@@ -705,6 +1006,22 @@
         startCountdown();
         fillCode(REJECTED_CODE);
         state.codeError = true;
+      } else if (stateName === 'register') {
+        showScreen('register', el.suFirst);
+        return;
+      } else if (stateName === 'register-filled') {
+        showScreen('register');
+        el.suFirst.value = 'Lyon';
+        el.suLast.value = 'Li';
+        el.suCompany.value = 'Sunrise Toys Co., Ltd.';
+        el.suCountry.value = 'cn';
+        el.suIndustry.value = 'toys';
+        el.suEmail.value = 'lyon.li@sunrisetoys.com';
+        el.suUser.value = 'lyon.li';
+        el.suPass.value = 'DemoPass1';
+        el.suService.value = 'lab';
+        renderRegisterScreen();
+        return;
       } else if (stateName === 'success') {
         showSuccess();
         return;
