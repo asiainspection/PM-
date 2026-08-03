@@ -22,7 +22,7 @@ html.qima-gate-locked body > *:not(#qima-access-gate) {
     radial-gradient(ellipse 80% 50% at 70% -10%, rgba(245, 143, 0, 0.12), transparent 55%),
     radial-gradient(ellipse 60% 40% at 0% 20%, rgba(160, 134, 196, 0.14), transparent 50%),
     #c9ced8;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans);
   box-sizing: border-box;
 }
 

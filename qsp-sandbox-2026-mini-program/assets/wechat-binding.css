@@ -21,7 +21,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   display: flex;
   flex-direction: column;
   background: #ff5f4e;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans);
   color: #191919;
   animation: wxbind-fade-in .28s ease-out;
 }

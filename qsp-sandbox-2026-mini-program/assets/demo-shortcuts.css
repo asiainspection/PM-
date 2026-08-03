@@ -11,7 +11,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  font-family: var(--font-sans);
 }
 
 .demo-shortcuts-menu {
