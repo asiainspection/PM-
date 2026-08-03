@@ -131,75 +131,89 @@
   .rlist-card {
     position: relative; display: block; overflow: hidden;
     background:
-      linear-gradient(135deg, rgba(65,105,225,.07), rgba(255,255,255,0) 42%),
+      linear-gradient(135deg, var(--accent-wash), rgba(255,255,255,0) 46%),
       #fff;
-    border: 1px solid #e6ebf6; border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(25,25,25,.07);
-    padding: 12px 12px 11px 16px;
+    border: 1px solid #e8ecf5; border-radius: 16px;
+    box-shadow: 0 1px 2px rgba(25,25,25,.04), 0 8px 20px rgba(25,25,25,.06);
+    padding: 13px 14px 11px 17px;
     color: inherit; text-decoration: none; cursor: pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
   }
+  .rlist-card:active {
+    transform: scale(.994);
+    box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
+  }
+  /* One accent per verdict keeps the stripe, wash and badge in agreement. */
+  .rlist-card.pass    { --accent: var(--kiwi);      --accent-wash: rgba(31,157,107,.08); --accent-soft: #eaf6f2; --accent-line: #c9ecdc; }
+  .rlist-card.fail    { --accent: var(--qima-red);  --accent-wash: rgba(228,0,43,.06);   --accent-soft: #fdecee; --accent-line: #f5c2cb; }
+  .rlist-card.pending { --accent: #b8860b;          --accent-wash: rgba(184,134,11,.09); --accent-soft: #fff8e8; --accent-line: #f0e0a8; }
   .rlist-card::before {
     content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-    background: var(--pool-500);
+    background: var(--accent);
   }
-  .rlist-card.pass::before { background: var(--kiwi); }
-  .rlist-card.fail::before { background: var(--qima-red); }
-  .rlist-card.pending::before { background: #d39b16; }
   .rlist-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
   .rlist-title { min-width: 0; }
-  .rlist-name { font-size: 15px; font-weight: 700; color: var(--carbon); line-height: 1.25; }
-  .rlist-sku { margin-top: 2px; font-size: 12px; color: var(--seal); }
-  .rlist-status {
-    flex-shrink: 0; font-size: 11px; height: 22px; line-height: 20px; padding: 0 9px;
-    border-radius: 999px; font-weight: 700; letter-spacing: .2px;
-  }
-  .rlist-status.pass { background: #eaf6f2; color: var(--kiwi); border: 1px solid #c9ecdc; }
-  .rlist-status.fail { background: #fdecee; color: var(--qima-red); border: 1px solid #f5c2cb; }
-  .rlist-status.pending { background: #fff8e8; color: #b8860b; border: 1px solid #f0e0a8; }
-  .rlist-meta {
-    display: flex; align-items: center; gap: 6px; min-width: 0;
-    margin-top: 9px; color: var(--seal); font-size: 11px;
-  }
-  .rlist-meta svg { color: #9aa0ad; flex-shrink: 0; width: 12px; height: 12px; }
-  .rlist-meta .report-no { color: var(--carbon); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rlist-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #c4cad6; flex-shrink: 0; }
-  .rlist-facts {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px;
-    margin-top: 10px;
-  }
-  .rlist-fact {
-    min-width: 0;
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .rlist-fact-label {
-    font-size: 10.5px; line-height: 14px; color: #a7aebb;
-  }
-  .rlist-fact-value {
-    font-size: 12px; line-height: 16px; color: var(--carbon); font-weight: 600;
+  .rlist-name {
+    font-size: 15px; font-weight: 700; color: var(--carbon); line-height: 20px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+  .rlist-status {
+    flex-shrink: 0; font-size: 11px; height: 22px; line-height: 20px; padding: 0 9px;
+    border-radius: 999px; font-weight: 700; letter-spacing: .2px; white-space: nowrap;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-line);
+  }
+  .rlist-sku {
+    margin-top: 2px; font-size: 11.5px; line-height: 15px; color: var(--seal);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rlist-meta {
+    display: flex; align-items: center; gap: 5px; min-width: 0;
+    margin-top: 8px; color: var(--seal); font-size: 11px; line-height: 15px;
+  }
+  .rlist-meta svg { color: #a7aebb; flex-shrink: 0; width: 12px; height: 12px; }
+  .rlist-meta .report-no {
+    min-width: 0; color: #5f6673; font-weight: 600; font-variant-numeric: tabular-nums;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rlist-meta .rlist-date { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .rlist-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: #ccd2dd; flex-shrink: 0; }
+  .rlist-supplier-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-top: 9px;
+  }
+  .rlist-supplier {
+    display: inline-flex; align-items: center; gap: 6px; min-width: 0;
+    font-size: 12px; line-height: 16px; color: var(--carbon); font-weight: 600;
+  }
+  .rlist-supplier svg { width: 13px; height: 13px; color: #a7aebb; flex-shrink: 0; }
+  .rlist-supplier span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .rlist-decision {
+    flex-shrink: 0;
     display: inline-flex; align-items: center; gap: 5px;
-    max-width: 100%;
+    height: 21px; padding: 0 9px; border-radius: 999px; white-space: nowrap;
+    font-size: 11px; font-weight: 600;
+    background: #f2f4f8; color: #6d7482;
   }
   .rlist-decision::before {
-    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
     background: currentColor; flex-shrink: 0;
   }
-  .rlist-decision.is-pending { color: #b8860b; }
-  .rlist-decision.is-approved { color: var(--kiwi); }
-  .rlist-decision.is-rejected { color: var(--qima-red); }
+  .rlist-decision.is-pending { background: #fff6e6; color: #a9790a; }
+  .rlist-decision.is-approved { background: #eaf6f2; color: var(--kiwi); }
+  .rlist-decision.is-rejected { background: #fdecee; color: var(--qima-red); }
   .rlist-bottom {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    margin-top: 10px; padding-top: 9px; border-top: .5px solid #eef0f4;
+    margin-top: 10px; padding-top: 9px; border-top: 1px solid #eef1f6;
   }
   .rlist-preview {
-    color: var(--pool-500); font-size: 12px; font-weight: 700;
+    color: var(--pool-500); font-size: 12px; font-weight: 600;
     display: inline-flex; align-items: center; gap: 5px;
   }
   .rlist-preview svg { width: 13px; height: 13px; }
   .rlist-chev { width: 24px; height: 24px; border-radius: 50%; background: var(--pool-050); color: var(--pool-500); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .rlist-chev svg { width: 13px; height: 13px; }
+  .rlist-card:active .rlist-chev { background: var(--pool-100); }
 
   /* 旧版文件夹网格：先隐藏保留代码 */
   .grid.folder-grid-legacy {
@@ -326,9 +340,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260803s"></script>
-<script src="assets/i18n/en.js?v=20260803s"></script>
-<script src="assets/i18n-runtime.js?v=20260803s"></script>
+<script src="assets/i18n/zh.js?v=20260803t"></script>
+<script src="assets/i18n/en.js?v=20260803t"></script>
+<script src="assets/i18n-runtime.js?v=20260803t"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -490,20 +504,16 @@
           '</div>'+
           '<div class="rlist-meta">'+
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H8a2 2 0 0 0-2 2v12"/><path d="M18 8H10a2 2 0 0 0-2 2v10h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Z"/><path d="M12 12h4M12 15h4"/></svg>'+
-            '<span>'+escapeHtml(t('reportPreview.reportNo'))+'</span>'+
             '<span class="report-no">'+escapeHtml(r.reportId)+'</span>'+
             '<span class="dot"></span>'+
-            '<span>'+escapeHtml(r.date)+'</span>'+
+            '<span class="rlist-date">'+escapeHtml(r.date)+'</span>'+
           '</div>'+
-          '<div class="rlist-facts">'+
-            '<div class="rlist-fact">'+
-              '<div class="rlist-fact-label">'+escapeHtml(t('reports.supplierLabel'))+'</div>'+
-              '<div class="rlist-fact-value">'+escapeHtml(t(r.supplierKey))+'</div>'+
-            '</div>'+
-            '<div class="rlist-fact">'+
-              '<div class="rlist-fact-label">'+escapeHtml(t('reports.decisionLabel'))+'</div>'+
-              '<div class="rlist-fact-value"><span class="rlist-decision is-'+decision+'">'+escapeHtml(decisionLabel(decision))+'</span></div>'+
-            '</div>'+
+          '<div class="rlist-supplier-row">'+
+            '<span class="rlist-supplier" title="'+escapeHtml(t(r.supplierKey))+'">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21V10l6 3.5V10l6 3.5V6l4 2v13"/><path d="M7 21v-3.5h3V21"/></svg>'+
+              '<span>'+escapeHtml(t(r.supplierKey))+'</span>'+
+            '</span>'+
+            '<span class="rlist-decision is-'+decision+'">'+escapeHtml(decisionLabel(decision))+'</span>'+
           '</div>'+
           '<div class="rlist-bottom">'+
             '<span class="rlist-preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+escapeHtml(t('reportPreview.title'))+'</span>'+

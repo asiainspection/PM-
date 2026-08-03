@@ -781,8 +781,6 @@ window.I18N_ZH = {
   'reports.product.hardline': '硬线检测',
   'reports.product.food': '食品接触检测',
   'reports.emptyHint': '暂无报告',
-  'reports.supplierLabel': '供应商名称',
-  'reports.decisionLabel': '决策状态',
   'reports.decision.pending': '待决策',
   'reports.decision.approved': '已批准',
   'reports.decision.rejected': '已拒绝',
