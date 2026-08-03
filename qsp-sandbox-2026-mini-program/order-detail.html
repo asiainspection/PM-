@@ -198,6 +198,7 @@
     min-width: 0;
   }
   .p-dot {
+    position: relative;
     width: 18px; height: 18px; border-radius: 50%;
     background: #fff; border: 2px solid #d9dee8;
     display: grid; place-items: center;
@@ -216,6 +217,30 @@
   }
   .p-step.current .p-dot::after {
     content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pool-500);
+  }
+  /* Ripple marks the stage that is actually moving right now. */
+  .p-step.current .p-dot::before,
+  .p-step.halted .p-dot::before {
+    content: "";
+    position: absolute; inset: -2px;
+    border-radius: 50%;
+    border: 2px solid var(--pool-500);
+    opacity: 0;
+    animation: p-dot-ripple 2s cubic-bezier(.22,.61,.36,1) infinite;
+    pointer-events: none;
+  }
+  .p-step.halted .p-dot::before {
+    border-color: #ff5f4e;
+    animation-duration: 2.6s;
+  }
+  @keyframes p-dot-ripple {
+    0% { transform: scale(1); opacity: .5; }
+    70% { transform: scale(2.1); opacity: 0; }
+    100% { transform: scale(2.1); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .p-step.current .p-dot::before,
+    .p-step.halted .p-dot::before { animation: none; opacity: 0; }
   }
   .p-step.halted .p-dot {
     border-color: #ff8f7f;
