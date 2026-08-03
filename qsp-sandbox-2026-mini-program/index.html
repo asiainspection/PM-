@@ -249,6 +249,11 @@
     border: 1px solid #eef0f4; text-decoration: none; cursor: pointer;
   }
   .opt.primary { background: var(--pool-050); border-color: #dce4fb; }
+  .opt.plain { background: #fff; }
+  .opt.disabled {
+    opacity: .72; cursor: default;
+    background: #fafbfc; border-color: #eef0f4;
+  }
   .opt .opt-ic {
     width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
@@ -256,15 +261,37 @@
   .opt .opt-ic svg { width: 22px; height: 22px; }
   .opt.primary .opt-ic { background: var(--pool-100); color: var(--pool-500); }
   .opt.plain .opt-ic { background: #f4f6fa; color: var(--seal); }
+  .opt.disabled .opt-ic { background: #eef0f4; color: #aab0bc; }
   .opt .opt-body { flex: 1; min-width: 0; }
-  .opt .opt-name { font-size: 15px; font-weight: 600; color: var(--carbon); display: flex; align-items: center; gap: 6px; }
+  .opt .opt-name { font-size: 15px; font-weight: 600; color: var(--carbon); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .opt .opt-badge { font-size: 10px; color: var(--pool-500); background: var(--pool-100); border-radius: 4px; padding: 1px 6px; font-weight: 400; }
+  .opt .opt-badge.soon { color: #8a6d3b; background: #f7f1e3; }
   .opt .opt-desc { font-size: 12px; color: var(--seal); margin-top: 3px; line-height: 17px; }
-  .opt .opt-arrow { color: #c2c7d0; }
+  .opt .opt-arrow { color: #c2c7d0; flex-shrink: 0; }
+  .opt.disabled .opt-arrow { visibility: hidden; }
+  .sheet-step { display: none; }
+  .sheet-step.active { display: block; }
+  .sheet-back {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin: -4px 0 10px; padding: 4px 0;
+    background: none; border: 0; cursor: pointer;
+    font-family: inherit; font-size: 13px; color: var(--pool-500);
+  }
+  .sheet-back svg { width: 14px; height: 14px; }
   .sheet .sheet-cancel {
     text-align: center; font-size: 14px; color: var(--seal);
     padding: 12px; margin-top: 4px; cursor: pointer;
   }
+  .sheet-toast {
+    position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%);
+    z-index: 70; max-width: 260px;
+    padding: 10px 16px; border-radius: 10px;
+    background: rgba(25,25,25,.86); color: #fff;
+    font-size: 13px; line-height: 18px; text-align: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+    pointer-events: none;
+  }
+  .sheet-toast.show { opacity: 1; visibility: visible; }
 
   /* ===== 详细填表浮层 ===== */
   .detail-mask {
@@ -559,8 +586,8 @@
 <link rel="stylesheet" href="assets/wechat-binding.css?v=20260803e" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260803h"></script>
-<script src="assets/i18n/en.js?v=20260803h"></script>
+<script src="assets/i18n/zh.js?v=20260803i"></script>
+<script src="assets/i18n/en.js?v=20260803i"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/wechat-binding.js?v=20260803e"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
@@ -701,43 +728,119 @@
     </div>
 
     <!-- 下单方式选择层 -->
+    <!-- 下单：先选业务，再选方式（仅 Lab Testing 可进） -->
     <div class="sheet-mask" id="orderSheet" onclick="closeOrderSheet(event)">
       <div class="sheet" onclick="event.stopPropagation()">
         <div class="grabber"></div>
-        <div class="sheet-title" data-i18n="index.sheetTitle">选择下单方式</div>
-        <div class="sheet-sub" data-i18n="index.sheetSub">请选择适合您的创建订单方式</div>
 
-        <a class="opt primary" href="order-chat.html">
-          <div class="opt-ic">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M13 2L5 13h6l-1 9 9-12h-6l1-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="opt-body">
-            <div class="opt-name"><span data-i18n="index.aiOrder">AI辅助下单</span> <span class="opt-badge" data-i18n="index.aiBadge">智能推荐</span></div>
-            <div class="opt-desc" data-i18n="index.aiDesc">上传资料或商品链接，智能识别并填写表单</div>
-          </div>
-          <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+        <!-- Step 1: 选择业务 -->
+        <div class="sheet-step active" id="sheetStepService">
+          <div class="sheet-title" data-i18n="index.serviceTitle">选择业务类型</div>
+          <div class="sheet-sub" data-i18n="index.serviceSub">请选择要下单的服务</div>
 
-        <div class="opt plain" onclick="openDetailForm()">
-          <div class="opt-ic">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M13 11l7-7 1 1-7 7-3 1 1-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M8 15h6M8 18h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
+          <div class="opt primary" role="button" tabindex="0" onclick="selectService('lab')">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 3v7.5L5.2 17.4A2.5 2.5 0 0 0 7.4 21h9.2a2.5 2.5 0 0 0 2.2-3.6L15 10.5V3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 3h8M8.5 14h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name"><span data-i18n="index.serviceLab">实验室检测</span> <span class="opt-badge" data-i18n="index.serviceAvailable">可下单</span></div>
+              <div class="opt-desc" data-i18n="index.serviceLabDesc">Lab Testing · 产品合规与实验室检测</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <div class="opt-body">
-            <div class="opt-name" data-i18n="index.detailForm">详细填表</div>
-            <div class="opt-desc" data-i18n="index.detailFormDesc">手动逐项填写完整的检测订单信息</div>
+
+          <div class="opt disabled" role="button" tabindex="0" onclick="selectService('inspection')">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 11l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 7v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 3h5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name"><span data-i18n="index.serviceInspection">产品检验</span> <span class="opt-badge soon" data-i18n="index.comingSoon">即将推出</span></div>
+              <div class="opt-desc" data-i18n="index.serviceInspectionDesc">Product Inspections · PSI / DUPRO / FRI</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+
+          <div class="opt disabled" role="button" tabindex="0" onclick="selectService('audit')">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 3l8 4v5c0 5-3.4 8.4-8 9.5C7.4 20.4 4 17 4 12V7l8-4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.5 12l1.8 1.8L15 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name"><span data-i18n="index.serviceAudit">供应商审核</span> <span class="opt-badge soon" data-i18n="index.comingSoon">即将推出</span></div>
+              <div class="opt-desc" data-i18n="index.serviceAuditDesc">Supplier Audits · 社会责任 / 工厂审核</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="opt disabled" role="button" tabindex="0" onclick="selectService('cert')">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M9.5 13.5L8 21l4-2 4 2-1.5-7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name"><span data-i18n="index.serviceCert">认证服务</span> <span class="opt-badge soon" data-i18n="index.comingSoon">即将推出</span></div>
+              <div class="opt-desc" data-i18n="index.serviceCertDesc">Certifications · 体系与产品认证</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="sheet-cancel" onclick="closeOrderSheet()" data-i18n="common.cancel">取消</div>
         </div>
 
-        <div class="sheet-cancel" onclick="closeOrderSheet()" data-i18n="common.cancel">取消</div>
+        <!-- Step 2: 选择下单方式（仅 Lab） -->
+        <div class="sheet-step" id="sheetStepMethod">
+          <button class="sheet-back" type="button" onclick="showServiceStep()">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span data-i18n="common.back">返回</span>
+          </button>
+          <div class="sheet-title" data-i18n="index.sheetTitle">选择下单方式</div>
+          <div class="sheet-sub" data-i18n="index.sheetSubLab">实验室检测 · 请选择适合您的创建订单方式</div>
+
+          <a class="opt primary" href="order-chat.html">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2L5 13h6l-1 9 9-12h-6l1-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name"><span data-i18n="index.aiOrder">AI辅助下单</span> <span class="opt-badge" data-i18n="index.aiBadge">智能推荐</span></div>
+              <div class="opt-desc" data-i18n="index.aiDesc">上传资料或商品链接，智能识别并填写表单</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+
+          <div class="opt plain" onclick="openDetailForm()">
+            <div class="opt-ic">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13 11l7-7 1 1-7 7-3 1 1-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 15h6M8 18h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="opt-body">
+              <div class="opt-name" data-i18n="index.detailForm">详细填表</div>
+              <div class="opt-desc" data-i18n="index.detailFormDesc">手动逐项填写完整的检测订单信息</div>
+            </div>
+            <svg class="opt-arrow" width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+
+          <div class="sheet-cancel" onclick="closeOrderSheet()" data-i18n="common.cancel">取消</div>
+        </div>
       </div>
     </div>
+
+    <div class="sheet-toast" id="sheetToast"></div>
 
     <!-- 详细填表浮层 -->
     <div class="detail-mask" id="detailForm" onclick="closeDetailForm(event)">
@@ -1152,11 +1255,45 @@
       showLabAddress(active);
     }
 
+    function showServiceStep() {
+      document.getElementById('sheetStepService').classList.add('active');
+      document.getElementById('sheetStepMethod').classList.remove('active');
+    }
+    function showMethodStep() {
+      document.getElementById('sheetStepService').classList.remove('active');
+      document.getElementById('sheetStepMethod').classList.add('active');
+    }
+    function showSheetToast(message) {
+      const el = document.getElementById('sheetToast');
+      if (!el) return;
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(showSheetToast._timer);
+      showSheetToast._timer = setTimeout(function () { el.classList.remove('show'); }, 1600);
+    }
+    function hideSheetToast() {
+      const el = document.getElementById('sheetToast');
+      if (!el) return;
+      el.classList.remove('show');
+      clearTimeout(showSheetToast._timer);
+    }
+    function selectService(service) {
+      if (service === 'lab') {
+        hideSheetToast();
+        showMethodStep();
+        return;
+      }
+      showSheetToast(t('index.comingSoonToast'));
+    }
     function openOrderSheet() {
+      hideSheetToast();
+      showServiceStep();
       document.getElementById('orderSheet').classList.add('show');
     }
-    function closeOrderSheet(e) {
+    function closeOrderSheet() {
+      hideSheetToast();
       document.getElementById('orderSheet').classList.remove('show');
+      showServiceStep();
     }
     function openDetailForm() {
       closeOrderSheet();
