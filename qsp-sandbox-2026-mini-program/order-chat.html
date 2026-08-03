@@ -659,7 +659,9 @@
     width: 100%; height: 36px; border: 1px dashed #b8c6ee; border-radius: 10px;
     background: #f7f9ff; color: var(--pool-500);
     font-size: 12px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
   }
+  .waybill-scan-btn svg { flex-shrink: 0; }
   .waybill-scan-btn:disabled {
     opacity: .65; cursor: wait;
   }
@@ -1532,7 +1534,7 @@
 
           <div id="mf_shippingSection" style="display:none;">
             <div class="fm-row">
-              <button class="waybill-scan-btn" type="button" id="mf_scanWaybillBtn" onclick="scanWaybillIntoManualForm()">📷 <span data-i18n="orderChat.chipPhotoWaybill">拍照识别面单</span></button>
+              <button class="waybill-scan-btn" type="button" id="mf_scanWaybillBtn" onclick="scanWaybillIntoManualForm()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4.75 7.75h2.4a1 1 0 0 0 .83-.45l1.1-1.65a1 1 0 0 1 .83-.45h4.18a1 1 0 0 1 .83.45l1.1 1.65a1 1 0 0 0 .83.45h2.4a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H4.75a2 2 0 0 1-2-2v-7.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><circle cx="12" cy="13.25" r="3.1" stroke="currentColor" stroke-width="1.7"/></svg> <span data-i18n="orderChat.chipPhotoWaybill">拍照识别面单</span></button>
             </div>
             <div class="fm-row">
               <div class="fm-label" data-i18n="carrier.label">快递公司</div>
@@ -5758,6 +5760,14 @@
       });
     }
 
+    const WAYBILL_SCAN_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+      '<path d="M4.75 7.75h2.4a1 1 0 0 0 .83-.45l1.1-1.65a1 1 0 0 1 .83-.45h4.18a1 1 0 0 1 .83.45l1.1 1.65a1 1 0 0 0 .83.45h2.4a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2H4.75a2 2 0 0 1-2-2v-7.5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>' +
+      '<circle cx="12" cy="13.25" r="3.1" stroke="currentColor" stroke-width="1.7"/></svg>';
+
+    function waybillScanBtnHtml(){
+      return WAYBILL_SCAN_ICON + ' <span data-i18n="orderChat.chipPhotoWaybill">' + escapeHtml(t('orderChat.chipPhotoWaybill')) + '</span>';
+    }
+
     function resetWaybillScanButton(){
       const btn = document.getElementById('mf_scanWaybillBtn');
       if(!btn) return;
@@ -5766,7 +5776,7 @@
         btn.innerHTML = btn.dataset.prevHtml;
         delete btn.dataset.prevHtml;
       } else {
-        btn.innerHTML = '📷 <span data-i18n="orderChat.chipPhotoWaybill">'+escapeHtml(t('orderChat.chipPhotoWaybill'))+'</span>';
+        btn.innerHTML = waybillScanBtnHtml();
       }
     }
 
@@ -5785,16 +5795,16 @@
 
     function scanWaybillIntoMissingCard(btn){
       const card = btn.closest('.missing-card');
-      const originalText = btn.textContent;
+      const originalHtml = btn.innerHTML;
       btn.disabled = true;
       btn.textContent = t('carrier.scanning');
-      btn.dataset.prevText = originalText;
+      btn.dataset.prevHtml = originalHtml;
       openWaybillCamera('missing', card);
       setTimeout(function(){
         const input = document.getElementById('waybillCamera');
         if(input && !input.files.length){
           btn.disabled = false;
-          btn.textContent = originalText;
+          btn.innerHTML = originalHtml;
         }
       }, 1500);
     }
@@ -5840,7 +5850,7 @@
             '</div>'+
           '</div>'+
           '<div class="missing-subsection show" data-section="shipping">'+
-            '<button class="waybill-scan-btn" type="button" onclick="scanWaybillIntoMissingCard(this)">'+t('orderChat.chipPhotoWaybill')+'</button>'+
+            '<button class="waybill-scan-btn" type="button" onclick="scanWaybillIntoMissingCard(this)">'+WAYBILL_SCAN_ICON+' <span>'+escapeHtml(t('orderChat.chipPhotoWaybill'))+'</span></button>'+
             '<div class="missing-row">'+
               '<div class="missing-group">'+
                 '<div class="missing-label">'+t('carrier.label')+'</div>'+
