@@ -85,6 +85,10 @@
     margin-bottom: 4px;
   }
   .summary-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .summary-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-top: 4px;
+  }
   .summary-actions { display: flex; align-items: flex-start; flex-shrink: 0; }
   .order-title-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -99,7 +103,17 @@
   }
   .summary-edit-btn:active { background: #e8eeff; }
   .summary-edit-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
-  .order-sub { font-size: 12px; color: var(--seal); margin-top: 4px; line-height: 18px; }
+  .summary-reorder-btn {
+    height: 30px; padding: 0 11px;
+    border: none; border-radius: 8px;
+    background: var(--pool-500); color: #fff;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(65,105,225,.18);
+  }
+  .summary-reorder-btn:active { background: #3158c9; transform: translateY(1px); }
+  .summary-reorder-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .order-sub { min-width: 0; font-size: 12px; color: var(--seal); line-height: 18px; }
   .status {
     flex-shrink: 0;
     height: 25px; line-height: 25px;
@@ -137,6 +151,7 @@
     border-bottom: .5px solid #eef0f4;
     font-size: 12px; line-height: 18px;
   }
+  .info-row[hidden] { display: none; }
   .info-row:last-child { border-bottom: none; }
   .info-row .label {
     width: 112px; flex-shrink: 0;
@@ -437,8 +452,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260803k"></script>
-<script src="assets/i18n/en.js?v=20260803k"></script>
+<script src="assets/i18n/zh.js?v=20260803l"></script>
+<script src="assets/i18n/en.js?v=20260803l"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/supabase-config.js"></script>
@@ -477,7 +492,6 @@
               <div class="order-title" id="orderTitle">实验室检测</div>
               <div class="status blue" id="statusBadge">进行中</div>
             </div>
-            <div class="order-sub" id="orderSubtitle">订单编号: T-25617004</div>
           </div>
           <div class="summary-actions">
             <button class="summary-edit-btn" type="button" onclick="openOrderEditor()">
@@ -485,6 +499,13 @@
               <span data-i18n="orderDetail.edit">编辑</span>
             </button>
           </div>
+        </div>
+        <div class="summary-bottom">
+          <div class="order-sub" id="orderSubtitle">订单编号: T-25617004</div>
+          <button class="summary-reorder-btn" type="button" onclick="reorderFromDetail()">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M5 4H2.5v2.5M2.8 6.2A5.2 5.2 0 1 1 3.7 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span data-i18n="orderDetail.orderAgain">再次下单</span>
+          </button>
         </div>
       </section>
 
@@ -556,7 +577,8 @@
         <div class="info-list">
           <div class="info-row full"><div class="label" data-i18n="orderDetail.method">方法</div><div class="value" id="collectionMethod">None</div></div>
           <div class="info-row"><div class="label" data-i18n="carrier.label">快递公司</div><div class="value" id="carrier">N/A</div></div>
-          <div class="info-row"><div class="label" data-i18n="carrier.trackingNo">运单号</div><div class="value" id="trackingNumber">N/A</div></div>
+          <div class="info-row" id="legacyExpressOrderRow" hidden><div class="label" data-i18n="carrier.legacyOrderNo">快递订单编号（历史字段）</div><div class="value" id="legacyExpressOrderNo">N/A</div></div>
+          <div class="info-row"><div class="label" data-i18n="carrier.trackingNo">快递运单号</div><div class="value" id="trackingNumber">N/A</div></div>
           <div class="info-row full"><div class="label" data-i18n="index.shippingRemark">备注</div><div class="value" id="shippingRemark">N/A</div></div>
         </div>
       </section>
@@ -1056,6 +1078,9 @@
         skcId: displayOrNA(row.skc_id),
         collectionMethod: displayOrNone(row.collection_method),
         carrier: displayOrNA(row.carrier),
+        legacyExpressOrderNo: displayOrNA(
+          row.legacy_express_order_no || row.express_order_no || row.shipping_order_no || row.courier_order_no
+        ),
         trackingNumber: displayOrNA(row.tracking_number),
         shippingRemark: displayOrNA(row.shipping_remark),
         orderRemark: displayOrNone(row.order_remark),
@@ -1078,6 +1103,55 @@
       return Promise.all([tryRef, tryApp]).then(function(rows){
         return rows[0] || rows[1] || null;
       });
+    }
+
+    const DETAIL_REUSE_STORAGE_KEY = 'qima-order-reuse-draft-v1';
+
+    function reusableValue(value){
+      if(value == null) return '';
+      const text = String(value).trim();
+      return text === 'None' || text === 'N/A' ? '' : text;
+    }
+
+    function buildDetailReuseDraft(){
+      // Copy only fields supported by the existing history-copy form. This is a
+      // detached object: the displayed/source order is never mutated.
+      return {
+        version: 1,
+        sourceOrderId: order.orderRef || order.applicationNo || orderId,
+        sourceType: 'history-order',
+        sourceDesc: reusableValue(order.serviceType || order.title),
+        createdAt: Date.now(),
+        fields: {
+          'Product Name': reusableValue(order.productName),
+          'Program': reusableValue(order.projectName),
+          'Country of Origin': reusableValue(order.originCountry),
+          'Countries/Regions of Distribution': reusableValue(order.salesCountry),
+          'Item#/model#': reusableValue(order.skuNo),
+          'Manufacturer': reusableValue(order.manufacturerName),
+          'Manufacturer Address': reusableValue(order.manufacturerAddress),
+          'Sample Collection Method': reusableValue(order.collectionMethod),
+          'Carrier': reusableValue(order.carrier),
+          'Shipping Remark': reusableValue(order.shippingRemark),
+          // TEST-007: both the legacy field and current business field identify
+          // one physical shipment, so neither may cross into the new draft.
+          'Legacy Express Order Number': '',
+          'Tracking Number': ''
+        }
+      };
+    }
+
+    function reorderFromDetail(){
+      const draft = buildDetailReuseDraft();
+      try {
+        sessionStorage.setItem(DETAIL_REUSE_STORAGE_KEY, JSON.stringify(draft));
+      } catch (error) {
+        console.warn('Could not persist detail reuse draft', error);
+      }
+      const params = new URLSearchParams();
+      params.set('reuse', draft.sourceOrderId);
+      params.set('source', 'detail');
+      window.location.href = 'order-chat.html?' + params.toString();
     }
 
     const editableSections = [
@@ -1645,6 +1719,12 @@
       setText('batchNumber', order.batchNumber);
       setText('collectionMethod', translateCollectionMethod(order.collectionMethod));
       setText('carrier', order.carrier);
+      const legacyExpressOrderRow = document.getElementById('legacyExpressOrderRow');
+      const legacyExpressOrderNo = reusableValue(order.legacyExpressOrderNo);
+      if(legacyExpressOrderRow){
+        legacyExpressOrderRow.hidden = !legacyExpressOrderNo;
+        if(legacyExpressOrderNo) setText('legacyExpressOrderNo', legacyExpressOrderNo);
+      }
       setText('trackingNumber', order.trackingNumber);
       setText('shippingRemark', order.shippingRemark);
       setText('orderRemark', order.orderRemark);

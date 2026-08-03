@@ -1196,8 +1196,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803k"></script>
-<script src="assets/i18n/en.js?v=20260803k"></script>
+<script src="assets/i18n/zh.js?v=20260803l"></script>
+<script src="assets/i18n/en.js?v=20260803l"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1578,8 +1578,8 @@
             </div>
 
             <div class="fm-row">
-              <div class="fm-label" data-i18n="carrier.trackingNo">运单号</div>
-              <input class="fm-input" id="mf_trackingNo" type="text" placeholder="请输入运单号" data-i18n-placeholder="carrier.trackingPlaceholder">
+              <div class="fm-label" data-i18n="carrier.trackingNo">快递运单号</div>
+              <input class="fm-input" id="mf_trackingNo" type="text" placeholder="请输入快递运单号" data-i18n-placeholder="carrier.trackingPlaceholder">
             </div>
 
             <div class="fm-row">
@@ -1804,6 +1804,7 @@
         '寄送实验室': 'lab.sendToLab',
         '快递公司': 'carrier.label',
         '运单号': 'carrier.trackingNo',
+        '快递运单号': 'carrier.trackingNo',
         '备注': 'index.shippingRemark',
         '物流备注': 'orderChat.fieldLogisticsRemark',
         '是否需要增加更多字段展示在报告上？': 'index.reportFieldsNeed',
@@ -2022,6 +2023,7 @@
     let currentTestType = 'first';
     let currentOrderSource = 'chat';
     let orderSubmitInFlight = false;
+    const DETAIL_REUSE_STORAGE_KEY = 'qima-order-reuse-draft-v1';
 
     function pickType(type){
       document.getElementById('typeCard').style.display = 'none';
@@ -2165,6 +2167,39 @@
       startReuseOrder(id);
     }
 
+    function consumeDetailReusePrefill(id){
+      const query = new URLSearchParams(window.location.search);
+      if(query.get('source') !== 'detail') return null;
+      let raw = '';
+      try {
+        raw = sessionStorage.getItem(DETAIL_REUSE_STORAGE_KEY) || '';
+        sessionStorage.removeItem(DETAIL_REUSE_STORAGE_KEY);
+      } catch (error) {
+        console.warn('Could not read detail reuse draft', error);
+        return null;
+      }
+      if(!raw) return null;
+      try {
+        const payload = JSON.parse(raw);
+        if(!payload || String(payload.sourceOrderId || '') !== String(id || '')) return null;
+        const fields = Object.assign({}, payload.fields || {});
+        // TEST-007 is enforced again at the receiving boundary. Even a stale or
+        // malformed handoff cannot put either shipment identifier into a new draft.
+        fields['Legacy Express Order Number'] = '';
+        fields['Tracking Number'] = '';
+        let sourceDesc = payload.sourceDesc || t('common.serviceLabTest');
+        if(sourceDesc === '实验室检测') sourceDesc = t('common.serviceLabTest');
+        return {
+          sourceType: t('orderChat.historyOrderCap'),
+          sourceDesc: sourceDesc,
+          fields: fields
+        };
+      } catch (error) {
+        console.warn('Invalid detail reuse draft', error);
+        return null;
+      }
+    }
+
     function startReuseOrder(id, actionLabel){
       const label = actionLabel || t('orderChat.reuse');
       currentTestType = 'reorder';
@@ -2173,9 +2208,21 @@
       const typingRow = botTyping();
       setTimeout(()=>{
         typingRow.remove();
-        const prefill = getReusePrefills()[id] || getReusePrefills()['T-25617004'];
-        // A tracking number identifies one physical shipment and must never be
+        const detailRequested = new URLSearchParams(window.location.search).get('source') === 'detail';
+        const detailPrefill = consumeDetailReusePrefill(id);
+        if(detailRequested && !detailPrefill){
+          botMsg(t('orderChat.reuseDraftExpired'), false);
+          return;
+        }
+        const sourcePrefill = detailPrefill || getReusePrefills()[id] || getReusePrefills()['T-25617004'];
+        const prefill = {
+          sourceType: sourcePrefill.sourceType,
+          sourceDesc: sourcePrefill.sourceDesc,
+          fields: Object.assign({}, sourcePrefill.fields || {})
+        };
+        // Shipment identifiers identify one physical shipment and must never be
         // carried into a new order, even when every other order field is reused.
+        prefill.fields['Legacy Express Order Number'] = '';
         prefill.fields['Tracking Number'] = '';
         manualIndex = getManualQuestions().length;
         Object.keys(manualAnswers).forEach(k => delete manualAnswers[k]);
@@ -6445,6 +6492,14 @@
       I18n.onLangApplied = function () { populateManualFormI18n(); };
       I18n.initLangToggle();
     }
+    (function startReuseFromDetail(){
+      const query = new URLSearchParams(window.location.search);
+      const id = query.get('reuse');
+      if(!id || query.get('source') !== 'detail') return;
+      const typeCard = document.getElementById('typeCard');
+      if(typeCard) typeCard.style.display = 'none';
+      setTimeout(function(){ startReuseOrder(id, t('orderDetail.orderAgain')); }, 180);
+    })();
   </script>
 </body>
 </html>
