@@ -184,6 +184,7 @@
   .status.blue { background: #eef3ff; color: var(--pool-500); }
   .status.green { background: #e9f6f0; color: var(--kiwi); }
   .status.orange { background: #fef0ee; color: #ff5f4e; }
+  .status.amber { background: #fff2cf; color: #bd8a00; }
   /* Beats the global English wrap rule: the card pill must stay one line so the
      product name keeps the width it needs. */
   html[lang="en"] .ocard .status {
@@ -200,6 +201,9 @@
     flex-shrink: 0; padding: 0 6px; border-radius: 4px;
     font-size: 11px; line-height: 16px;
     background: #e9f6f0; color: var(--kiwi);
+  }
+  .result-tag.draft-hint {
+    background: #fff2cf; color: #bd8a00;
   }
 
   /* Wraps rather than truncates: an order number is a reference users quote back,
@@ -291,9 +295,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803q"></script>
-<script src="assets/i18n/en.js?v=20260803q"></script>
-<script src="assets/i18n-runtime.js?v=20260803q"></script>
+<script src="assets/i18n/zh.js?v=20260803r"></script>
+<script src="assets/i18n/en.js?v=20260803r"></script>
+<script src="assets/i18n-runtime.js?v=20260803r"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -345,6 +349,26 @@
 
     <!-- 订单列表 -->
     <div class="list" id="orderList">
+      <!-- Draft — resume into order creation (myQIMA bookings/drafts pattern) -->
+      <a class="ocard" href="order-chat.html?draft=DRF-08008610" data-biz="lab" data-draft="DRF-08008610">
+        <div class="ocard-thumb fabric-denim"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
+            <div class="pname" data-i18n="orders.productDraftRobot">智能机器人玩具样品</div>
+            <div class="status amber" data-i18n="status.short.draft">草稿</div>
+          </div>
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+            <span class="result-tag draft-hint" data-i18n="orders.draftContinueHint">可继续下单</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaDraft">草稿</span><span class="mv">DRF-08008610</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaSaved">保存</span><span class="mv">2026-08-03</span></span>
+          </div>
+        </div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
+      </a>
+
       <!-- 卡片 1 -->
       <a class="ocard" href="order-detail.html?order=08008571" data-biz="lab">
         <div class="ocard-thumb fabric-black"></div>
@@ -531,7 +555,9 @@
         report_completed: 'status.short.reportCompleted',
         sample_review: 'status.short.sampleReview',
         waiting_for_sample_review: 'status.short.sampleReview',
-        cancelled: 'status.short.pendingConfirmation'
+        cancelled: 'status.short.pendingConfirmation',
+        draft: 'status.short.draft',
+        on_hold: 'status.short.onHold'
       };
       var key = map[status];
       return key && typeof t === 'function' ? t(key) : (status || '');
@@ -539,6 +565,8 @@
 
     function statusTone(status){
       if(status === 'report_completed') return 'green';
+      if(status === 'draft') return 'amber';
+      if(status === 'on_hold') return 'orange';
       return 'blue';
     }
 
@@ -628,6 +656,7 @@
       var ref = row.order_ref || row.application_no || '';
       var appNo = row.application_no || ref;
       var status = row.status || 'pending_verification';
+      var isDraft = String(status).toLowerCase() === 'draft';
       var product = row.product_name || row.category || row.project_name || '';
       if(!product && typeof t === 'function') product = t('orderChat.productUnrecognized') || '—';
       if(!product) product = '—';
@@ -643,7 +672,11 @@
         ? '<span class="meta-item"><span class="mk">' + label('orders.metaOrdered', '下单') + '</span>'+
           '<span class="mv">' + escapeHtml(ordered) + '</span></span>'
         : '';
-      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" href="order-detail.html?order=' + encodeURIComponent(ref) + '">'+
+      var href = isDraft
+        ? 'order-chat.html?draft=' + encodeURIComponent(ref)
+        : 'order-detail.html?order=' + encodeURIComponent(ref);
+      var draftAttr = isDraft ? ' data-draft="' + escapeHtml(ref) + '"' : '';
+      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '"' + draftAttr + ' href="' + href + '">'+
         '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
         '<div class="ocard-main">'+
           '<div class="ocard-title">'+

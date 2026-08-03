@@ -91,6 +91,8 @@ window.I18N_EN = {
   'status.short.onHold': 'On hold',
   'status.sampleReview': 'Sample review',
   'status.short.sampleReview': 'Sample review',
+  'status.draft': 'Draft',
+  'status.short.draft': 'Draft',
 
   /* ── Mail types ── */
   'mailType.all': 'All emails',
@@ -315,6 +317,10 @@ window.I18N_EN = {
   'orders.productGreyKnit': 'Grey knit fabric',
   'orders.productOnHoldToys': 'Colorful sunglasses sample',
   'orders.productSampleReview': 'Kids sunglasses sample',
+  'orders.productDraftRobot': 'Smart robot toy sample',
+  'orders.metaDraft': 'Draft',
+  'orders.metaSaved': 'Saved',
+  'orders.draftContinueHint': 'Resume order',
 
   /* ── Order success ── */
   'orderSuccess.title': 'Order placed',
@@ -507,6 +513,12 @@ window.I18N_EN = {
   'orderChat.prefillDone': 'Prefilled from {sourceType} <b>{id}</b>. Review the details below and edit anything that looks off.',
   'orderChat.prefillCardTitle': 'Prefilled order details',
   'orderChat.fromSource': 'From {source}',
+  'orderChat.draftSource': 'Draft',
+  'orderChat.draftRestored': 'Draft <b>{id}</b> restored ✅ You can continue where you left off.',
+  'orderChat.draftResumeHint': 'Most product fields are already filled. Logistics are still missing — add them below, or edit fields and place the order when ready.',
+  'orderChat.draftCardTitle': 'Restored draft order',
+  'orderChat.chipContinueDraft': 'Continue draft',
+  'orderChat.resumeDraft': 'Resume draft',
   'orderChat.chipPlaceOrder': 'Looks good — place order',
   'orderChat.chipEditFields': 'Edit fields',
   'orderChat.chipReviewForm': 'Complete info',

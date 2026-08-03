@@ -1196,9 +1196,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js?v=20260714c"></script>
+<script src="assets/i18n/zh.js?v=20260803r"></script>
+<script src="assets/i18n/en.js?v=20260803r"></script>
+<script src="assets/i18n-runtime.js?v=20260803r"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
 <script src="assets/label-parse.js?v=20260716b"></script>
@@ -2264,13 +2264,91 @@
 
     function continueReuseMissing(btn){
       removeActionRow(btn);
-      userMsg(t('orderChat.chipAddMissing'));
+      userMsg(currentOrderSource === 'draft' ? t('orderChat.chipContinueDraft') : t('orderChat.chipAddMissing'));
       if(manualAnswers['Carrier'] && manualAnswers['Tracking Number']){
         botMsg(t('orderChat.noMissingReuse'), false);
         return;
       }
       botMsg(t('orderChat.reuseShippingHint'), false);
       botMsg(shippingManualForm('reuseShipping'), true);
+    }
+
+    function getDraftPrefills(){
+      return {
+        'DRF-08008610': {
+          sourceType: t('orderChat.draftSource'),
+          sourceDesc: t('common.serviceLabTest'),
+          fields: {
+            'Product Name': t('orders.productDraftRobot'),
+            'Program': t('orderChat.projectTemuToys'),
+            'Country of Origin': t('orderChat.originChina'),
+            'Countries/Regions of Distribution': t('orderChat.distributionPresetEn'),
+            'Item#/model#': 'RBT-2025-X9',
+            'Manufacturer': t('orderChat.manufacturerDemo'),
+            'Manufacturer Address': t('orderChat.manufacturerAddrDemo'),
+            'Sample Collection Method': sampleMethodShip(),
+            'Carrier': '',
+            'Tracking Number': '',
+            'Shipping Remark': ''
+          }
+        }
+      };
+    }
+
+    function draftOrderCard(id, prefill){
+      const fields = prefill.fields;
+      return '<div class="panel">'+
+        '<div class="extract-head"><div class="eh-title">'+t('orderChat.draftCardTitle')+'</div><div class="progress-pill">'+t('orderChat.fromSource', {source: prefill.sourceType})+'</div></div>'+
+        '<div class="fields">'+
+          field('Source ID', id, true)+
+          field('Service', prefill.sourceDesc, true)+
+          field('Product Name', fields['Product Name'], !!fields['Product Name'])+
+          field('Program', fields['Program'], !!fields['Program'])+
+          field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
+          field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
+          field('Item#/model#', fields['Item#/model#'], !!fields['Item#/model#'])+
+          field('Manufacturer', fields['Manufacturer'], !!fields['Manufacturer'])+
+          field('Manufacturer Address', fields['Manufacturer Address'], !!fields['Manufacturer Address'])+
+          field('Sample Collection Method', fields['Sample Collection Method'], !!fields['Sample Collection Method'])+
+          (isSampleCollect(fields['Sample Collection Method']) ? '' :
+            field('Carrier', fields['Carrier'], !!fields['Carrier'])+
+            field('Tracking Number', fields['Tracking Number'], !!fields['Tracking Number'])+
+            field('Shipping Remark', fields['Shipping Remark'], !!fields['Shipping Remark'], true)
+          )+
+        '</div>'+editFieldsBtn('orderChat.needAdjust')+
+      '</div>';
+    }
+
+    function startResumeDraft(id){
+      const draftId = String(id || 'DRF-08008610');
+      currentTestType = 'first';
+      currentOrderSource = 'draft';
+      userMsg(t('orderChat.resumeDraft') + ' ' + draftId);
+      const typingRow = botTyping();
+      setTimeout(function(){
+        typingRow.remove();
+        const sourcePrefill = getDraftPrefills()[draftId] || getDraftPrefills()['DRF-08008610'];
+        const prefill = {
+          sourceType: sourcePrefill.sourceType,
+          sourceDesc: sourcePrefill.sourceDesc,
+          fields: Object.assign({}, sourcePrefill.fields || {})
+        };
+        manualIndex = getManualQuestions().length;
+        Object.keys(manualAnswers).forEach(function(k){ delete manualAnswers[k]; });
+        Object.assign(manualAnswers, prefill.fields);
+        botMsg(tHtml('orderChat.draftRestored', {id: draftId}), false);
+        const typingRow2 = botTyping();
+        setTimeout(function(){
+          typingRow2.remove();
+          botMsg(t('orderChat.draftResumeHint'), false);
+          botMsg(draftOrderCard(draftId, prefill), true);
+          botMsg(chipsRow(
+            I18n.chipHtml('orderChat.chipContinueDraft','plus','continueReuseMissing(this)')+
+            I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')+
+            I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')
+          ), true);
+        }, 650);
+      }, 700);
     }
 
     function answerReuseShipping(btn, value){
@@ -6499,6 +6577,21 @@
       const typeCard = document.getElementById('typeCard');
       if(typeCard) typeCard.style.display = 'none';
       setTimeout(function(){ startReuseOrder(id, t('orderDetail.orderAgain')); }, 180);
+    })();
+    (function startResumeFromDraft(){
+      const query = new URLSearchParams(window.location.search);
+      const draftId = query.get('draft');
+      if(!draftId) return;
+      if(query.get('reuse')) return;
+      const typeCard = document.getElementById('typeCard');
+      if(typeCard) typeCard.style.display = 'none';
+      // Hide the default welcome bubble so resume starts on the draft thread.
+      const welcome = document.querySelector('#chat .row.bot .bubble[data-i18n="orderChat.welcome"]');
+      if(welcome){
+        const row = welcome.closest('.row');
+        if(row) row.style.display = 'none';
+      }
+      setTimeout(function(){ startResumeDraft(draftId); }, 180);
     })();
   </script>
 </body>

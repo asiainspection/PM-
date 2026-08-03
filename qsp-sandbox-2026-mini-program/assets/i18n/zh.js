@@ -91,6 +91,8 @@ window.I18N_ZH = {
   'status.short.onHold': '已暂停',
   'status.sampleReview': '样品审核中',
   'status.short.sampleReview': '样品审核中',
+  'status.draft': '草稿',
+  'status.short.draft': '草稿',
 
   /* ── Mail types ── */
   'mailType.all': '所有邮件',
@@ -315,6 +317,10 @@ window.I18N_ZH = {
   'orders.productGreyKnit': '灰色针织面料',
   'orders.productOnHoldToys': '彩色太阳镜样品',
   'orders.productSampleReview': '儿童太阳镜样品',
+  'orders.productDraftRobot': '智能机器人玩具样品',
+  'orders.metaDraft': '草稿',
+  'orders.metaSaved': '保存',
+  'orders.draftContinueHint': '可继续下单',
 
   /* ── Order success ── */
   'orderSuccess.title': '下单成功',
@@ -507,6 +513,12 @@ window.I18N_ZH = {
   'orderChat.prefillDone': '已基于{sourceType}「<b>{id}</b>」预填完成。请检查以下信息，缺失或不准确的字段可以继续编辑。',
   'orderChat.prefillCardTitle': '预填订单信息',
   'orderChat.fromSource': '来自 {source}',
+  'orderChat.draftSource': '草稿',
+  'orderChat.draftRestored': '已恢复草稿 <b>{id}</b> ✅ 可从上次中断处继续下单。',
+  'orderChat.draftResumeHint': '产品信息已基本填写完整，物流信息仍缺失。请在下方补充物流，或编辑字段后继续下单。',
+  'orderChat.draftCardTitle': '已恢复的草稿订单',
+  'orderChat.chipContinueDraft': '继续完善草稿',
+  'orderChat.resumeDraft': '继续草稿',
   'orderChat.chipPlaceOrder': '信息正确，去下单',
   'orderChat.chipEditFields': '编辑字段',
   'orderChat.chipReviewForm': '补全信息',
