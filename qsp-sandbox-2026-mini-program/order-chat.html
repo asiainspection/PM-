@@ -1567,7 +1567,7 @@
           <div class="fm-row">
             <div class="fm-label"><span data-i18n="orderChat.sampleMethodLabel">样品收集方式</span> <span class="req" data-i18n="common.required">*</span></div>
             <div class="fm-radio-stack">
-              <label class="fm-radio-line"><input type="radio" name="mf_sample" value="ship" onchange="mfToggleSampleFields()"> <span data-sample-label>您或者供应商会寄送样本</span></label>
+              <label class="fm-radio-line"><input type="radio" name="mf_sample" value="ship" checked onchange="mfToggleSampleFields()"> <span data-sample-label>您或者供应商会寄送样本</span></label>
               <label class="fm-radio-line"><input type="radio" name="mf_sample" value="collect" onchange="mfToggleSampleFields()"> <span data-sample-label>启迈 QIMA 将在执行产品服务时收集样本</span></label>
               <label class="fm-radio-line"><input type="radio" name="mf_sample" value="received" onchange="mfToggleSampleFields()"> <span data-sample-label>启迈 QIMA 已经拿到了样本</span></label>
             </div>
@@ -3602,16 +3602,14 @@
       if(carrier && manualAnswers['Carrier']) matchSelectOption(carrier, manualAnswers['Carrier']);
 
       const sampleLabel = manualAnswers['Sample Collection Method'] || '';
+      let sampleVal = 'ship';
       if(sampleLabel){
-        let sampleVal = '';
         if(isSampleShip(sampleLabel) || sampleLabel === 'ship') sampleVal = 'ship';
         else if(isSampleCollect(sampleLabel) || sampleLabel === 'collect') sampleVal = 'collect';
         else if(isSampleReceived(sampleLabel) || sampleLabel === 'received') sampleVal = 'received';
-        if(sampleVal){
-          const radio = document.querySelector('input[name="mf_sample"][value="'+sampleVal+'"]');
-          if(radio) radio.checked = true;
-        }
       }
+      const sampleRadio = document.querySelector('input[name="mf_sample"][value="'+sampleVal+'"]');
+      if(sampleRadio) sampleRadio.checked = true;
 
       const elecRaw = manualAnswers[FIELD_ELECTRIC] || manualAnswers['产品是否带电'] || '';
       if(elecRaw){
