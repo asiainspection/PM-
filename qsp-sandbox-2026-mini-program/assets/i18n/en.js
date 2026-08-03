@@ -888,6 +888,11 @@ window.I18N_EN = {
   'me.unbindDesc': 'You will need to sign in to your QIMA account again to place orders and view reports.',
   'me.unbindConfirm': 'Unlink',
   'me.unbindDone': 'WeChat unlinked',
+  'me.logout': 'Sign out',
+  'me.logoutTitle': 'Sign out?',
+  'me.logoutDesc': 'You will need to sign in again to place orders and view reports.',
+  'me.logoutConfirm': 'Sign out',
+  'me.logoutDone': 'Signed out',
 
   /* ── Notifications ── */
   'notifications.title': 'Notifications',

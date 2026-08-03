@@ -44,8 +44,6 @@
     'on_hold': 'orange',
     'cancelled': 'orange'
   };
-    'cancelled': 'orange'
-  };
 
   var COUNTRY_CANONICAL = {
     '欧盟': 'eu',

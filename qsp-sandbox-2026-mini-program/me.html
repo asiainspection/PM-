@@ -189,6 +189,12 @@
   }
   .action-row:active { background: #f5f6f9; }
   .action-row img { width: 18px; height: 18px; display: block; }
+  .action-row.danger {
+    justify-content: center;
+    color: #e4002b;
+    font-weight: 600;
+  }
+  .action-row.danger:active { background: #fff5f6; }
 
   /* 解绑确认 */
   .confirm-mask {
@@ -337,6 +343,13 @@
           <img src="assets/chevron_row.svg" alt="" />
         </button>
       </div>
+
+      <!-- 退出登录 -->
+      <div class="card">
+        <button class="action-row danger" type="button" onclick="openLogoutConfirm()">
+          <span data-i18n="me.logout">退出登录</span>
+        </button>
+      </div>
     </div>
 
     <!-- 底部 Tab Bar -->
@@ -378,6 +391,20 @@
       </div>
     </div>
 
+    <!-- 退出登录确认 -->
+    <div class="confirm-mask" id="logoutConfirm" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+      <div class="confirm-box">
+        <div class="confirm-body">
+          <div class="confirm-title" id="logoutTitle" data-i18n="me.logoutTitle">退出登录？</div>
+          <div class="confirm-desc" data-i18n="me.logoutDesc">退出后需要重新登录才能下单和查看报告。</div>
+        </div>
+        <div class="confirm-actions">
+          <button class="confirm-btn" type="button" onclick="closeLogoutConfirm()" data-i18n="common.cancel">取消</button>
+          <button class="confirm-btn danger" type="button" onclick="confirmLogout()" data-i18n="me.logoutConfirm">退出</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast"></div>
   </div>
 
@@ -407,6 +434,14 @@
       document.getElementById('unbindConfirm').classList.remove('show');
     }
 
+    function openLogoutConfirm(){
+      document.getElementById('logoutConfirm').classList.add('show');
+    }
+
+    function closeLogoutConfirm(){
+      document.getElementById('logoutConfirm').classList.remove('show');
+    }
+
     function showToast(message){
       const el = document.getElementById('toast');
       el.textContent = message;
@@ -414,21 +449,33 @@
       setTimeout(function(){ el.classList.remove('show'); }, 1600);
     }
 
+    function returnToLogin(){
+      if (window.QimaDemoShortcuts && typeof QimaDemoShortcuts.openLogin === 'function') {
+        QimaDemoShortcuts.openLogin();
+        return;
+      }
+      location.href = 'index.html?bind=1';
+    }
+
     /** Unlinking drops the WeChat binding, so the demo returns to the sign-in overlay. */
     function confirmUnbind(){
       closeUnbindConfirm();
       showToast(t('me.unbindDone'));
-      setTimeout(function(){
-        if (window.QimaDemoShortcuts && typeof QimaDemoShortcuts.openLogin === 'function') {
-          QimaDemoShortcuts.openLogin();
-          return;
-        }
-        location.href = 'index.html?bind=1';
-      }, 900);
+      setTimeout(returnToLogin, 900);
+    }
+
+    /** Sign out clears the session and returns to the pre-login state. */
+    function confirmLogout(){
+      closeLogoutConfirm();
+      showToast(t('me.logoutDone'));
+      setTimeout(returnToLogin, 900);
     }
 
     document.getElementById('unbindConfirm').addEventListener('click', function(e){
       if (e.target === this) closeUnbindConfirm();
+    });
+    document.getElementById('logoutConfirm').addEventListener('click', function(e){
+      if (e.target === this) closeLogoutConfirm();
     });
 
     if (window.I18n) {

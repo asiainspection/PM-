@@ -888,6 +888,11 @@ window.I18N_ZH = {
   'me.unbindDesc': '解绑后需要重新登录 QIMA 账号才能下单和查看报告。',
   'me.unbindConfirm': '解绑',
   'me.unbindDone': '已解绑微信',
+  'me.logout': '退出登录',
+  'me.logoutTitle': '退出登录？',
+  'me.logoutDesc': '退出后需要重新登录才能下单和查看报告。',
+  'me.logoutConfirm': '退出',
+  'me.logoutDone': '已退出登录',
 
   /* ── 通知中心 ── */
   'notifications.title': '通知',
