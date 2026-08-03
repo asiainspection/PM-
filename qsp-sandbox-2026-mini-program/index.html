@@ -19,6 +19,7 @@
     --pool-050: #f2f5fd;
     --qima-red: #e4002b;
     --border: #dedede;
+    --order-row-h: 70.5px;
   }
   html, body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", Inter, sans-serif;
@@ -159,10 +160,21 @@
 
   /* 订单行 */
   .order-row {
-    height: 70.5px; display: flex; align-items: center; justify-content: space-between;
+    height: var(--order-row-h); display: flex; align-items: center; justify-content: space-between;
     padding: 0 16px; border-bottom: .5px solid var(--border);
     color: inherit; text-decoration: none; cursor: pointer;
   }
+  .order-row:active { background: #f5f6f9; }
+
+  /* 三条以内直接展开，超出的部分在卡片内滚动 */
+  #homeOrderList {
+    max-height: calc(var(--order-row-h) * 3);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #homeOrderList::-webkit-scrollbar { display: none; }
   .order-row:last-child { border-bottom: none; }
   .order-row > div:first-child { min-width: 0; flex: 1; }
   .order-row .oid { font-size: 14px; color: var(--carbon); line-height: 21px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
