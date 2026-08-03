@@ -77,6 +77,10 @@ window.I18N_EN = {
   'status.reportCompleted': 'Report ready',
   'status.pass': 'Pass',
   'status.pendingConfirmation': 'Pending confirmation',
+  'status.short.inProgress': 'In progress',
+  'status.short.pendingVerification': 'Pending',
+  'status.short.reportCompleted': 'Report ready',
+  'status.short.pendingConfirmation': 'To confirm',
 
   /* ── Mail types ── */
   'mailType.all': 'All emails',
@@ -286,6 +290,9 @@ window.I18N_EN = {
   /* ── Orders page ── */
   'orders.title': 'Orders',
   'orders.chipSampleInfo': 'All',
+  'orders.metaNo': 'No.',
+  'orders.metaOrdered': 'Ordered',
+  'orders.metaReport': 'Report',
   'orders.defaultFilter': 'Lab Testing',
   'orders.productBlackComposite': 'Black composite fabric',
   'orders.productBlackWoven': 'Black woven fabric',

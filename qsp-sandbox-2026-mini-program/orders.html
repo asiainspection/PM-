@@ -106,91 +106,105 @@
   .list {
     position: relative; z-index: 1; flex: 1; overflow-y: auto;
     padding: 4px 16px 20px;
-    display: flex; flex-direction: column; gap: 12px;
+    display: flex; flex-direction: column; gap: 10px;
   }
   .list::-webkit-scrollbar { display: none; }
 
   /* ===== 订单卡片 ===== */
+  /* Product first, status second, reference numbers last — the card is one
+     tap target, so no inner boxes and no separate "view all" link. */
   .ocard {
-    display: block;
-    background: #fff; border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(25,25,25,.08);
-    padding: 14px 16px 12px;
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 8px 20px rgba(25,25,25,.05);
+    padding: 13px 14px;
     color: inherit;
     text-decoration: none;
     cursor: pointer;
+    transition: background .12s ease, box-shadow .12s ease, transform .12s ease;
   }
-  .ocard-head { display: flex; align-items: center; justify-content: space-between; }
-  .ocard-head .left { display: flex; align-items: center; gap: 6px; }
-  .ocard-head .left img { width: 16px; height: 16px; }
-  .ocard-head .left .lbl { font-size: 14px; color: var(--carbon); }
-  .ocard-head .left .num { font-size: 15px; font-weight: 600; color: var(--carbon); }
-  .status {
-    display: inline-flex; align-items: center;
-    font-size: 12px; height: 24px; line-height: 1; padding: 0 10px; border-radius: 6px;
-    white-space: nowrap; flex-shrink: 0; box-sizing: border-box;
+  .ocard:active {
+    background: #fbfcff;
+    transform: scale(.993);
+    box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
   }
-  .status.blue { background: var(--pool-050); color: var(--pool-500); border: 1px solid #dce4fb; }
-  .status.green { background: #eaf6f2; color: var(--kiwi); border: 1px solid #c9ecdc; }
 
-  .ocard-dates { display: flex; gap: 8px; margin-top: 12px; }
-  .date-pill {
-    display: flex; align-items: center; gap: 5px;
-    background: #f4f6fa; border-radius: 6px; padding: 5px 8px;
-    font-size: 11px; color: var(--seal); white-space: nowrap;
+  /* Centred so the tile stays balanced whether the meta row wraps or not. */
+  .ocard-thumb {
+    position: relative; width: 54px; height: 54px;
+    border-radius: 10px; overflow: hidden; flex-shrink: 0;
+    align-self: center;
   }
-  .date-pill svg { color: #9aa0ad; flex-shrink: 0; }
-
-  .ocard-product { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
-  .ocard-product.text-only {
-    margin-top: 12px;
-    padding: 10px 12px;
-    background: #f7f8fb;
-    border-radius: 10px;
-    gap: 10px;
-  }
-  .thumb {
-    position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; flex-shrink: 0;
-  }
-  .thumb.fabric-black { background: linear-gradient(135deg, #34343a 0%, #0e0e12 100%); }
-  .thumb.fabric-denim { background: linear-gradient(135deg, #2c3656 0%, #10162a 100%); }
-  .thumb.fabric-grey { background: linear-gradient(135deg, #5a5f6b 0%, #2c303a 100%); }
-  .thumb::after {
+  .ocard-thumb.fabric-black { background: linear-gradient(135deg, #34343a 0%, #0e0e12 100%); }
+  .ocard-thumb.fabric-denim { background: linear-gradient(135deg, #2c3656 0%, #10162a 100%); }
+  .ocard-thumb.fabric-grey { background: linear-gradient(135deg, #5a5f6b 0%, #2c303a 100%); }
+  .ocard-thumb.fabric-black::after,
+  .ocard-thumb.fabric-denim::after,
+  .ocard-thumb.fabric-grey::after {
     content: ""; position: absolute; inset: 0;
     background: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px);
   }
-  .thumb:empty { display: none; }
-  .ribbon {
-    position: absolute; top: 9px; right: -20px; z-index: 2;
-    transform: rotate(45deg);
-    background: var(--kiwi); color: #fff;
-    font-size: 9px; line-height: 14px; padding: 0 22px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  .ocard-thumb.icon {
+    background: #f2f5fc; display: grid; place-items: center;
   }
-  .pinfo { flex: 1; min-width: 0; }
-  .pinfo .pname {
-    font-size: 15px; color: var(--carbon); font-weight: 600;
-    line-height: 1.35;
+  .ocard-thumb.icon img { width: 22px; height: 22px; opacity: .8; }
+
+  .ocard-main { flex: 1; min-width: 0; }
+  .ocard-title { display: flex; align-items: flex-start; gap: 8px; }
+  .pname {
+    flex: 1; min-width: 0;
+    font-size: 15px; font-weight: 600; color: var(--carbon); line-height: 21px;
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .status {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px;
+    height: 22px; padding: 0 9px; border-radius: 999px;
+    font-size: 11.5px; line-height: 1; white-space: nowrap; box-sizing: border-box;
+  }
+  .status::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: currentColor; flex-shrink: 0;
+  }
+  .status.blue { background: #eef3ff; color: var(--pool-500); }
+  .status.green { background: #e9f6f0; color: var(--kiwi); }
+  /* Beats the global English wrap rule: the card pill must stay one line so the
+     product name keeps the width it needs. */
+  html[lang="en"] .ocard .status {
+    max-width: none; min-height: 0; height: 22px;
+    padding: 0 9px; line-height: 1; white-space: nowrap;
+  }
+
+  .ocard-sub {
+    display: flex; align-items: center; gap: 6px; margin-top: 4px;
+    font-size: 12px; color: var(--seal); line-height: 17px;
+  }
+  .ocard-sub .stext { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result-tag {
+    flex-shrink: 0; padding: 0 6px; border-radius: 4px;
+    font-size: 11px; line-height: 16px;
+    background: #e9f6f0; color: var(--kiwi);
+  }
+
+  /* Wraps rather than truncates: an order number is a reference users quote back,
+     so it always renders in full and the date drops to a second line if needed. */
+  .ocard-meta {
+    display: flex; flex-wrap: wrap; align-items: center;
+    column-gap: 10px; row-gap: 2px; margin-top: 7px;
+    font-size: 11px; line-height: 15px;
+  }
+  .meta-item { display: flex; align-items: center; gap: 4px; min-width: 0; }
+  .meta-item .mk { color: #a7aebb; flex-shrink: 0; }
+  .meta-item .mv {
+    color: #6d7482; font-variant-numeric: tabular-nums;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .ocard-product.text-only .pname { font-size: 16px; }
-  .pinfo .psub {
-    display: flex; align-items: center; gap: 6px; margin-top: 6px;
-    font-size: 12px; color: var(--seal); line-height: 1.3;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .pinfo .ptag { background: #f3f4f6; color: var(--seal); font-size: 11px; padding: 2px 6px; border-radius: 4px; }
-  .pinfo .pval { font-size: 13px; color: var(--carbon); }
-  .ocard-product .chev { width: 16px; height: 16px; flex-shrink: 0; opacity: .55; }
 
-  .ocard.live {
-    padding: 14px 14px 12px;
+  .ocard .chev {
+    width: 16px; height: 16px; flex-shrink: 0;
+    align-self: center; opacity: .35;
   }
-  .ocard.live .ocard-dates { margin-top: 10px; }
-  .ocard.live .ocard-foot { margin-top: 10px; padding-top: 9px; }
-
-  .ocard-foot { margin-top: 12px; padding-top: 10px; border-top: .5px solid #eef0f4; }
-  .ocard-foot span { color: var(--pool-500); font-size: 13px; }
 
 </style>
 <link rel="stylesheet" href="assets/tabbar.css?v=20260803j" />
@@ -199,8 +213,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803i"></script>
-<script src="assets/i18n/en.js?v=20260803i"></script>
+<script src="assets/i18n/zh.js?v=20260803k"></script>
+<script src="assets/i18n/en.js?v=20260803k"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/supabase-config.js"></script>
@@ -255,86 +269,60 @@
     <div class="list" id="orderList">
       <!-- 卡片 1 -->
       <a class="ocard" href="order-detail.html?order=08008571">
-        <div class="ocard-head">
-          <div class="left">
-            <img src="assets/order_icon.svg" alt="" />
-            <span class="lbl" data-i18n="common.orderNo">申请单号：</span>
-            <span class="num">08008571</span>
-          </div>
-          <div class="status blue" data-i18n="status.pendingVerification">待验证</div>
-        </div>
-        <div class="ocard-dates">
-          <div class="date-pill">
-            <svg width="12" height="12" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2.5 6.5h11M5.5 1.8v2.4M10.5 1.8v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            <span data-i18n="common.orderDate">下单日期</span> 2026-06-03
-          </div>
-        </div>
-        <div class="ocard-product">
-          <div class="thumb fabric-black"></div>
-          <div class="pinfo">
+        <div class="ocard-thumb fabric-black"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
             <div class="pname" data-i18n="orders.productBlackComposite">黑色复合面料</div>
+            <div class="status blue" data-i18n="status.short.pendingVerification">待验证</div>
           </div>
-          <img class="chev" src="assets/chevron_row.svg" alt="" />
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">08008571</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaOrdered">下单</span><span class="mv">2026-06-03</span></span>
+          </div>
         </div>
-        <div class="ocard-foot"><span data-i18n="common.viewAll">查看全部</span></div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
 
       <!-- 卡片 2 -->
       <a class="ocard" href="order-detail.html?order=080082671">
-        <div class="ocard-head">
-          <div class="left">
-            <img src="assets/order_icon.svg" alt="" />
-            <span class="lbl" data-i18n="common.orderNo">申请单号：</span>
-            <span class="num">080082671</span>
-          </div>
-          <div class="status green" data-i18n="status.reportCompleted">报告已完成</div>
-        </div>
-        <div class="ocard-dates">
-          <div class="date-pill">
-            <svg width="12" height="12" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2.5 6.5h11M5.5 1.8v2.4M10.5 1.8v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            <span data-i18n="common.orderDate">下单日期</span> 2026-06-03
-          </div>
-          <div class="date-pill">
-            <svg width="12" height="12" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2.5 6.5h11M5.5 1.8v2.4M10.5 1.8v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            <span data-i18n="common.reportDate">报告日期</span> 2026-06-03
-          </div>
-        </div>
-        <div class="ocard-product">
-          <div class="thumb fabric-denim">
-            <span class="ribbon" data-i18n="status.pass">合格</span>
-          </div>
-          <div class="pinfo">
+        <div class="ocard-thumb fabric-denim"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
             <div class="pname" data-i18n="orders.productBlackWoven">黑色机织面料</div>
+            <div class="status green" data-i18n="status.short.reportCompleted">报告已完成</div>
           </div>
-          <img class="chev" src="assets/chevron_row.svg" alt="" />
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+            <span class="result-tag" data-i18n="status.pass">合格</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">080082671</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaReport">报告</span><span class="mv">2026-06-03</span></span>
+          </div>
         </div>
-        <div class="ocard-foot"><span data-i18n="common.viewAll">查看全部</span></div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
 
       <!-- 卡片 3 -->
       <a class="ocard" href="order-detail.html?order=08008536">
-        <div class="ocard-head">
-          <div class="left">
-            <img src="assets/order_icon.svg" alt="" />
-            <span class="lbl" data-i18n="common.orderNo">申请单号：</span>
-            <span class="num">08008536</span>
-          </div>
-          <div class="status blue" data-i18n="status.pendingVerification">待验证</div>
-        </div>
-        <div class="ocard-dates">
-          <div class="date-pill">
-            <svg width="12" height="12" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2.5 6.5h11M5.5 1.8v2.4M10.5 1.8v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-            <span data-i18n="common.orderDate">下单日期</span> 2026-06-02
-          </div>
-        </div>
-        <div class="ocard-product">
-          <div class="thumb fabric-grey"></div>
-          <div class="pinfo">
+        <div class="ocard-thumb fabric-grey"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
             <div class="pname" data-i18n="orders.productGreyKnit">灰色针织面料</div>
+            <div class="status blue" data-i18n="status.short.pendingVerification">待验证</div>
           </div>
-          <img class="chev" src="assets/chevron_row.svg" alt="" />
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">08008536</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaOrdered">下单</span><span class="mv">2026-06-02</span></span>
+          </div>
         </div>
-        <div class="ocard-foot"><span data-i18n="common.viewAll">查看全部</span></div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
     </div>
 
@@ -374,10 +362,10 @@
 
     function mapStatusLabel(status){
       var map = {
-        pending_verification: 'status.pendingVerification',
-        in_progress: 'status.inProgress',
-        report_completed: 'status.reportCompleted',
-        cancelled: 'status.pendingConfirmation'
+        pending_verification: 'status.short.pendingVerification',
+        in_progress: 'status.short.inProgress',
+        report_completed: 'status.short.reportCompleted',
+        cancelled: 'status.short.pendingConfirmation'
       };
       var key = map[status];
       return key && typeof t === 'function' ? t(key) : (status || '');
@@ -403,32 +391,29 @@
       var ordered = formatDate(row.ordered_at || row.created_at);
       var sub = row.service_type || row.project_name || row.program || '';
       if(sub && product && String(sub).toLowerCase() === String(product).toLowerCase()) sub = '';
+      var label = function(key, fallback){ return typeof t === 'function' ? t(key) : fallback; };
       var subHtml = sub
-        ? '<div class="psub">' + escapeHtml(sub) + '</div>'
+        ? '<div class="ocard-sub"><span class="stext">' + escapeHtml(sub) + '</span></div>'
+        : '';
+      var dateHtml = ordered
+        ? '<span class="meta-item"><span class="mk">' + label('orders.metaOrdered', '下单') + '</span>'+
+          '<span class="mv">' + escapeHtml(ordered) + '</span></span>'
         : '';
       return '<a class="ocard live" href="order-detail.html?order=' + encodeURIComponent(ref) + '">'+
-        '<div class="ocard-head">'+
-          '<div class="left">'+
-            '<img src="assets/order_icon.svg" alt="" />'+
-            '<span class="lbl">' + (typeof t === 'function' ? t('common.orderNo') : '申请单号：') + '</span>'+
-            '<span class="num">' + escapeHtml(appNo) + '</span>'+
-          '</div>'+
-          '<div class="status ' + statusTone(status) + '">' + escapeHtml(mapStatusLabel(status)) + '</div>'+
-        '</div>'+
-        '<div class="ocard-dates">'+
-          '<div class="date-pill">'+
-            '<svg width="12" height="12" viewBox="0 0 16 16"><rect x="2.5" y="3" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2.5 6.5h11M5.5 1.8v2.4M10.5 1.8v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'+
-            '<span>' + (typeof t === 'function' ? t('common.orderDate') : '下单日期') + '</span> ' + escapeHtml(ordered) +
-          '</div>'+
-        '</div>'+
-        '<div class="ocard-product text-only">'+
-          '<div class="pinfo">'+
+        '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
+        '<div class="ocard-main">'+
+          '<div class="ocard-title">'+
             '<div class="pname">' + escapeHtml(product) + '</div>'+
-            subHtml +
+            '<div class="status ' + statusTone(status) + '">' + escapeHtml(mapStatusLabel(status)) + '</div>'+
           '</div>'+
-          '<img class="chev" src="assets/chevron_row.svg" alt="" />'+
+          subHtml +
+          '<div class="ocard-meta">'+
+            '<span class="meta-item"><span class="mk">' + label('orders.metaNo', '单号') + '</span>'+
+              '<span class="mv">' + escapeHtml(appNo) + '</span></span>'+
+            dateHtml +
+          '</div>'+
         '</div>'+
-        '<div class="ocard-foot"><span>' + (typeof t === 'function' ? t('common.viewAll') : '查看全部') + '</span></div>'+
+        '<img class="chev" src="assets/chevron_row.svg" alt="" />'+
       '</a>';
     }
 

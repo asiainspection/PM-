@@ -77,6 +77,10 @@ window.I18N_ZH = {
   'status.reportCompleted': '报告已完成',
   'status.pass': '合格',
   'status.pendingConfirmation': '待确认',
+  'status.short.inProgress': '进行中',
+  'status.short.pendingVerification': '待验证',
+  'status.short.reportCompleted': '报告已完成',
+  'status.short.pendingConfirmation': '待确认',
 
   /* ── Mail types ── */
   'mailType.all': '所有邮件',
@@ -286,6 +290,9 @@ window.I18N_ZH = {
   /* ── Orders page ── */
   'orders.title': '订单',
   'orders.chipSampleInfo': '全部',
+  'orders.metaNo': '单号',
+  'orders.metaOrdered': '下单',
+  'orders.metaReport': '报告',
   'orders.defaultFilter': '实验室检测',
   'orders.productBlackComposite': '黑色复合面料',
   'orders.productBlackWoven': '黑色机织面料',
