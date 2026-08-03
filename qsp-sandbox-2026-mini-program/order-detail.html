@@ -160,43 +160,78 @@
   .info-row[hidden] { display: none; }
 
   /* ===== 订单进度 ===== */
-  .progress-card { padding: 16px 14px 14px; }
-  .progress-track { display: flex; align-items: flex-start; }
-  .p-step { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
-  .p-rail { position: relative; width: 100%; height: 16px; display: flex; align-items: center; }
-  .p-rail::before, .p-rail::after {
-    content: ""; position: absolute; top: 50%; height: 2px;
-    background: #e6e9f0; transform: translateY(-50%);
+  .progress-card { padding: 16px 12px 14px; }
+  .progress-track {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: start;
+    padding: 0 4px;
   }
-  .p-rail::before { left: 0; right: 50%; }
-  .p-rail::after { left: 50%; right: 0; }
-  .p-step.done .p-rail::before, .p-step.done .p-rail::after,
-  .p-step.current .p-rail::before { background: var(--pool-500); }
-  .progress-track .p-step:first-child .p-rail::before,
-  .progress-track .p-step:last-child .p-rail::after { background: transparent; }
+  .progress-track::before {
+    content: "";
+    position: absolute;
+    left: calc(12.5% + 2px);
+    right: calc(12.5% + 2px);
+    top: 9px;
+    height: 2px;
+    background: #e6e9f0;
+    border-radius: 1px;
+  }
+  .progress-track::after {
+    content: "";
+    position: absolute;
+    left: calc(12.5% + 2px);
+    top: 9px;
+    height: 2px;
+    width: var(--progress-fill, 0%);
+    max-width: calc(75% - 4px);
+    background: var(--pool-500);
+    border-radius: 1px;
+    transition: width .25s ease;
+    z-index: 0;
+  }
+  .progress-track.is-halted::after { background: #ff8f7f; }
+  .p-step {
+    position: relative; z-index: 1;
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 0;
+  }
   .p-dot {
-    position: relative; z-index: 1; margin: 0 auto;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: #fff; border: 2px solid #dfe3ec;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid #d9dee8;
     display: grid; place-items: center;
+    box-sizing: border-box;
   }
-  .p-step.done .p-dot { background: var(--pool-500); border-color: var(--pool-500); }
+  .p-step.done .p-dot {
+    background: var(--pool-500); border-color: var(--pool-500);
+  }
   .p-step.done .p-dot::after {
     content: ""; width: 4px; height: 7px; margin-top: -1px;
-    border: solid #fff; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg);
+    border: solid #fff; border-width: 0 1.7px 1.7px 0; transform: rotate(45deg);
   }
   .p-step.current .p-dot {
     border-color: var(--pool-500);
     box-shadow: 0 0 0 4px rgba(65,105,225,.14);
   }
   .p-step.current .p-dot::after {
-    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--pool-500);
+    content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pool-500);
   }
-  .p-step.halted .p-dot { border-color: #ff8f7f; box-shadow: 0 0 0 4px rgba(255,95,78,.12); }
-  .p-step.halted .p-dot::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #ff5f4e; }
+  .p-step.halted .p-dot {
+    border-color: #ff8f7f;
+    box-shadow: 0 0 0 4px rgba(255,95,78,.12);
+  }
+  .p-step.halted .p-dot::after {
+    content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ff5f4e;
+  }
   .p-label {
-    margin-top: 7px; padding: 0 1px;
-    font-size: 10.5px; line-height: 14px; color: var(--seal); text-align: center;
+    margin-top: 8px;
+    max-width: 100%;
+    padding: 0 2px;
+    font-size: 11px; line-height: 15px;
+    color: #9aa1ae; text-align: center;
+    white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
   }
   .p-step.done .p-label { color: #6d7482; }
   .p-step.current .p-label { color: var(--pool-500); font-weight: 600; }
@@ -528,9 +563,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js"></script>
+<script src="assets/i18n/zh.js?v=20260803m"></script>
+<script src="assets/i18n/en.js?v=20260803m"></script>
+<script src="assets/i18n-runtime.js?v=20260803m"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -1210,10 +1245,10 @@
     // → WAITING_FOR_ADDITIONAL_SAMPLE → REPORTING/WAITING_FOR_FEEDBACK.
     // Source: my.qima.com main bundle + TABLE.TOOLTIP.LT.*
     const ORDER_STAGES = [
-      { key: 'samples', labelKey: 'orderDetail.stageSamples' },
-      { key: 'quotation', labelKey: 'orderDetail.stageQuotation' },
-      { key: 'testing', labelKey: 'orderDetail.stageTesting' },
-      { key: 'reporting', labelKey: 'orderDetail.stageReporting' }
+      { key: 'samples', labelKey: 'orderDetail.stageSamples', zh: '寄样', en: 'Sample' },
+      { key: 'quotation', labelKey: 'orderDetail.stageQuotation', zh: '报价', en: 'Quote' },
+      { key: 'testing', labelKey: 'orderDetail.stageTesting', zh: '检测', en: 'Test' },
+      { key: 'reporting', labelKey: 'orderDetail.stageReporting', zh: '报告', en: 'Report' }
     ];
 
     const STATUS_TO_STAGE = {
@@ -1315,12 +1350,24 @@
       return { tone: 'info', textKey: 'orderDetail.nextWaitVerify' };
     }
 
+    function stageLabel(item){
+      var translated = t(item.labelKey);
+      if(translated && translated !== item.labelKey) return translated;
+      var lang = (window.I18n && I18n.getLang && I18n.getLang()) || 'zh';
+      return lang === 'en' ? item.en : item.zh;
+    }
+
     function renderOrderProgress(){
       const track = document.getElementById('progressTrack');
       if(!track) return;
       const status = order.status;
       const halted = isHaltedStatus(status);
       const stage = currentStageIndex(status);
+      const fillSteps = Math.max(0, Math.min(stage, ORDER_STAGES.length - 1));
+      // Rail spans 75% of the track (centers of first→last). Width is % of track.
+      const fillPct = (fillSteps / (ORDER_STAGES.length - 1)) * 75;
+      track.style.setProperty('--progress-fill', fillPct + '%');
+      track.classList.toggle('is-halted', halted);
       track.innerHTML = ORDER_STAGES.map(function(item, index){
         let state = '';
         if(halted){
@@ -1331,8 +1378,8 @@
           state = 'current';
         }
         return '<div class="p-step ' + state + '">'+
-          '<div class="p-rail"><div class="p-dot"></div></div>'+
-          '<div class="p-label">' + escapeHtml(t(item.labelKey)) + '</div>'+
+          '<div class="p-dot" aria-hidden="true"></div>'+
+          '<div class="p-label">' + escapeHtml(stageLabel(item)) + '</div>'+
         '</div>';
       }).join('');
 
