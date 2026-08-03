@@ -176,26 +176,20 @@
     display: flex; align-items: flex-start;
   }
   .tab {
+    position: relative;
     flex: 1; height: 71px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; padding: 10px 0 20px;
+    gap: 4px; padding: 10px 0 20px; text-decoration: none;
   }
   .tab img { width: 22px; height: 22px; }
-  .tab { text-decoration: none; }
   .tab .label { font-size: 10px; letter-spacing: .1px; color: var(--seal); }
   .tab.active .label { color: var(--pool-500); }
-  .tab.placeholder { visibility: hidden; }
-
-  /* 中间悬浮 + 按钮 */
-  .fab {
-    position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%);
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--pool-500);
-    box-shadow: 0 6px 16px rgba(65,105,225,.4);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 2;
+  .tab-badge {
+    position: absolute; top: 6px; left: 50%; margin-left: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 8px; background: #e5353d;
+    font-size: 10px; line-height: 16px; color: #fff; text-align: center;
   }
-  .fab img { width: 24px; height: 24px; }
 
   /* ===== 下单方式选择层（底部弹层）===== */
   .sheet-mask {
@@ -531,8 +525,8 @@
 <link rel="stylesheet" href="assets/wechat-binding.css?v=20260803e" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260803e"></script>
-<script src="assets/i18n/en.js?v=20260803e"></script>
+<script src="assets/i18n/zh.js?v=20260803g"></script>
+<script src="assets/i18n/en.js?v=20260803g"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/wechat-binding.js?v=20260803e"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
@@ -626,7 +620,11 @@
         <img src="assets/tab_order.svg" alt="" />
         <span class="label" data-i18n="common.tab.orders">订单</span>
       </a>
-      <div class="tab placeholder"></div>
+      <a class="tab" href="notifications.html">
+        <img src="assets/tab_notify.svg" alt="" />
+        <span class="label" data-i18n="common.tab.notify">通知</span>
+        <span class="tab-badge">2</span>
+      </a>
       <a class="tab" href="reports.html">
         <img src="assets/tab_report.svg" alt="" />
         <span class="label" data-i18n="common.tab.reports">报告</span>
@@ -635,8 +633,6 @@
         <img src="assets/tab_me.svg" alt="" />
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
-      <!-- 中间悬浮按钮 -->
-      <div class="fab" onclick="openOrderSheet()" style="cursor:pointer"><img src="assets/fab_add.svg" alt="" data-i18n-alt="common.fabOrder" /></div>
     </div>
 
     <!-- 下单方式选择层 -->

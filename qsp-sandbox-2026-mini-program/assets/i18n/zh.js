@@ -7,6 +7,7 @@ window.I18N_ZH = {
   'title.orderChat': 'QIMA 小程序 - 下单助手',
   'title.reports': 'QIMA 小程序 - 报告中心',
   'title.me': 'QIMA 小程序 - 我的',
+  'title.notifications': 'QIMA 小程序 - 通知',
 
   /* ── Common / shared ── */
   'demo.menu': '演示',
@@ -14,6 +15,7 @@ window.I18N_ZH = {
   'demo.parseFail': '解析失败',
   'common.tab.home': '首页',
   'common.tab.orders': '订单',
+  'common.tab.notify': '通知',
   'common.tab.reports': '报告',
   'common.tab.me': '我的',
   'common.back': '返回',
@@ -835,5 +837,25 @@ window.I18N_ZH = {
   'me.unbindTitle': '解绑微信？',
   'me.unbindDesc': '解绑后需要重新登录 QIMA 账号才能下单和查看报告。',
   'me.unbindConfirm': '解绑',
-  'me.unbindDone': '已解绑微信'
+  'me.unbindDone': '已解绑微信',
+
+  /* ── 通知中心 ── */
+  'notifications.title': '通知',
+  'notifications.markAllRead': '全部标为已读',
+  'notifications.allRead': '已全部标为已读',
+  'notifications.empty': '暂无通知',
+  'notifications.groupToday': '今天',
+  'notifications.groupEarlier': '更早',
+  'notifications.reportReadyTitle': '新的报告提醒',
+  'notifications.reportReadySub': '报告结果：通过 | 报告决策：待决定',
+  'notifications.orderPlacedTitle': '下单成功提醒',
+  'notifications.orderPlacedSub': '产品：玩具 | 装运前检验',
+  'notifications.sampleReminderTitle': '样品寄送提醒',
+  'notifications.sampleReminderSub': '订单 T-24106088 仍待寄送样品',
+  'notifications.orderConfirmedTitle': '订单已确认',
+  'notifications.orderConfirmedSub': '订单 T-24106086 已进入检测排期',
+  'notifications.timeTodayEvening': '今天 21:26',
+  'notifications.timeTodayAfternoon': '今天 15:32',
+  'notifications.timeSunday': '星期日 09:14',
+  'notifications.timeFriday': '星期五 17:02'
 };

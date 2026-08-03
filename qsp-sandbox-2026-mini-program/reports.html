@@ -298,6 +298,7 @@
     display: flex; align-items: flex-start;
   }
   .tab {
+    position: relative;
     flex: 1; height: 71px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 4px; padding: 10px 0 20px; text-decoration: none;
@@ -305,25 +306,20 @@
   .tab img { width: 22px; height: 22px; }
   .tab .label { font-size: 10px; letter-spacing: .1px; color: var(--seal); }
   .tab.active .label { color: var(--pool-500); font-weight: 600; }
-  .tab .icon-spacer { width: 20.2px; height: 15px; }
-
-  .fab {
-    position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%);
-    width: 52px; height: 52px; border-radius: 50%;
-    background: var(--pool-500);
-    box-shadow: 0 6px 16px rgba(65,105,225,.4);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 4;
+  .tab-badge {
+    position: absolute; top: 6px; left: 50%; margin-left: 4px;
+    min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 8px; background: #e5353d;
+    font-size: 10px; line-height: 16px; color: #fff; text-align: center;
   }
-  .fab img { width: 24px; height: 24px; }
 </style>
 <link rel="stylesheet" href="assets/phone-shell.css" />
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260803e"></script>
-<script src="assets/i18n/en.js?v=20260803e"></script>
+<script src="assets/i18n/zh.js?v=20260803g"></script>
+<script src="assets/i18n/en.js?v=20260803g"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 </head>
@@ -395,8 +391,10 @@
         <img src="assets/tab_order.svg" alt="" />
         <span class="label" data-i18n="common.tab.orders">订单</span>
       </a>
-      <a class="tab center" href="#">
-        <span class="icon-spacer"></span>
+      <a class="tab" href="notifications.html">
+        <img src="assets/tab_notify.svg" alt="" />
+        <span class="label" data-i18n="common.tab.notify">通知</span>
+        <span class="tab-badge">2</span>
       </a>
       <a class="tab active" href="reports.html">
         <img src="assets/tab_report.svg" alt="" />
@@ -406,7 +404,6 @@
         <img src="assets/tab_me.svg" alt="" />
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
-      <div class="fab"><img src="assets/fab_add.svg" alt="下单" data-i18n-alt="common.fabOrder" /></div>
     </div>
   </div>
 

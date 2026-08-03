@@ -7,6 +7,7 @@ window.I18N_EN = {
   'title.orderChat': 'QIMA Mini Program - Order Assistant',
   'title.reports': 'QIMA Mini Program - Reports',
   'title.me': 'QIMA Mini Program - Me',
+  'title.notifications': 'QIMA Mini Program - Notifications',
 
   /* ── Common / shared ── */
   'demo.menu': 'Demo',
@@ -14,6 +15,7 @@ window.I18N_EN = {
   'demo.parseFail': 'Parse failure',
   'common.tab.home': 'Home',
   'common.tab.orders': 'Orders',
+  'common.tab.notify': 'Alerts',
   'common.tab.reports': 'Reports',
   'common.tab.me': 'Me',
   'common.back': 'Back',
@@ -835,5 +837,25 @@ window.I18N_EN = {
   'me.unbindTitle': 'Unlink WeChat?',
   'me.unbindDesc': 'You will need to sign in to your QIMA account again to place orders and view reports.',
   'me.unbindConfirm': 'Unlink',
-  'me.unbindDone': 'WeChat unlinked'
+  'me.unbindDone': 'WeChat unlinked',
+
+  /* ── Notifications ── */
+  'notifications.title': 'Notifications',
+  'notifications.markAllRead': 'Mark all as read',
+  'notifications.allRead': 'All notifications marked as read',
+  'notifications.empty': 'No notifications yet',
+  'notifications.groupToday': 'Today',
+  'notifications.groupEarlier': 'Earlier',
+  'notifications.reportReadyTitle': 'New report available',
+  'notifications.reportReadySub': 'Result: Pass | Decision: Pending',
+  'notifications.orderPlacedTitle': 'Order placed',
+  'notifications.orderPlacedSub': 'Product: Toys | Pre-shipment inspection',
+  'notifications.sampleReminderTitle': 'Sample shipment reminder',
+  'notifications.sampleReminderSub': 'Order T-24106088 is still waiting for samples',
+  'notifications.orderConfirmedTitle': 'Order confirmed',
+  'notifications.orderConfirmedSub': 'Order T-24106086 has been scheduled for testing',
+  'notifications.timeTodayEvening': 'Today 21:26',
+  'notifications.timeTodayAfternoon': 'Today 15:32',
+  'notifications.timeSunday': 'Sunday 09:14',
+  'notifications.timeFriday': 'Friday 17:02'
 };
