@@ -233,6 +233,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   align-items: center;
   justify-content: center;
   gap: 12px;
+  margin: 6px 0 10px;
 }
 .wxbind-marks .wxbind-mark { width: 34px; height: 34px; display: block; }
 .wxbind-marks .wxbind-link { width: 16px; height: 16px; display: block; transform: rotate(180deg); }
