@@ -549,6 +549,7 @@ window.I18N_EN = {
   'orderChat.confirmCardTitle': 'Review order details',
   'orderChat.fieldPending': 'Needs confirmation',
   'orderChat.fieldMissing': 'Missing',
+  'orderChat.fieldOptional': 'Optional',
   'orderChat.recognizeDone': 'Recognition complete — <b>7/10 (70%)</b> fields filled 🎉<br>Please choose <b>AI fill missing</b> or <b>Fill manually</b> below to finish the remaining <b>3</b> items.',
   'orderChat.recognizeDoneDynamic': 'Recognition complete — <b>{filled}/{total} ({percent}%)</b> fields filled 🎉<br>Please choose <b>AI fill missing</b> or <b>Fill manually</b> below to finish the remaining <b>{missing}</b> items.',
   'orderChat.recogTitle': 'Recognition complete 🎉',

@@ -662,8 +662,10 @@
   .field .fk { width: 96px; flex-shrink: 0; font-size: 12px; color: var(--seal); line-height: 18px; }
   .field .fv { flex: 1; font-size: 13px; color: var(--carbon); line-height: 18px; word-break: break-all; }
   .field .fv.miss { color: #ff7a45; }
+  .field .fv.opt { color: #a7aebb; }
   .field .badge-ok { color: var(--kiwi); font-size: 13px; flex-shrink: 0; }
   .field .badge-miss { color: #ff7a45; font-size: 11px; flex-shrink: 0; background: #fff1ea; border-radius: 4px; padding: 1px 5px; }
+  .field .badge-opt { color: #949ba8; font-size: 11px; flex-shrink: 0; background: #f2f4f8; border-radius: 4px; padding: 1px 5px; }
   .edit-fields {
     margin: 4px 14px 14px; width: calc(100% - 28px);
     height: 38px; border: none; border-radius: 10px;
@@ -1232,14 +1234,14 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803v"></script>
-<script src="assets/i18n/en.js?v=20260803v"></script>
-<script src="assets/i18n-runtime.js?v=20260803v"></script>
+<script src="assets/i18n/zh.js?v=20260803w"></script>
+<script src="assets/i18n/en.js?v=20260803w"></script>
+<script src="assets/i18n-runtime.js?v=20260803w"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
 <script src="assets/label-parse.js?v=20260716b"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
-<script src="assets/order-drafts.js?v=20260803v"></script>
+<script src="assets/order-drafts.js?v=20260803w"></script>
 </head>
 <body>
   <div class="phone">
@@ -1762,16 +1764,16 @@
       document.querySelectorAll('.field[data-field="'+cssEscape(name)+'"]').forEach(function(el){
         const fv = el.querySelector('.fv');
         if(!fv) return;
-        const oldBadge = el.querySelector('.badge-ok, .badge-miss');
+        const oldBadge = el.querySelector('.badge-ok, .badge-miss, .badge-opt');
         if(oldBadge) oldBadge.remove();
         if(raw && isCountedFieldValue(raw)){
           fv.textContent = raw;
-          fv.classList.remove('miss');
+          fv.classList.remove('miss', 'opt');
           el.insertAdjacentHTML('beforeend', '<div class="badge-ok">✓</div>');
         } else {
-          fv.textContent = t('orderChat.fieldPending');
-          fv.classList.add('miss');
-          el.insertAdjacentHTML('beforeend', '<div class="badge-miss">'+t('orderChat.fieldMissing')+'</div>');
+          const isOptional = el.dataset.optional === 'true' || !isRequiredField(name);
+          fv.remove();
+          el.insertAdjacentHTML('beforeend', emptyFieldHtml(isOptional));
         }
       });
     }
@@ -4127,9 +4129,9 @@
           (sampleVal === 'collect' ? field(FIELD_INSPECTION_REF, document.getElementById('mf_refNumber').value || '', !!document.getElementById('mf_refNumber').value) : '')+
           (sampleVal === 'ship' && lab ? field(FIELD_TESTING_LAB, lab, true) : '')+
           (sampleVal !== 'collect' ?
-            field('Carrier', carrier, !!carrier)+
-            field('Tracking Number', tracking, !!tracking)+
-            field('Shipping Remark', remark, !!remark)
+            field('Carrier', carrier, !!carrier, sampleVal !== 'ship')+
+            field('Tracking Number', tracking, !!tracking, true)+
+            field('Shipping Remark', remark, !!remark, true)
           : '')+
         '</div>'+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.chipNeedModify')+'</span>'+t('orderChat.chipEdit')+'</button>'+
@@ -5109,14 +5111,20 @@
       }, 500);
     }
 
+    function emptyFieldHtml(isOptional){
+      return isOptional
+        ? '<div class="fv opt">—</div><div class="badge-opt">'+t('orderChat.fieldOptional')+'</div>'
+        : '<div class="fv miss">'+t('orderChat.fieldPending')+'</div><div class="badge-miss">'+t('orderChat.fieldMissing')+'</div>';
+    }
+
     function field(k, v, ok, optional){
       const label = fieldLabel(k);
-      const opt = optional ? ' data-optional="true"' : '';
-      const pending = t('orderChat.fieldPending');
-      const missing = t('orderChat.fieldMissing');
+      // Derive optionality unless the caller states it, so no call site can silently
+      // flag a nice-to-have field as blocking.
+      const isOptional = typeof optional === 'boolean' ? optional : !isRequiredField(k);
+      const opt = isOptional ? ' data-optional="true"' : '';
       if(ok) return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv">'+escapeHtml(v)+'</div><div class="badge-ok">✓</div></div>';
-      if(optional) return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv">—</div></div>';
-      return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv miss">'+pending+'</div><div class="badge-miss">'+missing+'</div></div>';
+      return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div>'+emptyFieldHtml(isOptional)+'</div>';
     }
     function recognizeProgressCard(filled, total, percent, missing){
       const complete = missing <= 0;
@@ -5654,11 +5662,11 @@
         const field = document.querySelector('.field[data-field="'+cssEscape(name)+'"]');
         if(!field) return;
         const valueNode = field.querySelector('.fv');
-        const statusNode = field.querySelector('.badge-ok, .badge-miss');
-        const isOptional = field.dataset.optional === 'true';
+        const statusNode = field.querySelector('.badge-ok, .badge-miss, .badge-opt');
+        const isOptional = field.dataset.optional === 'true' || !isRequiredField(name);
         if(value){
           valueNode.textContent = value;
-          valueNode.classList.remove('miss');
+          valueNode.classList.remove('miss', 'opt');
           if(statusNode){
             statusNode.className = 'badge-ok';
             statusNode.textContent = '✓';
@@ -5668,9 +5676,15 @@
         } else if(isOptional){
           valueNode.textContent = '—';
           valueNode.classList.remove('miss');
-          if(statusNode) statusNode.style.display = 'none';
+          valueNode.classList.add('opt');
+          if(statusNode){
+            statusNode.className = 'badge-opt';
+            statusNode.textContent = t('orderChat.fieldOptional');
+            statusNode.style.display = '';
+          }
         } else {
           valueNode.textContent = t('orderChat.fieldPending');
+          valueNode.classList.remove('opt');
           valueNode.classList.add('miss');
           if(statusNode){
             statusNode.className = 'badge-miss';
@@ -5720,6 +5734,18 @@
 
     function getMissingRequiredFields(){
       return REQUIRED_ORDER_FIELDS.filter(name => !getFieldDisplayValue(name));
+    }
+
+    /** Mirrors the `*` markers in the manual form, including conditional ones. */
+    function isRequiredField(name){
+      if(REQUIRED_ORDER_FIELDS.indexOf(name) !== -1) return true;
+      if(name === FIELD_ELECTRIC) return true;
+      if(name === FIELD_ELECTRIC_DESC) return isElectricYes(getFieldDisplayValue(FIELD_ELECTRIC));
+      if(name === 'Carrier'){
+        const method = getFieldDisplayValue('Sample Collection Method');
+        return !!method && isSampleShip(method);
+      }
+      return false;
     }
 
     /** Required + carrier when user ships samples themselves. Tracking is optional at order creation. */
@@ -6053,9 +6079,9 @@
       const field = document.querySelector('.field[data-field="'+cssEscape(name)+'"]');
       if(!field) return;
       const valueNode = field.querySelector('.fv');
-      const statusNode = field.querySelector('.badge-ok, .badge-miss');
+      const statusNode = field.querySelector('.badge-ok, .badge-miss, .badge-opt');
       valueNode.textContent = value;
-      valueNode.classList.remove('miss');
+      valueNode.classList.remove('miss', 'opt');
       if(statusNode){
         statusNode.className = 'badge-ok';
         statusNode.textContent = '✓';

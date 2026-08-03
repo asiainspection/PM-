@@ -549,6 +549,7 @@ window.I18N_ZH = {
   'orderChat.confirmCardTitle': '订单信息确认',
   'orderChat.fieldPending': '待确认',
   'orderChat.fieldMissing': '缺失',
+  'orderChat.fieldOptional': '选填',
   'orderChat.recognizeDone': '识别完成！已自动完成 <b>7/10（70%）</b> 字段填写 🎉<br>还有 <b>3</b> 项需要您确认，请选择下方「AI补充信息」或「手动补充信息」。',
   'orderChat.recognizeDoneDynamic': '识别完成！已自动完成 <b>{filled}/{total}（{percent}%）</b> 字段填写 🎉<br>还有 <b>{missing}</b> 项需要您确认，请选择下方「AI补充信息」或「手动补充信息」。',
   'orderChat.recogTitle': '识别完成 🎉',
