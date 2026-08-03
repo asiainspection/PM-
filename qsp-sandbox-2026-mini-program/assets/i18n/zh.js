@@ -658,6 +658,7 @@ window.I18N_ZH = {
   'orderChat.cannotPlaceOrderList': '还有 <b>{count}</b> 项必填未完成：{fields}。请补全后再下单。',
   'orderChat.cannotSubmitOrder': '无法提交：必填字段仍未完成。',
   'orderChat.editedFields': '已编辑识别字段',
+  'orderChat.editCancelledContinue': '已取消编辑。你可以继续完善信息，或在字段齐全后下单。',
   'orderChat.supplementNote': '收到，我会把这条信息作为补充说明记录下来。',
   'orderChat.copyOrder': '复制订单',
   'orderChat.reuse': '复用',

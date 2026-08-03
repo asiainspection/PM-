@@ -658,6 +658,7 @@ window.I18N_EN = {
   'orderChat.cannotPlaceOrderList': 'Required fields still missing (<b>{count}</b>): {fields}. Please complete them before placing the order.',
   'orderChat.cannotSubmitOrder': 'Cannot submit — required fields are still incomplete.',
   'orderChat.editedFields': 'Edited recognized fields',
+  'orderChat.editCancelledContinue': 'Edit cancelled. You can keep filling in details, or place the order once everything is ready.',
   'orderChat.supplementNote': 'Got it — I\'ll keep that as a supplementary note.',
   'orderChat.copyOrder': 'Copy order',
   'orderChat.reuse': 'Reuse',
