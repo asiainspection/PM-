@@ -329,6 +329,7 @@ window.I18N_EN = {
   'orderDetail.lastUpdated': 'Last updated',
   'orderDetail.nextStep': 'Next step',
   'orderDetail.nextWaitVerify': 'We are reviewing the inquiry and preparing the next step.',
+  'orderDetail.nextSamplesInTransit': 'Tracking number received. Testing starts once the samples arrive.',
   'orderDetail.nextAddTracking': 'We are still waiting for the samples — ship them and add the express tracking number',
   'orderDetail.nextGoComplete': 'Add now',
   'orderDetail.nextQuotation': 'The order is in quotation. Testing starts after confirmation.',

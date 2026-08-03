@@ -1312,11 +1312,13 @@
       return date + ' ' + pad(parsed.getHours()) + ':' + pad(parsed.getMinutes());
     }
 
-    function needsShippingInfo(){
+    function clientShipsSamples(){
       const method = String(order.collectionMethod || '');
-      const shipsSamples = method.indexOf('寄送') >= 0 || /ship/i.test(method);
-      if(!shipsSamples) return false;
-      return !reusableValue(order.trackingNumber);
+      return method.indexOf('寄送') >= 0 || /ship/i.test(method);
+    }
+
+    function needsShippingInfo(){
+      return clientShipsSamples() && !reusableValue(order.trackingNumber);
     }
 
     function resolveNextAction(status){
@@ -1348,6 +1350,9 @@
           buttonKey: 'orderDetail.nextGoComplete',
           onClick: function(){ openOrderEditor(); }
         };
+      }
+      if(clientShipsSamples()){
+        return { tone: 'done', textKey: 'orderDetail.nextSamplesInTransit' };
       }
       return { tone: 'info', textKey: 'orderDetail.nextWaitVerify' };
     }
@@ -1997,7 +2002,18 @@
         order[key] = value || 'None';
         applyFieldToDom(key, value);
       });
+      // Edits can satisfy the outstanding next step (e.g. adding a tracking number),
+      // so the progress card has to recompute instead of keeping the stale prompt.
+      order.updatedAt = formatNow();
+      renderOrderProgress();
       closeOrderEditor();
+    }
+
+    function formatNow(){
+      const now = new Date();
+      const pad = function(n){ return String(n).padStart(2, '0'); };
+      return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
+        ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
     }
 
     document.addEventListener('click', (event) => {

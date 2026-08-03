@@ -330,6 +330,7 @@ window.I18N_ZH = {
   'orderDetail.nextStep': '下一步',
   'orderDetail.nextWaitVerify': '我们正在审查订单信息，暂无需操作',
   'orderDetail.nextAddTracking': '我们仍在等待样品，请寄送并补充快递运单号',
+  'orderDetail.nextSamplesInTransit': '已收到运单号，样品在途中，到达后开始检测',
   'orderDetail.nextGoComplete': '去补充',
   'orderDetail.nextQuotation': '订单处于报价阶段，确认后将进入检测',
   'orderDetail.nextTesting': '检测正在进行中，完成后将通知你',
