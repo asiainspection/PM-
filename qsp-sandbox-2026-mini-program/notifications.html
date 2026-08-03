@@ -246,22 +246,22 @@
       {
         id: 'n1', group: 'today', tone: 'green', icon: 'assets/notif_check.svg', unread: true,
         titleKey: 'notifications.reportReadyTitle', subKey: 'notifications.reportReadySub',
-        timeKey: 'notifications.timeTodayEvening', href: 'reports.html'
+        timeKey: 'notifications.timeTodayEvening', href: 'report-preview.html?sku=SKU-65120'
       },
       {
         id: 'n2', group: 'today', tone: 'blue', icon: 'assets/notif_doc.svg', unread: true,
         titleKey: 'notifications.orderPlacedTitle', subKey: 'notifications.orderPlacedSub',
-        timeKey: 'notifications.timeTodayAfternoon', href: 'orders.html'
+        timeKey: 'notifications.timeTodayAfternoon', href: 'order-detail.html?order=Q202349103'
       },
       {
         id: 'n3', group: 'earlier', tone: 'orange', icon: 'assets/notif_doc_orange.svg', unread: false,
         titleKey: 'notifications.sampleReminderTitle', subKey: 'notifications.sampleReminderSub',
-        timeKey: 'notifications.timeSunday', href: 'orders.html'
+        timeKey: 'notifications.timeSunday', href: 'order-detail.html?order=T-25617005'
       },
       {
         id: 'n4', group: 'earlier', tone: 'blue', icon: 'assets/notif_icon.svg', unread: false,
         titleKey: 'notifications.orderConfirmedTitle', subKey: 'notifications.orderConfirmedSub',
-        timeKey: 'notifications.timeFriday', href: 'orders.html'
+        timeKey: 'notifications.timeFriday', href: 'order-detail.html?order=T-25617004'
       }
     ];
 
@@ -315,10 +315,9 @@
 
     function openNotification(id){
       const item = NOTIFICATIONS.find(function(n){ return n.id === id; });
-      if(!item) return;
+      if(!item || !item.href) return;
       item.unread = false;
-      renderNotifications();
-      if(item.href) location.href = item.href;
+      location.href = item.href;
     }
 
     function markAllRead(){
