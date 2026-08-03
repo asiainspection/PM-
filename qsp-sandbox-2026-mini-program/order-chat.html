@@ -66,7 +66,8 @@
 
   /* ===== 聊天滚动区 ===== */
   .chat {
-    flex: 1; overflow-y: auto; padding: 12px 16px 16px;
+    /* Bottom padding keeps the last message clear of the demo shortcut button. */
+    flex: 1; overflow-y: auto; padding: 12px 16px 62px;
     display: flex; flex-direction: column; gap: 16px;
   }
   .chat::-webkit-scrollbar { display: none; }
@@ -387,6 +388,54 @@
   @keyframes parse-bar {
     0% { transform: translateX(-130%); }
     100% { transform: translateX(320%); }
+  }
+
+  /* ===== AI 解析失败：说明失败原因 + 三个恢复入口 ===== */
+  .parse-fail-card {
+    background: #fff;
+    border: 1px solid #f4cdd0;
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .parse-fail-head {
+    display: flex; align-items: center; gap: 7px;
+    margin-bottom: 8px;
+  }
+  .parse-fail-icon {
+    width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+    background: var(--qima-red); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; line-height: 1;
+  }
+  .parse-fail-title { font-size: 13px; font-weight: 600; color: var(--carbon); }
+  .parse-fail-reason {
+    display: flex; gap: 6px;
+    padding: 8px 10px; border-radius: 8px;
+    background: #fdf2f3;
+    font-size: 12px; line-height: 1.45; color: var(--carbon);
+  }
+  .parse-fail-reason b { flex-shrink: 0; font-weight: 600; color: #9e141b; }
+  .parse-fail-hint {
+    margin-top: 8px;
+    font-size: 12px; line-height: 1.45; color: var(--seal);
+  }
+
+  /* ===== 演示快捷入口（仅用于走查，不属于产品流程） ===== */
+  .demo-fab {
+    position: absolute; right: 14px; bottom: 20px; z-index: 30;
+    display: flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 13px;
+    border: .5px solid rgba(255, 255, 255, .7); border-radius: 17px;
+    background: rgba(25, 25, 25, .78);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 3px 10px rgba(25, 25, 25, .22);
+    font-family: inherit; font-size: 12px; line-height: 1; color: #fff;
+    cursor: pointer;
+  }
+  .demo-fab:active { background: rgba(25, 25, 25, .92); }
+  .demo-fab svg { width: 14px; height: 14px; display: block; flex-shrink: 0; }
+  @media (max-width: 640px) {
+    .demo-fab { bottom: calc(20px + var(--safe-bottom, 0px)); }
   }
   .manual-fill {
     width: 100%; margin-top: 10px; padding: 4px 0;
@@ -1094,8 +1143,8 @@
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260714c"></script>
-<script src="assets/i18n/en.js?v=20260714c"></script>
+<script src="assets/i18n/zh.js?v=20260803a"></script>
+<script src="assets/i18n/en.js?v=20260803a"></script>
 <script src="assets/i18n-runtime.js?v=20260714c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1458,6 +1507,16 @@
       <input class="box" id="chatInput" type="text" placeholder="请输入您的消息..." data-i18n-placeholder="orderChat.chatPlaceholder" onkeydown="handleInputKey(event)" />
       <button class="send-btn" type="button" onclick="sendChatInput()" data-i18n="orderChat.send">发送</button>
     </div>
+
+    <!-- 演示快捷入口：直接跳到 AI 解析失败态 -->
+    <button class="demo-fab" type="button" onclick="openParseFailureDemo()">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 3.2 18 16.8H2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        <path d="M10 8v3.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        <circle cx="10" cy="14.2" r=".95" fill="currentColor"/>
+      </svg>
+      <span data-i18n="orderChat.demoParseFail">解析失败演示</span>
+    </button>
   </div>
 
   <script>
@@ -2788,6 +2847,111 @@
       if(el) el.textContent = desc;
     }
 
+    /* ===== AI 解析失败：重试 / 更换资料 / 转手动填写 ===== */
+
+    const PARSE_FAIL_REASONS = {
+      remote_timeout: 'orderChat.parseFailTimeout',
+      local_timeout: 'orderChat.parseFailTimeout',
+      missing_parse_client: 'orderChat.parseFailNetwork',
+      legacy_doc_unsupported: 'orderChat.parseFailLegacyDoc',
+      empty_local_ocr: 'orderChat.parseFailUnsupported',
+      link_open_failed: 'orderChat.parseFailLink',
+      invalid_link: 'orderChat.parseFailLink'
+    };
+
+    function parseFailReasonKey(err){
+      const code = err ? (err.code || err.message) : '';
+      return PARSE_FAIL_REASONS[code] || 'orderChat.parseFailGeneric';
+    }
+
+    function parseFailCard(reasonKey){
+      return '<div class="parse-fail-card">'+
+        '<div class="parse-fail-head">'+
+          '<span class="parse-fail-icon" aria-hidden="true">!</span>'+
+          '<div class="parse-fail-title">'+escapeHtml(t('orderChat.parseFailTitle'))+'</div>'+
+        '</div>'+
+        '<div class="parse-fail-reason">'+
+          '<b>'+escapeHtml(t('orderChat.parseFailReasonLabel'))+'</b>'+
+          '<span>'+escapeHtml(t(reasonKey))+'</span>'+
+        '</div>'+
+        '<div class="parse-fail-hint">'+escapeHtml(t('orderChat.parseFailHint'))+'</div>'+
+      '</div>';
+    }
+
+    /** Failure never dead-ends: retry, swap the source, or fall back to the form. */
+    function showParseFailure(reasonKey){
+      botMsg(parseFailCard(reasonKey), true);
+      botMsg(chipsRow(
+        I18n.chipHtml('orderChat.chipRetryParse','refresh','retryParse(this)')+
+        I18n.chipHtml('orderChat.chipChangeSource','plus','changeParseSource(this)')+
+        I18n.chipHtml('orderChat.noDataFill','edit','fillManuallyAfterFailure(this)')
+      ), true);
+    }
+
+    /** The original material is only re-parseable while its input card is live. */
+    function canReparseCurrentInput(){
+      if(!document.getElementById('parseBtn')) return false;
+      const link = ((document.getElementById('linkIn') || {}).value || '').trim();
+      return !!(hasUploadedFiles || link || getVoiceTranscriptValue());
+    }
+
+    function showParseInputCard(promptKey){
+      retirePreviousInputPanels();
+      resetAiInputSession();
+      if(promptKey) botMsg(t(promptKey), false);
+      botMsg(buildAiInputCardHtml({ title: '', showTips: false, showManual: false }), true);
+      setTimeout(function(){ updateParseButtonState(); }, 0);
+    }
+
+    function retryParse(btn){
+      removeActionRow(btn);
+      // doParse re-echoes the material bubble, so it already reads as a new attempt.
+      if(canReparseCurrentInput()){ doParse(); return; }
+      userMsg(t('orderChat.chipRetryParse'));
+      if(demoFailureActive){ runDemoParseFailure(true); return; }
+      showParseInputCard('orderChat.retryNoSource');
+    }
+
+    function changeParseSource(btn){
+      removeActionRow(btn);
+      userMsg(t('orderChat.chipChangeSource'));
+      demoFailureActive = false;
+      showParseInputCard('orderChat.changeSourcePrompt');
+    }
+
+    function fillManuallyAfterFailure(btn){
+      removeActionRow(btn);
+      demoFailureActive = false;
+      startManualFill();
+    }
+
+    /* ===== 演示入口：不上传真资料也能走查失败态 ===== */
+
+    let demoFailureActive = false;
+    let demoFailureIndex = 0;
+    const DEMO_FAIL_REASONS = [
+      'orderChat.parseFailTimeout',
+      'orderChat.parseFailNetwork',
+      'orderChat.parseFailUnsupported'
+    ];
+
+    /** Each replay surfaces a different reason so all failure copy is reviewable. */
+    function runDemoParseFailure(isRetry){
+      demoFailureActive = true;
+      const typeCard = document.getElementById('typeCard');
+      if(typeCard) typeCard.style.display = 'none';
+      if(!isRetry) userMsg('📄 '+escapeHtml(t('orderChat.demoFailFile')));
+      const reasonKey = DEMO_FAIL_REASONS[demoFailureIndex % DEMO_FAIL_REASONS.length];
+      demoFailureIndex += 1;
+      const progressRow = botMsg(parseProgressCard(t('orderChat.parsingHint')), true);
+      setTimeout(function(){
+        if(progressRow && progressRow.parentNode) progressRow.remove();
+        showParseFailure(reasonKey);
+      }, 1400);
+    }
+
+    function openParseFailureDemo(){ runDemoParseFailure(false); }
+
     function withTimeout(promise, ms, code){
       let timer = null;
       const timeout = new Promise(function(_, reject){
@@ -3295,22 +3459,19 @@
         markUserBubbleParsing(userRow, false);
         if(progressRow && progressRow.parentNode) progressRow.remove();
         setParseButtonBusy(false);
-        if(err && (err.code === 'legacy_doc_unsupported' || err.message === 'legacy_doc_unsupported')){
-          botMsg(t('orderChat.parsingLegacyDoc'), false);
-        } else if(err && (err.code === 'empty_local_ocr' || err.message === 'empty_local_ocr')){
-          botMsg(t('orderChat.parseUnsupportedDoc'), false);
-        } else if(err && (err.code === 'link_open_failed' || err.code === 'invalid_link')){
-          botMsg(t(err.code === 'invalid_link' ? 'orderChat.invalidLink' : 'orderChat.linkOpenFailed'), false);
-        }
-        // Still open guided fill instead of dead-ending
-        botMsg(t('orderChat.parseFailedContinue'), false);
+        const reasonKey = parseFailReasonKey(err);
         const empty = { fields: {}, product_summary: { name: '', brand: '', hint: t('orderChat.parsePartialHint') } };
         const fallback = enrichParseResultWithVoice(empty, voiceTranscript);
-        if(fallback && fallback.fields && Object.keys(fallback.fields).some(function(k){ return fallback.fields[k]; })){
+        const rescued = !!(fallback && fallback.fields && Object.keys(fallback.fields).some(function(k){ return fallback.fields[k]; }));
+        if(rescued){
+          // Voice still yielded fields — keep guided fill instead of a hard failure.
+          botMsg(t(reasonKey), false);
+          botMsg(t('orderChat.parseFailedContinue'), false);
           runRecognize(src, fallback);
-        } else {
-          botMsg(completeInfoChips(I18n.chipHtml('orderChat.noDataFill','plus','startManualFill()')), true);
+          return;
         }
+        demoFailureActive = false;
+        showParseFailure(reasonKey);
       });
     }
 
