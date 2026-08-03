@@ -623,6 +623,39 @@
     flex-shrink: 0;
     white-space: nowrap;
   }
+  /* 识别完成进度卡 */
+  .recog-card { padding: 14px; }
+  .recog-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .recog-title { font-size: 14px; font-weight: 700; color: var(--carbon); }
+  .recog-pct {
+    font-size: 22px; font-weight: 700; line-height: 1; color: var(--pool-500);
+    font-variant-numeric: tabular-nums; flex-shrink: 0;
+  }
+  .recog-card.is-complete .recog-pct { color: var(--kiwi); }
+  .recog-bar {
+    position: relative; height: 8px; margin-top: 10px;
+    border-radius: 999px; background: #edf0f7; overflow: hidden;
+  }
+  .recog-bar span {
+    display: block; height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #6d8ef0, var(--pool-500));
+    width: 0; transition: width .7s cubic-bezier(.22,.61,.36,1);
+  }
+  .recog-card.is-complete .recog-bar span { background: linear-gradient(90deg, #4cc38f, var(--kiwi)); }
+  .recog-stats { display: flex; align-items: center; gap: 14px; margin-top: 9px; }
+  .recog-stat {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; line-height: 16px; color: var(--seal);
+  }
+  .recog-stat b { color: var(--carbon); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .recog-stat::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .recog-stat.done::before { background: var(--pool-500); }
+  .recog-stat.todo::before { background: #f0a020; }
+  .recog-card.is-complete .recog-stat.done::before { background: var(--kiwi); }
+  @media (prefers-reduced-motion: reduce) {
+    .recog-bar span { transition: none; }
+  }
+
   .fields { padding: 6px 14px 12px; }
   .field { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: .5px solid #f3f4f7; }
   .field:last-child { border-bottom: none; }
@@ -1199,14 +1232,14 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803t"></script>
-<script src="assets/i18n/en.js?v=20260803t"></script>
-<script src="assets/i18n-runtime.js?v=20260803t"></script>
+<script src="assets/i18n/zh.js?v=20260803u"></script>
+<script src="assets/i18n/en.js?v=20260803u"></script>
+<script src="assets/i18n-runtime.js?v=20260803u"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
 <script src="assets/label-parse.js?v=20260716b"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
-<script src="assets/order-drafts.js?v=20260803t"></script>
+<script src="assets/order-drafts.js?v=20260803u"></script>
 </head>
 <body>
   <div class="phone">
@@ -5057,12 +5090,12 @@
           typingRow2.remove();
           botMsg(productSummaryCard(summary, displayFields), true);
           botMsg(extractCard(displayFields, percent), true);
-          botMsg(tHtml('orderChat.recognizeDoneDynamic', {
-            filled: allStats.filled,
-            total: allStats.total,
-            percent: percent,
-            missing: missingCount
-          }), false);
+          playRecogBar(botMsg(recognizeProgressCard(
+            allStats.filled,
+            allStats.total,
+            percent,
+            missingCount
+          ), true));
 
           const needSampleOrShip = !getFieldDisplayValue('Sample Collection Method');
           const hasMatched = !!(getFieldDisplayValue('Product Name') || getFieldDisplayValue('Item#/model#') || getFieldDisplayValue('Manufacturer') || getFieldDisplayValue('Program') || getFieldDisplayValue('Country of Origin') || getFieldDisplayValue('Countries/Regions of Distribution'));
@@ -5087,6 +5120,32 @@
       if(optional) return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv">—</div></div>';
       return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv miss">'+pending+'</div><div class="badge-miss">'+missing+'</div></div>';
     }
+    function recognizeProgressCard(filled, total, percent, missing){
+      const complete = missing <= 0;
+      return '<div class="panel recog-card'+(complete ? ' is-complete' : '')+'">'+
+        '<div class="recog-head">'+
+          '<div class="recog-title">'+escapeHtml(t('orderChat.recogTitle'))+'</div>'+
+          '<div class="recog-pct">'+percent+'%</div>'+
+        '</div>'+
+        '<div class="recog-bar"><span data-pct="'+percent+'"></span></div>'+
+        '<div class="recog-stats">'+
+          '<span class="recog-stat done">'+tHtml('orderChat.recogFilled', { filled: filled, total: total })+'</span>'+
+          (complete ? '' : '<span class="recog-stat todo">'+tHtml('orderChat.recogTodo', { missing: missing })+'</span>')+
+        '</div>'+
+      '</div>';
+    }
+
+    // Fill starts at 0 so the bar animates once the card is on screen.
+    function playRecogBar(row){
+      const bar = row && row.querySelector('.recog-bar span');
+      if(!bar) return;
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          bar.style.width = (bar.getAttribute('data-pct') || 0) + '%';
+        });
+      });
+    }
+
     function extractCard(fields, percent){
       fields = fields || {};
       // Always prefer live answers so any recognized non-empty value echoes with ✓
