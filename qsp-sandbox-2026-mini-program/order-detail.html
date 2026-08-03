@@ -195,8 +195,8 @@
   .p-step.halted .p-dot { border-color: #ff8f7f; box-shadow: 0 0 0 4px rgba(255,95,78,.12); }
   .p-step.halted .p-dot::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #ff5f4e; }
   .p-label {
-    margin-top: 7px; padding: 0 2px;
-    font-size: 11px; line-height: 15px; color: var(--seal); text-align: center;
+    margin-top: 7px; padding: 0 1px;
+    font-size: 10.5px; line-height: 14px; color: var(--seal); text-align: center;
   }
   .p-step.done .p-label { color: #6d7482; }
   .p-step.current .p-label { color: var(--pool-500); font-weight: 600; }
@@ -606,7 +606,7 @@
         </div>
         <div class="progress-note" id="progressNote">
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 4.9v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span data-i18n="orderDetail.flowProvisional">状态流与报价的对应关系待确认，当前进度为示意</span>
+          <span data-i18n="orderDetail.flowAligned">Aligned with myQIMA Lab Testing progress (Samples → Quotation → Testing → Report)</span>
         </div>
       </section>
 
@@ -811,7 +811,7 @@
       '08008536': {
         title: '实验室检测',
         subtitle: '订单编号: T-25617036',
-        status: '待验证',
+        status: '报价中',
         statusClass: 'blue',
         serviceType: '实验室检测',
         category: 'Textile',
@@ -1214,36 +1214,63 @@
       });
     }
 
-    // Provisional track derived from the order_status enum we actually store.
-    // The official flow and how quotation maps onto it are still open, so the
-    // card renders a "provisional" note rather than inventing extra stages.
+    // Lab Testing progress mirrors myQIMA's setProgressIndicatorLt (TYPE1–TYPE4):
+    // UNCOMPLETED/WAITING_FOR_VALIDATION → WAITING_FOR_MORE_INFO/WAITING_FOR_SAMPLE
+    // → WAITING_FOR_ADDITIONAL_SAMPLE → REPORTING/WAITING_FOR_FEEDBACK.
+    // Source: my.qima.com main bundle + TABLE.TOOLTIP.LT.*
     const ORDER_STAGES = [
-      { key: 'pending_verification', labelKey: 'orderDetail.stageVerifying' },
-      { key: 'in_progress', labelKey: 'orderDetail.stageTesting' },
-      { key: 'report_completed', labelKey: 'orderDetail.stageReport' }
+      { key: 'samples', labelKey: 'orderDetail.stageSamples' },
+      { key: 'quotation', labelKey: 'orderDetail.stageQuotation' },
+      { key: 'testing', labelKey: 'orderDetail.stageTesting' },
+      { key: 'reporting', labelKey: 'orderDetail.stageReporting' }
     ];
 
     const STATUS_TO_STAGE = {
-      'pending_verification': 'pending_verification',
-      'in_progress': 'in_progress',
-      'report_completed': 'report_completed',
-      '待验证': 'pending_verification',
-      '进行中': 'in_progress',
-      '检测中': 'in_progress',
-      '报告已完成': 'report_completed',
-      '已完成': 'report_completed'
+      // Demo / DB values
+      'pending_verification': 'samples',
+      '待验证': 'samples',
+      'waiting_for_validation': 'samples',
+      'waiting_for_sample': 'samples',
+      'uncompleted': 'samples',
+      'in_quotation': 'quotation',
+      'waiting_for_quotation': 'quotation',
+      'waiting_for_sample_review': 'quotation',
+      '报价中': 'quotation',
+      '报价': 'quotation',
+      'in_progress': 'testing',
+      '进行中': 'testing',
+      '检测中': 'testing',
+      'waiting_for_additional_sample': 'testing',
+      'waiting_for_testing': 'testing',
+      'reporting': 'reporting',
+      '出报告': 'reporting',
+      '报告中': 'reporting',
+      'report_completed': 'done',
+      '报告已完成': 'done',
+      '已完成': 'done',
+      'finished': 'done',
+      'completed': 'done'
     };
 
-    const HALTED_STATUSES = { 'cancelled': 1, '已取消': 1, '待确认': 1 };
+    const HALTED_STATUSES = {
+      'cancelled': 1, '已取消': 1, '待确认': 1,
+      'on_hold': 1, 'waiting_for_feedback': 1, '暂停': 1
+    };
 
     function isHaltedStatus(status){
       return !!HALTED_STATUSES[String(status || '').trim()];
     }
 
     function currentStageIndex(status){
-      const stageKey = STATUS_TO_STAGE[String(status || '').trim()];
-      const index = ORDER_STAGES.findIndex(function(stage){ return stage.key === stageKey; });
-      return index < 0 ? 0 : index;
+      const raw = String(status || '').trim();
+      const stageKey = STATUS_TO_STAGE[raw];
+      if(stageKey === 'done') return ORDER_STAGES.length;
+      if(stageKey){
+        return ORDER_STAGES.findIndex(function(stage){ return stage.key === stageKey; });
+      }
+      // Unknown early status + quote requested → land on Quotation (myQIMA TYPE2).
+      if(String(order.needQuotation || '') === '是') return 1;
+      return 0;
     }
 
     function formatUpdatedAt(value){
@@ -1269,7 +1296,7 @@
         return { tone: 'halted', textKey: 'orderDetail.nextHalted' };
       }
       const stage = currentStageIndex(status);
-      if(stage >= 2){
+      if(stage >= ORDER_STAGES.length){
         return {
           tone: 'done',
           textKey: 'orderDetail.nextReportReady',
@@ -1277,8 +1304,14 @@
           onClick: function(){ window.location.href = 'report-preview.html'; }
         };
       }
-      if(stage === 1){
+      if(stage === 3){
+        return { tone: 'info', textKey: 'orderDetail.nextReporting' };
+      }
+      if(stage === 2){
         return { tone: 'info', textKey: 'orderDetail.nextTesting' };
+      }
+      if(stage === 1){
+        return { tone: 'info', textKey: 'orderDetail.nextQuotation' };
       }
       if(needsShippingInfo()){
         return {
@@ -1300,7 +1333,7 @@
       track.innerHTML = ORDER_STAGES.map(function(item, index){
         let state = '';
         if(halted){
-          state = index < stage ? 'done' : (index === stage ? 'halted' : '');
+          state = index < stage ? 'done' : (index === Math.min(stage, ORDER_STAGES.length - 1) ? 'halted' : '');
         } else if(index < stage){
           state = 'done';
         } else if(index === stage){

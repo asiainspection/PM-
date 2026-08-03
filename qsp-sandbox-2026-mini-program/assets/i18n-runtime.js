@@ -22,6 +22,12 @@
     '合格': 'green',
     '待确认': 'orange',
     '已取消': 'orange',
+    '报价中': 'blue',
+    '报价': 'blue',
+    '出报告': 'blue',
+    '报告中': 'blue',
+    '暂停': 'orange',
+    '已暂停': 'orange',
     'in progress': 'blue',
     'pending verification': 'blue',
     'pending_verification': 'blue',
@@ -31,6 +37,13 @@
     'report completed': 'green',
     'pass': 'green',
     'pending confirmation': 'orange',
+    'in quotation': 'blue',
+    'in_quotation': 'blue',
+    'reporting': 'blue',
+    'on hold': 'orange',
+    'on_hold': 'orange',
+    'cancelled': 'orange'
+  };
     'cancelled': 'orange'
   };
 
@@ -86,7 +99,13 @@
     '待验证': 'status.pendingVerification',
     '报告已完成': 'status.reportCompleted',
     '合格': 'status.pass',
-    '待确认': 'status.pendingConfirmation'
+    '待确认': 'status.pendingConfirmation',
+    '报价中': 'status.inQuotation',
+    '报价': 'status.inQuotation',
+    '出报告': 'status.reporting',
+    '报告中': 'status.reporting',
+    '已取消': 'status.cancelled',
+    '暂停': 'status.onHold'
   };
 
   var MAIL_TYPE_KEYS = [
@@ -352,7 +371,12 @@
       pending_verification: 'status.pendingVerification',
       in_progress: 'status.inProgress',
       report_completed: 'status.reportCompleted',
-      cancelled: 'status.pendingConfirmation'
+      cancelled: 'status.cancelled',
+      in_quotation: 'status.inQuotation',
+      waiting_for_quotation: 'status.inQuotation',
+      reporting: 'status.reporting',
+      on_hold: 'status.onHold',
+      waiting_for_feedback: 'status.onHold'
     };
     if (dbMap[raw]) return t(dbMap[raw]);
     var lang = getLang();
