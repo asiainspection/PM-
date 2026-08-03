@@ -27,6 +27,12 @@
         '<circle cx="10" cy="14.2" r=".95" fill="currentColor"/>' +
         '</svg>';
     }
+    if (name === 'hold') {
+      return '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+        '<circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/>' +
+        '<path d="M8 7.5v5M12 7.5v5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>' +
+        '</svg>';
+    }
     return '<svg viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
       '<circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/>' +
       '<path d="M10 6.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
@@ -71,6 +77,10 @@
     global.location.href = pageBase() + 'order-chat.html?demo=parse-fail';
   }
 
+  function goOnHold() {
+    global.location.href = pageBase() + 'order-detail.html?order=08008601';
+  }
+
   function mount() {
     var phone = document.querySelector('.phone');
     if (!phone || document.getElementById('demoShortcuts')) return;
@@ -87,6 +97,10 @@
         '<button class="demo-shortcuts-item" type="button" data-action="parse-fail">' +
           icon('fail') +
           '<span data-i18n="demo.parseFail">' + tr('demo.parseFail', '解析失败') + '</span>' +
+        '</button>' +
+        '<button class="demo-shortcuts-item" type="button" data-action="on-hold">' +
+          icon('hold') +
+          '<span data-i18n="demo.onHold">' + tr('demo.onHold', '已暂停') + '</span>' +
         '</button>' +
       '</div>' +
       '<button class="demo-shortcuts-toggle" type="button" id="demoShortcutsToggle" ' +
@@ -123,12 +137,14 @@
       toggle.setAttribute('aria-expanded', 'false');
       if (action === 'login') goLogin();
       else if (action === 'parse-fail') goParseFail();
+      else if (action === 'on-hold') goOnHold();
     });
   }
 
   global.QimaDemoShortcuts = {
     openLogin: goLogin,
-    openParseFail: goParseFail
+    openParseFail: goParseFail,
+    openOnHold: goOnHold
   };
 
   if (document.readyState === 'loading') {

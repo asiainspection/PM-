@@ -13,6 +13,7 @@ window.I18N_EN = {
   'demo.menu': 'Demo',
   'demo.login': 'Pre-login',
   'demo.parseFail': 'Parse failure',
+  'demo.onHold': 'On hold',
   'common.tab.home': 'Home',
   'common.tab.orders': 'Orders',
   'common.tab.notify': 'Alerts',
@@ -87,6 +88,7 @@ window.I18N_EN = {
   'status.short.pendingConfirmation': 'To confirm',
   'status.short.inQuotation': 'Quotation',
   'status.short.reporting': 'Reporting',
+  'status.short.onHold': 'On hold',
 
   /* ── Mail types ── */
   'mailType.all': 'All emails',
@@ -304,6 +306,7 @@ window.I18N_EN = {
   'orders.productBlackComposite': 'Black composite fabric',
   'orders.productBlackWoven': 'Black woven fabric',
   'orders.productGreyKnit': 'Grey knit fabric',
+  'orders.productOnHoldToys': 'Colorful sunglasses sample',
 
   /* ── Order success ── */
   'orderSuccess.title': 'Order placed',
@@ -337,7 +340,9 @@ window.I18N_EN = {
   'orderDetail.nextReporting': 'Testing is finished — the report is being prepared.',
   'orderDetail.nextReportReady': 'Your report is ready to view or download',
   'orderDetail.nextViewReport': 'View report',
-  'orderDetail.nextHalted': 'The order is on hold. Contact support to confirm next steps.',
+  'orderDetail.nextHalted': 'We are awaiting the client\'s confirmation',
+  'orderDetail.nextHaltedReason': 'Order clarification',
+  'orderDetail.nextConfirmHold': 'Confirm',
   'orderDetail.flowAligned': 'Aligned with myQIMA Lab Testing: Samples → Quotation → Testing → Report',
   'orderDetail.flowProvisional': 'Aligned with myQIMA Lab Testing: Samples → Quotation → Testing → Report',
   'orderDetail.orderNoLabel': 'Order No.: {id}',

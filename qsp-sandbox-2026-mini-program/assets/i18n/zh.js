@@ -13,6 +13,7 @@ window.I18N_ZH = {
   'demo.menu': '演示',
   'demo.login': '未登录',
   'demo.parseFail': '解析失败',
+  'demo.onHold': '已暂停',
   'common.tab.home': '首页',
   'common.tab.orders': '订单',
   'common.tab.notify': '通知',
@@ -87,6 +88,7 @@ window.I18N_ZH = {
   'status.short.pendingConfirmation': '待确认',
   'status.short.inQuotation': '报价中',
   'status.short.reporting': '出报告',
+  'status.short.onHold': '已暂停',
 
   /* ── Mail types ── */
   'mailType.all': '所有邮件',
@@ -304,6 +306,7 @@ window.I18N_ZH = {
   'orders.productBlackComposite': '黑色复合面料',
   'orders.productBlackWoven': '黑色机织面料',
   'orders.productGreyKnit': '灰色针织面料',
+  'orders.productOnHoldToys': '彩色太阳镜样品',
 
   /* ── Order success ── */
   'orderSuccess.title': '下单成功',
@@ -337,7 +340,9 @@ window.I18N_ZH = {
   'orderDetail.nextReporting': '检测已完成，报告出具中',
   'orderDetail.nextReportReady': '报告已出具，可查看或下载',
   'orderDetail.nextViewReport': '查看报告',
-  'orderDetail.nextHalted': '订单已暂停，请联系客服确认后续处理',
+  'orderDetail.nextHalted': '我们正在等待客户确认',
+  'orderDetail.nextHaltedReason': '订单信息需澄清',
+  'orderDetail.nextConfirmHold': '去确认',
   'orderDetail.flowAligned': '进度对齐 myQIMA Lab Testing：待寄样 → 报价 → 检测 → 报告',
   'orderDetail.flowProvisional': '进度对齐 myQIMA Lab Testing：待寄样 → 报价 → 检测 → 报告',
   'orderDetail.orderNoLabel': '订单编号: {id}',

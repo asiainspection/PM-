@@ -254,6 +254,16 @@
   .na-body { flex: 1; min-width: 0; }
   .na-label { font-size: 11px; line-height: 15px; color: #a7aebb; }
   .na-text { margin-top: 2px; font-size: 12.5px; line-height: 18px; color: var(--carbon); font-weight: 500; }
+  .na-reason {
+    margin-top: 6px; font-size: 12px; line-height: 16px;
+    color: #ff5f4e; font-weight: 500;
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .na-reason[hidden] { display: none; }
+  .na-reason::before {
+    content: ""; width: 4px; height: 4px; border-radius: 50%;
+    background: currentColor; margin-top: 6px; flex-shrink: 0;
+  }
   .na-btn {
     flex-shrink: 0; height: 30px; padding: 0 12px;
     border: none; border-radius: 8px;
@@ -263,6 +273,8 @@
   .na-btn:active { background: #3158c9; }
   .next-action.is-done .na-btn { background: var(--kiwi); }
   .next-action.is-done .na-btn:active { background: #197f56; }
+  .next-action.is-halted .na-btn { background: #ff5f4e; }
+  .next-action.is-halted .na-btn:active { background: #e0483a; }
   .na-btn[hidden] { display: none; }
 
   .info-row:last-child { border-bottom: none; }
@@ -565,10 +577,10 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260803m"></script>
-<script src="assets/i18n/en.js?v=20260803m"></script>
-<script src="assets/i18n-runtime.js?v=20260803m"></script>
-<script src="assets/demo-shortcuts.js?v=20260803e"></script>
+<script src="assets/i18n/zh.js?v=20260803o"></script>
+<script src="assets/i18n/en.js?v=20260803o"></script>
+<script src="assets/i18n-runtime.js?v=20260803o"></script>
+<script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
 </head>
@@ -633,6 +645,7 @@
           <div class="na-body">
             <div class="na-label" data-i18n="orderDetail.nextStep">下一步</div>
             <div class="na-text" id="nextActionText">—</div>
+            <div class="na-reason" id="nextActionReason" hidden></div>
           </div>
           <button class="na-btn" type="button" id="nextActionBtn" hidden></button>
         </div>
@@ -995,6 +1008,52 @@
         recipientComments: 'None',
         thumbClass: 'denim',
         updatedAt: '2026-07-30 17:12'
+      },
+      // myQIMA-aligned On hold example: awaiting client confirmation · Order clarification
+      '08008601': {
+        title: '实验室检测',
+        subtitle: '订单编号: T-25618601',
+        status: '已暂停',
+        statusClass: 'orange',
+        serviceType: '实验室检测',
+        category: 'Toys',
+        productName: '彩色太阳镜样品',
+        productNameKey: 'orders.productOnHoldToys',
+        testType: '首次测试',
+        testingLocation: 'Hangzhou',
+        supplierName: 'Hangzhou Eyewear Co., Ltd.',
+        productRefNo: 'N/A',
+        poNumber: 'PO-OH-8601',
+        skuValue: 'SKU-65120',
+        material: 'PC / Metal',
+        ageGrade: '3岁以上',
+        projectName: 'TEMU Toys- Seller Pay',
+        originCountry: '中国',
+        salesCountry: '欧盟，美国',
+        turnaroundTime: '5 Day Regular',
+        needQuotation: '是',
+        manufacturerName: 'Hangzhou Eyewear Factory',
+        skuNo: 'T-25618601',
+        fibreContent: 'N/A',
+        colorValue: 'Multi',
+        productType: 'Sunglasses',
+        sunLensCat: 'Cat. 3',
+        eanCode: '6 901234 567890',
+        brand: 'QIMA Sample',
+        batchNumber: 'B-8601',
+        spuId: 'N/A',
+        skcId: 'N/A',
+        collectionMethod: '您或者供应商会寄送样本',
+        carrier: '顺丰速运',
+        trackingNumber: 'SF8601123456',
+        shippingRemark: 'None',
+        orderRemark: 'None',
+        holdReasonKey: 'orderDetail.nextHaltedReason',
+        recipientEmail: '850600530@qq.com',
+        emailType: '所有邮件',
+        recipientComments: 'None',
+        thumbClass: '',
+        updatedAt: '2026-08-03 16:34'
       }
     };
 
@@ -1282,7 +1341,8 @@
 
     const HALTED_STATUSES = {
       'cancelled': 1, '已取消': 1, '待确认': 1,
-      'on_hold': 1, 'waiting_for_feedback': 1, '暂停': 1
+      'on_hold': 1, 'waiting_for_feedback': 1,
+      '暂停': 1, '已暂停': 1, 'On hold': 1, 'on hold': 1
     };
 
     function isHaltedStatus(status){
@@ -1323,7 +1383,13 @@
 
     function resolveNextAction(status){
       if(isHaltedStatus(status)){
-        return { tone: 'halted', textKey: 'orderDetail.nextHalted' };
+        return {
+          tone: 'halted',
+          textKey: 'orderDetail.nextHalted',
+          reasonKey: order.holdReasonKey || 'orderDetail.nextHaltedReason',
+          buttonKey: 'orderDetail.nextConfirmHold',
+          onClick: function(){ openOrderEditor(); }
+        };
       }
       const stage = currentStageIndex(status);
       if(stage >= ORDER_STAGES.length){
@@ -1397,6 +1463,16 @@
       const wrap = document.getElementById('nextAction');
       wrap.className = 'next-action' + (action.tone === 'done' ? ' is-done' : (action.tone === 'halted' ? ' is-halted' : ''));
       setText('nextActionText', t(action.textKey));
+      const reasonEl = document.getElementById('nextActionReason');
+      if(reasonEl){
+        if(action.reasonKey){
+          reasonEl.hidden = false;
+          reasonEl.textContent = t(action.reasonKey);
+        } else {
+          reasonEl.hidden = true;
+          reasonEl.textContent = '';
+        }
+      }
       const btn = document.getElementById('nextActionBtn');
       if(action.buttonKey){
         btn.hidden = false;
@@ -2028,13 +2104,13 @@
     function renderOrderDetail(){
       document.getElementById('orderTitle').textContent = translateServiceType(order.serviceType || order.title);
       document.getElementById('orderSubtitle').textContent = t('orderDetail.orderNoLabel', { id: order.orderRef || orderId });
-      document.getElementById('productName').textContent = order.productName;
+      document.getElementById('productName').textContent = order.productNameKey ? t(order.productNameKey) : order.productName;
       const modelNo = document.getElementById('modelNo');
       if(modelNo) modelNo.textContent = order.orderRef || order.skuNo || orderId;
       setText('testType', translateTestType(order.testType));
       setText('testingLocation', translateTestingLocation(order.testingLocation));
       setText('supplierName', order.supplierName === 'None' ? t('common.none') : order.supplierName);
-      setText('productDisplayName', order.productName);
+      setText('productDisplayName', order.productNameKey ? t(order.productNameKey) : order.productName);
       setText('productRefNo', order.productRefNo);
       setText('poNumber', order.poNumber);
       setText('skuValue', order.skuValue);

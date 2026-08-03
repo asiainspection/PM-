@@ -169,6 +169,7 @@
   }
   .status.blue { background: #eef3ff; color: var(--pool-500); }
   .status.green { background: #e9f6f0; color: var(--kiwi); }
+  .status.orange { background: #fef0ee; color: #ff5f4e; }
   /* Beats the global English wrap rule: the card pill must stay one line so the
      product name keeps the width it needs. */
   html[lang="en"] .ocard .status {
@@ -213,10 +214,10 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js"></script>
-<script src="assets/demo-shortcuts.js?v=20260803e"></script>
+<script src="assets/i18n/zh.js?v=20260803o"></script>
+<script src="assets/i18n/en.js?v=20260803o"></script>
+<script src="assets/i18n-runtime.js?v=20260803o"></script>
+<script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
 </head>
@@ -320,6 +321,25 @@
           <div class="ocard-meta">
             <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">08008536</span></span>
             <span class="meta-item"><span class="mk" data-i18n="orders.metaOrdered">下单</span><span class="mv">2026-06-02</span></span>
+          </div>
+        </div>
+        <img class="chev" src="assets/chevron_row.svg" alt="" />
+      </a>
+
+      <!-- On hold example (myQIMA: awaiting client confirmation · Order clarification) -->
+      <a class="ocard" href="order-detail.html?order=08008601">
+        <div class="ocard-thumb fabric-black"></div>
+        <div class="ocard-main">
+          <div class="ocard-title">
+            <div class="pname" data-i18n="orders.productOnHoldToys">彩色太阳镜样品</div>
+            <div class="status orange" data-i18n="status.short.onHold">已暂停</div>
+          </div>
+          <div class="ocard-sub">
+            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+          </div>
+          <div class="ocard-meta">
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">08008601</span></span>
+            <span class="meta-item"><span class="mk" data-i18n="orders.metaOrdered">下单</span><span class="mv">2026-08-01</span></span>
           </div>
         </div>
         <img class="chev" src="assets/chevron_row.svg" alt="" />

@@ -103,7 +103,9 @@
     '出报告': 'status.reporting',
     '报告中': 'status.reporting',
     '已取消': 'status.cancelled',
-    '暂停': 'status.onHold'
+    '已暂停': 'status.onHold',
+    'On hold': 'status.onHold',
+    'on hold': 'status.onHold'
   };
 
   var MAIL_TYPE_KEYS = [
