@@ -2169,6 +2169,9 @@
       setTimeout(()=>{
         typingRow.remove();
         const prefill = getReusePrefills()[id] || getReusePrefills()['T-25617004'];
+        // A tracking number identifies one physical shipment and must never be
+        // carried into a new order, even when every other order field is reused.
+        prefill.fields['Tracking Number'] = '';
         manualIndex = getManualQuestions().length;
         Object.keys(manualAnswers).forEach(k => delete manualAnswers[k]);
         Object.assign(manualAnswers, prefill.fields);
