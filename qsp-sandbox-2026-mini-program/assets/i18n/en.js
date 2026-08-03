@@ -285,7 +285,7 @@ window.I18N_EN = {
 
   /* ── Orders page ── */
   'orders.title': 'Orders',
-  'orders.chipSampleInfo': 'Sample description',
+  'orders.chipSampleInfo': 'All',
   'orders.defaultFilter': 'Lab Testing',
   'orders.productBlackComposite': 'Black composite fabric',
   'orders.productBlackWoven': 'Black woven fabric',

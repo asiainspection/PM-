@@ -285,7 +285,7 @@ window.I18N_ZH = {
 
   /* ── Orders page ── */
   'orders.title': '订单',
-  'orders.chipSampleInfo': '样品标称信息',
+  'orders.chipSampleInfo': '全部',
   'orders.defaultFilter': '实验室检测',
   'orders.productBlackComposite': '黑色复合面料',
   'orders.productBlackWoven': '黑色机织面料',
