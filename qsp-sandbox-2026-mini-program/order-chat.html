@@ -165,11 +165,14 @@
     background: var(--white);
     box-shadow: 0 1px 4px rgba(25,25,25,.03);
     box-sizing: border-box;
+    position: relative;
   }
   .composer-row:focus-within {
     border-color: var(--pool-500);
     box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
+  .composer-row.is-recording { border-color: var(--coral); }
+  .composer-row.is-recording:focus-within { box-shadow: 0 0 0 3px rgba(237,83,83,.12); }
   .composer-tools {
     display: flex; align-items: center; justify-content: space-between; gap: 6px;
   }
@@ -186,6 +189,7 @@
     display: flex; align-items: center; gap: 2px; flex-shrink: 0;
     margin-left: auto;
   }
+  .composer-input.has-voice { background: transparent; }
   .voice-tips-title {
     font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
   }
@@ -237,22 +241,32 @@
     padding: 0;
   }
   .voice-recording-bar {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; height: 40px; padding: 0 10px 0 12px;
-    border: 1px solid var(--line); border-radius: 999px;
-    background: var(--white); box-shadow: 0 1px 4px rgba(25,25,25,.04);
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; min-height: 36px; padding: 6px 8px;
+    border-radius: 10px;
+    background: transparent;
     box-sizing: border-box;
+  }
+  .voice-recording-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--coral); flex-shrink: 0;
+    animation: voice-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes voice-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .55; transform: scale(.85); }
   }
   .voice-waveform {
     flex: 1; display: flex; align-items: center; gap: 2px;
-    height: 24px; overflow: hidden;
+    height: 18px; overflow: hidden;
     -webkit-mask-image: linear-gradient(90deg, transparent, var(--carbon) 10%, var(--carbon));
     mask-image: linear-gradient(90deg, transparent, var(--carbon) 10%, var(--carbon));
   }
   .voice-waveform span {
     width: 2px; min-width: 2px; border-radius: 2px;
-    background: var(--smoke);
+    background: var(--pool-500);
     animation: voice-wave 0.9s ease-in-out infinite;
+    height: 6px;
   }
   .voice-waveform span:nth-child(3n) { animation-delay: .12s; }
   .voice-waveform span:nth-child(3n+1) { animation-delay: .28s; }
@@ -263,38 +277,22 @@
   }
   .voice-recording-time {
     flex-shrink: 0; min-width: 34px;
-    font-size: 13px; font-weight: 600; color: var(--carbon);
+    font-size: 12px; font-weight: 600; color: var(--carbon);
     font-variant-numeric: tabular-nums;
   }
   .voice-recording-cancel,
   .voice-recording-confirm {
-    width: 28px; height: 28px; padding: 0; flex-shrink: 0;
-    border: none; border-radius: 50%; background: transparent;
+    width: 26px; height: 26px; padding: 0; flex-shrink: 0;
+    border: 1px solid var(--line); border-radius: 8px; background: var(--white);
     color: var(--seal); cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
-    font-size: 18px; line-height: 1;
+    font-size: 14px; line-height: 1;
   }
-  .voice-recording-confirm { font-size: 16px; font-weight: 700; }
+  .voice-recording-confirm { color: var(--pool-500); border-color: var(--pool-200); }
   .voice-recording-cancel:active,
   .voice-recording-confirm:active { background: var(--cloud); }
-  .voice-transcript {
-    display: none; margin-top: 8px;
-  }
-  .voice-transcript.show { display: block; }
-  .voice-transcript-label {
-    font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
-  }
-  .voice-transcript-text {
-    width: 100%; min-height: 64px; resize: vertical;
-    border: 1px solid var(--pool-100); border-radius: 10px;
-    background: var(--white); padding: 10px 12px;
-    font-size: 12px; line-height: 18px; color: var(--carbon);
-    outline: none; box-sizing: border-box;
-  }
-  .voice-transcript-text:focus {
-    border-color: var(--pool-500);
-    box-shadow: 0 0 0 3px rgba(65,105,225,.1);
-  }
+  .voice-transcript { display: none; }
+  .voice-transcript.show { display: none; }
   .panel.voice-locked .composer-input,
   .panel.voice-locked .link-row input,
   .panel.voice-locked .voice-transcript-text,
@@ -2583,10 +2581,6 @@
                 '</div>'+
               '</div>'+
             '</div>'+
-            '<div class="voice-transcript" id="voiceTranscript">'+
-              '<div class="voice-transcript-label">'+t('orderChat.voiceTranscriptLabel')+'</div>'+
-              '<textarea class="voice-transcript-text" id="voiceTranscriptText" placeholder="'+t('orderChat.voiceTranscriptPlaceholder')+'" oninput="onVoiceTranscriptInput()"></textarea>'+
-            '</div>'+
             '<div class="uploaded-files" id="uploadedFiles"></div>'+
           '</div>'+
         '</div>';
@@ -2694,9 +2688,11 @@
     }
 
     function renderVoiceIdleButton(panel){
+      const row = panel ? panel.querySelector('.composer-row') : document.querySelector('.composer-row');
       const voicePanel = panel ? panel.querySelector('#voicePanel') : document.getElementById('voicePanel');
       if(!voicePanel) return;
       voicePanel.innerHTML = '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>';
+      if(row) row.classList.remove('is-recording');
     }
 
     function renderVoiceProcessingButton(panel){
@@ -2706,15 +2702,18 @@
     }
 
     function renderVoiceRecordingBar(panel){
+      const row = panel ? panel.querySelector('.composer-row') : document.querySelector('.composer-row');
       const voicePanel = panel ? panel.querySelector('#voicePanel') : document.getElementById('voicePanel');
       if(!voicePanel) return;
       voicePanel.innerHTML =
         '<div class="voice-recording-bar" id="voiceRecordingBar">'+
-          voiceWaveformHtml()+
+          '<div class="voice-recording-dot"></div>'+
           '<div class="voice-recording-time" id="voiceRecordingTime">'+formatVoiceRecordingTime(voiceRecordingSeconds)+'</div>'+
+          '<div class="voice-waveform" aria-hidden="true"></div>'+
           '<button class="voice-recording-cancel" type="button" aria-label="'+escapeHtml(t('orderChat.voiceCancel'))+'" onclick="cancelVoiceRecording(this)">×</button>'+
           '<button class="voice-recording-confirm" type="button" aria-label="'+escapeHtml(t('orderChat.voiceConfirm'))+'" onclick="confirmVoiceRecording(this)">✓</button>'+
         '</div>';
+      if(row) row.classList.add('is-recording');
     }
 
     function updateVoiceRecordingTime(){
@@ -2839,17 +2838,16 @@
 
     function applyVoiceTranscript(panel, chunk){
       if(!chunk) return;
-      const box = panel ? panel.querySelector('#voiceTranscript') : document.getElementById('voiceTranscript');
-      const text = panel ? panel.querySelector('#voiceTranscriptText') : document.getElementById('voiceTranscriptText');
-      const existing = text ? text.value.trim() : (voiceTranscript || '').trim();
+      const input = panel ? panel.querySelector('#linkIn') : document.getElementById('linkIn');
+      const existing = input ? input.value.trim() : (voiceTranscript || '').trim();
       voiceTranscript = existing ? (existing + '\n' + chunk) : chunk;
       hasVoiceInput = !!voiceTranscript;
-      if(text){
-        text.value = voiceTranscript;
-        text.focus();
-        text.setSelectionRange(text.value.length, text.value.length);
+      if(input){
+        input.value = voiceTranscript;
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+        input.classList.add('has-voice');
       }
-      if(box) box.classList.add('show');
       updateParseButtonState();
     }
 
@@ -2870,25 +2868,17 @@
       }
       if(panel) panel.classList.toggle('voice-locked', !!locked);
       const linkIn = panel ? panel.querySelector('#linkIn') : document.getElementById('linkIn');
-      const transcript = panel ? panel.querySelector('#voiceTranscriptText') : document.getElementById('voiceTranscriptText');
       const parseBtn = panel ? panel.querySelector('#parseBtn') : document.getElementById('parseBtn');
       if(linkIn) linkIn.disabled = !!locked;
-      if(transcript) transcript.disabled = !!locked;
       if(parseBtn && locked) parseBtn.disabled = true;
       if(!locked) updateParseButtonState();
     }
 
     function getVoiceTranscriptValue(panel){
-      const text = panel
-        ? panel.querySelector('#voiceTranscriptText')
-        : document.getElementById('voiceTranscriptText');
-      return text ? text.value.trim() : (voiceTranscript || '').trim();
-    }
-
-    function onVoiceTranscriptInput(){
-      voiceTranscript = getVoiceTranscriptValue();
-      hasVoiceInput = !!voiceTranscript;
-      updateParseButtonState();
+      const input = panel
+        ? panel.querySelector('#linkIn')
+        : document.getElementById('linkIn');
+      return input ? input.value.trim() : (voiceTranscript || '').trim();
     }
 
     async function toggleVoiceInput(btn){
