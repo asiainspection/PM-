@@ -615,8 +615,8 @@
 <link rel="stylesheet" href="assets/wechat-binding.css?v=20260803j" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260804d"></script>
-<script src="assets/i18n/en.js?v=20260804d"></script>
+<script src="assets/i18n/zh.js?v=20260804e"></script>
+<script src="assets/i18n/en.js?v=20260804e"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/signup-geo.js?v=20260804a"></script>
 <script src="assets/wechat-binding.js?v=20260804a"></script>
@@ -900,6 +900,17 @@
           </div>
 
           <div class="form-row">
+            <div class="form-label"><span data-i18n="index.productDivision">产品部门</span> <span class="req">*</span></div>
+            <select class="form-select" id="productDivisionSelect">
+              <option value="" disabled selected data-i18n="index.productDivisionPlaceholder">选择一个选项</option>
+              <option value="softlines" data-i18n="index.productDivisionSoftlines">Softlines</option>
+              <option value="hardlines" data-i18n="index.productDivisionHardlines">Hardlines</option>
+              <option value="toys" data-i18n="index.productDivisionToys">Toys</option>
+              <option value="electronics" data-i18n="index.productDivisionElectronics">Electronics</option>
+            </select>
+          </div>
+
+          <div class="form-row">
             <div class="form-label"><span data-i18n="index.project">关联项目</span> <span class="req">*</span></div>
             <select class="form-select" id="projectSelect">
               <option value="" disabled selected data-i18n="index.projectPlaceholder">请选择关联项目</option>
@@ -1127,6 +1138,7 @@
               <div class="review-row"><span data-i18n="index.testType">本次测试类型</span><span id="reviewTestType">-</span></div>
               <div class="review-row history-order-review" id="reviewHistoryOrderRow" style="display:none;"><span data-i18n="index.copyOrderRef">复制的订单参考编号</span><span id="reviewHistoryOrder">未选择</span></div>
               <div class="review-row"><span data-i18n="index.productName">产品名称</span><span id="reviewProductName">-</span></div>
+              <div class="review-row"><span data-i18n="index.productDivision">产品部门</span><span id="reviewProductDivision">-</span></div>
               <div class="review-row"><span data-i18n="index.project">关联项目</span><span id="reviewProject">-</span></div>
               <div class="review-row"><span data-i18n="index.originCountry">原产国家或地区</span><span id="reviewOriginCountry">-</span></div>
               <div class="review-row"><span data-i18n="index.salesCountry">销售国家或地区</span><span id="reviewSalesCountries">-</span></div>
@@ -1224,6 +1236,12 @@
     const MAIL_TYPE_KEYS = ['mailType.all', 'mailType.reportOnly', 'mailType.paymentOnly', 'mailType.quotationOnly'];
     const SAMPLE_METHOD_KEYS = { ship: 'index.sampleShip', collect: 'index.sampleCollect', received: 'index.sampleReceived' };
     const PROJECT_KEYS = { 'temu-hardware': 'index.projectTemuHardware', 'toys-lab': 'index.projectToysLab', general: 'index.projectGeneral' };
+    const PRODUCT_DIVISION_KEYS = {
+      softlines: 'index.productDivisionSoftlines',
+      hardlines: 'index.productDivisionHardlines',
+      toys: 'index.productDivisionToys',
+      electronics: 'index.productDivisionElectronics'
+    };
     const AGE_GRADE_KEYS = { '0-3': 'index.age03', '3-6': 'index.age36', '6-14': 'index.age614', '14+': 'index.age14plus' };
 
     function getContactMailTypes() {
@@ -1259,6 +1277,13 @@
       const select = document.getElementById('projectSelect');
       if (!select || !select.value) return '';
       const key = PROJECT_KEYS[select.value];
+      return key ? t(key) : select.options[select.selectedIndex].textContent.trim();
+    }
+
+    function getProductDivisionLabel() {
+      const select = document.getElementById('productDivisionSelect');
+      if (!select || !select.value) return '';
+      const key = PRODUCT_DIVISION_KEYS[select.value];
       return key ? t(key) : select.options[select.selectedIndex].textContent.trim();
     }
 
@@ -1389,6 +1414,7 @@
         : null;
       return {
         'Product Name': getFieldValue('productNameInput'),
+        'Product Division': getProductDivisionLabel(),
         'Program': getProjectLabel(),
         'Country of Origin': getOriginCountryLabel(),
         'Countries/Regions of Distribution': getSalesCountriesLabel(),
@@ -1449,6 +1475,18 @@
       toggleReportFieldsDetail();
       if (getCheckedValue('testType') === 'copy' && !getSelectedReferenceText('historyOrderSelectBtn')) {
         alert(t('index.alertSelectCopyRef'));
+        return;
+      }
+      if (!document.getElementById('productDivisionSelect') || !document.getElementById('productDivisionSelect').value) {
+        alert(t('index.alertSelectProductDivision'));
+        const divEl = document.getElementById('productDivisionSelect');
+        if (divEl) divEl.focus();
+        return;
+      }
+      if (!document.getElementById('projectSelect') || !document.getElementById('projectSelect').value) {
+        alert(t('index.alertSelectProject'));
+        const projEl = document.getElementById('projectSelect');
+        if (projEl) projEl.focus();
         return;
       }
       if (!getCheckedValue('sampleMethod')) {
@@ -1574,6 +1612,7 @@
       if (reviewHistoryOrderRow) reviewHistoryOrderRow.style.display = isCopyOrder ? 'flex' : 'none';
       setReviewValue('reviewHistoryOrder', isCopyOrder ? getSelectedReferenceText('historyOrderSelectBtn') : '', 'common.notSelected');
       setReviewValue('reviewProductName', getFieldValue('productNameInput'));
+      setReviewValue('reviewProductDivision', getProductDivisionLabel());
       setReviewValue('reviewProject', getProjectLabel());
       setReviewValue('reviewOriginCountry', getOriginCountryLabel());
       setReviewValue('reviewSalesCountries', Array.from(selectedSalesCountries).map(function (c) { return I18n.displayCountry(c); }).join(I18n.getLang() === 'en' ? ', ' : '、'));

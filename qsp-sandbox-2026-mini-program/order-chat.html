@@ -1245,9 +1245,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260803w"></script>
-<script src="assets/i18n/en.js?v=20260803w"></script>
-<script src="assets/i18n-runtime.js?v=20260803w"></script>
+<script src="assets/i18n/zh.js?v=20260804e"></script>
+<script src="assets/i18n/en.js?v=20260804e"></script>
+<script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
 <script src="assets/label-parse.js?v=20260716b"></script>
@@ -1499,6 +1499,17 @@
           <div class="fm-row">
             <div class="fm-label"><span data-i18n="index.productName">产品名称</span> <span class="req" data-i18n="common.required">*</span></div>
             <input class="fm-input" id="mf_productName" type="text" placeholder="请输入产品名称" data-i18n-placeholder="index.productNamePlaceholder">
+          </div>
+
+          <div class="fm-row">
+            <div class="fm-label"><span data-i18n="index.productDivision">产品部门</span> <span class="req" data-i18n="common.required">*</span></div>
+            <select class="fm-select" id="mf_productDivision">
+              <option value="" disabled selected data-i18n="index.productDivisionPlaceholder">选择一个选项</option>
+              <option value="Softlines" data-i18n="index.productDivisionSoftlines">Softlines</option>
+              <option value="Hardlines" data-i18n="index.productDivisionHardlines">Hardlines</option>
+              <option value="Toys" data-i18n="index.productDivisionToys">Toys</option>
+              <option value="Electronics" data-i18n="index.productDivisionElectronics">Electronics</option>
+            </select>
           </div>
 
           <div class="fm-row">
@@ -1828,6 +1839,7 @@
         'Service': 'orderChat.serviceType',
         'Product Name': 'orderChat.fieldProductName',
         'Program': 'orderChat.fieldProgram',
+        'Product Division': 'index.productDivision',
         'Country of Origin': 'orderChat.fieldOrigin',
         'Countries/Regions of Distribution': 'orderChat.fieldDistribution',
         'Item#/model#': 'orderChat.fieldItemModel',
@@ -2296,6 +2308,7 @@
           field('Source ID', id, true)+
           field('Service', prefill.sourceDesc, true)+
           field('Product Name', fields['Product Name'], !!fields['Product Name'])+
+          field('Product Division', fields['Product Division'], !!fields['Product Division'])+
           field('Program', fields['Program'], !!fields['Program'])+
           field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
           field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
@@ -2368,6 +2381,7 @@
           field('Source ID', id, true)+
           field('Service', prefill.sourceDesc, true)+
           field('Product Name', fields['Product Name'], !!fields['Product Name'])+
+          field('Product Division', fields['Product Division'], !!fields['Product Division'])+
           field('Program', fields['Program'], !!fields['Program'])+
           field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
           field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
@@ -3611,6 +3625,9 @@
       const program = document.getElementById('mf_program');
       if(program && manualAnswers['Program']) matchSelectOption(program, manualAnswers['Program']);
 
+      const productDivision = document.getElementById('mf_productDivision');
+      if(productDivision && manualAnswers['Product Division']) matchSelectOption(productDivision, manualAnswers['Product Division']);
+
       const origin = document.getElementById('mf_origin');
       if(origin && manualAnswers['Country of Origin']){
         matchSelectOption(origin, manualAnswers['Country of Origin']);
@@ -3887,6 +3904,7 @@
 
     function syncManualAnswersFromForm(){
       const productName = (document.getElementById('mf_productName') || {}).value;
+      const productDivision = (document.getElementById('mf_productDivision') || {}).value;
       const program = (document.getElementById('mf_program') || {}).value;
       const origin = (document.getElementById('mf_origin') || {}).value;
       const sku = (document.getElementById('mf_sku') || {}).value;
@@ -3896,6 +3914,7 @@
       const trackingNo = (document.getElementById('mf_trackingNo') || {}).value;
       const shippingRemark = (document.getElementById('mf_shippingRemark') || {}).value;
       if(productName && productName.trim()) manualAnswers['Product Name'] = productName.trim();
+      if(productDivision) manualAnswers['Product Division'] = productDivision;
       if(program) manualAnswers['Program'] = program;
       if(origin) manualAnswers['Country of Origin'] = origin;
       if(sku && sku.trim()) manualAnswers['Item#/model#'] = sku.trim();
@@ -4073,6 +4092,7 @@
 
     function submitManualForm(){
       const productName = document.getElementById('mf_productName').value.trim();
+      const productDivision = document.getElementById('mf_productDivision').value;
       const program = document.getElementById('mf_program').value;
       const origin = document.getElementById('mf_origin').value;
       const sku = document.getElementById('mf_sku').value.trim();
@@ -4085,6 +4105,11 @@
       const sampleMethod = document.querySelector('input[name="mf_sample"]:checked');
       const sampleVal = sampleMethod ? sampleMethod.value : '';
       const sampleLabel = sampleLabelFromValue(sampleVal);
+      if(!productDivision){
+        alert(t('index.alertSelectProductDivision'));
+        document.getElementById('mf_productDivision').focus();
+        return;
+      }
       if(!sampleMethod){
         alert(t('orderChat.alertSelectSample'));
         return;
@@ -4103,6 +4128,7 @@
       const shippingRemark = document.getElementById('mf_shippingRemark').value.trim();
 
       manualAnswers['Product Name'] = productName || '';
+      manualAnswers['Product Division'] = productDivision || '';
       manualAnswers['Program'] = program || '';
       manualAnswers['Country of Origin'] = origin || '';
       manualAnswers['Countries/Regions of Distribution'] = salesCountries.join(t('orderChat.listSep'));
