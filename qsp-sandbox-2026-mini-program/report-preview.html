@@ -81,10 +81,23 @@
     margin-top: 2px; font-size: 11px; color: var(--seal);
   }
   .status-pill {
-    flex-shrink: 0; height: 24px; padding: 0 10px; border-radius: 6px;
+    flex-shrink: 0; max-width: 48%; height: 24px; padding: 0 10px; border-radius: 6px;
     background: var(--kiwi-100); color: var(--kiwi); border: 1px solid var(--kiwi-100);
-    font-size: 12px; font-weight: 700;
+    font-size: 11px; font-weight: 700;
     display: inline-flex; align-items: center; gap: 4px;
+  }
+  .status-pill span {
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .status-pill.fail,
+  .status-pill.fail-accepted {
+    background: var(--cherry-100); color: var(--cherry); border-color: var(--cherry-100);
+  }
+  .status-pill.pending {
+    background: var(--lemon-200); color: var(--lemon-900); border-color: var(--lemon-200);
+  }
+  .status-pill.neutral {
+    background: var(--mist); color: var(--seal); border-color: var(--line);
   }
 
   .meta-decision {
@@ -289,9 +302,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reportPreview';</script>
-<script src="assets/i18n/zh.js?v=20260803n"></script>
-<script src="assets/i18n/en.js?v=20260803n"></script>
-<script src="assets/i18n-runtime.js?v=20260803n"></script>
+<script src="assets/i18n/zh.js?v=20260804k"></script>
+<script src="assets/i18n/en.js?v=20260804k"></script>
+<script src="assets/i18n-runtime.js?v=20260804k"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 </head>
 <body>
@@ -326,7 +339,7 @@
         </div>
         <div class="status-pill" id="reportStatus">
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span data-i18n="reports.status.pass">PASS</span>
+          <span data-i18n="reports.status.pass">Pass</span>
         </div>
       </div>
       <div class="meta-decision" id="decisionActions">
@@ -394,11 +407,21 @@
     const REPORT_META = {
       // Report numbers must match the list in reports.html — the list is the entry point.
       'SKU-65120': { id: 'T-24106085-11-R1', tag: 'LAB', sku: 'SKU-65120', status: 'pass', nameKey: 'reports.product.toys' },
+      'SKU-43902': { id: 'T-24106088-11-R1', tag: 'LAB', sku: 'SKU-43902', status: 'pending', nameKey: 'reports.product.hardline' },
+      'SKU-70418': { id: 'T-24106091-11-R1', tag: 'LAB', sku: 'SKU-70418', status: 'fail', nameKey: 'reports.product.softline' },
+      'SKU-62844': { id: 'T-24106092-11-R1', tag: 'LAB', sku: 'SKU-62844', status: 'passWithInfo', nameKey: 'reports.product.candle' },
+      'SKU-59107': { id: 'T-24106093-11-R1', tag: 'LAB', sku: 'SKU-59107', status: 'conditionalPass', nameKey: 'reports.product.jewelry' },
+      'SKU-55231': { id: 'T-24106094-11-R1', tag: 'LAB', sku: 'SKU-55231', status: 'failWithInfo', nameKey: 'reports.product.cosmetics' },
+      'SKU-51088': { id: 'T-24106095-11-R1', tag: 'LAB', sku: 'SKU-51088', status: 'inconclusive', nameKey: 'reports.product.furniture' },
+      'SKU-48765': { id: 'T-24106096-11-R1', tag: 'LAB', sku: 'SKU-48765', status: 'informationOnly', nameKey: 'reports.product.plastics' },
+      'SKU-46320': { id: 'T-24106097-11-R1', tag: 'LAB', sku: 'SKU-46320', status: 'marginal', nameKey: 'reports.product.kitchen' },
+      'SKU-38771': { id: 'T-24106089-11-R1', tag: 'LAB', sku: 'SKU-38771', status: 'na', nameKey: 'reports.product.food' },
       'SKU-89231': { id: 'T-24106084-11-R1', tag: 'PSI', sku: 'SKU-89231', status: 'pass', nameKey: 'reports.product.psi' },
       'SKU-77321': { id: 'T-24106086-11-R1', tag: 'DUPRO', sku: 'SKU-77321', status: 'fail', nameKey: 'reports.product.textile' },
-      'SKU-51840': { id: 'T-24106087-11-R1', tag: 'FRI', sku: 'SKU-51840', status: 'pass', nameKey: 'reports.product.electronics' },
-      'SKU-43902': { id: 'T-24106088-11-R1', tag: 'LAB', sku: 'SKU-43902', status: 'pending', nameKey: 'reports.product.hardline' },
-      'SKU-38771': { id: 'T-24106089-11-R1', tag: 'CSR', sku: 'SKU-38771', status: 'pass', nameKey: 'reports.product.food' }
+      'SKU-74510': { id: 'T-24106098-11-R1', tag: 'DUPRO', sku: 'SKU-74510', status: 'failAccepted', nameKey: 'reports.product.bags' },
+      'SKU-51840': { id: 'T-24106087-11-R1', tag: 'FRI', sku: 'SKU-51840', status: 'passWithInfo', nameKey: 'reports.product.electronics' },
+      'SKU-50112': { id: 'T-24106099-11-R1', tag: 'FRI', sku: 'SKU-50112', status: 'inconclusiveWithInfo', nameKey: 'reports.product.electronics' },
+      'SKU-33001': { id: 'A-24106100-11-R1', tag: 'CSR', sku: 'SKU-33001', status: 'conditionalPass', nameKey: 'reports.product.csrAudit' }
     };
 
     const DECISION_STORAGE_KEY = 'qima-report-decision-v1';
@@ -416,9 +439,36 @@
       return REPORT_META[getSku()] || REPORT_META['SKU-65120'];
     }
 
+    function statusAccent(status){
+      switch(status){
+        case 'pass':
+        case 'passWithInfo':
+        case 'conditionalPass':
+          return 'pass';
+        case 'fail':
+        case 'failWithInfo':
+          return 'fail';
+        case 'failAccepted':
+          return 'fail-accepted';
+        case 'informationOnly':
+        case 'na':
+          return 'neutral';
+        case 'pending':
+        case 'inconclusive':
+        case 'inconclusiveWithInfo':
+        case 'marginal':
+        default:
+          return 'pending';
+      }
+    }
+
     function canDecide(meta) {
-      // myQIMA: approve/reject only when the report result is final (not pending).
-      return meta.status === 'pass' || meta.status === 'fail';
+      // myQIMA: approve/reject for actionable overall results (not pending / N/A / info-only / inconclusive).
+      var s = meta.status;
+      return s === 'pass' || s === 'fail' ||
+        s === 'passWithInfo' || s === 'failWithInfo' ||
+        s === 'conditionalPass' || s === 'failAccepted' ||
+        s === 'marginal';
     }
 
     function loadDecisions() {
@@ -458,28 +508,18 @@
         metaEl.textContent = meta.tag + ' · ' + meta.sku + ' · ' + t(meta.nameKey);
       }
       if (statusEl) {
+        const accent = statusAccent(meta.status);
         const label = t('reports.status.' + meta.status);
-        statusEl.className = 'status-pill' + (meta.status === 'fail' ? ' fail' : meta.status === 'pending' ? ' pending' : '');
+        const isFailFamily = accent === 'fail' || accent === 'fail-accepted';
+        const isPendingFamily = accent === 'pending';
+        statusEl.className = 'status-pill ' + accent;
         statusEl.innerHTML =
-          (meta.status === 'fail'
+          (isFailFamily
             ? '<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>'
-            : meta.status === 'pending'
+            : isPendingFamily
               ? '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.1" stroke="currentColor" stroke-width="1.7"/><path d="M8 4.6V8l2.4 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
               : '<svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>') +
           '<span>' + label + '</span>';
-        if (meta.status === 'fail') {
-          statusEl.style.background = 'var(--cherry-100)';
-          statusEl.style.color = 'var(--cherry)';
-          statusEl.style.borderColor = '#fdefef';
-        } else if (meta.status === 'pending') {
-          statusEl.style.background = 'var(--lemon-200)';
-          statusEl.style.color = 'var(--lemon-900)';
-          statusEl.style.borderColor = '#fff2cf';
-        } else {
-          statusEl.style.background = '';
-          statusEl.style.color = '';
-          statusEl.style.borderColor = '';
-        }
       }
       renderDecision();
     }

@@ -230,10 +230,12 @@
     transform: scale(.994);
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
   }
-  /* One accent per verdict keeps the stripe, wash and badge in agreement. */
+  /* One accent per overall-result family (myQIMA Overall result). */
   .rlist-card.pass    { --accent: var(--kiwi);      --accent-wash: rgba(0,168,118,.08); --accent-soft: var(--kiwi-100); --accent-line: var(--kiwi-100); }
   .rlist-card.fail    { --accent: var(--cherry);  --accent-wash: rgba(229,53,61,.08);   --accent-soft: var(--cherry-100); --accent-line: var(--cherry-100); }
   .rlist-card.pending { --accent: var(--lemon-900);          --accent-wash: rgba(189,138,0,.10); --accent-soft: var(--lemon-200); --accent-line: var(--lemon-200); }
+  .rlist-card.neutral { --accent: var(--seal);               --accent-wash: rgba(107,114,128,.08); --accent-soft: var(--mist); --accent-line: var(--line); }
+  .rlist-card.fail-accepted { --accent: var(--cherry); --accent-wash: rgba(229,53,61,.06); --accent-soft: #FDEFEF; --accent-line: var(--cherry-100); }
   .rlist-card::before {
     content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
     background: var(--accent);
@@ -245,9 +247,10 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .rlist-status {
-    flex-shrink: 0; font-size: 11px; height: 22px; line-height: 20px; padding: 0 9px;
-    border-radius: 999px; font-weight: 700; letter-spacing: .2px; white-space: nowrap;
+    flex-shrink: 0; max-width: 46%; font-size: 10.5px; height: 22px; line-height: 20px; padding: 0 8px;
+    border-radius: 999px; font-weight: 700; letter-spacing: .1px;
     background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-line);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .rlist-sku {
     margin-top: 2px; font-size: 11.5px; line-height: 15px; color: var(--seal);
@@ -427,9 +430,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260804j"></script>
-<script src="assets/i18n/en.js?v=20260804j"></script>
-<script src="assets/i18n-runtime.js?v=20260804j"></script>
+<script src="assets/i18n/zh.js?v=20260804k"></script>
+<script src="assets/i18n/en.js?v=20260804k"></script>
+<script src="assets/i18n-runtime.js?v=20260804k"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -563,12 +566,25 @@
     const DECISION_STORAGE_KEY = 'qima-report-decision-v1';
 
     const REPORTS = [
-      { cat: 'psi',   color: 'c-blue',   tag: 'PSI',   nameKey: 'reports.product.psi',        sku: 'SKU-89231', status: 'pass',    reportId: 'T-24106084-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.psi', decision: 'approved' },
-      { cat: 'dupro', color: 'c-purple', tag: 'DUPRO', nameKey: 'reports.product.textile',    sku: 'SKU-77321', status: 'fail',    reportId: 'T-24106086-11-R1', date: '2026-06-02', supplierKey: 'reports.supplier.textile', decision: 'rejected' },
-      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.toys',       sku: 'SKU-65120', status: 'pass',    reportId: 'T-24106085-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.toys', decision: 'pending' },
-      { cat: 'fri',   color: 'c-orange', tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-51840', status: 'pass',    reportId: 'T-24106087-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.electronics', decision: 'approved' },
-      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.hardline',   sku: 'SKU-43902', status: 'pending', reportId: 'T-24106088-11-R1', date: '2026-05-20', supplierKey: 'reports.supplier.hardline', decision: 'pending' },
-      { cat: 'csr',   color: 'c-purple', tag: 'CSR',   nameKey: 'reports.product.food',       sku: 'SKU-38771', status: 'pass',    reportId: 'T-24106089-11-R1', date: '2026-05-12', supplierKey: 'reports.supplier.food', decision: 'pending' },
+      /* Lab — myQIMA Overall result examples */
+      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.toys',       sku: 'SKU-65120', status: 'pass',                 reportId: 'T-24106085-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.toys', decision: 'pending' },
+      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.hardline',   sku: 'SKU-43902', status: 'pending',              reportId: 'T-24106088-11-R1', date: '2026-05-20', supplierKey: 'reports.supplier.hardline', decision: 'pending' },
+      { cat: 'lab',   color: 'c-purple', tag: 'LAB',   nameKey: 'reports.product.softline',   sku: 'SKU-70418', status: 'fail',                 reportId: 'T-24106091-11-R1', date: '2026-06-01', supplierKey: 'reports.supplier.softline', decision: 'rejected' },
+      { cat: 'lab',   color: 'c-orange', tag: 'LAB',   nameKey: 'reports.product.candle',     sku: 'SKU-62844', status: 'passWithInfo',         reportId: 'T-24106092-11-R1', date: '2026-05-30', supplierKey: 'reports.supplier.candle', decision: 'pending' },
+      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.jewelry',    sku: 'SKU-59107', status: 'conditionalPass',      reportId: 'T-24106093-11-R1', date: '2026-05-26', supplierKey: 'reports.supplier.jewelry', decision: 'approved' },
+      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.cosmetics',  sku: 'SKU-55231', status: 'failWithInfo',         reportId: 'T-24106094-11-R1', date: '2026-05-22', supplierKey: 'reports.supplier.cosmetics', decision: 'pending' },
+      { cat: 'lab',   color: 'c-purple', tag: 'LAB',   nameKey: 'reports.product.furniture',  sku: 'SKU-51088', status: 'inconclusive',         reportId: 'T-24106095-11-R1', date: '2026-05-18', supplierKey: 'reports.supplier.furniture', decision: 'pending' },
+      { cat: 'lab',   color: 'c-orange', tag: 'LAB',   nameKey: 'reports.product.plastics',   sku: 'SKU-48765', status: 'informationOnly',      reportId: 'T-24106096-11-R1', date: '2026-05-14', supplierKey: 'reports.supplier.plastics', decision: 'pending' },
+      { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.kitchen',    sku: 'SKU-46320', status: 'marginal',             reportId: 'T-24106097-11-R1', date: '2026-05-10', supplierKey: 'reports.supplier.kitchen', decision: 'pending' },
+      { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.food',       sku: 'SKU-38771', status: 'na',                   reportId: 'T-24106089-11-R1', date: '2026-05-08', supplierKey: 'reports.supplier.food', decision: 'pending' },
+      /* Inspection */
+      { cat: 'psi',   color: 'c-blue',   tag: 'PSI',   nameKey: 'reports.product.psi',        sku: 'SKU-89231', status: 'pass',                 reportId: 'T-24106084-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.psi', decision: 'approved' },
+      { cat: 'dupro', color: 'c-purple', tag: 'DUPRO', nameKey: 'reports.product.textile',    sku: 'SKU-77321', status: 'fail',                 reportId: 'T-24106086-11-R1', date: '2026-06-02', supplierKey: 'reports.supplier.textile', decision: 'rejected' },
+      { cat: 'dupro', color: 'c-orange', tag: 'DUPRO', nameKey: 'reports.product.bags',       sku: 'SKU-74510', status: 'failAccepted',         reportId: 'T-24106098-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.bags', decision: 'approved' },
+      { cat: 'fri',   color: 'c-orange', tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-51840', status: 'passWithInfo',         reportId: 'T-24106087-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.electronics', decision: 'approved' },
+      { cat: 'fri',   color: 'c-blue',   tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-50112', status: 'inconclusiveWithInfo', reportId: 'T-24106099-11-R1', date: '2026-05-16', supplierKey: 'reports.supplier.electronics', decision: 'pending' },
+      /* Audit */
+      { cat: 'csr',   color: 'c-purple', tag: 'CSR',   nameKey: 'reports.product.csrAudit',   sku: 'SKU-33001', status: 'conditionalPass',      reportId: 'A-24106100-11-R1', date: '2026-05-05', supplierKey: 'reports.supplier.csrAudit', decision: 'pending' }
     ];
 
     const ICONS = {
@@ -576,6 +592,30 @@
       fail: '<svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
       pending: '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.1" stroke="currentColor" stroke-width="1.7"/><path d="M8 4.6V8l2.4 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     };
+
+    /** Map myQIMA overall-result keys → card accent family */
+    function statusAccent(status){
+      switch(status){
+        case 'pass':
+        case 'passWithInfo':
+        case 'conditionalPass':
+          return 'pass';
+        case 'fail':
+        case 'failWithInfo':
+          return 'fail';
+        case 'failAccepted':
+          return 'fail-accepted';
+        case 'informationOnly':
+        case 'na':
+          return 'neutral';
+        case 'pending':
+        case 'inconclusive':
+        case 'inconclusiveWithInfo':
+        case 'marginal':
+        default:
+          return 'pending';
+      }
+    }
 
     let currentBiz = 'lab';
     let searchQuery = '';
@@ -689,9 +729,16 @@
       }
     }
 
+    function canDecideStatus(status){
+      return status === 'pass' || status === 'fail' ||
+        status === 'passWithInfo' || status === 'failWithInfo' ||
+        status === 'conditionalPass' || status === 'failAccepted' ||
+        status === 'marginal';
+    }
+
     function resolveDecision(report){
-      // Pending test results cannot be approved/rejected yet.
-      if(report.status === 'pending') return 'pending';
+      // myQIMA: only final / actionable overall results support approve/reject.
+      if(!canDecideStatus(report.status)) return 'pending';
       const saved = loadDecisions()[report.sku];
       if(saved && saved.state === 'approved') return 'approved';
       if(saved && saved.state === 'rejected') return 'rejected';
@@ -737,13 +784,13 @@
       }
       listEl.innerHTML = list.map(function(r){
         const decision = resolveDecision(r);
-        return '<a class="rlist-card '+r.status+'" href="report-preview.html?sku='+encodeURIComponent(r.sku)+'">'+
+        return '<a class="rlist-card '+statusAccent(r.status)+'" href="report-preview.html?sku='+encodeURIComponent(r.sku)+'">'+
           '<div class="rlist-top">'+
             '<div class="rlist-title">'+
               '<div class="rlist-name">'+escapeHtml(t(r.nameKey))+'</div>'+
               '<div class="rlist-sku">'+escapeHtml(r.sku)+'</div>'+
             '</div>'+
-            '<div class="rlist-status '+r.status+'">'+escapeHtml(t('reports.status.'+r.status))+'</div>'+
+            '<div class="rlist-status">'+escapeHtml(t('reports.status.'+r.status))+'</div>'+
           '</div>'+
           '<div class="rlist-meta">'+
             '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H8a2 2 0 0 0-2 2v12"/><path d="M18 8H10a2 2 0 0 0-2 2v10h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2Z"/><path d="M12 12h4M12 15h4"/></svg>'+
