@@ -802,6 +802,7 @@ window.I18N_EN = {
   'reports.statLabel': 'All reports',
   'reports.statUnit': 'Reports',
   'reports.searchPlaceholder': 'Search reports / SKU',
+  'reports.emptySearchHint': 'No matching reports',
   'reports.filterAll': 'All',
   'reports.filterLabTesting': 'Lab testing',
   'reports.status.pass': 'PASS',

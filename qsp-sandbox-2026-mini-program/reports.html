@@ -91,28 +91,43 @@
     filter: drop-shadow(0 12px 18px rgba(65,105,225,.28)) drop-shadow(0 3px 5px rgba(31,42,68,.12));
   }
 
-  /* 筛选标签 */
+  /* 筛选标签 + 搜索（对齐订单页 filter 行） */
   .cat-tabs {
     position: relative; z-index: 2;
     display: flex; align-items: center; gap: 8px;
-    padding: 10px 16px 4px;
-    overflow-x: auto;
+    padding: 10px 16px 8px;
   }
   .cat-tabs::-webkit-scrollbar { display: none; }
   .cat {
-    flex-shrink: 0; height: 30px; padding: 0 14px; border-radius: 999px;
+    flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 8px;
     background: var(--white); border: 1px solid var(--line);
-    font-size: 13px; color: var(--seal);
+    font-size: 12px; color: var(--carbon);
     display: flex; align-items: center;
-    cursor: pointer;
+    cursor: pointer; white-space: nowrap;
   }
-  .cat.active { background: var(--pool-500); border-color: var(--pool-500); color: var(--white); font-weight: 600; }
+  .cat.active {
+    background: var(--pool-050); border-color: var(--pool-100);
+    color: var(--pool-500); font-weight: 600;
+  }
+  .cat-search {
+    flex: 1; min-width: 0; height: 36px; border-radius: 8px;
+    background: var(--white); border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 6px; padding: 0 10px;
+  }
+  .cat-search svg { color: var(--smoke); flex-shrink: 0; }
+  .cat-search input {
+    border: none; outline: none; background: transparent; width: 100%;
+    font-size: 13px; color: var(--carbon);
+  }
+  .cat-search input::placeholder { color: var(--smoke); }
   .cat-filter {
-    flex-shrink: 0; margin-left: auto;
-    width: 30px; height: 30px; border-radius: 8px;
+    flex-shrink: 0;
+    width: 36px; height: 36px; border-radius: 8px; padding: 0;
     background: var(--pool-050); border: 1px solid var(--pool-100); color: var(--pool-500);
     display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
   }
+  .cat-filter:active { background: var(--pool-100); }
 
   /* 报告列表 */
   .list {
@@ -333,9 +348,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260803t"></script>
-<script src="assets/i18n/en.js?v=20260803t"></script>
-<script src="assets/i18n-runtime.js?v=20260803t"></script>
+<script src="assets/i18n/zh.js?v=20260804i"></script>
+<script src="assets/i18n/en.js?v=20260804i"></script>
+<script src="assets/i18n-runtime.js?v=20260804i"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -376,19 +391,23 @@
       <div class="hero-art"><img src="assets/reports-hero-books.png" alt="" /></div>
     </div>
 
-    <!-- 筛选标签：目前只保留 Lab testing -->
+    <!-- Category + search + filter (aligned with orders filter row) -->
     <div class="cat-tabs" id="catTabs">
-      <div class="cat active" data-cat="lab" data-i18n="reports.filterLabTesting">实验室检测</div>
-      <!-- 旧筛选项先隐藏
-      <div class="cat" data-cat="all" data-i18n="reports.filterAll">全部</div>
+      <div class="cat active" data-cat="lab" data-i18n="reports.filterLabTesting">Lab testing</div>
+      <!-- Legacy chips kept for later
+      <div class="cat" data-cat="all" data-i18n="reports.filterAll">All</div>
       <div class="cat" data-cat="psi">PSI</div>
       <div class="cat" data-cat="dupro">DUPRO</div>
       <div class="cat" data-cat="fri">FRI</div>
       <div class="cat" data-cat="csr">CSR</div>
       -->
-      <div class="cat-filter">
-        <svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="cat-search">
+        <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input id="reportSearch" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search reports / SKU" data-i18n-placeholder="reports.searchPlaceholder" />
       </div>
+      <button type="button" class="cat-filter" id="reportFilterBtn" aria-label="Filter" title="Filter" data-i18n-title="common.filter">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
     </div>
 
     <!-- 报告列表（新） -->
@@ -443,6 +462,7 @@
     };
 
     let currentCat = 'lab';
+    let searchQuery = '';
 
     function t(key){ return (window.I18n && I18n.t) ? I18n.t(key) : key; }
     function escapeHtml(str){
@@ -473,8 +493,26 @@
       return t('reports.decision.pending');
     }
 
+    function reportSearchHaystack(r){
+      return [
+        t(r.nameKey),
+        r.sku,
+        r.reportId,
+        r.tag,
+        t(r.supplierKey),
+        t('reports.status.' + r.status),
+        decisionLabel(resolveDecision(r)),
+        r.date
+      ].join(' ').toLowerCase();
+    }
+
     function filteredReports(){
-      return REPORTS.filter(r => currentCat === 'all' || r.cat === currentCat);
+      const q = String(searchQuery || '').trim().toLowerCase();
+      return REPORTS.filter(function(r){
+        if(!(currentCat === 'all' || r.cat === currentCat)) return false;
+        if(!q) return true;
+        return reportSearchHaystack(r).indexOf(q) >= 0;
+      });
     }
 
     function renderReportList(){
@@ -482,7 +520,8 @@
       if(!listEl) return;
       const list = filteredReports();
       if(!list.length){
-        listEl.innerHTML = '<div style="text-align:center;color:var(--seal);font-size:13px;padding:40px 0;">'+t('reports.emptyHint')+'</div>';
+        const emptyKey = searchQuery.trim() ? 'reports.emptySearchHint' : 'reports.emptyHint';
+        listEl.innerHTML = '<div style="text-align:center;color:var(--seal);font-size:13px;padding:40px 0;">'+t(emptyKey)+'</div>';
         return;
       }
       listEl.innerHTML = list.map(function(r){
@@ -563,11 +602,27 @@
       renderReports();
     });
 
+    const searchInput = document.getElementById('reportSearch');
+    if(searchInput){
+      searchInput.addEventListener('input', function(){
+        searchQuery = searchInput.value || '';
+        renderReports();
+      });
+    }
+
     document.querySelectorAll('.cat').forEach(c => c.classList.toggle('active', c.getAttribute('data-cat') === currentCat));
     renderReports();
 
     if (window.I18n) {
-      I18n.initLangToggle({ onLangApplied: renderReports });
+      I18n.initLangToggle({ onLangApplied: function(){
+        const btn = document.getElementById('reportFilterBtn');
+        if(btn){
+          const label = I18n.t('common.filter');
+          btn.setAttribute('aria-label', label);
+          btn.setAttribute('title', label);
+        }
+        renderReports();
+      }});
     }
   </script>
 </body>
