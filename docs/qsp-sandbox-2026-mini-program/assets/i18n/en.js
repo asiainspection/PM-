@@ -1037,7 +1037,7 @@ window.I18N_EN = {
   'notifications.reportReadyTitle': 'New report available',
   'notifications.reportReadySub': 'Order T-25617004 · Result: Pass | Decision: Pending',
   'notifications.orderPlacedTitle': 'Order placed',
-  'notifications.orderPlacedSub': 'Order Q202349103 · Product: Toys | Pre-shipment inspection',
+  'notifications.orderPlacedSub': 'Order T-202349103 · Product: Toys | Pre-shipment inspection',
   'notifications.sampleReminderTitle': 'Sample shipment reminder',
   'notifications.sampleReminderSub': 'Order T-25617005 is still waiting for samples',
   'notifications.orderConfirmedTitle': 'Order confirmed',

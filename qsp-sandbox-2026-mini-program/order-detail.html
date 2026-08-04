@@ -622,8 +622,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260804h"></script>
-<script src="assets/i18n/en.js?v=20260804h"></script>
+<script src="assets/i18n/zh.js?v=20260804p"></script>
+<script src="assets/i18n/en.js?v=20260804p"></script>
 <script src="assets/i18n-runtime.js?v=20260804f"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
@@ -814,9 +814,9 @@
 
   <script>
     const orders = {
-      '08008571': {
+      'T-25618571': {
         title: '实验室检测',
-        subtitle: '订单编号: T-25617004',
+        subtitle: '订单编号: T-25618571',
         status: '待验证',
         statusClass: 'blue',
         serviceType: '实验室检测',
@@ -836,7 +836,7 @@
         turnaroundTime: '7 Day Regular',
         needQuotation: '否',
         manufacturerName: 'QIMA Sample Manufacturer',
-        skuNo: 'T-25617004',
+        skuNo: 'T-25618571',
         fibreContent: 'N/A',
         colorValue: 'N/A',
         productType: 'N/A',
@@ -854,9 +854,9 @@
         thumbClass: '',
         updatedAt: '2026-08-03 09:42'
       },
-      '080082671': {
+      'T-26356800': {
         title: '实验室检测',
-        subtitle: '订单编号: T-26356800-11-R',
+        subtitle: '订单编号: T-26356800',
         status: '报告已完成',
         statusClass: 'green',
         serviceType: '实验室检测',
@@ -876,7 +876,7 @@
         turnaroundTime: '7 Day Regular',
         needQuotation: '否',
         manufacturerName: 'QIMA Textile Factory',
-        skuNo: 'T-26356800-11-R',
+        skuNo: 'T-26356800',
         fibreContent: 'N/A',
         colorValue: 'N/A',
         productType: 'N/A',
@@ -894,7 +894,7 @@
         thumbClass: 'denim',
         updatedAt: '2026-07-28 16:05'
       },
-      '08008536': {
+      'T-25617036': {
         title: '实验室检测',
         subtitle: '订单编号: T-25617036',
         status: '报价中',
@@ -1014,9 +1014,9 @@
         thumbClass: '',
         updatedAt: '2026-08-02 10:07'
       },
-      'Q202349103': {
+      'T-202349103': {
         title: 'Pre-Shipment Inspection',
-        subtitle: '订单编号: Q202349103',
+        subtitle: '订单编号: T-202349103',
         status: '待确认',
         statusClass: 'orange',
         serviceType: 'PSI 装运前检测',
@@ -1026,7 +1026,7 @@
         testingLocation: 'Hangzhou',
         supplierName: 'QIMA Toy Supplier',
         productRefNo: 'N/A',
-        poNumber: 'PI-Q202349103',
+        poNumber: 'PI-T-202349103',
         skuValue: 'N/A',
         material: 'ABS / Metal Parts',
         ageGrade: '6岁以上',
@@ -1036,7 +1036,7 @@
         turnaroundTime: '7 Day Regular',
         needQuotation: '否',
         manufacturerName: 'QIMA Toy Factory',
-        skuNo: 'Q202349103',
+        skuNo: 'T-202349103',
         fibreContent: 'N/A',
         colorValue: 'N/A',
         productType: 'N/A',
@@ -1055,7 +1055,7 @@
         updatedAt: '2026-07-30 17:12'
       },
       // myQIMA-aligned On hold example: awaiting client confirmation · Order clarification
-      '08008601': {
+      'T-25618601': {
         title: '实验室检测',
         subtitle: '订单编号: T-25618601',
         status: '已暂停',
@@ -1101,7 +1101,7 @@
         updatedAt: '2026-08-03 16:34'
       },
       // myQIMA-aligned sample review example: sample received and being registered
-      '08008602': {
+      'T-25618602': {
         title: '实验室检测',
         subtitle: '订单编号: T-25618602',
         status: 'waiting_for_sample_review',
@@ -1308,9 +1308,21 @@
       }).join('');
     }
 
+
+    const ORDER_ID_ALIASES = {
+      '08008571': 'T-25618571',
+      '080082671': 'T-26356800',
+      '08008536': 'T-25617036',
+      '08008601': 'T-25618601',
+      '08008602': 'T-25618602',
+      'Q202349103': 'T-202349103',
+      'Q202310887': 'T-202310887'
+    };
+
     const params = new URLSearchParams(window.location.search);
-    let orderId = params.get('order') || '08008571';
-    let order = orders[orderId] || orders['08008571'];
+    let orderId = params.get('order') || 'T-25617004';
+    if(ORDER_ID_ALIASES[orderId]) orderId = ORDER_ID_ALIASES[orderId];
+    let order = orders[orderId] || orders['T-25617004'];
     let orderSource = 'demo';
 
     function mapDbStatus(status){

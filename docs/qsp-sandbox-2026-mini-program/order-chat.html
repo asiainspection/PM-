@@ -1252,8 +1252,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260804h"></script>
-<script src="assets/i18n/en.js?v=20260804h"></script>
+<script src="assets/i18n/zh.js?v=20260804p"></script>
+<script src="assets/i18n/en.js?v=20260804p"></script>
 <script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1609,7 +1609,7 @@
               <option value="" disabled selected data-i18n="orderChat.refNumberPlaceholder">请选择参考编号</option>
               <option>T-25617004 · 实验室检测 · Toys</option>
               <option>T-25590011 · EN71 · Toys</option>
-              <option>Q202349103 · LT 装运前检测 · Toys</option>
+              <option>T-202349103 · LT 装运前检测 · Toys</option>
             </select>
           </div>
 
@@ -2047,8 +2047,8 @@
       { id: 'T-25617004', date: '13-Jun-2026', badge: 'LT', product: 'Robot Toy RBT-2025-X9', service: 'EN71 · Toys' },
       { id: 'T-25617005', date: '28-Feb-2025', badge: 'LT', product: 'Building Blocks SKU-TOY-001', service: 'CPSIA · Toys' },
       { id: 'T-25590011', date: '19-Dec-2024', badge: 'LT', product: 'Robot Toy', service: 'EN71 · Toys' },
-      { id: 'Q202349103', date: '08-Nov-2024', badge: 'LT', product: 'Black Fabric', service: 'Pre-shipment testing' },
-      { id: 'Q202310887', date: '21-Aug-2024', badge: 'LT', product: 'Building Blocks', service: 'Lab testing · Toys' }
+      { id: 'T-202349103', date: '08-Nov-2024', badge: 'LT', product: 'Black Fabric', service: 'Pre-shipment testing' },
+      { id: 'T-202310887', date: '21-Aug-2024', badge: 'LT', product: 'Building Blocks', service: 'Lab testing · Toys' }
     ];
 
     function copyOrderKeyword(order){
@@ -2119,8 +2119,8 @@
       { id: 'T-25581208', desc: 'CPSIA · Toys' }
     ];
     const historyOrders = [
-      { id: 'Q202349103', desc: t('orderChat.historyDescLtPsi') },
-      { id: 'Q202310887', desc: t('orderChat.historyDescLtToys') }
+      { id: 'T-202349103', desc: t('orderChat.historyDescLtPsi') },
+      { id: 'T-202310887', desc: t('orderChat.historyDescLtToys') }
     ];
     function renderHistoryPanel(title, items, placeholder) {
       return '<div class="panel panel-pad history-panel">'+
@@ -2211,7 +2211,7 @@
             'Attachments': ''
           }
         },
-        'Q202349103': {
+        'T-202349103': {
           sourceType: t('orderChat.historyOrderCap'),
           sourceDesc: t('orderChat.historyDescLtPsi'),
           fields: {
@@ -2220,7 +2220,7 @@
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionUsCa'),
-            'Item#/model#': 'Q202349103',
+            'Item#/model#': 'T-202349103',
             'Electric Product': t('index.electricNo'),
             'Manufacturer': 'QIMA Toy Factory',
             'Manufacturer Address': 'Dongguan, Guangdong, China',
@@ -2232,7 +2232,7 @@
             'Attachments': t('orderChat.prefillAttachmentsDemo')
           }
         },
-        'Q202310887': {
+        'T-202310887': {
           sourceType: t('orderChat.historyOrderCap'),
           sourceDesc: t('orderChat.historyDescLtToys'),
           fields: {
@@ -2241,7 +2241,7 @@
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionPresetAll'),
-            'Item#/model#': 'Q202310887',
+            'Item#/model#': 'T-202310887',
             'Electric Product': t('index.electricYes'),
             'Product Description': t('orderChat.prefillElectricDescRobot'),
             'Manufacturer': t('orderChat.manufacturerDemo'),
@@ -4542,7 +4542,7 @@
         '<div class="history-list">'+
           refNumberItem('T-25617004', t('orderChat.historyDescLtToys'), cardSource)+
           refNumberItem('T-25590011', t('orderChat.historyDescEn71'), cardSource)+
-          refNumberItem('Q202349103', t('orderChat.historyDescLtPsi'), cardSource)+
+          refNumberItem('T-202349103', t('orderChat.historyDescLtPsi'), cardSource)+
         '</div>'+
       '</div>';
     }
@@ -6268,7 +6268,7 @@
           '<div class="missing-subsection" data-section="ref">'+
             '<div class="missing-group">'+
               '<div class="missing-label">'+t('index.inspectionRef')+' <span class="req">*</span></div>'+
-              '<select class="missing-select" id="missingRefNumber"><option value="">'+t('orderChat.refNumberPlaceholder')+'</option><option>T-25617004 · '+t('common.serviceLabTestDot')+'</option><option>T-25590011 · EN71 · Toys</option><option>Q202349103 · '+t('orderChat.historyDescLtPsiShort')+'</option></select>'+
+              '<select class="missing-select" id="missingRefNumber"><option value="">'+t('orderChat.refNumberPlaceholder')+'</option><option>T-25617004 · '+t('common.serviceLabTestDot')+'</option><option>T-25590011 · EN71 · Toys</option><option>T-202349103 · '+t('orderChat.historyDescLtPsiShort')+'</option></select>'+
               '<div class="missing-hint">'+t('orderChat.missingRefHint')+'</div>'+
             '</div>'+
           '</div>'+
