@@ -575,6 +575,39 @@
   .review-row span:first-child { color: var(--seal); flex-shrink: 0; }
   .review-row span:last-child { color: var(--carbon); text-align: right; }
   .review-empty { color: var(--smoke) !important; }
+
+  /* Leave detail form — save draft confirm (same pattern as order-chat) */
+  .back-confirm-mask {
+    position: absolute; inset: 0; z-index: 70;
+    background: rgba(25,25,25,.42);
+    display: none; align-items: center; justify-content: center;
+    padding: 0 28px;
+  }
+  .back-confirm-mask.show { display: flex; }
+  .back-confirm-dialog {
+    width: 100%; background: var(--white); border-radius: 14px;
+    overflow: hidden; box-shadow: 0 8px 28px rgba(25,25,25,.16);
+  }
+  .back-confirm-text {
+    padding: 22px 20px 18px; text-align: center;
+    font-size: 15px; line-height: 22px; color: var(--carbon);
+  }
+  .back-confirm-actions {
+    display: flex; border-top: .5px solid var(--mist);
+  }
+  .back-confirm-action {
+    flex: 1; height: 48px; border: none; background: var(--white);
+    color: var(--seal); font-size: 15px; cursor: pointer;
+  }
+  .back-confirm-action + .back-confirm-action {
+    border-left: .5px solid var(--mist);
+  }
+  .back-confirm-action.primary {
+    color: var(--pool-500); font-weight: 600;
+  }
+  .back-confirm-action.danger {
+    color: var(--cherry);
+  }
 </style>
 <link rel="stylesheet" href="assets/tabbar.css?v=20260803j" />
 <link rel="stylesheet" href="assets/phone-shell.css" />
@@ -590,6 +623,7 @@
 <script src="assets/wechat-binding.js?v=20260804a"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
+<script src="assets/order-drafts.js?v=20260804c"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
 </head>
@@ -1175,6 +1209,16 @@
         </div>
       </div>
     </div>
+
+    <div class="back-confirm-mask" id="detailLeaveConfirm" onclick="closeDetailLeaveConfirm(event)">
+      <div class="back-confirm-dialog" onclick="event.stopPropagation()">
+        <div class="back-confirm-text" data-i18n="orderChat.backConfirmText">返回前可将当前进度保存为草稿，稍后继续下单</div>
+        <div class="back-confirm-actions">
+          <button class="back-confirm-action danger" type="button" onclick="discardDetailAndLeave()" data-i18n="orderChat.backConfirmDiscard">不保存</button>
+          <button class="back-confirm-action primary" type="button" onclick="saveDetailDraftAndLeave()" data-i18n="orderChat.backConfirmSaveDraft">保存为草稿</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1296,8 +1340,104 @@
       toggleHistoryOrderSelection();
       toggleRefNumber();
     }
-    function closeDetailForm() {
+    function closeDetailForm(event) {
+      if (event && event.target !== event.currentTarget) return;
+      openDetailLeaveConfirm();
+    }
+
+    function openDetailLeaveConfirm() {
+      var modal = document.getElementById('detailLeaveConfirm');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeDetailLeaveConfirm(event) {
+      if (event && event.target !== event.currentTarget) return;
+      var modal = document.getElementById('detailLeaveConfirm');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function forceCloseDetailForm() {
+      closeDetailLeaveConfirm();
       document.getElementById('detailForm').classList.remove('show');
+      showDetailEditMode(false);
+    }
+
+    function getSalesCountriesLabel() {
+      return Array.from(selectedSalesCountries).map(function (c) {
+        return I18n.displayCountry(c);
+      }).join(I18n.getLang() === 'en' ? ', ' : '、');
+    }
+
+    function getCarrierLabel() {
+      var select = document.getElementById('carrierSelect');
+      if (!select || !select.value) return '';
+      var opt = select.options[select.selectedIndex];
+      return opt ? opt.textContent.trim() : '';
+    }
+
+    function getShippingFieldValue(index, selector) {
+      var rows = document.querySelectorAll('.shipping-field');
+      var row = rows[index];
+      if (!row) return '';
+      var el = row.querySelector(selector);
+      return el && el.value ? String(el.value).trim() : '';
+    }
+
+    function snapshotDetailDraftFields() {
+      var labChecked = document.querySelector('input[name="labSelect"]:checked');
+      var lab = labChecked && window.I18n
+        ? I18n.getTestingLabs().find(function (item) { return item.key === labChecked.value; })
+        : null;
+      return {
+        'Product Name': getFieldValue('productNameInput'),
+        'Program': getProjectLabel(),
+        'Country of Origin': getOriginCountryLabel(),
+        'Countries/Regions of Distribution': getSalesCountriesLabel(),
+        'Item#/model#': getFieldValue('skuInput'),
+        'Electric Product': getElectricTypeLabel(),
+        'Product Description': getCheckedValue('electricType') === 'yes'
+          ? getFieldValue('electricDescriptionInput')
+          : '',
+        'Manufacturer': getFieldValue('manufacturerInput'),
+        'Manufacturer Address': getFieldValue('manufacturerAddressInput'),
+        'Sample Collection Method': getSampleMethodLabel(),
+        'Product Inspection Order Reference Number': getSelectedReferenceText('historyOrderSelectBtn') || '',
+        'Testing Lab': lab ? lab.label : '',
+        'Carrier': getCarrierLabel(),
+        'Tracking Number': getShippingFieldValue(1, 'input'),
+        'Shipping Remark': getShippingFieldValue(2, 'textarea'),
+        'Report Fields on Certificate': getYesNoLabel(getCheckedValue('reportFieldsNeed')),
+        'Additional Report Fields': getCheckedValue('reportFieldsNeed') === 'yes'
+          ? getFieldValue('reportFieldsDetailInput')
+          : '',
+        'Supplier': getFieldValue('supplierInput'),
+        'Product Reference Number': getFieldValue('productRefInput'),
+        'Order Number': getFieldValue('orderNumberInput'),
+        'Age Grade': getAgeGradeLabel(),
+        'Remark': getFieldValue('optionalRemarkInput')
+      };
+    }
+
+    function discardDetailAndLeave() {
+      forceCloseDetailForm();
+    }
+
+    function saveDetailDraftAndLeave() {
+      var fields = snapshotDetailDraftFields();
+      var productName = String(fields['Product Name'] || '').trim()
+        || (typeof t === 'function' ? t('orderChat.draftUntitled') : 'Untitled draft');
+      var draftId = window.OrderDrafts ? OrderDrafts.nextId() : ('DRF-' + Date.now());
+      if (window.OrderDrafts) {
+        draftId = OrderDrafts.save({
+          productName: productName,
+          serviceKey: 'common.serviceLabTest',
+          fields: fields,
+          biz: 'lab'
+        });
+      }
+      try { sessionStorage.setItem('qima-draft-saved-toast', draftId); } catch (e) { /* ignore */ }
+      closeDetailLeaveConfirm();
+      window.location.href = 'orders.html';
     }
     function toggleReportFieldsDetail() {
       const isYes = getCheckedValue('reportFieldsNeed') === 'yes';
