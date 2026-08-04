@@ -357,6 +357,8 @@ window.I18N_EN = {
   'orderSuccess.reminderBody': 'When shipping samples, write the <strong>order reference (T number)</strong> on the sample bag so we can match them quickly.',
   'orderSuccess.viewOrders': 'View orders',
   'orderSuccess.backHome': 'Back to home',
+  'orderSuccess.copyOrderRef': 'Copy order reference',
+  'orderSuccess.orderRefCopied': 'Order reference copied',
 
   /* ── Order detail ── */
   'orderDetail.title': 'Order details',

@@ -94,12 +94,26 @@
     text-align: left;
   }
   .summary-row {
-    display: flex; justify-content: space-between; gap: 12px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
     padding: 7px 0;
     font-size: 13px; line-height: 19px;
   }
-  .summary-row span:first-child { color: var(--seal); }
-  .summary-row span:last-child { color: var(--carbon); font-weight: 600; text-align: right; }
+  .summary-row > span:first-child { color: var(--seal); flex-shrink: 0; }
+  .summary-row > span:last-child:not(.order-ref-copy) { color: var(--carbon); font-weight: 600; text-align: right; }
+  .order-ref-copy {
+    display: inline-flex; align-items: center; gap: 6px;
+    max-width: 68%;
+    border: none; background: transparent; padding: 0;
+    font: inherit; font-weight: 600; color: var(--carbon);
+    cursor: pointer; text-align: right;
+  }
+  .order-ref-copy:active { opacity: .72; }
+  .order-ref-copy #orderRefId {
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .order-ref-copy .copy-ic {
+    flex-shrink: 0; width: 14px; height: 14px; color: var(--pool-500);
+  }
   .card-block-divider {
     height: 1px; background: var(--mist); margin: 18px 0;
   }
@@ -188,8 +202,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderSuccess';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
+<script src="assets/i18n/zh.js?v=20260804h"></script>
+<script src="assets/i18n/en.js?v=20260804h"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 </head>
@@ -223,7 +237,16 @@
         <div class="success-title" data-i18n="orderSuccess.heading">下单成功</div>
         <div class="success-desc" data-i18n="orderSuccess.desc">检测订单已提交，QIMA 团队将继续处理样品收集、测试安排和报告生成。</div>
         <div class="summary">
-          <div class="summary-row"><span data-i18n="common.orderRef">订单参考编号</span><span id="orderRefId">T-25617004</span></div>
+          <div class="summary-row">
+            <span data-i18n="common.orderRef">Order reference</span>
+            <button class="order-ref-copy" type="button" onclick="copyOrderRef()" aria-label="Copy order reference" data-i18n-aria-label="orderSuccess.copyOrderRef">
+              <span id="orderRefId">T-25617004</span>
+              <svg class="copy-ic" viewBox="0 0 16 16" aria-hidden="true" fill="none">
+                <rect x="5.5" y="5.5" width="7" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M3.5 10.5V4.2A1.7 1.7 0 0 1 5.2 2.5h5.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
           <div class="summary-row"><span data-i18n="orderSuccess.serviceType">服务类型</span><span data-i18n="common.serviceLabTest">实验室检测</span></div>
           <div class="summary-row"><span data-i18n="orderSuccess.orderStatus">订单状态</span><span data-i18n="status.pendingVerification">待验证</span></div>
         </div>
@@ -283,6 +306,12 @@
       if (refEl) refEl.textContent = orderId;
       const link = document.getElementById('viewOrderLink');
       if (link) link.href = 'order-detail.html?order=' + encodeURIComponent(orderId);
+      const copyBtn = document.querySelector('.order-ref-copy');
+      if (copyBtn) {
+        const label = typeof t === 'function' ? t('orderSuccess.copyOrderRef') : 'Copy order reference';
+        copyBtn.setAttribute('aria-label', label);
+        copyBtn.setAttribute('title', label);
+      }
     }
 
     function getInitialLabKey() {
@@ -326,29 +355,9 @@
       showCopyToast.timer = setTimeout(function () { toast.classList.remove('show'); }, 1600);
     }
 
-    function getLabCopyText(lab) {
-      if (!lab) return '';
-      const recipientLabel = typeof t === 'function' ? t('lab.recipientLabel') : '收件人';
-      const phoneLabel = typeof t === 'function' ? t('lab.phoneLabel') : '电话';
-      const addressLabel = typeof t === 'function' ? t('lab.addressLabel') : '实验室地址';
-      return recipientLabel + '：' + lab.recipient + '\n' +
-        phoneLabel + '：' + lab.phone + '\n' +
-        addressLabel + '：' + lab.address;
-    }
-
-    function copyLabAddress() {
-      const lab = window.I18n
-        ? I18n.getTestingLabs().find(function (item) { return item.key === activeLab; })
-        : null;
-      const text = getLabCopyText(lab);
+    function copyText(text, successKey) {
       if (!text) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () {
-          showCopyToast('common.addressCopied');
-        }).catch(fallbackCopy);
-        return;
-      }
-      fallbackCopy();
+      const okKey = successKey || 'common.addressCopied';
       function fallbackCopy() {
         const input = document.createElement('textarea');
         input.value = text;
@@ -359,12 +368,42 @@
         input.select();
         try {
           document.execCommand('copy');
-          showCopyToast('common.addressCopied');
+          showCopyToast(okKey);
         } catch (err) {
           showCopyToast('common.copyFailed');
         }
         document.body.removeChild(input);
       }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          showCopyToast(okKey);
+        }).catch(fallbackCopy);
+        return;
+      }
+      fallbackCopy();
+    }
+
+    function copyOrderRef() {
+      const el = document.getElementById('orderRefId');
+      const text = el ? String(el.textContent || '').trim() : getOrderId();
+      copyText(text, 'orderSuccess.orderRefCopied');
+    }
+
+    function getLabCopyText(lab) {
+      if (!lab) return '';
+      const recipientLabel = typeof t === 'function' ? t('lab.recipientLabel') : 'Recipient';
+      const phoneLabel = typeof t === 'function' ? t('lab.phoneLabel') : 'Phone';
+      const addressLabel = typeof t === 'function' ? t('lab.addressLabel') : 'Lab address';
+      return recipientLabel + '：' + lab.recipient + '\n' +
+        phoneLabel + '：' + lab.phone + '\n' +
+        addressLabel + '：' + lab.address;
+    }
+
+    function copyLabAddress() {
+      const lab = window.I18n
+        ? I18n.getTestingLabs().find(function (item) { return item.key === activeLab; })
+        : null;
+      copyText(getLabCopyText(lab), 'common.addressCopied');
     }
 
     window.onLangApplied = function () {

@@ -357,6 +357,8 @@ window.I18N_ZH = {
   'orderSuccess.reminderBody': '寄送样品时，请将<strong>订单参考编号（T单号）</strong>写在样品包装袋上，以便我们快速匹配您的样品。',
   'orderSuccess.viewOrders': '查看订单管理',
   'orderSuccess.backHome': '返回首页',
+  'orderSuccess.copyOrderRef': '复制订单参考编号',
+  'orderSuccess.orderRefCopied': '订单参考编号已复制',
 
   /* ── Order detail ── */
   'orderDetail.title': '订单详情',
