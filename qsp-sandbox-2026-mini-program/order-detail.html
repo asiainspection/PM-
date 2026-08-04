@@ -491,6 +491,35 @@
     border-color: var(--pool-500);
     box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
+  .edit-upload-btn {
+    width: 100%; height: 40px; border: 1px solid var(--pool-100);
+    border-radius: 10px; background: var(--pool-100); color: var(--pool-500);
+    font-size: 12px; cursor: pointer;
+  }
+  .edit-attach-note {
+    margin-top: 8px; font-size: 11px; color: var(--seal); line-height: 16px;
+  }
+  .edit-attach-list {
+    display: flex; flex-direction: column; gap: 8px; margin-top: 10px;
+  }
+  .edit-attach-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px;
+    background: var(--cloud);
+  }
+  .edit-attach-name {
+    flex: 1; min-width: 0; font-size: 12px; color: var(--carbon);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .edit-attach-remove {
+    width: 28px; height: 28px; border: none; border-radius: 8px;
+    background: var(--cherry-100); color: var(--cherry);
+    font-size: 18px; font-weight: 700; line-height: 28px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .edit-attach-empty {
+    margin-top: 8px; font-size: 12px; color: var(--seal);
+  }
   .edit-item-country .edit-item-label-row {
     display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
   }
@@ -593,9 +622,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260803p"></script>
-<script src="assets/i18n/en.js?v=20260803p"></script>
-<script src="assets/i18n-runtime.js?v=20260803p"></script>
+<script src="assets/i18n/zh.js?v=20260804f"></script>
+<script src="assets/i18n/en.js?v=20260804f"></script>
+<script src="assets/i18n-runtime.js?v=20260804f"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
 <script src="assets/supabase-client.js"></script>
@@ -702,6 +731,7 @@
           <div class="info-row"><div class="label" data-i18n="orderDetail.sku">SKU</div><div class="value" id="skuValue">None</div></div>
           <div class="info-row"><div class="label" data-i18n="orderDetail.material">材料</div><div class="value" id="material">None</div></div>
           <div class="info-row"><div class="label" data-i18n="orderDetail.ageGrade">适用年龄</div><div class="value" id="ageGrade">For adult use</div></div>
+          <div class="info-row"><div class="label"><span data-i18n="index.productDivision">产品部门</span> <span class="req">*</span></div><div class="value" id="productDivision">Hardlines</div></div>
           <div class="info-row"><div class="label"><span data-i18n="orderDetail.project">方案</span> <span class="req">*</span></div><div class="value" id="projectName">TEMU Hardware- Seller Pay（商家付款，杂货产品）</div></div>
           <div class="info-row"><div class="label"><span data-i18n="orderDetail.origin">原产地</span> <span class="req">*</span></div><div class="value" id="originCountry">中国</div></div>
           <div class="info-row"><div class="label"><span data-i18n="orderDetail.distribution">分发国家或区域</span> <span class="req">*</span></div><div class="value" id="salesCountry">European Union</div></div>
@@ -744,7 +774,7 @@
       <section class="section-card">
         <div class="section-head" data-i18n="orderDetail.additionalInfo">附加信息</div>
         <div class="info-list">
-          <div class="info-row full"><div class="label" data-i18n="orderDetail.remark">备注</div><div class="value muted" id="orderRemark">None</div></div>
+          <div class="info-row full"><div class="label" data-i18n="index.optionalRemark">订单备注</div><div class="value muted" id="orderRemark">None</div></div>
           <div class="info-row full"><div class="label" data-i18n="orderDetail.attachments">附件</div><div class="value muted" id="attachments">None</div></div>
         </div>
       </section>
@@ -1149,6 +1179,16 @@
       '通用检测项目': 'index.projectGeneral',
       'PSI 装运前检测项目': 'orderDetail.projectPsiProgram'
     };
+    const PRODUCT_DIVISION_CANONICAL = {
+      Softlines: 'index.productDivisionSoftlines',
+      Hardlines: 'index.productDivisionHardlines',
+      Toys: 'index.productDivisionToys',
+      Electronics: 'index.productDivisionElectronics',
+      softlines: 'index.productDivisionSoftlines',
+      hardlines: 'index.productDivisionHardlines',
+      toys: 'index.productDivisionToys',
+      electronics: 'index.productDivisionElectronics'
+    };
     function getContactMailTypes() {
       return window.I18n ? I18n.getContactMailTypes() : [];
     }
@@ -1181,6 +1221,34 @@
       return key ? t(key) : value;
     }
 
+    function translateProductDivision(value) {
+      if (!value || value === 'None' || value === 'N/A') return t('common.none');
+      const key = PRODUCT_DIVISION_CANONICAL[value] || PRODUCT_DIVISION_CANONICAL[String(value).toLowerCase()];
+      return key ? t(key) : value;
+    }
+
+    function normalizeProductDivision(value) {
+      const raw = String(value || '').trim();
+      if (!raw || raw === 'None' || raw === 'N/A') return '';
+      const known = ['Softlines', 'Hardlines', 'Toys', 'Electronics'];
+      const hit = known.find(function (item) { return item.toLowerCase() === raw.toLowerCase(); });
+      if (hit) return hit;
+      const alias = {
+        textile: 'Softlines',
+        apparel: 'Softlines',
+        fabric: 'Softlines',
+        hardware: 'Hardlines',
+        eyewear: 'Hardlines'
+      };
+      return alias[raw.toLowerCase()] || '';
+    }
+
+    function inferProductDivision(source) {
+      return normalizeProductDivision(source && source.productDivision) ||
+        normalizeProductDivision(source && source.category) ||
+        '';
+    }
+
     function translateServiceType(value) {
       if (value === '实验室检测') return t('common.serviceLabTest');
       if (value === 'PSI 装运前检测') return t('orderDetail.servicePsi');
@@ -1201,6 +1269,7 @@
       if (key === 'testType') return translateTestType(value);
       if (key === 'collectionMethod') return translateCollectionMethod(value);
       if (key === 'projectName') return translateProjectName(value);
+      if (key === 'productDivision') return translateProductDivision(value);
       if (key === 'originCountry') return I18n.displayCountry(value);
       if (key === 'salesCountry') return formatDistributionDisplay(value);
       if (key === 'testingLocation' || key === 'testingLocation2') return translateTestingLocation(value);
@@ -1210,7 +1279,7 @@
     function fileIconType(name){
       const ext = (name.split('.').pop() || '').toLowerCase();
       if(['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'img';
-      if(['doc', 'docx'].includes(ext)) return 'doc';
+      if(['doc', 'docx', 'xls', 'xlsx', 'csv'].includes(ext)) return 'doc';
       return 'pdf';
     }
 
@@ -1314,6 +1383,7 @@
         material: displayOrNone(row.material),
         ageGrade: displayOrNA(row.age_grade),
         projectName: row.project_name || '',
+        productDivision: inferProductDivision({ productDivision: row.product_division, category: row.category }),
         originCountry: row.origin_country || '',
         salesCountry: salesCountriesToText(row.sales_countries),
         turnaroundTime: row.turnaround_time || '',
@@ -1342,6 +1412,7 @@
         emailType: recipients[0] ? recipients[0].typeKey : 'N/A',
         recipients: recipients,
         files: files,
+        attachments: files.filter(function(f){ return f.labelKey === 'orderDetail.attachments'; }),
         thumbClass: '',
         applicationNo: row.application_no || '',
         orderRef: ref,
@@ -1621,6 +1692,14 @@
           { key: 'skuValue', labelKey: 'orderDetail.sku', type: 'text' },
           { key: 'material', labelKey: 'orderDetail.material', type: 'text' },
           { key: 'ageGrade', labelKey: 'orderDetail.ageGrade', type: 'text' },
+          { key: 'productDivision', labelKey: 'index.productDivision', required: true, type: 'select', optionValues: [
+            'Softlines', 'Hardlines', 'Toys', 'Electronics'
+          ], optionKeys: [
+            'index.productDivisionSoftlines',
+            'index.productDivisionHardlines',
+            'index.productDivisionToys',
+            'index.productDivisionElectronics'
+          ]},
           { key: 'projectName', labelKey: 'orderDetail.project', required: true, type: 'select', optionValues: [
             'TEMU Hardware- Seller Pay（商家付款，杂货产品）',
             'TEMU Hardware - Seller Pay（商家付款）',
@@ -1691,13 +1770,14 @@
             'carrier.other'
           ]},
           { key: 'trackingNumber', labelKey: 'carrier.trackingNo', type: 'text' },
-          { key: 'shippingRemark', labelKey: 'index.shippingRemark', type: 'textarea' }
+          { key: 'shippingRemark', labelKey: 'index.shippingRemark', type: 'textarea', placeholderKey: 'index.shippingRemarkPlaceholder' }
         ]
       },
       {
         titleKey: 'orderDetail.additionalInfo',
         fields: [
-          { key: 'orderRemark', labelKey: 'orderDetail.remark', type: 'textarea' },
+          { key: 'orderRemark', labelKey: 'index.optionalRemark', type: 'textarea', placeholderKey: 'index.optionalRemarkPlaceholder' },
+          { key: 'files', labelKey: 'orderDetail.attachments', type: 'attachments' },
           { key: 'recipients', labelKey: 'orderDetail.recipientsOptional', type: 'recipients' }
         ]
       }
@@ -1792,6 +1872,7 @@
       skuValue: ['skuValue'],
       material: ['material'],
       ageGrade: ['ageGrade'],
+      productDivision: ['productDivision'],
       projectName: ['projectName'],
       originCountry: ['originCountry'],
       salesCountry: ['salesCountry'],
@@ -1998,6 +2079,106 @@
       '</div>';
     }
 
+    let editFilesDraft = [];
+
+    function isUserAttachmentFile(file){
+      if(!file) return false;
+      const key = file.labelKey || '';
+      return key === 'orderDetail.attachments' || key === 'chat_upload' || !key;
+    }
+
+    function getOrderAttachmentFiles(){
+      if(Array.isArray(order.attachments) && order.attachments.length){
+        return order.attachments.map(function (f) {
+          return {
+            name: f.name || 'file',
+            labelKey: f.labelKey || 'orderDetail.attachments',
+            label: f.label || ''
+          };
+        });
+      }
+      return (Array.isArray(order.files) ? order.files : []).filter(isUserAttachmentFile).map(function (f) {
+        return {
+          name: f.name || 'file',
+          labelKey: f.labelKey || 'orderDetail.attachments',
+          label: f.label || ''
+        };
+      });
+    }
+
+    function getOrderSystemFiles(){
+      return (Array.isArray(order.files) ? order.files : []).filter(function (f) {
+        return !isUserAttachmentFile(f);
+      });
+    }
+
+    function renderEditAttachmentsField(field){
+      return '<div class="edit-item edit-attachments-field">'+
+        '<label>'+escapeHtml(getFieldLabel(field))+'</label>'+
+        '<button class="edit-upload-btn" type="button" onclick="triggerEditAttachmentUpload()">'+escapeHtml(t('index.uploadBtn'))+'</button>'+
+        '<input id="editAttachmentInput" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.zip" hidden onchange="onEditAttachmentSelected(this)">'+
+        '<div class="edit-attach-note">'+escapeHtml(t('index.bomHint'))+'</div>'+
+        '<div class="edit-attach-list" id="editAttachList"></div>'+
+      '</div>';
+    }
+
+    function renderEditAttachList(){
+      const list = document.getElementById('editAttachList');
+      if(!list) return;
+      if(!editFilesDraft.length){
+        list.innerHTML = '<div class="edit-attach-empty">'+escapeHtml(t('orderDetail.noAttachments'))+'</div>';
+        return;
+      }
+      list.innerHTML = editFilesDraft.map(function (file, index) {
+        return '<div class="edit-attach-item">'+
+          '<div class="edit-attach-name">'+escapeHtml(file.name)+'</div>'+
+          '<button class="edit-attach-remove" type="button" onclick="removeEditAttachment('+index+')" aria-label="'+escapeHtml(file.name)+'">-</button>'+
+        '</div>';
+      }).join('');
+    }
+
+    function triggerEditAttachmentUpload(){
+      const input = document.getElementById('editAttachmentInput');
+      if(input) input.click();
+    }
+
+    function onEditAttachmentSelected(input){
+      const files = input && input.files ? Array.from(input.files) : [];
+      files.forEach(function (file) {
+        const name = file.name || 'file';
+        const exists = editFilesDraft.some(function (item) { return item.name === name; });
+        if(exists) return;
+        editFilesDraft.push({ name: name, labelKey: 'orderDetail.attachments' });
+      });
+      if(input) input.value = '';
+      renderEditAttachList();
+    }
+
+    function removeEditAttachment(index){
+      if(index < 0 || index >= editFilesDraft.length) return;
+      editFilesDraft.splice(index, 1);
+      renderEditAttachList();
+    }
+
+    function refreshOrderAttachmentsView(){
+      const userFiles = getOrderAttachmentFiles();
+      const attachments = document.getElementById('attachments');
+      if(attachments){
+        if(userFiles.length){
+          attachments.textContent = userFiles.map(function(f){ return f.name; }).join(I18n.getLang() === 'en' ? ', ' : '、');
+          attachments.classList.remove('muted');
+        } else {
+          attachments.textContent = t('common.none');
+          attachments.classList.add('muted');
+        }
+      }
+      const systemFiles = getOrderSystemFiles();
+      const baseFiles = systemFiles.length
+        ? systemFiles
+        : (orderSource === 'live' ? [] : defaultFiles);
+      renderFileList(baseFiles.concat(userFiles));
+    }
+
     function renderEditRecipientCard(contact, index){
       const typeKey = normalizeEmailType(contact.typeKey || contact.type);
       return '<div class="edit-recipient-card">'+
@@ -2046,7 +2227,9 @@
     }
 
     function renderEditField(field){
-      const current = getOrderFieldValue(field.key);
+      const current = field.key === 'productDivision'
+        ? inferProductDivision(order)
+        : getOrderFieldValue(field.key);
       const req = field.required ? ' <span class="req">*</span>' : '';
       const label = getFieldLabel(field);
       if(field.type === 'multi-country'){
@@ -2057,6 +2240,9 @@
       }
       if(field.type === 'recipients'){
         return renderEditRecipientsField(field);
+      }
+      if(field.type === 'attachments'){
+        return renderEditAttachmentsField(field);
       }
       if(field.type === 'select'){
         let selected = current;
@@ -2078,9 +2264,10 @@
         '</div>';
       }
       if(field.type === 'textarea'){
+        const ph = field.placeholderKey ? t(field.placeholderKey) : t('index.optionalRemarkPlaceholder');
         return '<div class="edit-item">'+
           '<label>'+escapeHtml(label)+req+'</label>'+
-          '<textarea class="edit-control textarea" data-field-key="'+field.key+'" placeholder="'+escapeHtml(t('index.optionalRemarkPlaceholder'))+'">'+escapeHtml(current)+'</textarea>'+
+          '<textarea class="edit-control textarea" data-field-key="'+field.key+'" placeholder="'+escapeHtml(ph)+'">'+escapeHtml(current)+'</textarea>'+
         '</div>';
       }
       return '<div class="edit-item">'+
@@ -2090,6 +2277,7 @@
     }
 
     function openOrderEditor(){
+      editFilesDraft = getOrderAttachmentFiles();
       const grid = document.getElementById('orderEditorGrid');
       grid.innerHTML = editableSections.map(function (section) {
         return '<div class="edit-section">'+
@@ -2099,6 +2287,7 @@
           '</div>'+
         '</div>';
       }).join('');
+      renderEditAttachList();
       document.getElementById('orderEditor').classList.add('show');
     }
 
@@ -2140,9 +2329,25 @@
           applyFieldToDom(key, lab ? lab.key : value);
           return;
         }
+        if(key === 'productDivision'){
+          value = normalizeProductDivision(value);
+          order[key] = value || 'None';
+          applyFieldToDom(key, value);
+          return;
+        }
         order[key] = value || 'None';
         applyFieldToDom(key, value);
       });
+      order.attachments = editFilesDraft.map(function (f) {
+        return {
+          name: f.name,
+          labelKey: f.labelKey || 'orderDetail.attachments',
+          label: f.label || ''
+        };
+      });
+      const systemFiles = getOrderSystemFiles();
+      order.files = systemFiles.concat(order.attachments);
+      refreshOrderAttachmentsView();
       // Edits can satisfy the outstanding next step (e.g. adding a tracking number),
       // so the progress card has to recompute instead of keeping the stale prompt.
       order.updatedAt = formatNow();
@@ -2181,6 +2386,7 @@
       setText('skuValue', order.skuValue);
       setText('material', order.material);
       setText('ageGrade', order.ageGrade);
+      setText('productDivision', translateProductDivision(inferProductDivision(order)));
       setText('projectName', translateProjectName(order.projectName));
       setText('originCountry', I18n.displayCountry(order.originCountry));
       setText('salesCountry', formatDistributionDisplay(order.salesCountry));
@@ -2208,16 +2414,7 @@
       setText('trackingNumber', order.trackingNumber);
       setText('shippingRemark', order.shippingRemark);
       setText('orderRemark', order.orderRemark);
-      const attachments = document.getElementById('attachments');
-      if(attachments){
-        if(order.files && order.files.length){
-          attachments.textContent = order.files.map(function(f){ return f.name; }).join('、');
-          attachments.classList.remove('muted');
-        } else {
-          attachments.textContent = t('common.none');
-          attachments.classList.add('muted');
-        }
-      }
+      refreshOrderAttachmentsView();
       renderRecipientList();
 
       const statusBadge = document.getElementById('statusBadge');
@@ -2235,7 +2432,6 @@
         productThumb.setAttribute('aria-label', 'No product photo');
       }
 
-      renderFileList((order.files && order.files.length) ? order.files : (orderSource === 'live' ? [] : defaultFiles));
       renderOrderProgress();
     }
 

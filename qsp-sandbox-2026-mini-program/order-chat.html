@@ -1245,8 +1245,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260804e"></script>
-<script src="assets/i18n/en.js?v=20260804e"></script>
+<script src="assets/i18n/zh.js?v=20260804f"></script>
+<script src="assets/i18n/en.js?v=20260804f"></script>
 <script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -5240,6 +5240,7 @@
           title: t('orderChat.basicInfo'),
           fields: [
             { name:'Product Name', fallback: '' },
+            { name:'Product Division', fallback: '', type:'select', options: ['', 'Softlines', 'Hardlines', 'Toys', 'Electronics'] },
             { name:'Program', fallback: '', type:'select', options: [''].concat(getProgramOptions()) },
             { name:'Country of Origin', fallback: '', type:'select', options: [''].concat(getOriginOptions()) },
             { name:'Countries/Regions of Distribution', fallback: '', type:'multi-country' },
@@ -5845,6 +5846,7 @@
 
     const REQUIRED_ORDER_FIELDS = [
       'Product Name',
+      'Product Division',
       'Program',
       'Country of Origin',
       'Countries/Regions of Distribution',
