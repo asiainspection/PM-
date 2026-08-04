@@ -616,8 +616,8 @@
 <link rel="stylesheet" href="assets/wechat-binding.css?v=20260803j" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260804a"></script>
-<script src="assets/i18n/en.js?v=20260804a"></script>
+<script src="assets/i18n/zh.js?v=20260804d"></script>
+<script src="assets/i18n/en.js?v=20260804d"></script>
 <script src="assets/i18n-runtime.js"></script>
 <script src="assets/signup-geo.js?v=20260804a"></script>
 <script src="assets/wechat-binding.js?v=20260804a"></script>
@@ -1016,8 +1016,8 @@
           </div>
 
           <div class="form-row shipping-field" style="display: none;">
-            <div class="form-label" data-i18n="index.shippingRemark">备注</div>
-            <textarea class="form-textarea" data-i18n-placeholder="index.shippingRemarkPlaceholder" placeholder="请输入备注信息"></textarea>
+            <div class="form-label" data-i18n="index.shippingRemark">快递备注</div>
+            <textarea class="form-textarea" id="shippingRemarkInput" data-i18n-placeholder="index.shippingRemarkPlaceholder" placeholder="请输入快递备注"></textarea>
             <div class="char-count">0 / 3600</div>
           </div>
 
@@ -1099,11 +1099,6 @@
           </div>
 
           <div class="form-row">
-            <div class="form-label" data-i18n="index.optionalRemark">备注</div>
-            <textarea class="form-textarea" id="optionalRemarkInput" data-i18n-placeholder="index.optionalRemarkPlaceholder" placeholder="请输入备注"></textarea>
-          </div>
-
-          <div class="form-row">
             <div class="form-label"><span data-i18n="index.attachments">附件</span> <span class="info">i</span></div>
             <button class="upload-optional-btn" type="button" data-i18n="index.uploadBtn">附档文件至此处或点击上传文件</button>
             <div class="contact-note" style="margin-top:8px; margin-bottom:0;" data-i18n="index.bomHint">如有 BOM 表，请一并上传，便于实验室确认产品结构和材料信息。</div>
@@ -1115,6 +1110,11 @@
             <div class="contact-note" data-i18n="index.extraContactsNote">以下联系人将会收到与此订单相关的邮件</div>
             <div class="contact-list" id="additionalContactList"></div>
             <button class="add-contact-btn" type="button" onclick="addAdditionalContact()" data-i18n="common.addRecipient">添加收件人</button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-label" data-i18n="index.optionalRemark">订单备注</div>
+            <textarea class="form-textarea" id="optionalRemarkInput" data-i18n-placeholder="index.optionalRemarkPlaceholder" placeholder="请输入订单备注"></textarea>
           </div>
 
           </div>
@@ -1143,7 +1143,7 @@
               <div class="review-row"><span data-i18n="index.productRef">产品参考号码</span><span id="reviewProductRef">未填写</span></div>
               <div class="review-row"><span data-i18n="index.orderNumberField">订单号码</span><span id="reviewOrderNumber">未填写</span></div>
               <div class="review-row"><span data-i18n="index.ageGrade">适用年龄</span><span id="reviewAgeGrade">未填写</span></div>
-              <div class="review-row"><span data-i18n="index.optionalRemark">备注</span><span id="reviewOptionalRemark">未填写</span></div>
+              <div class="review-row"><span data-i18n="index.optionalRemark">订单备注</span><span id="reviewOptionalRemark">未填写</span></div>
               <div class="review-row"><span data-i18n="index.extraContacts">附加联系人（可选）</span><span id="reviewExtraContact">未填写</span></div>
               <div class="review-row"><span data-i18n="orderChat.fieldSampleMethod">样品收集方式</span><span id="reviewSampleMethod">-</span></div>
               <div class="review-row"><span data-i18n="lab.sendToLab">寄送实验室</span><span id="reviewLab">未选择</span></div>
@@ -1405,7 +1405,7 @@
         'Testing Lab': lab ? lab.label : '',
         'Carrier': getCarrierLabel(),
         'Tracking Number': getShippingFieldValue(1, 'input'),
-        'Shipping Remark': getShippingFieldValue(2, 'textarea'),
+        'Shipping Remark': getFieldValue('shippingRemarkInput') || getShippingFieldValue(2, 'textarea'),
         'Report Fields on Certificate': getYesNoLabel(getCheckedValue('reportFieldsNeed')),
         'Additional Report Fields': getCheckedValue('reportFieldsNeed') === 'yes'
           ? getFieldValue('reportFieldsDetailInput')
@@ -1414,7 +1414,8 @@
         'Product Reference Number': getFieldValue('productRefInput'),
         'Order Number': getFieldValue('orderNumberInput'),
         'Age Grade': getAgeGradeLabel(),
-        'Remark': getFieldValue('optionalRemarkInput')
+        'Remark': getFieldValue('optionalRemarkInput'),
+        'Order Remark': getFieldValue('optionalRemarkInput')
       };
     }
 
