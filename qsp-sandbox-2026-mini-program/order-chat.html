@@ -666,6 +666,15 @@
     font-size: 13px; font-weight: 600; cursor: pointer;
   }
   .edit-fields span { font-weight: 400; color: var(--seal); margin-right: 4px; }
+  .confirm-report-block {
+    margin: 0 14px 12px;
+    padding-top: 12px;
+    border-top: .5px solid var(--mist);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .confirm-report-block .missing-label { font-weight: 600; }
+  .confirm-report-block .missing-subsection { margin-top: 0; }
+  .panel > .edit-fields { margin-top: 0; }
   .missing-card { padding: 14px; }
   .missing-title { font-size: 15px; font-weight: 700; color: var(--carbon); }
   .missing-desc { font-size: 12px; color: var(--seal); line-height: 18px; margin-top: 4px; }
@@ -4176,6 +4185,7 @@
             field('Shipping Remark', remark, !!remark, true)
           : '')+
         '</div>'+
+        confirmReportFieldsBlock()+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.chipNeedModify')+'</span>'+t('orderChat.chipEdit')+'</button>'+
       '</div>';
     }
@@ -5036,7 +5046,9 @@
           field('Carrier', manualAnswers['Carrier'] || '', !!manualAnswers['Carrier'])+
           field('Tracking Number', manualAnswers['Tracking Number'] || '', !!manualAnswers['Tracking Number'])+
           field('Shipping Remark', manualAnswers['Shipping Remark'] || '', !!manualAnswers['Shipping Remark'], true)+
-        '</div>'+editFieldsBtn('orderChat.hasError')+
+        '</div>'+
+        confirmReportFieldsBlock()+
+        editFieldsBtn('orderChat.hasError')+
       '</div>';
     }
 
@@ -6504,6 +6516,7 @@
           field('Tracking Number', getFieldValue('Tracking Number') || t('orderChat.fieldPending'), !!getFieldValue('Tracking Number'))+
           field('Shipping Remark', getFieldValue('Shipping Remark') || '', !!getFieldValue('Shipping Remark'), true)+
         '</div>'+
+        confirmReportFieldsBlock()+
       '</div>';
     }
     function reportFieldsCard(){
@@ -6517,30 +6530,87 @@
           '<div class="missing-subsection" data-section="chat-report-fields-detail">'+
             '<div class="missing-group">'+
               '<div class="missing-label">'+t('index.reportFieldsDetail')+' <span class="req">*</span></div>'+
-              '<textarea class="missing-textarea" id="chatReportFieldsDetail" placeholder="'+t('index.reportFieldsDetailPlaceholder')+'"></textarea>'+
+              '<textarea class="missing-textarea" data-role="report-fields-detail" id="chatReportFieldsDetail" placeholder="'+t('index.reportFieldsDetailPlaceholder')+'"></textarea>'+
             '</div>'+
           '</div>'+
-          '<div class="missing-error" id="chatReportFieldsError">'+t('orderChat.missingErrorReport')+'</div>'+
+          '<div class="missing-error" data-role="confirm-report-error" id="chatReportFieldsError">'+t('orderChat.missingErrorReport')+'</div>'+
           '<button class="missing-submit" type="button" onclick="submitReportFieldsCard(this)">'+t('common.confirm')+'</button>'+
         '</div>'+
       '</div>';
     }
 
-    function chatReportRadio(value, checked){
+    var confirmReportSeq = 0;
+
+    function confirmReportFieldsBlock(){
+      const seq = ++confirmReportSeq;
+      const name = 'confirmReportFields_' + seq;
+      const detailId = 'confirmReportDetail_' + seq;
+      return '<div class="confirm-report-block" data-confirm-report="1">'+
+        '<div class="missing-group">'+
+          '<div class="missing-label">'+t('index.reportFieldsNeed')+'</div>'+
+          chatReportRadio(t('common.yes'), false, name)+
+          chatReportRadio(t('common.no'), true, name)+
+        '</div>'+
+        '<div class="missing-subsection" data-section="chat-report-fields-detail">'+
+          '<div class="missing-group">'+
+            '<div class="missing-label">'+t('index.reportFieldsDetail')+' <span class="req">*</span></div>'+
+            '<textarea class="missing-textarea" data-role="report-fields-detail" id="'+detailId+'" placeholder="'+t('index.reportFieldsDetailPlaceholder')+'"></textarea>'+
+          '</div>'+
+        '</div>'+
+        '<div class="missing-error" data-role="confirm-report-error">'+t('orderChat.missingErrorReport')+'</div>'+
+      '</div>';
+    }
+
+    function chatReportRadio(value, checked, name){
+      const radioName = name || 'chatReportFields';
       return '<label class="missing-radio">'+
-        '<input type="radio" name="chatReportFields" value="'+escapeHtml(value)+'" '+(checked ? 'checked' : '')+' onchange="toggleChatReportFields(this)">'+
+        '<input type="radio" name="'+escapeHtml(radioName)+'" value="'+escapeHtml(value)+'" '+(checked ? 'checked' : '')+' onchange="toggleChatReportFields(this)">'+
         '<span>'+escapeHtml(value)+'</span>'+
       '</label>';
     }
 
     function toggleChatReportFields(input){
-      const card = input.closest('.report-fields-card');
+      const card = input.closest('.report-fields-card') || input.closest('.confirm-report-block');
       if(!card) return;
       const section = card.querySelector('[data-section="chat-report-fields-detail"]');
       const isYes = input.value === t('common.yes') && input.checked;
-      section.classList.toggle('show', isYes);
-      const error = card.querySelector('#chatReportFieldsError');
+      if(section) section.classList.toggle('show', isYes);
+      const error = card.querySelector('[data-role="confirm-report-error"]');
       if(error) error.classList.remove('show');
+    }
+
+    function getLatestConfirmReportBlock(){
+      const blocks = document.querySelectorAll('#chat .confirm-report-block');
+      return blocks.length ? blocks[blocks.length - 1] : null;
+    }
+
+    function readReportFieldsFromBlock(block){
+      if(!block) return null;
+      const checked = block.querySelector('input[type="radio"]:checked');
+      const need = ((checked && checked.value) || t('common.no')).trim();
+      const detailEl = block.querySelector('[data-role="report-fields-detail"]');
+      const detail = ((detailEl && detailEl.value) || '').trim();
+      return { need: need, detail: detail, block: block };
+    }
+
+    function captureConfirmReportFieldsOrShowError(){
+      const block = getLatestConfirmReportBlock();
+      if(!block) return null;
+      const parsed = readReportFieldsFromBlock(block);
+      const error = block.querySelector('[data-role="confirm-report-error"]');
+      if(parsed.need === t('common.yes') && !parsed.detail){
+        if(error) error.classList.add('show');
+        const input = block.querySelector('[data-role="report-fields-detail"]');
+        if(input){
+          const section = block.querySelector('[data-section="chat-report-fields-detail"]');
+          if(section) section.classList.add('show');
+          input.focus();
+          try { input.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+        }
+        return { error: true };
+      }
+      if(error) error.classList.remove('show');
+      return parsed;
     }
 
     function askReportFieldsStep(btn){
@@ -6552,11 +6622,11 @@
       const card = btn.closest('.report-fields-card');
       if(!card) return;
       const reportFields = ((card.querySelector('input[name="chatReportFields"]:checked') || {}).value || t('common.no')).trim();
-      const reportFieldsDetail = ((card.querySelector('#chatReportFieldsDetail') || {}).value || '').trim();
-      const error = card.querySelector('#chatReportFieldsError');
+      const reportFieldsDetail = ((card.querySelector('[data-role="report-fields-detail"]') || {}).value || '').trim();
+      const error = card.querySelector('[data-role="confirm-report-error"]');
       if(reportFields === t('common.yes') && !reportFieldsDetail){
         if(error) error.classList.add('show');
-        const input = card.querySelector('#chatReportFieldsDetail');
+        const input = card.querySelector('[data-role="report-fields-detail"]');
         if(input) input.focus();
         return;
       }
@@ -6575,8 +6645,15 @@
     function placeOrder(btn, skipReportFieldsQuestion){
       if(blockPlaceOrderIfIncomplete(btn)) return;
       if(!skipReportFieldsQuestion && manualAnswers[FIELD_REPORT_NEED] === undefined){
-        askReportFieldsStep(btn);
-        return;
+        const captured = captureConfirmReportFieldsOrShowError();
+        if(captured && captured.error) return;
+        if(captured){
+          manualAnswers[FIELD_REPORT_NEED] = captured.need || t('common.no');
+          manualAnswers[FIELD_REPORT_DETAIL] = captured.need === t('common.yes') ? (captured.detail || '') : '';
+        } else {
+          askReportFieldsStep(btn);
+          return;
+        }
       }
       removeActionRow(btn);
       if(manualAnswers[FIELD_REPORT_NEED] === undefined){
