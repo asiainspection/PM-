@@ -1252,8 +1252,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260804g"></script>
-<script src="assets/i18n/en.js?v=20260804g"></script>
+<script src="assets/i18n/zh.js?v=20260804h"></script>
+<script src="assets/i18n/en.js?v=20260804h"></script>
 <script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -1855,6 +1855,8 @@
         'Carrier': 'carrier.label',
         'Tracking Number': 'carrier.trackingNo',
         'Shipping Remark': 'index.shippingRemark',
+        'Order Remark': 'index.optionalRemark',
+        'Attachments': 'index.attachments',
         'Supplier': 'index.supplier',
         '产品名称': 'orderChat.fieldProductName',
         '关联项目': 'orderChat.fieldProject',
@@ -2149,16 +2151,21 @@
           sourceDesc: t('orderChat.historyDescLtToys'),
           fields: {
             'Product Name': t('orderChat.productRobotToy'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionPresetEn'),
             'Item#/model#': 'RBT-2025-X9',
+            'Electric Product': t('index.electricYes'),
+            'Product Description': t('orderChat.prefillElectricDescRobot'),
             'Manufacturer': t('orderChat.manufacturerDemo'),
             'Manufacturer Address': t('orderChat.manufacturerAddrDemo'),
             'Sample Collection Method': sampleMethodShip(),
             'Carrier': t('carrier.sf'),
             'Tracking Number': 'SF1234567890123',
-            'Shipping Remark': ''
+            'Shipping Remark': t('orderChat.prefillShippingRemarkDemo'),
+            'Order Remark': t('orderChat.prefillOrderRemarkDemo'),
+            'Attachments': t('orderChat.prefillAttachmentsDemo')
           }
         },
         'T-25617005': {
@@ -2166,16 +2173,21 @@
           sourceDesc: t('orderChat.historyDescLtToysZh'),
           fields: {
             'Product Name': t('orderChat.productRobotToy'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('country.us'),
             'Item#/model#': 'RBT-2025-X9',
+            'Electric Product': t('index.electricYes'),
+            'Product Description': t('orderChat.prefillElectricDescRobot'),
             'Manufacturer': t('orderChat.manufacturerDemo'),
             'Manufacturer Address': t('orderChat.manufacturerAddrDemo'),
             'Sample Collection Method': sampleMethodShip(),
             'Carrier': '',
             'Tracking Number': '',
-            'Shipping Remark': ''
+            'Shipping Remark': '',
+            'Order Remark': t('orderChat.prefillOrderRemarkDemo'),
+            'Attachments': t('orderChat.prefillAttachmentsDemo')
           }
         },
         'T-25590011': {
@@ -2183,16 +2195,20 @@
           sourceDesc: t('orderChat.historyDescEn71'),
           fields: {
             'Product Name': t('orderChat.productBlockToy'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('country.eu'),
             'Item#/model#': 'BLOCK-EN71-001',
+            'Electric Product': t('index.electricNo'),
             'Manufacturer': t('orderChat.manufacturerDemo2'),
             'Manufacturer Address': t('orderChat.manufacturerAddrDemo2'),
             'Sample Collection Method': sampleMethodCollect(),
             'Carrier': '',
             'Tracking Number': '',
-            'Shipping Remark': ''
+            'Shipping Remark': '',
+            'Order Remark': '',
+            'Attachments': ''
           }
         },
         'Q202349103': {
@@ -2200,16 +2216,20 @@
           sourceDesc: t('orderChat.historyDescLtPsi'),
           fields: {
             'Product Name': t('orderChat.productToysPsi'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionUsCa'),
             'Item#/model#': 'Q202349103',
+            'Electric Product': t('index.electricNo'),
             'Manufacturer': 'QIMA Toy Factory',
             'Manufacturer Address': 'Dongguan, Guangdong, China',
             'Sample Collection Method': sampleMethodReceived(),
             'Carrier': '',
             'Tracking Number': '',
-            'Shipping Remark': ''
+            'Shipping Remark': '',
+            'Order Remark': '',
+            'Attachments': t('orderChat.prefillAttachmentsDemo')
           }
         },
         'Q202310887': {
@@ -2217,16 +2237,21 @@
           sourceDesc: t('orderChat.historyDescLtToys'),
           fields: {
             'Product Name': t('orderChat.productRobotToy'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionPresetAll'),
             'Item#/model#': 'Q202310887',
+            'Electric Product': t('index.electricYes'),
+            'Product Description': t('orderChat.prefillElectricDescRobot'),
             'Manufacturer': t('orderChat.manufacturerDemo'),
             'Manufacturer Address': t('orderChat.manufacturerAddrDemo'),
             'Sample Collection Method': sampleMethodShip(),
             'Carrier': t('carrier.zto'),
             'Tracking Number': 'FDX-202310887',
-            'Shipping Remark': ''
+            'Shipping Remark': '',
+            'Order Remark': t('orderChat.prefillOrderRemarkDemo'),
+            'Attachments': t('orderChat.prefillAttachmentsDemo')
           }
         }
       };
@@ -2302,28 +2327,43 @@
     }
 
     function reuseOrderCard(id, prefill){
-      const fields = prefill.fields;
       return '<div class="panel">'+
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.prefillCardTitle')+'</div><div class="progress-pill">'+t('orderChat.fromSource', {source: prefill.sourceType})+'</div></div>'+
         '<div class="fields">'+
           field('Source ID', id, true)+
           field('Service', prefill.sourceDesc, true)+
-          field('Product Name', fields['Product Name'], !!fields['Product Name'])+
-          field('Product Division', fields['Product Division'], !!fields['Product Division'])+
-          field('Program', fields['Program'], !!fields['Program'])+
-          field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
-          field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
-          field('Item#/model#', fields['Item#/model#'], !!fields['Item#/model#'])+
-          field('Manufacturer', fields['Manufacturer'], !!fields['Manufacturer'])+
-          field('Manufacturer Address', fields['Manufacturer Address'], !!fields['Manufacturer Address'])+
-          field('Sample Collection Method', fields['Sample Collection Method'], !!fields['Sample Collection Method'])+
-          (isSampleCollect(fields['Sample Collection Method']) ? '' :
-            field('Carrier', fields['Carrier'], !!fields['Carrier'])+
-            field('Tracking Number', fields['Tracking Number'], !!fields['Tracking Number'])+
-            field('Shipping Remark', fields['Shipping Remark'], !!fields['Shipping Remark'], true)
-          )+
+          prefillOrderBodyFields(prefill.fields || {})+
         '</div>'+editFieldsBtn('orderChat.needAdjust')+
       '</div>';
+    }
+
+    /** Shared body rows for history-copy / draft resume cards (aligned with extract + order detail extras). */
+    function prefillOrderBodyFields(fields){
+      fields = fields || {};
+      const electric = fields[FIELD_ELECTRIC] || fields['产品是否带电'] || '';
+      const electricDesc = fields[FIELD_ELECTRIC_DESC] || fields['产品说明'] || '';
+      const orderRemark = fields['Order Remark'] || fields['订单备注'] || '';
+      const attachments = fields['Attachments'] || fields['附件'] || '';
+      return field('Product Name', fields['Product Name'], !!fields['Product Name'])+
+        field('Product Division', fields['Product Division'], !!fields['Product Division'])+
+        field('Program', fields['Program'], !!fields['Program'])+
+        field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
+        field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
+        field('Item#/model#', fields['Item#/model#'], !!fields['Item#/model#'])+
+        field(FIELD_ELECTRIC, electric, !!electric)+
+        (electric && isElectricYes(electric)
+          ? field(FIELD_ELECTRIC_DESC, electricDesc, !!electricDesc)
+          : '')+
+        field('Manufacturer', fields['Manufacturer'], !!fields['Manufacturer'])+
+        field('Manufacturer Address', fields['Manufacturer Address'], !!fields['Manufacturer Address'])+
+        field('Sample Collection Method', fields['Sample Collection Method'], !!fields['Sample Collection Method'])+
+        (isSampleCollect(fields['Sample Collection Method']) ? '' :
+          field('Carrier', fields['Carrier'], !!fields['Carrier'])+
+          field('Tracking Number', fields['Tracking Number'], !!fields['Tracking Number'])+
+          field('Shipping Remark', fields['Shipping Remark'], !!fields['Shipping Remark'], true)
+        )+
+        field('Order Remark', orderRemark, !!orderRemark, true)+
+        field('Attachments', attachments, !!attachments, true);
     }
 
     function continueReuseMissing(btn){
@@ -2349,16 +2389,21 @@
           sourceDesc: t('common.serviceLabTest'),
           fields: {
             'Product Name': t('orders.productDraftRobot'),
+            'Product Division': t('index.productDivisionToys'),
             'Program': t('orderChat.projectTemuToys'),
             'Country of Origin': t('orderChat.originChina'),
             'Countries/Regions of Distribution': t('orderChat.distributionPresetEn'),
             'Item#/model#': 'RBT-2025-X9',
+            'Electric Product': t('index.electricYes'),
+            'Product Description': t('orderChat.prefillElectricDescRobot'),
             'Manufacturer': t('orderChat.manufacturerDemo'),
             'Manufacturer Address': t('orderChat.manufacturerAddrDemo'),
             'Sample Collection Method': sampleMethodShip(),
             'Carrier': '',
             'Tracking Number': '',
-            'Shipping Remark': ''
+            'Shipping Remark': '',
+            'Order Remark': '',
+            'Attachments': ''
           }
         }
       };
@@ -2375,26 +2420,12 @@
     }
 
     function draftOrderCard(id, prefill){
-      const fields = prefill.fields;
       return '<div class="panel">'+
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.draftCardTitle')+'</div><div class="progress-pill">'+t('orderChat.fromSource', {source: prefill.sourceType})+'</div></div>'+
         '<div class="fields">'+
           field('Source ID', id, true)+
           field('Service', prefill.sourceDesc, true)+
-          field('Product Name', fields['Product Name'], !!fields['Product Name'])+
-          field('Product Division', fields['Product Division'], !!fields['Product Division'])+
-          field('Program', fields['Program'], !!fields['Program'])+
-          field('Country of Origin', fields['Country of Origin'], !!fields['Country of Origin'])+
-          field('Countries/Regions of Distribution', fields['Countries/Regions of Distribution'], !!fields['Countries/Regions of Distribution'])+
-          field('Item#/model#', fields['Item#/model#'], !!fields['Item#/model#'])+
-          field('Manufacturer', fields['Manufacturer'], !!fields['Manufacturer'])+
-          field('Manufacturer Address', fields['Manufacturer Address'], !!fields['Manufacturer Address'])+
-          field('Sample Collection Method', fields['Sample Collection Method'], !!fields['Sample Collection Method'])+
-          (isSampleCollect(fields['Sample Collection Method']) ? '' :
-            field('Carrier', fields['Carrier'], !!fields['Carrier'])+
-            field('Tracking Number', fields['Tracking Number'], !!fields['Tracking Number'])+
-            field('Shipping Remark', fields['Shipping Remark'], !!fields['Shipping Remark'], true)
-          )+
+          prefillOrderBodyFields(prefill.fields || {})+
         '</div>'+editFieldsBtn('orderChat.needAdjust')+
       '</div>';
     }

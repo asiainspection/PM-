@@ -622,8 +622,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderDetail';</script>
-<script src="assets/i18n/zh.js?v=20260804f"></script>
-<script src="assets/i18n/en.js?v=20260804f"></script>
+<script src="assets/i18n/zh.js?v=20260804h"></script>
+<script src="assets/i18n/en.js?v=20260804h"></script>
 <script src="assets/i18n-runtime.js?v=20260804f"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/supabase-config.js"></script>
@@ -1640,14 +1640,23 @@
         fields: {
           'Product Name': reusableValue(order.productName),
           'Program': reusableValue(order.projectName),
+          'Product Division': reusableValue(order.category || order.productDivision),
           'Country of Origin': reusableValue(order.originCountry),
           'Countries/Regions of Distribution': reusableValue(order.salesCountry),
           'Item#/model#': reusableValue(order.skuNo),
+          'Electric Product': reusableValue(order.electricType || order.isElectric),
+          'Product Description': reusableValue(order.electricDescription),
           'Manufacturer': reusableValue(order.manufacturerName),
           'Manufacturer Address': reusableValue(order.manufacturerAddress),
           'Sample Collection Method': reusableValue(order.collectionMethod),
           'Carrier': reusableValue(order.carrier),
           'Shipping Remark': reusableValue(order.shippingRemark),
+          'Order Remark': reusableValue(order.orderRemark),
+          'Attachments': (function(){
+            const list = Array.isArray(order.attachments) ? order.attachments : [];
+            const names = list.map(function(f){ return f && (f.name || f.file_name); }).filter(Boolean);
+            return names.join(I18n.getLang && I18n.getLang() === 'en' ? ', ' : '、');
+          })(),
           // TEST-007: both the legacy field and current business field identify
           // one physical shipment, so neither may cross into the new draft.
           'Legacy Express Order Number': '',
