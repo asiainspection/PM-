@@ -612,21 +612,6 @@
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
   }
 
-  /* 疑似商品卡 */
-  .prod { display: flex; gap: 12px; align-items: center; }
-  .prod .pimg {
-    width: 56px; height: 56px; border-radius: 10px; flex-shrink: 0;
-    background: radial-gradient(circle at 50% 35%, var(--pool-100), var(--pool-100));
-    display: flex; align-items: center; justify-content: center; font-size: 28px;
-    overflow: hidden;
-  }
-  .prod .pimg img {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
-  .prod .ptag { font-size: 11px; color: var(--pool-500); }
-  .prod .pname { font-size: 14px; font-weight: 600; color: var(--carbon); margin-top: 2px; }
-  .prod .pmeta { font-size: 12px; color: var(--seal); margin-top: 3px; }
-
   /* 字段提取卡 */
   .extract-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -5110,56 +5095,7 @@
       return '<span class="ci"><svg viewBox="0 0 20 20" aria-hidden="true">'+(icons[name] || icons.check)+'</svg></span>';
     }
 
-    function getUploadedProductThumbUrl(){
-      const items = uploadedFileList || [];
-      for(let i = 0; i < items.length; i++){
-        const item = items[i];
-        if(item && item.previewUrl) return item.previewUrl;
-        const file = item && item.file;
-        if(file && file.type && file.type.indexOf('image/') === 0){
-          try {
-            item.previewUrl = URL.createObjectURL(file);
-            return item.previewUrl;
-          } catch (_) {}
-        }
-      }
-      return '';
-    }
-
-    function productSummaryThumbHtml(){
-      const url = getUploadedProductThumbUrl();
-      if(url){
-        return '<div class="pimg"><img src="'+escapeHtml(url)+'" alt=""></div>';
-      }
-      return '<div class="pimg">📦</div>';
-    }
-
     // 3) AI 识别 → 字段提取卡 + 进度 + 缺失确认
-    function productSummaryCard(summary, fields){
-      const fieldName = (fields && fields['Product Name']) || '';
-      const summaryName = (summary && summary.name) || '';
-      // Prefer form field; ignore junk summary names like "产品"
-      let name = fieldName || summaryName;
-      if(fieldName && summaryName && window.QimaLabelParse && typeof QimaLabelParse.isPlausibleField === 'function'){
-        const fieldOk = QimaLabelParse.isPlausibleField('Product Name', fieldName);
-        const summaryOk = QimaLabelParse.isPlausibleField('Product Name', summaryName);
-        if(fieldOk) name = fieldName;
-        else if(summaryOk) name = summaryName;
-        else name = '';
-      } else if(summaryName && !fieldName && window.QimaLabelParse && typeof QimaLabelParse.isPlausibleField === 'function'){
-        if(!QimaLabelParse.isPlausibleField('Product Name', summaryName)) name = '';
-      }
-      const brand = (summary && summary.brand) || '';
-      const hint = (summary && summary.hint) || '';
-      const displayName = name || t('orderChat.productUnrecognized');
-      const meta = brand
-        ? (brand + (hint ? ' ｜ ' + hint : ''))
-        : (hint || t('orderChat.productMetaPending'));
-      return '<div class="panel panel-pad"><div class="prod">'+productSummaryThumbHtml()+
-        '<div><div class="ptag">'+t('orderChat.suspectedProduct')+'</div><div class="pname">'+escapeHtml(displayName)+'</div>'+
-        '<div class="pmeta">'+escapeHtml(meta)+'</div></div></div></div>';
-    }
-
     function runRecognize(src, result){
       let safeResult = result || { fields: {}, product_summary: {} };
       if(window.QimaLabelParse && typeof QimaLabelParse.sanitizeParseResult === 'function'){
@@ -5167,7 +5103,6 @@
       }
       const rawFields = (safeResult && safeResult.fields) ? safeResult.fields : {};
       const fields = canonicalizeParsedFields(rawFields);
-      const summary = (safeResult && safeResult.product_summary) ? safeResult.product_summary : {};
       applyParsedFields(Object.assign({}, rawFields, fields));
 
       // Prefer resolved manualAnswers so echoed values match the card (never stale empties)
@@ -5185,7 +5120,6 @@
         const typingRow2 = botTyping();
         setTimeout(function(){
           typingRow2.remove();
-          botMsg(productSummaryCard(summary, displayFields), true);
           botMsg(extractCard(displayFields, percent), true);
           playRecogBar(botMsg(recognizeProgressCard(
             allStats.filled,
