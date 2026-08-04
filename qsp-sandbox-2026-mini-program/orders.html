@@ -103,12 +103,22 @@
   }
   .search input::placeholder { color: var(--smoke); }
   .filter-btn {
+    position: relative;
     flex-shrink: 0; width: 36px; height: 36px; padding: 0; border-radius: 8px;
     background: var(--pool-050); color: var(--pool-500);
     display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--pool-100); cursor: pointer;
   }
   .filter-btn svg { display: block; }
+  .filter-btn.active {
+    background: var(--pool-500); color: var(--white); border-color: var(--pool-500);
+  }
+  .filter-btn .filter-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cherry); display: none;
+  }
+  .filter-btn.active .filter-dot { display: block; background: var(--lemon-200); }
 
   /* ===== 列表滚动区 ===== */
   .list {
@@ -291,6 +301,86 @@
   }
   .biz-cancel:active { background: var(--mist); }
 
+  /* myQIMA-style filter sheet */
+  .filter-mask {
+    position: absolute; inset: 0; z-index: 85;
+    background: rgba(25,25,25,.42);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .filter-mask.show { opacity: 1; visibility: visible; }
+  .filter-sheet {
+    width: 100%; max-height: min(78vh, 640px);
+    background: var(--white);
+    border-radius: 16px 16px 0 0;
+    display: flex; flex-direction: column;
+    transform: translateY(18px); transition: transform .22s ease;
+  }
+  .filter-mask.show .filter-sheet { transform: translateY(0); }
+  .filter-sheet-head {
+    padding: 10px 16px 0; flex-shrink: 0;
+  }
+  .filter-sheet-title {
+    font-size: 16px; font-weight: 700; color: var(--carbon); margin-bottom: 4px;
+  }
+  .filter-sheet-body {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 8px 16px 12px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .filter-sheet-body::-webkit-scrollbar { display: none; }
+  .filter-section-label {
+    font-size: 12px; line-height: 16px; color: var(--seal); margin-bottom: 8px;
+  }
+  .filter-chip-wrap {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .filter-chip {
+    height: 36px; padding: 0 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--white);
+    font: inherit; font-size: 13px; line-height: 20px; color: var(--carbon);
+    cursor: pointer; white-space: nowrap;
+  }
+  .filter-chip:active { background: var(--mist); }
+  .filter-chip.selected {
+    border-color: var(--pool-100); background: var(--pool-100); color: var(--pool-500);
+    font-weight: 600;
+  }
+  .filter-date-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+  }
+  .filter-date-row[hidden] { display: none !important; }
+  .filter-date-field label {
+    display: block; font-size: 12px; line-height: 16px; color: var(--seal); margin-bottom: 6px;
+  }
+  .filter-date-field input {
+    width: 100%; height: 36px; border-radius: 8px;
+    border: 1px solid var(--smoke); background: var(--white);
+    padding: 0 12px; font: inherit; font-size: 13px; color: var(--carbon);
+    outline: none; box-sizing: border-box;
+  }
+  .filter-date-field input:focus {
+    border-color: var(--pool-500);
+    box-shadow: 0 0 0 3px rgba(65,105,225,.1);
+  }
+  .filter-sheet-actions {
+    flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--mist); background: var(--white);
+  }
+  .filter-action {
+    height: 44px; border-radius: 8px; border: none;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .filter-action.reset {
+    background: var(--mist); color: var(--seal);
+  }
+  .filter-action.reset:active { background: var(--pearl, #dedede); }
+  .filter-action.apply {
+    background: var(--pool-500); color: var(--white);
+  }
+  .filter-action.apply:active { background: var(--pool-900); }
+
   .toast {
     position: absolute; left: 50%; bottom: 92px; z-index: 40;
     transform: translateX(-50%) translateY(8px);
@@ -312,9 +402,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260804b"></script>
-<script src="assets/i18n/en.js?v=20260804b"></script>
-<script src="assets/i18n-runtime.js?v=20260804b"></script>
+<script src="assets/i18n/zh.js?v=20260804g"></script>
+<script src="assets/i18n/en.js?v=20260804g"></script>
+<script src="assets/i18n-runtime.js?v=20260804g"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 <script src="assets/order-drafts.js?v=20260803t"></script>
@@ -359,8 +449,9 @@
           <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="请输入搜索关键词" data-i18n-placeholder="common.searchKeyword" />
         </div>
-        <button type="button" class="filter-btn" id="filterBtn" aria-label="筛选" title="筛选" data-i18n-title="common.filter">
+        <button type="button" class="filter-btn" id="filterBtn" aria-label="Filter" title="Filter" data-i18n-title="common.filter" aria-haspopup="dialog" aria-expanded="false" onclick="openFilterSheet()">
           <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span class="filter-dot" aria-hidden="true"></span>
         </button>
       </div>
     </div>
@@ -368,7 +459,7 @@
     <!-- 订单列表 -->
     <div class="list" id="orderList">
       <!-- Draft — resume into order creation (myQIMA bookings/drafts pattern) -->
-      <a class="ocard" href="order-chat.html?draft=DRF-08008610" data-biz="lab" data-draft="DRF-08008610">
+      <a class="ocard" href="order-chat.html?draft=DRF-08008610" data-biz="lab" data-draft="DRF-08008610" data-status="draft" data-ordered="2026-08-03">
         <div class="ocard-thumb fabric-denim"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -388,7 +479,7 @@
       </a>
 
       <!-- 卡片 1 -->
-      <a class="ocard" href="order-detail.html?order=08008571" data-biz="lab">
+      <a class="ocard" href="order-detail.html?order=08008571" data-biz="lab" data-status="pendingVerification" data-ordered="2026-06-03">
         <div class="ocard-thumb fabric-black"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -407,7 +498,7 @@
       </a>
 
       <!-- 卡片 2 -->
-      <a class="ocard" href="order-detail.html?order=080082671" data-biz="lab">
+      <a class="ocard" href="order-detail.html?order=080082671" data-biz="lab" data-status="reportCompleted" data-ordered="2026-06-03">
         <div class="ocard-thumb fabric-denim"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -427,7 +518,7 @@
       </a>
 
       <!-- 卡片 3 -->
-      <a class="ocard" href="order-detail.html?order=08008536" data-biz="lab">
+      <a class="ocard" href="order-detail.html?order=08008536" data-biz="lab" data-status="pendingVerification" data-ordered="2026-06-02">
         <div class="ocard-thumb fabric-grey"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -446,7 +537,7 @@
       </a>
 
       <!-- On hold example (myQIMA: awaiting client confirmation · Order clarification) -->
-      <a class="ocard" href="order-detail.html?order=08008601" data-biz="lab">
+      <a class="ocard" href="order-detail.html?order=08008601" data-biz="lab" data-status="onHold" data-ordered="2026-08-01">
         <div class="ocard-thumb fabric-black"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -465,7 +556,7 @@
       </a>
 
       <!-- Sample review example (myQIMA: received, under review and registration) -->
-      <a class="ocard" href="order-detail.html?order=08008602" data-biz="lab">
+      <a class="ocard" href="order-detail.html?order=08008602" data-biz="lab" data-status="sampleReview" data-ordered="2026-08-02">
         <div class="ocard-thumb fabric-grey"></div>
         <div class="ocard-main">
           <div class="ocard-title">
@@ -554,7 +645,53 @@
             </div>
           </div>
         </button>
-        <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
+        <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">Cancel</button>
+      </div>
+    </div>
+
+    <div class="filter-mask" id="filterMask" onclick="closeFilterSheet(event)" aria-hidden="true">
+      <div class="filter-sheet" role="dialog" aria-modal="true" aria-labelledby="filterSheetTitle" onclick="event.stopPropagation()">
+        <div class="filter-sheet-head">
+          <div class="biz-grabber" aria-hidden="true"></div>
+          <div class="filter-sheet-title" id="filterSheetTitle" data-i18n="orders.filterTitle">Filter</div>
+        </div>
+        <div class="filter-sheet-body">
+          <div class="filter-section">
+            <div class="filter-section-label" data-i18n="orders.filterStatus">Order status</div>
+            <div class="filter-chip-wrap" id="filterStatusChips" role="group" aria-label="Order status">
+              <button type="button" class="filter-chip" data-status="draft" onclick="toggleFilterStatus(this)" data-i18n="status.short.draft">Draft</button>
+              <button type="button" class="filter-chip" data-status="pendingVerification" onclick="toggleFilterStatus(this)" data-i18n="status.short.pendingVerification">Pending</button>
+              <button type="button" class="filter-chip" data-status="sampleReview" onclick="toggleFilterStatus(this)" data-i18n="status.short.sampleReview">Sample review</button>
+              <button type="button" class="filter-chip" data-status="onHold" onclick="toggleFilterStatus(this)" data-i18n="status.short.onHold">On hold</button>
+              <button type="button" class="filter-chip" data-status="inProgress" onclick="toggleFilterStatus(this)" data-i18n="status.short.inProgress">In progress</button>
+              <button type="button" class="filter-chip" data-status="reportCompleted" onclick="toggleFilterStatus(this)" data-i18n="status.short.reportCompleted">Report ready</button>
+            </div>
+          </div>
+          <div class="filter-section">
+            <div class="filter-section-label" data-i18n="orders.filterOrdered">Order time</div>
+            <div class="filter-chip-wrap" id="filterTimeChips" role="radiogroup" aria-label="Order time">
+              <button type="button" class="filter-chip selected" data-time="all" role="radio" aria-checked="true" onclick="selectFilterTime('all')" data-i18n="orders.filterTimeAll">All time</button>
+              <button type="button" class="filter-chip" data-time="7d" role="radio" aria-checked="false" onclick="selectFilterTime('7d')" data-i18n="orders.filterTime7d">Last 7 days</button>
+              <button type="button" class="filter-chip" data-time="30d" role="radio" aria-checked="false" onclick="selectFilterTime('30d')" data-i18n="orders.filterTime30d">Last 30 days</button>
+              <button type="button" class="filter-chip" data-time="90d" role="radio" aria-checked="false" onclick="selectFilterTime('90d')" data-i18n="orders.filterTime90d">Last 90 days</button>
+              <button type="button" class="filter-chip" data-time="custom" role="radio" aria-checked="false" onclick="selectFilterTime('custom')" data-i18n="orders.filterTimeCustom">Custom</button>
+            </div>
+            <div class="filter-date-row" id="filterCustomDates" hidden>
+              <div class="filter-date-field">
+                <label for="filterDateFrom" data-i18n="orders.filterDateFrom">From</label>
+                <input id="filterDateFrom" type="date" />
+              </div>
+              <div class="filter-date-field">
+                <label for="filterDateTo" data-i18n="orders.filterDateTo">To</label>
+                <input id="filterDateTo" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-sheet-actions">
+          <button type="button" class="filter-action reset" onclick="resetFilterSheet()" data-i18n="orders.filterReset">Reset</button>
+          <button type="button" class="filter-action apply" onclick="applyFilterSheet()" data-i18n="orders.filterApply">Apply</button>
+        </div>
       </div>
     </div>
     <div class="toast" id="ordersToast" role="status" aria-live="polite"></div>
@@ -603,13 +740,94 @@
       cert: 'index.serviceCert'
     };
     var currentBiz = 'all';
+    var draftFilter = {
+      statuses: [],
+      time: 'all',
+      dateFrom: '',
+      dateTo: ''
+    };
+    var appliedFilter = {
+      statuses: [],
+      time: 'all',
+      dateFrom: '',
+      dateTo: ''
+    };
 
     function bizLabel(id){
       var key = BIZ_LABEL_KEYS[id] || BIZ_LABEL_KEYS.all;
       return typeof t === 'function' ? t(key) : key;
     }
 
+    function normalizeStatusKey(raw){
+      var s = String(raw || '').trim();
+      if(!s) return '';
+      var map = {
+        pending_verification: 'pendingVerification',
+        pendingverification: 'pendingVerification',
+        in_progress: 'inProgress',
+        inprogress: 'inProgress',
+        report_completed: 'reportCompleted',
+        reportcompleted: 'reportCompleted',
+        sample_review: 'sampleReview',
+        waiting_for_sample_review: 'sampleReview',
+        samplereview: 'sampleReview',
+        on_hold: 'onHold',
+        onhold: 'onHold',
+        draft: 'draft',
+        cancelled: 'pendingConfirmation',
+        pending_confirmation: 'pendingConfirmation'
+      };
+      if(map[s]) return map[s];
+      if(map[s.toLowerCase()]) return map[s.toLowerCase()];
+      return s;
+    }
+
+    function parseOrderedDate(value){
+      var s = formatDate(value);
+      if(!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+      var parts = s.split('-').map(Number);
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function startOfToday(){
+      var now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function daysAgo(n){
+      var d = startOfToday();
+      d.setDate(d.getDate() - n);
+      return d;
+    }
+
+    function matchesTimeFilter(orderedRaw, filter){
+      var time = filter.time || 'all';
+      if(time === 'all') return true;
+      var ordered = parseOrderedDate(orderedRaw);
+      if(!ordered) return false;
+      if(time === 'custom'){
+        var from = filter.dateFrom ? parseOrderedDate(filter.dateFrom) : null;
+        var to = filter.dateTo ? parseOrderedDate(filter.dateTo) : null;
+        if(from && ordered < from) return false;
+        if(to && ordered > to) return false;
+        return true;
+      }
+      var days = time === '7d' ? 7 : (time === '30d' ? 30 : 90);
+      return ordered >= daysAgo(days);
+    }
+
+    function hasActiveFilters(){
+      return !!(appliedFilter.statuses.length || appliedFilter.time !== 'all');
+    }
+
+    function syncFilterBtnState(){
+      var btn = document.getElementById('filterBtn');
+      if(!btn) return;
+      btn.classList.toggle('active', hasActiveFilters());
+    }
+
     function openBizSheet(){
+      closeFilterSheet();
       var mask = document.getElementById('bizMask');
       var chip = document.getElementById('bizChip');
       if(!mask) return;
@@ -657,16 +875,115 @@
         label.setAttribute('data-i18n', key);
         label.textContent = bizLabel(currentBiz);
       }
-      applyBizFilter();
+      applyOrderFilters();
       closeBizSheet();
     }
 
-    function applyBizFilter(){
+    function cloneFilter(src){
+      return {
+        statuses: (src.statuses || []).slice(),
+        time: src.time || 'all',
+        dateFrom: src.dateFrom || '',
+        dateTo: src.dateTo || ''
+      };
+    }
+
+    function renderFilterSheetControls(){
+      document.querySelectorAll('#filterStatusChips .filter-chip').forEach(function(chip){
+        var on = draftFilter.statuses.indexOf(chip.getAttribute('data-status')) >= 0;
+        chip.classList.toggle('selected', on);
+      });
+      document.querySelectorAll('#filterTimeChips .filter-chip').forEach(function(chip){
+        var on = chip.getAttribute('data-time') === draftFilter.time;
+        chip.classList.toggle('selected', on);
+        chip.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+      var custom = document.getElementById('filterCustomDates');
+      if(custom) custom.hidden = draftFilter.time !== 'custom';
+      var from = document.getElementById('filterDateFrom');
+      var to = document.getElementById('filterDateTo');
+      if(from) from.value = draftFilter.dateFrom || '';
+      if(to) to.value = draftFilter.dateTo || '';
+    }
+
+    function openFilterSheet(){
+      closeBizSheet();
+      draftFilter = cloneFilter(appliedFilter);
+      renderFilterSheetControls();
+      var mask = document.getElementById('filterMask');
+      var btn = document.getElementById('filterBtn');
+      if(!mask) return;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      if(btn) btn.setAttribute('aria-expanded', 'true');
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = 'hidden';
+    }
+
+    function closeFilterSheet(event){
+      if(event && event.target && event.currentTarget && event.target !== event.currentTarget) return;
+      var mask = document.getElementById('filterMask');
+      var btn = document.getElementById('filterBtn');
+      if(mask){
+        mask.classList.remove('show');
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      if(btn) btn.setAttribute('aria-expanded', 'false');
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = '';
+    }
+
+    function toggleFilterStatus(btn){
+      var status = btn && btn.getAttribute('data-status');
+      if(!status) return;
+      var idx = draftFilter.statuses.indexOf(status);
+      if(idx >= 0) draftFilter.statuses.splice(idx, 1);
+      else draftFilter.statuses.push(status);
+      renderFilterSheetControls();
+    }
+
+    function selectFilterTime(time){
+      draftFilter.time = time || 'all';
+      if(draftFilter.time !== 'custom'){
+        draftFilter.dateFrom = '';
+        draftFilter.dateTo = '';
+      }
+      renderFilterSheetControls();
+    }
+
+    function resetFilterSheet(){
+      draftFilter = { statuses: [], time: 'all', dateFrom: '', dateTo: '' };
+      renderFilterSheetControls();
+    }
+
+    function applyFilterSheet(){
+      if(draftFilter.time === 'custom'){
+        var from = document.getElementById('filterDateFrom');
+        var to = document.getElementById('filterDateTo');
+        draftFilter.dateFrom = from ? from.value : '';
+        draftFilter.dateTo = to ? to.value : '';
+        if(draftFilter.dateFrom && draftFilter.dateTo && draftFilter.dateFrom > draftFilter.dateTo){
+          showOrdersToast(typeof t === 'function' ? t('orders.filterDateInvalid') : 'From date must be before To date');
+          return;
+        }
+      }
+      appliedFilter = cloneFilter(draftFilter);
+      applyOrderFilters();
+      syncFilterBtnState();
+      closeFilterSheet();
+    }
+
+    function applyOrderFilters(){
       var cards = document.querySelectorAll('#orderList .ocard');
       var visible = 0;
       cards.forEach(function(card){
         var biz = card.getAttribute('data-biz') || 'lab';
-        var show = currentBiz === 'all' || biz === currentBiz;
+        var status = normalizeStatusKey(card.getAttribute('data-status'));
+        var ordered = card.getAttribute('data-ordered') || '';
+        var bizOk = currentBiz === 'all' || biz === currentBiz;
+        var statusOk = !appliedFilter.statuses.length || appliedFilter.statuses.indexOf(status) >= 0;
+        var timeOk = matchesTimeFilter(ordered, appliedFilter);
+        var show = bizOk && statusOk && timeOk;
         card.style.display = show ? '' : 'none';
         if(show) visible += 1;
       });
@@ -674,7 +991,33 @@
       if(empty){
         empty.classList.toggle('show', visible === 0);
         empty.setAttribute('aria-hidden', visible === 0 ? 'false' : 'true');
+        var title = empty.querySelector('.list-empty-title');
+        var sub = empty.querySelector('.list-empty-sub');
+        if(visible === 0 && hasActiveFilters()){
+          if(title){
+            title.setAttribute('data-i18n', 'orders.emptyFilterTitle');
+            title.textContent = typeof t === 'function' ? t('orders.emptyFilterTitle') : 'No matching orders';
+          }
+          if(sub){
+            sub.setAttribute('data-i18n', 'orders.emptyFilterSub');
+            sub.textContent = typeof t === 'function' ? t('orders.emptyFilterSub') : 'Try clearing status or order time filters';
+          }
+        } else {
+          if(title){
+            title.setAttribute('data-i18n', 'orders.emptyBizTitle');
+            title.textContent = typeof t === 'function' ? t('orders.emptyBizTitle') : 'No orders in this business line';
+          }
+          if(sub){
+            sub.setAttribute('data-i18n', 'orders.emptyBizSub');
+            sub.textContent = typeof t === 'function' ? t('orders.emptyBizSub') : 'Switch back to All or Lab Testing to see current orders';
+          }
+        }
       }
+      syncFilterBtnState();
+    }
+
+    function applyBizFilter(){
+      applyOrderFilters();
     }
 
     function liveOrderCard(row){
@@ -701,7 +1044,8 @@
         ? 'order-chat.html?draft=' + encodeURIComponent(ref)
         : 'order-detail.html?order=' + encodeURIComponent(ref);
       var draftAttr = isDraft ? ' data-draft="' + escapeHtml(ref) + '"' : '';
-      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '"' + draftAttr + ' href="' + href + '">'+
+      var statusKey = normalizeStatusKey(status);
+      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + ' href="' + href + '">'+
         '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
         '<div class="ocard-main">'+
           '<div class="ocard-title">'+
@@ -710,7 +1054,7 @@
           '</div>'+
           subHtml +
           '<div class="ocard-meta">'+
-            '<span class="meta-item"><span class="mk">' + label('orders.metaNo', '单号') + '</span>'+
+            '<span class="meta-item"><span class="mk">' + label('orders.metaNo', 'Order no.') + '</span>'+
               '<span class="mv">' + escapeHtml(appNo) + '</span></span>'+
             dateHtml +
           '</div>'+
@@ -737,7 +1081,7 @@
         var html = rows.slice(0, 20).map(liveOrderCard).join('');
         if(empty) empty.insertAdjacentHTML('beforebegin', html);
         else list.insertAdjacentHTML('afterbegin', html);
-        applyBizFilter();
+        applyOrderFilters();
       }).catch(function(err){
         console.warn('load live orders failed', err);
       });
@@ -747,8 +1091,9 @@
       var label = function(key, fallback){ return typeof t === 'function' ? t(key) : fallback; };
       var product = row.productName || label('orderChat.draftUntitled', 'Untitled draft order');
       var saved = window.OrderDrafts ? OrderDrafts.formatSavedAt(row.savedAt) : '';
+      var ordered = formatDate(row.savedAt) || formatDate(new Date().toISOString());
       var service = label(row.serviceKey || 'common.serviceLabTest', 'Lab testing');
-      return '<a class="ocard saved-draft" href="order-chat.html?draft=' + encodeURIComponent(row.id) + '" data-biz="' + escapeHtml(row.biz || 'lab') + '" data-draft="' + escapeHtml(row.id) + '">'+
+      return '<a class="ocard saved-draft" href="order-chat.html?draft=' + encodeURIComponent(row.id) + '" data-biz="' + escapeHtml(row.biz || 'lab') + '" data-draft="' + escapeHtml(row.id) + '" data-status="draft" data-ordered="' + escapeHtml(ordered) + '">'+
         '<div class="ocard-thumb fabric-denim"></div>'+
         '<div class="ocard-main">'+
           '<div class="ocard-title">'+
@@ -802,16 +1147,19 @@
 
     if (window.I18n) I18n.initLangToggle({ onLangApplied: function(){
       renderSavedDrafts();
-      applyBizFilter();
+      applyOrderFilters();
       const filterBtn = document.getElementById('filterBtn');
       if (filterBtn) {
         const label = I18n.t('common.filter');
         filterBtn.setAttribute('aria-label', label);
         filterBtn.setAttribute('title', label);
       }
+      if (document.getElementById('filterMask') && document.getElementById('filterMask').classList.contains('show')) {
+        renderFilterSheetControls();
+      }
     }});
     renderSavedDrafts();
-    applyBizFilter();
+    applyOrderFilters();
     loadLiveOrders();
     maybeShowDraftSavedToast();
   </script>
