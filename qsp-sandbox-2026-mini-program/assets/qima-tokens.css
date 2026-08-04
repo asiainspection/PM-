@@ -40,6 +40,10 @@
   --peach: #ff8261;
   --qima-red: #e4002b;
 
+  /* Decorative — AI badge (not a Figma shared paint; used for AI affordances) */
+  --violet-100: #f3eefc;
+  --violet-500: #7b5ea7;
+
   /* Surfaces used across the mini-program shell */
   --border: var(--pearl);
   --page-bg: var(--cloud);
