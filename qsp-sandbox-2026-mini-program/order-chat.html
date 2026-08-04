@@ -2296,7 +2296,12 @@
 
     function continueReuseMissing(btn){
       removeActionRow(btn);
-      userMsg(currentOrderSource === 'draft' ? t('orderChat.chipContinueDraft') : t('orderChat.chipAddMissing'));
+      // Draft resume: skip the chat shipping card — open the fill form directly.
+      if(currentOrderSource === 'draft'){
+        openManualFormModal({ scrollToSample: true });
+        return;
+      }
+      userMsg(t('orderChat.chipAddMissing'));
       if(manualAnswers['Carrier'] && manualAnswers['Tracking Number']){
         botMsg(t('orderChat.noMissingReuse'), false);
         return;
