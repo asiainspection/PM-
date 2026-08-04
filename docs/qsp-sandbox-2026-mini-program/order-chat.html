@@ -150,24 +150,40 @@
   }
   .input-card-stack { display: flex; flex-direction: column; gap: 0; }
   .composer {
-    border: 1px solid var(--line); border-radius: 13px;
-    background: var(--white); padding: 8px 10px;
-    box-shadow: 0 1px 4px rgba(25,25,25,.03);
+    border: none; border-radius: 0;
+    background: transparent; padding: 0;
+    box-shadow: none;
   }
   .composer-head {
     display: flex; align-items: center; justify-content: flex-end;
     margin-bottom: 6px; min-height: 16px;
   }
   .composer-row {
-    display: flex; align-items: center; gap: 6px;
+    display: flex; align-items: flex-end; gap: 2px;
+    min-height: 88px; padding: 10px 8px 8px 8px;
+    border: 1px solid var(--line); border-radius: 14px;
+    background: var(--white);
+    box-shadow: 0 1px 4px rgba(25,25,25,.03);
+    box-sizing: border-box;
   }
-  .composer-row:has(.voice-recording-bar) { flex-wrap: wrap; }
+  .composer-row:focus-within {
+    border-color: var(--pool-500);
+    box-shadow: 0 0 0 3px rgba(65,105,225,.1);
+  }
+  .composer-row:has(.voice-recording-bar) {
+    flex-wrap: wrap; align-items: center; min-height: 48px; padding: 8px;
+  }
   .composer-row:has(.voice-recording-bar) .composer-input,
+  .composer-row:has(.voice-recording-bar) .composer-actions,
   .composer-row:has(.voice-recording-bar) .composer-icon-btn { display: none; }
   .composer-row:has(.voice-recording-bar) .voice-panel { flex: 1 1 100%; }
   .composer .voice-panel {
     flex-shrink: 0; border: none; border-radius: 0;
-    background: transparent; padding: 0;
+    background: transparent; padding: 0; align-self: flex-end;
+  }
+  .composer-actions {
+    display: flex; align-items: center; gap: 0; flex-shrink: 0;
+    align-self: flex-end;
   }
   .voice-tips-title {
     font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
@@ -186,26 +202,28 @@
     padding: 0;
   }
   .voice-btn.icon-only {
-    width: 36px; height: 36px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--white); color: var(--pool-500);
+    width: 34px; height: 34px; border-radius: 9px;
+    border: none; background: transparent; color: var(--pool-500);
   }
+  .voice-btn.icon-only:active { background: var(--pool-050); }
   .voice-btn.processing {
     background: var(--pool-100); color: var(--pool-500);
-    border-color: var(--pool-100); cursor: default;
+    border-color: transparent; cursor: default;
     animation: none;
   }
-  .voice-btn.icon-only.processing { width: 36px; height: 36px; }
+  .voice-btn.icon-only.processing { width: 34px; height: 34px; }
   .composer-input {
-    flex: 1; min-width: 0; height: 36px;
-    border: 1px solid var(--line); border-radius: 10px;
-    padding: 0 10px; font-size: 13px; outline: none;
-    background: var(--white); color: var(--carbon);
+    flex: 1; min-width: 0; min-height: 68px; height: auto;
+    border: none; border-radius: 0; resize: none;
+    padding: 6px 6px 8px; font-size: 13px; line-height: 1.45; outline: none;
+    background: transparent; color: var(--carbon);
+    font-family: inherit; box-sizing: border-box;
   }
   .composer-input::placeholder { color: var(--smoke); }
   .composer-icon-btn {
-    width: 36px; height: 36px; flex-shrink: 0; padding: 0;
-    border: 1px solid var(--line); border-radius: 10px;
-    background: var(--white); color: var(--pool-500); cursor: pointer;
+    width: 34px; height: 34px; flex-shrink: 0; padding: 0;
+    border: none; border-radius: 9px;
+    background: transparent; color: var(--pool-500); cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center;
   }
   .composer-icon-btn:active { background: var(--pool-050); }
@@ -2552,13 +2570,15 @@
               '<div class="voice-panel" id="voicePanel">'+
                 '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
               '</div>'+
-              '<input class="composer-input" id="linkIn" placeholder="'+t('orderChat.composerPlaceholder')+'" oninput="updateParseButtonState()">'+
-              '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.cameraCapture'))+'" title="'+escapeHtml(t('orderChat.cameraCapture'))+'" onclick="doUpload(\'photo\')">'+
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'+
-              '</button>'+
-              '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" title="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" onclick="openProductFilePicker()">'+
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
-              '</button>'+
+              '<textarea class="composer-input" id="linkIn" rows="3" placeholder="'+t('orderChat.composerPlaceholder')+'" oninput="updateParseButtonState()"></textarea>'+
+              '<div class="composer-actions">'+
+                '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.cameraCapture'))+'" title="'+escapeHtml(t('orderChat.cameraCapture'))+'" onclick="doUpload(\'photo\')">'+
+                  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'+
+                '</button>'+
+                '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" title="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" onclick="openProductFilePicker()">'+
+                  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+                '</button>'+
+              '</div>'+
             '</div>'+
             '<div class="voice-transcript" id="voiceTranscript">'+
               '<div class="voice-transcript-label">'+t('orderChat.voiceTranscriptLabel')+'</div>'+
