@@ -391,14 +391,6 @@
         </div>
       </div>
 
-      <!-- 解绑微信 -->
-      <div class="card">
-        <button class="action-row" type="button" onclick="openUnbindConfirm()">
-          <span data-i18n="me.unbindWechat">解绑微信</span>
-          <img src="assets/chevron_row.svg" alt="" />
-        </button>
-      </div>
-
       <!-- 退出登录 -->
       <div class="card">
         <button class="action-row danger" type="button" onclick="openLogoutConfirm()">
@@ -430,20 +422,6 @@
         <img src="assets/tab_me_active.svg" alt="" />
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
-    </div>
-
-    <!-- 解绑确认 -->
-    <div class="confirm-mask" id="unbindConfirm" role="dialog" aria-modal="true" aria-labelledby="unbindTitle">
-      <div class="confirm-box">
-        <div class="confirm-body">
-          <div class="confirm-title" id="unbindTitle" data-i18n="me.unbindTitle">解绑微信？</div>
-          <div class="confirm-desc" data-i18n="me.unbindDesc">解绑后需要重新登录 QIMA 账号才能下单和查看报告。</div>
-        </div>
-        <div class="confirm-actions">
-          <button class="confirm-btn" type="button" onclick="closeUnbindConfirm()" data-i18n="common.cancel">取消</button>
-          <button class="confirm-btn danger" type="button" onclick="confirmUnbind()" data-i18n="me.unbindConfirm">解绑</button>
-        </div>
-      </div>
     </div>
 
     <!-- 退出登录确认 -->
@@ -501,14 +479,6 @@
       renderOrderNotify();
     }
 
-    function openUnbindConfirm(){
-      document.getElementById('unbindConfirm').classList.add('show');
-    }
-
-    function closeUnbindConfirm(){
-      document.getElementById('unbindConfirm').classList.remove('show');
-    }
-
     function openLogoutConfirm(){
       document.getElementById('logoutConfirm').classList.add('show');
     }
@@ -532,13 +502,6 @@
       location.href = 'index.html?bind=1';
     }
 
-    /** Unlinking drops the WeChat binding, so the demo returns to the sign-in overlay. */
-    function confirmUnbind(){
-      closeUnbindConfirm();
-      showToast(t('me.unbindDone'));
-      setTimeout(returnToLogin, 900);
-    }
-
     /** Sign out clears the session and returns to the pre-login state. */
     function confirmLogout(){
       closeLogoutConfirm();
@@ -546,9 +509,6 @@
       setTimeout(returnToLogin, 900);
     }
 
-    document.getElementById('unbindConfirm').addEventListener('click', function(e){
-      if (e.target === this) closeUnbindConfirm();
-    });
     document.getElementById('logoutConfirm').addEventListener('click', function(e){
       if (e.target === this) closeLogoutConfirm();
     });
