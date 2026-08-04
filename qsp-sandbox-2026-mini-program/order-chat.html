@@ -141,43 +141,43 @@
   .upload-option .up-ic { color: var(--pool-500); display: flex; align-items: center; }
   .upload-option .up-title { font-size: 13px; color: var(--carbon); font-weight: 600; }
   .input-guide {
-    margin-bottom: 12px; padding: 11px 12px;
-    border: 1px solid var(--pool-100); border-radius: 12px;
+    margin-bottom: 8px; padding: 8px 10px;
+    border: 1px solid var(--pool-100); border-radius: 10px;
     background: var(--pool-050);
   }
   .input-guide .voice-tips-title {
-    font-size: 12px; font-weight: 700; color: var(--pool-900); margin-bottom: 6px;
+    font-size: 11px; font-weight: 700; color: var(--pool-900); margin-bottom: 4px;
   }
-  .input-card-stack { display: flex; flex-direction: column; gap: 10px; }
-  .input-card {
+  .input-card-stack { display: flex; flex-direction: column; gap: 0; }
+  .composer {
     border: 1px solid var(--line); border-radius: 13px;
-    background: var(--white); padding: 11px 12px;
+    background: var(--white); padding: 8px 10px;
     box-shadow: 0 1px 4px rgba(25,25,25,.03);
   }
-  .input-card-title {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px;
-    font-size: 13px; font-weight: 700; color: var(--carbon);
-    margin-bottom: 8px;
+  .composer-head {
+    display: flex; align-items: center; justify-content: flex-end;
+    margin-bottom: 6px; min-height: 16px;
   }
-  .input-card-title-main {
-    display: flex; align-items: center; gap: 6px; min-width: 0;
+  .composer-row {
+    display: flex; align-items: center; gap: 6px;
   }
-  .input-card-title.primary { color: var(--carbon); }
-  .input-card-icon { color: currentColor; display: inline-flex; align-items: center; }
-  .voice-panel {
-    border: none; border-radius: 0;
+  .composer-row:has(.voice-recording-bar) { flex-wrap: wrap; }
+  .composer-row:has(.voice-recording-bar) .composer-input,
+  .composer-row:has(.voice-recording-bar) .composer-icon-btn { display: none; }
+  .composer-row:has(.voice-recording-bar) .voice-panel { flex: 1 1 100%; }
+  .composer .voice-panel {
+    flex-shrink: 0; border: none; border-radius: 0;
     background: transparent; padding: 0;
   }
   .voice-tips-title {
-    font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 6px;
+    font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
   }
   .voice-tips-list {
-    font-size: 11px; line-height: 17px; color: var(--seal);
-    margin: 0; padding-left: 16px;
+    font-size: 11px; line-height: 16px; color: var(--seal);
+    margin: 0; padding-left: 15px;
   }
-  .voice-tips-list li { margin-bottom: 2px; }
-  .voice-btn,
-  .upload-card-btn.primary {
+  .voice-tips-list li { margin-bottom: 1px; }
+  .voice-btn {
     width: 100%; height: 40px;
     border: 1.5px solid var(--pool-500); border-radius: 10px;
     background: var(--white); color: var(--pool-500);
@@ -185,10 +185,37 @@
     display: flex; align-items: center; justify-content: center; gap: 6px;
     padding: 0;
   }
+  .voice-btn.icon-only {
+    width: 36px; height: 36px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--white); color: var(--pool-500);
+  }
   .voice-btn.processing {
     background: var(--pool-100); color: var(--pool-500);
     border-color: var(--pool-100); cursor: default;
     animation: none;
+  }
+  .voice-btn.icon-only.processing { width: 36px; height: 36px; }
+  .composer-input {
+    flex: 1; min-width: 0; height: 36px;
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 0 10px; font-size: 13px; outline: none;
+    background: var(--white); color: var(--carbon);
+  }
+  .composer-input::placeholder { color: var(--smoke); }
+  .composer-icon-btn {
+    width: 36px; height: 36px; flex-shrink: 0; padding: 0;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: var(--white); color: var(--pool-500); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .composer-icon-btn:active { background: var(--pool-050); }
+  .upload-card-btn.primary {
+    width: 100%; height: 40px;
+    border: 1.5px solid var(--pool-500); border-radius: 10px;
+    background: var(--white); color: var(--pool-500);
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 0;
   }
   .voice-recording-bar {
     display: flex; align-items: center; gap: 10px;
@@ -239,7 +266,7 @@
     font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
   }
   .voice-transcript-text {
-    width: 100%; min-height: 78px; resize: vertical;
+    width: 100%; min-height: 64px; resize: vertical;
     border: 1px solid var(--pool-100); border-radius: 10px;
     background: var(--white); padding: 10px 12px;
     font-size: 12px; line-height: 18px; color: var(--carbon);
@@ -249,8 +276,10 @@
     border-color: var(--pool-500);
     box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
+  .panel.voice-locked .composer-input,
   .panel.voice-locked .link-row input,
   .panel.voice-locked .voice-transcript-text,
+  .panel.voice-locked .composer-icon-btn,
   .panel.voice-locked .upload-card-btn,
   .panel.voice-locked .uploaded-file-delete,
   .panel.voice-locked .parse-btn,
@@ -1252,8 +1281,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260804p"></script>
-<script src="assets/i18n/en.js?v=20260804p"></script>
+<script src="assets/i18n/zh.js?v=20260804q"></script>
+<script src="assets/i18n/en.js?v=20260804q"></script>
 <script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -2528,36 +2557,27 @@
             '<ul class="voice-tips-list">'+t('orderChat.voiceTipsList')+'</ul>'+
           '</div>';
       }
-      html +=
+            html +=
         '<div class="input-card-stack">'+
-          '<div class="input-card input-section">'+
-            '<div class="input-card-title"><span class="input-card-title-main"><span class="input-card-icon">🎤</span>'+t('orderChat.voiceSectionTitle')+'</span></div>'+
-            '<div class="voice-panel" id="voicePanel">'+
-              '<button class="voice-btn" id="voiceBtn" type="button" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
+          '<div class="composer">'+
+            '<div class="composer-head">'+
+              '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
+            '</div>'+
+            '<div class="composer-row">'+
+              '<div class="voice-panel" id="voicePanel">'+
+                '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
+              '</div>'+
+              '<input class="composer-input" id="linkIn" placeholder="'+t('orderChat.composerPlaceholder')+'" oninput="updateParseButtonState()">'+
+              '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.cameraCapture'))+'" title="'+escapeHtml(t('orderChat.cameraCapture'))+'" onclick="doUpload(\'photo\')">'+
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'+
+              '</button>'+
+              '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" title="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" onclick="openProductFilePicker()">'+
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+              '</button>'+
             '</div>'+
             '<div class="voice-transcript" id="voiceTranscript">'+
               '<div class="voice-transcript-label">'+t('orderChat.voiceTranscriptLabel')+'</div>'+
               '<textarea class="voice-transcript-text" id="voiceTranscriptText" placeholder="'+t('orderChat.voiceTranscriptPlaceholder')+'" oninput="onVoiceTranscriptInput()"></textarea>'+
-            '</div>'+
-          '</div>'+
-          '<div class="input-card input-section">'+
-            '<div class="input-card-title primary"><span class="input-card-title-main"><span class="input-card-icon">🔗</span>'+t('orderChat.linkSectionTitle')+'</span></div>'+
-            '<div class="link-row"><input id="linkIn" placeholder="'+t('orderChat.linkPlaceholder')+'" oninput="updateParseButtonState()"></div>'+
-          '</div>'+
-          '<div class="input-card">'+
-            '<div class="input-card-title">'+
-              '<span class="input-card-title-main"><span class="input-card-icon">📎</span>'+t('orderChat.uploadMaterialsTitle')+'</span>'+
-              '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
-            '</div>'+
-            '<div class="upload-card-actions">'+
-              '<button class="upload-card-btn primary" type="button" onclick="doUpload(\'photo\')">'+
-                '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>'+
-                t('orderChat.cameraCapture')+
-              '</button>'+
-              '<button class="upload-card-btn" type="button" onclick="openProductFilePicker()">'+
-                '<span class="up-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>'+
-                t('orderChat.uploadDocOptional')+
-              '</button>'+
             '</div>'+
             '<div class="uploaded-files" id="uploadedFiles"></div>'+
           '</div>'+
@@ -2646,11 +2666,11 @@
     }
 
     function voiceBtnIdleHtml(){
-      return voiceMicIcon()+'<span>'+t('orderChat.voiceStart')+'</span>';
+      return voiceMicIcon();
     }
 
     function voiceBtnProcessingHtml(){
-      return voiceMicIcon()+'<span>'+t('orderChat.voiceProcessing')+'</span>';
+      return voiceMicIcon();
     }
 
     function voiceWaveformHtml(){
@@ -2668,13 +2688,13 @@
     function renderVoiceIdleButton(panel){
       const voicePanel = panel ? panel.querySelector('#voicePanel') : document.getElementById('voicePanel');
       if(!voicePanel) return;
-      voicePanel.innerHTML = '<button class="voice-btn" id="voiceBtn" type="button" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>';
+      voicePanel.innerHTML = '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>';
     }
 
     function renderVoiceProcessingButton(panel){
       const voicePanel = panel ? panel.querySelector('#voicePanel') : document.getElementById('voicePanel');
       if(!voicePanel) return;
-      voicePanel.innerHTML = '<button class="voice-btn processing" id="voiceBtn" type="button" disabled>'+voiceBtnProcessingHtml()+'</button>';
+      voicePanel.innerHTML = '<button class="voice-btn icon-only processing" id="voiceBtn" type="button" disabled aria-label="'+escapeHtml(t('orderChat.voiceProcessing'))+'" title="'+escapeHtml(t('orderChat.voiceProcessing'))+'">'+voiceBtnProcessingHtml()+'</button>';
     }
 
     function renderVoiceRecordingBar(panel){

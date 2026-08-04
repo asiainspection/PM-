@@ -522,6 +522,7 @@ window.I18N_EN = {
   'orderChat.uploadHintTitle': 'What you can upload or paste',
   'orderChat.viewDetails': 'Detail',
   'orderChat.uploadHintTags': 'Spec sheets, photos, packaging labels, PO/PI, invoices, test reports, product links (images / PDF / Word .docx)',
+  'orderChat.composerPlaceholder': 'Paste a product link, or type product details',
   'orderChat.linkPlaceholder': 'Paste Amazon / TEMU / Shopify product link',
   'orderChat.parseBtn': 'Parse now',
   'orderChat.noDataFill': 'No documents — fill manually',
