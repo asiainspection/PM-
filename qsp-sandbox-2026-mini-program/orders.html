@@ -266,9 +266,6 @@
   .biz-opt-name {
     font-size: 14.5px; font-weight: 600; color: var(--carbon); line-height: 20px;
   }
-  .biz-opt-desc {
-    margin-top: 2px; font-size: 11.5px; line-height: 16px; color: var(--seal);
-  }
   .biz-opt.selected .biz-opt-name { color: var(--pool-500); }
   .biz-check {
     width: 18px; height: 18px; flex-shrink: 0; color: var(--pool-500); opacity: 0;
@@ -512,35 +509,30 @@
         <button type="button" class="biz-opt selected" role="option" aria-selected="true" data-biz="all" onclick="selectBizLine('all')">
           <div class="biz-opt-body">
             <div class="biz-opt-name" data-i18n="orders.chipAll">全部</div>
-            <div class="biz-opt-desc" data-i18n="orders.bizAllDesc">查看所有业务线的订单</div>
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="lab" onclick="selectBizLine('lab')">
           <div class="biz-opt-body">
             <div class="biz-opt-name" data-i18n="index.serviceLab">实验室检测</div>
-            <div class="biz-opt-desc" data-i18n="index.serviceLabDesc">Lab Testing · 产品合规与实验室检测</div>
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="inspection" onclick="selectBizLine('inspection')">
           <div class="biz-opt-body">
             <div class="biz-opt-name" data-i18n="index.serviceInspection">产品检验</div>
-            <div class="biz-opt-desc" data-i18n="index.serviceInspectionDesc">Product Inspections · PSI / DUPRO / FRI</div>
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="audit" onclick="selectBizLine('audit')">
           <div class="biz-opt-body">
             <div class="biz-opt-name" data-i18n="index.serviceAudit">供应商审核</div>
-            <div class="biz-opt-desc" data-i18n="index.serviceAuditDesc">Supplier Audits · 社会责任 / 工厂审核</div>
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="cert" onclick="selectBizLine('cert')">
           <div class="biz-opt-body">
             <div class="biz-opt-name" data-i18n="index.serviceCert">认证服务</div>
-            <div class="biz-opt-desc" data-i18n="index.serviceCertDesc">Certifications · 体系与产品认证</div>
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
