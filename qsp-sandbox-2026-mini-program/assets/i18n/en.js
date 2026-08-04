@@ -542,7 +542,7 @@ window.I18N_EN = {
   'orderChat.newProductMsg': 'Got it — this is a <b>brand-new product</b>.<br>Paste a product link first, or describe the product by voice, and I\'ll extract the form fields 👇',
   'orderChat.recorded': 'Noted ✅',
   'orderChat.loadedOrder': 'Loaded details for <b>{id}</b> ✅ Preparing your order form…',
-  'orderChat.prefillDone': 'Prefilled from {sourceType} <b>{id}</b>. Review the details below and edit anything that looks off.',
+  'orderChat.prefillDone': '{sourceType} <b>{id}</b> loaded and prefilled ✅ Review the details below and edit anything that looks off.',
   'orderChat.prefillCardTitle': 'Prefilled order details',
   'orderChat.fromSource': 'From {source}',
   'orderChat.draftSource': 'Draft',

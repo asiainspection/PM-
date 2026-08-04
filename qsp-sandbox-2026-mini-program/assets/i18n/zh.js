@@ -542,7 +542,7 @@ window.I18N_ZH = {
   'orderChat.newProductMsg': '收到！这是一次<b>全新产品</b>的检测。<br>优先粘贴商品链接，或用语音描述产品信息，我会自动识别并填写表单 👇',
   'orderChat.recorded': '已记录 ✅',
   'orderChat.loadedOrder': '已载入 <b>{id}</b> 的信息 ✅ 正在为您预填订单表单…',
-  'orderChat.prefillDone': '已基于{sourceType}「<b>{id}</b>」预填完成。请检查以下信息，缺失或不准确的字段可以继续编辑。',
+  'orderChat.prefillDone': '已载入{sourceType}「<b>{id}</b>」并预填完成 ✅ 请检查以下信息，缺失或不准确的字段可以继续编辑。',
   'orderChat.prefillCardTitle': '预填订单信息',
   'orderChat.fromSource': '来自 {source}',
   'orderChat.draftSource': '草稿',
