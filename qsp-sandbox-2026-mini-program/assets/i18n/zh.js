@@ -306,6 +306,8 @@ window.I18N_ZH = {
   'orders.chipAll': '全部',
   'orders.bizSheetTitle': '选择业务线',
   'orders.bizAllDesc': '查看所有业务线的订单',
+  'orders.bizInDev': '开发中',
+  'orders.bizInDevToast': '该业务线开发中，敬请期待',
   'orders.emptyBizTitle': '该业务线下暂无订单',
   'orders.emptyBizSub': '切换回「全部」或「实验室检测」查看现有订单',
   'orders.metaNo': '单号',

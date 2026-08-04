@@ -306,6 +306,8 @@ window.I18N_EN = {
   'orders.chipAll': 'All',
   'orders.bizSheetTitle': 'Choose business line',
   'orders.bizAllDesc': 'Show orders across every business line',
+  'orders.bizInDev': 'In development',
+  'orders.bizInDevToast': 'This business line is in development',
   'orders.emptyBizTitle': 'No orders in this business line',
   'orders.emptyBizSub': 'Switch back to All or Lab Testing to see current orders',
   'orders.metaNo': 'No.',

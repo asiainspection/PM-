@@ -265,7 +265,19 @@
   .biz-opt-body { flex: 1; min-width: 0; }
   .biz-opt-name {
     font-size: 14.5px; font-weight: 600; color: var(--carbon); line-height: 20px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   }
+  .biz-opt-badge {
+    font-size: 10px; font-weight: 500; line-height: 16px;
+    padding: 1px 6px; border-radius: 4px;
+    color: var(--lemon-900); background: var(--lemon-200);
+  }
+  .biz-opt.is-disabled {
+    cursor: default; opacity: .72;
+  }
+  .biz-opt.is-disabled .biz-opt-name { color: var(--smoke); font-weight: 500; }
+  .biz-opt.is-disabled:active { background: transparent; }
+  .biz-opt.is-disabled .biz-check { display: none; }
   .biz-opt.selected .biz-opt-name { color: var(--pool-500); }
   .biz-check {
     width: 18px; height: 18px; flex-shrink: 0; color: var(--pool-500); opacity: 0;
@@ -300,9 +312,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260803t"></script>
-<script src="assets/i18n/en.js?v=20260803t"></script>
-<script src="assets/i18n-runtime.js?v=20260803t"></script>
+<script src="assets/i18n/zh.js?v=20260804b"></script>
+<script src="assets/i18n/en.js?v=20260804b"></script>
+<script src="assets/i18n-runtime.js?v=20260804b"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 <script src="assets/order-drafts.js?v=20260803t"></script>
@@ -518,23 +530,29 @@
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="inspection" onclick="selectBizLine('inspection')">
+        <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="inspection" onclick="selectBizLine('inspection')">
           <div class="biz-opt-body">
-            <div class="biz-opt-name" data-i18n="index.serviceInspection">产品检验</div>
+            <div class="biz-opt-name">
+              <span data-i18n="index.serviceInspection">产品检验</span>
+              <span class="biz-opt-badge" data-i18n="orders.bizInDev">开发中</span>
+            </div>
           </div>
-          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="audit" onclick="selectBizLine('audit')">
+        <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="audit" onclick="selectBizLine('audit')">
           <div class="biz-opt-body">
-            <div class="biz-opt-name" data-i18n="index.serviceAudit">供应商审核</div>
+            <div class="biz-opt-name">
+              <span data-i18n="index.serviceAudit">供应商审核</span>
+              <span class="biz-opt-badge" data-i18n="orders.bizInDev">开发中</span>
+            </div>
           </div>
-          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="cert" onclick="selectBizLine('cert')">
+        <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="cert" onclick="selectBizLine('cert')">
           <div class="biz-opt-body">
-            <div class="biz-opt-name" data-i18n="index.serviceCert">认证服务</div>
+            <div class="biz-opt-name">
+              <span data-i18n="index.serviceCert">认证服务</span>
+              <span class="biz-opt-badge" data-i18n="orders.bizInDev">开发中</span>
+            </div>
           </div>
-          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
       </div>
@@ -622,6 +640,11 @@
     }
 
     function selectBizLine(id){
+      var tap = document.querySelector('.biz-opt[data-biz="' + id + '"]');
+      if(tap && tap.classList.contains('is-disabled')){
+        showOrdersToast(typeof t === 'function' ? t('orders.bizInDevToast') : 'In development');
+        return;
+      }
       currentBiz = BIZ_LABEL_KEYS[id] ? id : 'all';
       document.querySelectorAll('.biz-opt').forEach(function(opt){
         var on = opt.getAttribute('data-biz') === currentBiz;
