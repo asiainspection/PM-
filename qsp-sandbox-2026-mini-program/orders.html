@@ -111,11 +111,12 @@
   }
   .search input::placeholder { color: #aab0bc; }
   .filter-btn {
-    flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 8px;
+    flex-shrink: 0; width: 36px; height: 36px; padding: 0; border-radius: 8px;
     background: var(--pool-050); color: var(--pool-500);
-    display: flex; align-items: center; gap: 4px; font-size: 13px;
-    border: 1px solid #dce4fb;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid #dce4fb; cursor: pointer;
   }
+  .filter-btn svg { display: block; }
 
   /* ===== 列表滚动区 ===== */
   .list {
@@ -357,10 +358,9 @@
           <svg width="15" height="15" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="请输入搜索关键词" data-i18n-placeholder="common.searchKeyword" />
         </div>
-        <div class="filter-btn">
-          <svg width="14" height="14" viewBox="0 0 16 16"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <span data-i18n="common.filter">筛选</span>
-        </div>
+        <button type="button" class="filter-btn" id="filterBtn" aria-label="筛选" title="筛选" data-i18n-title="common.filter">
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
       </div>
     </div>
 
@@ -793,7 +793,16 @@
       } catch (e) { /* ignore */ }
     }
 
-    if (window.I18n) I18n.initLangToggle({ onLangApplied: function(){ renderSavedDrafts(); applyBizFilter(); } });
+    if (window.I18n) I18n.initLangToggle({ onLangApplied: function(){
+      renderSavedDrafts();
+      applyBizFilter();
+      const filterBtn = document.getElementById('filterBtn');
+      if (filterBtn) {
+        const label = I18n.t('common.filter');
+        filterBtn.setAttribute('aria-label', label);
+        filterBtn.setAttribute('title', label);
+      }
+    }});
     renderSavedDrafts();
     applyBizFilter();
     loadLiveOrders();
