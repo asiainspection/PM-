@@ -500,12 +500,22 @@
 
     function applyMeta() {
       const meta = currentMeta();
+      const params = new URLSearchParams(window.location.search);
+      const rev = String(params.get('rev') || '').toUpperCase();
+      const orderRef = String(params.get('order') || '').trim();
       const idEl = document.getElementById('reportId');
       const metaEl = document.getElementById('reportMeta');
       const statusEl = document.getElementById('reportStatus');
-      if (idEl) idEl.textContent = meta.id;
+      if (idEl) {
+        if (orderRef && /^R\d+$/i.test(rev)) {
+          idEl.textContent = orderRef + '-11-' + rev;
+        } else {
+          idEl.textContent = meta.id;
+        }
+      }
       if (metaEl) {
-        metaEl.textContent = meta.tag + ' · ' + meta.sku + ' · ' + t(meta.nameKey);
+        const revLabel = /^R\d+$/i.test(rev) ? (' · ' + rev) : '';
+        metaEl.textContent = meta.tag + ' · ' + meta.sku + ' · ' + t(meta.nameKey) + revLabel;
       }
       if (statusEl) {
         const accent = statusAccent(meta.status);

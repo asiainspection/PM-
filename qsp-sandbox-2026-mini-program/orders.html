@@ -133,6 +133,7 @@
      tap target, so no inner boxes and no separate "view all" link. */
   .ocard {
     display: flex; align-items: flex-start; gap: 12px;
+    flex-shrink: 0;
     background: var(--white); border-radius: 14px;
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 8px 20px rgba(25,25,25,.05);
     padding: 13px 14px;
@@ -146,6 +147,36 @@
     transform: scale(.993);
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
   }
+  .ocard.has-reports {
+    flex-direction: column; gap: 10px; cursor: default;
+  }
+  .ocard.has-reports:active {
+    background: var(--white); transform: none;
+    box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 8px 20px rgba(25,25,25,.05);
+  }
+  .ocard-nav {
+    display: flex; align-items: flex-start; gap: 12px;
+    width: 100%; min-width: 0;
+    color: inherit; text-decoration: none;
+  }
+  .ocard-nav:active {
+    opacity: .92;
+  }
+  .ocard-reports {
+    display: flex; gap: 8px;
+    width: 100%;
+    padding-left: 66px; /* align under main text, past the 54px thumb + gap */
+    box-sizing: border-box;
+  }
+  .report-rev-btn {
+    flex: 1; height: 34px; border-radius: 8px; padding: 0 10px;
+    border: 1px solid var(--pool-100); background: var(--pool-050);
+    color: var(--pool-500); font: inherit; font-size: 13px; font-weight: 700;
+    letter-spacing: .2px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    text-decoration: none; cursor: pointer;
+  }
+  .report-rev-btn:active { background: var(--pool-100); }
 
   /* Centred so the tile stays balanced whether the meta row wraps or not. */
   .ocard-thumb {
@@ -402,8 +433,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orders';</script>
-<script src="assets/i18n/zh.js?v=20260804g"></script>
-<script src="assets/i18n/en.js?v=20260804g"></script>
+<script src="assets/i18n/zh.js?v=20260804n"></script>
+<script src="assets/i18n/en.js?v=20260804n"></script>
 <script src="assets/i18n-runtime.js?v=20260804g"></script>
 <script src="assets/demo-shortcuts.js?v=20260803o"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
@@ -1043,7 +1074,8 @@
         : 'order-detail.html?order=' + encodeURIComponent(ref);
       var draftAttr = isDraft ? ' data-draft="' + escapeHtml(ref) + '"' : '';
       var statusKey = normalizeStatusKey(status);
-      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + ' href="' + href + '">'+
+      var reports = Array.isArray(row.reports) ? row.reports : [];
+      var mainHtml =
         '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
         '<div class="ocard-main">'+
           '<div class="ocard-title">'+
@@ -1056,7 +1088,25 @@
               '<span class="mv">' + escapeHtml(appNo) + '</span></span>'+
             dateHtml +
           '</div>'+
-        '</div>'+
+        '</div>';
+
+      if(reports.length){
+        var reportBtns = reports.map(function(rep){
+          var rev = rep.rev || 'R1';
+          var rHref = rep.href || ('report-preview.html?rev=' + encodeURIComponent(rev) + '&order=' + encodeURIComponent(ref));
+          return '<a class="report-rev-btn" href="' + escapeHtml(rHref) + '">'+
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+
+            escapeHtml(rev)+
+          '</a>';
+        }).join('');
+        return '<div class="ocard live has-reports" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + '>'+
+          '<a class="ocard-nav" href="' + escapeHtml(href) + '">'+ mainHtml + '</a>'+
+          '<div class="ocard-reports">' + reportBtns + '</div>'+
+        '</div>';
+      }
+
+      return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + ' href="' + href + '">'+
+        mainHtml +
         '<img class="chev" src="assets/chevron_row.svg" alt="" />'+
       '</a>';
     }
@@ -1069,6 +1119,33 @@
       return 'lab';
     }
 
+    /** Demo: mark the robot-toy live order as report-ready with R1 / R2 actions. */
+    function enrichLiveOrderRow(row){
+      var ref = String(row.order_ref || '');
+      var appNo = String(row.application_no || '');
+      var product = String(row.product_name || row.category || '');
+      var isTarget =
+        ref === 'T-2608043334' ||
+        appNo === '20260804034048639' ||
+        /智能机器人玩具|smart robot toy/i.test(product);
+      if(!isTarget) return row;
+      var orderRef = ref || 'T-2608043334';
+      var out = Object.assign({}, row);
+      out.status = 'report_completed';
+      out.order_ref = orderRef;
+      out.reports = [
+        {
+          rev: 'R1',
+          href: 'report-preview.html?sku=SKU-65120&rev=R1&order=' + encodeURIComponent(orderRef)
+        },
+        {
+          rev: 'R2',
+          href: 'report-preview.html?sku=SKU-65120&rev=R2&order=' + encodeURIComponent(orderRef)
+        }
+      ];
+      return out;
+    }
+
     function loadLiveOrders(){
       var api = window.QimaSupabase;
       var list = document.getElementById('orderList');
@@ -1076,7 +1153,7 @@
       api.getFullOrders().then(function(rows){
         if(!rows || !rows.length) return;
         var empty = document.getElementById('orderEmpty');
-        var html = rows.slice(0, 20).map(liveOrderCard).join('');
+        var html = rows.slice(0, 20).map(enrichLiveOrderRow).map(liveOrderCard).join('');
         if(empty) empty.insertAdjacentHTML('beforebegin', html);
         else list.insertAdjacentHTML('afterbegin', html);
         applyOrderFilters();
