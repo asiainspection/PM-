@@ -5120,13 +5120,13 @@
         const typingRow2 = botTyping();
         setTimeout(function(){
           typingRow2.remove();
-          botMsg(extractCard(displayFields, percent), true);
           playRecogBar(botMsg(recognizeProgressCard(
             allStats.filled,
             allStats.total,
             percent,
             missingCount
           ), true));
+          botMsg(extractCard(displayFields, percent), true);
 
           const needSampleOrShip = !getFieldDisplayValue('Sample Collection Method');
           const hasMatched = !!(getFieldDisplayValue('Product Name') || getFieldDisplayValue('Item#/model#') || getFieldDisplayValue('Manufacturer') || getFieldDisplayValue('Program') || getFieldDisplayValue('Country of Origin') || getFieldDisplayValue('Countries/Regions of Distribution'));
