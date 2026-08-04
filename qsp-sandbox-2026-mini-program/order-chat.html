@@ -95,6 +95,8 @@
   }
   .panel-pad { padding: 14px; }
   .panel-title { font-size: 14px; font-weight: 600; color: var(--carbon); margin-bottom: 12px; }
+  .panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+  .panel-title-row .panel-title { margin-bottom: 0; }
   .history-search {
     display: flex; align-items: center; gap: 8px;
     height: 36px; margin-bottom: 10px; padding: 0 10px;
@@ -2353,7 +2355,7 @@
         Object.assign(manualAnswers, prefill.fields);
         botMsg(tHtml('orderChat.prefillDone', {sourceType: prefill.sourceType, id: id}), false);
         botMsg(reuseOrderCard(id, prefill), true);
-        botMsg(chipsRow(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')+I18n.chipHtml('orderChat.chipAddMissing','plus','continueReuseMissing(this)')), true);
+        botMsg(chipsRow(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+I18n.chipHtml('orderChat.chipAddMissing','plus','continueReuseMissing(this)')), true);
       }, 700);
     }
 
@@ -2486,7 +2488,6 @@
           botMsg(draftOrderCard(draftId, prefill), true);
           botMsg(chipsRow(
             I18n.chipHtml('orderChat.chipContinueDraft','plus','continueReuseMissing(this)')+
-            I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')+
             I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')
           ), true);
         }, 650);
@@ -2551,7 +2552,7 @@
       // First AI-input entry only: let users read data-use / privacy before submitting.
       var showPrivacy = !!opts.showPrivacy;
       var html = '<div class="panel panel-pad">';
-      if(title) html += '<div class="panel-title">'+title+'</div>';
+      if(title) html += '<div class="panel-title-row"><span class="panel-title">'+title+'</span><button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button></div>';
       if(showTips){
         html +=
           '<div class="input-guide">'+
@@ -2562,9 +2563,6 @@
             html +=
         '<div class="input-card-stack">'+
           '<div class="composer">'+
-            '<div class="composer-head">'+
-              '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
-            '</div>'+
             '<div class="composer-row">'+
               '<textarea class="composer-input" id="linkIn" rows="3" placeholder="'+t('orderChat.composerPlaceholder')+'" oninput="updateParseButtonState()"></textarea>'+
               '<div class="composer-tools">'+
