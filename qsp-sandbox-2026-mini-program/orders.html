@@ -148,32 +148,37 @@
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
   }
   .ocard.has-reports {
-    flex-direction: column; gap: 10px; cursor: default;
+    /* Same horizontal card; report chips sit inside .ocard-main (not a footer strip). */
+    cursor: default;
   }
   .ocard.has-reports:active {
     background: var(--white); transform: none;
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 8px 20px rgba(25,25,25,.05);
   }
-  .ocard-nav {
-    display: flex; align-items: flex-start; gap: 12px;
-    width: 100%; min-width: 0;
+  .ocard-thumb-link {
+    flex-shrink: 0; align-self: center;
     color: inherit; text-decoration: none;
   }
-  .ocard-nav:active {
-    opacity: .92;
+  .ocard-main-link {
+    display: block; color: inherit; text-decoration: none;
+  }
+  .ocard-main-link:active { opacity: .92; }
+  .ocard-chev-link {
+    flex-shrink: 0; align-self: center;
+    display: flex; color: inherit; text-decoration: none;
   }
   .ocard-reports {
-    display: flex; gap: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 8px;
     width: 100%;
-    padding-left: 66px; /* align under main text, past the 54px thumb + gap */
     box-sizing: border-box;
   }
   .report-rev-btn {
-    flex: 1; height: 34px; border-radius: 8px; padding: 0 10px;
+    height: 28px; border-radius: 7px; padding: 0 10px;
     border: 1px solid var(--pool-100); background: var(--pool-050);
-    color: var(--pool-500); font: inherit; font-size: 13px; font-weight: 700;
+    color: var(--pool-500); font: inherit; font-size: 12px; font-weight: 700;
     letter-spacing: .2px;
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
     text-decoration: none; cursor: pointer;
   }
   .report-rev-btn:active { background: var(--pool-100); }
@@ -527,24 +532,34 @@
         <img class="chev" src="assets/chevron_row.svg" alt="" />
       </a>
 
-      <!-- 卡片 2 -->
-      <a class="ocard" href="order-detail.html?order=T-26356800" data-biz="lab" data-status="reportCompleted" data-ordered="2026-06-03">
-        <div class="ocard-thumb fabric-denim"></div>
+      <!-- 卡片 2 — report completed with R1/R2 inside the card -->
+      <div class="ocard has-reports" data-biz="lab" data-status="reportCompleted" data-ordered="2026-06-03">
+        <a class="ocard-thumb-link" href="order-detail.html?order=T-26356800"><div class="ocard-thumb fabric-denim"></div></a>
         <div class="ocard-main">
-          <div class="ocard-title">
-            <div class="pname" data-i18n="orders.productBlackWoven">黑色机织面料</div>
-            <div class="status green" data-i18n="status.short.reportCompleted">报告已完成</div>
-          </div>
-          <div class="ocard-sub">
-            <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
-          </div>
-          <div class="ocard-meta">
-            <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">T-26356800</span></span>
-            <span class="meta-item"><span class="mk" data-i18n="orders.metaReport">报告</span><span class="mv">2026-06-03</span></span>
+          <a class="ocard-main-link" href="order-detail.html?order=T-26356800">
+            <div class="ocard-title">
+              <div class="pname" data-i18n="orders.productBlackWoven">黑色机织面料</div>
+              <div class="status green" data-i18n="status.short.reportCompleted">报告已完成</div>
+            </div>
+            <div class="ocard-sub">
+              <span class="stext" data-i18n="common.serviceLabTest">实验室检测</span>
+            </div>
+            <div class="ocard-meta">
+              <span class="meta-item"><span class="mk" data-i18n="orders.metaNo">单号</span><span class="mv">T-26356800</span></span>
+              <span class="meta-item"><span class="mk" data-i18n="orders.metaReport">报告</span><span class="mv">2026-06-03</span></span>
+            </div>
+          </a>
+          <div class="ocard-reports">
+            <a class="report-rev-btn" href="report-preview.html?sku=SKU-65120&rev=R1&order=T-26356800">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>R1
+            </a>
+            <a class="report-rev-btn" href="report-preview.html?sku=SKU-65120&rev=R2&order=T-26356800">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>R2
+            </a>
           </div>
         </div>
-        <img class="chev" src="assets/chevron_row.svg" alt="" />
-      </a>
+        <a class="ocard-chev-link" href="order-detail.html?order=T-26356800"><img class="chev" src="assets/chevron_row.svg" alt="" /></a>
+      </div>
 
       <!-- 卡片 3 -->
       <a class="ocard" href="order-detail.html?order=T-25617036" data-biz="lab" data-status="pendingVerification" data-ordered="2026-06-02">
@@ -1052,12 +1067,13 @@
     function liveOrderCard(row){
       var ref = row.order_ref || row.application_no || '';
       // Official customer-facing order no. is T-… — never prefer long application_no digits.
-      var displayNo = row.order_ref || '';
+      var displayNo = String(row.order_ref || '');
       if(!/^T-/i.test(displayNo)){
-        if(/^T-/i.test(String(row.application_no || ''))) displayNo = row.application_no;
-        else displayNo = ref;
+        if(/^T-/i.test(String(row.application_no || ''))) displayNo = String(row.application_no);
+        else if(/^T-/i.test(String(ref))) displayNo = String(ref);
+        else displayNo = '';
       }
-      var appNo = row.application_no || ref;
+      if(!displayNo && /^T-/i.test(String(ref))) displayNo = String(ref);
       var status = row.status || 'pending_verification';
       var isDraft = String(status).toLowerCase() === 'draft';
       var product = row.product_name || row.category || row.project_name || '';
@@ -1075,44 +1091,51 @@
         ? '<span class="meta-item"><span class="mk">' + label('orders.metaOrdered', '下单') + '</span>'+
           '<span class="mv">' + escapeHtml(ordered) + '</span></span>'
         : '';
+      var linkRef = /^T-/i.test(String(row.order_ref || '')) ? row.order_ref : ( /^T-/i.test(String(ref)) ? ref : displayNo || ref );
       var href = isDraft
         ? 'order-chat.html?draft=' + encodeURIComponent(ref)
-        : 'order-detail.html?order=' + encodeURIComponent(ref);
+        : 'order-detail.html?order=' + encodeURIComponent(linkRef || ref);
       var draftAttr = isDraft ? ' data-draft="' + escapeHtml(ref) + '"' : '';
       var statusKey = normalizeStatusKey(status);
       var reports = Array.isArray(row.reports) ? row.reports : [];
-      var mainHtml =
-        '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
-        '<div class="ocard-main">'+
-          '<div class="ocard-title">'+
-            '<div class="pname">' + escapeHtml(product) + '</div>'+
-            '<div class="status ' + statusTone(status) + '">' + escapeHtml(mapStatusLabel(status)) + '</div>'+
-          '</div>'+
-          subHtml +
-          '<div class="ocard-meta">'+
-            '<span class="meta-item"><span class="mk">' + label('orders.metaNo', 'Order no.') + '</span>'+
-              '<span class="mv">' + escapeHtml(displayNo || appNo) + '</span></span>'+
-            dateHtml +
-          '</div>'+
+      var reportBtns = reports.map(function(rep){
+        var rev = rep.rev || 'R1';
+        var rHref = rep.href || ('report-preview.html?rev=' + encodeURIComponent(rev) + '&order=' + encodeURIComponent(linkRef || ref));
+        return '<a class="report-rev-btn" href="' + escapeHtml(rHref) + '">'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+
+          escapeHtml(rev)+
+        '</a>';
+      }).join('');
+      var reportsHtml = reports.length
+        ? '<div class="ocard-reports">' + reportBtns + '</div>'
+        : '';
+      var titleBlock =
+        '<div class="ocard-title">'+
+          '<div class="pname">' + escapeHtml(product) + '</div>'+
+          '<div class="status ' + statusTone(status) + '">' + escapeHtml(mapStatusLabel(status)) + '</div>'+
+        '</div>'+
+        subHtml +
+        '<div class="ocard-meta">'+
+          '<span class="meta-item"><span class="mk">' + label('orders.metaNo', 'Order no.') + '</span>'+
+            '<span class="mv">' + escapeHtml(displayNo || linkRef || '—') + '</span></span>'+
+          dateHtml +
         '</div>';
 
       if(reports.length){
-        var reportBtns = reports.map(function(rep){
-          var rev = rep.rev || 'R1';
-          var rHref = rep.href || ('report-preview.html?rev=' + encodeURIComponent(rev) + '&order=' + encodeURIComponent(ref));
-          return '<a class="report-rev-btn" href="' + escapeHtml(rHref) + '">'+
-            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+
-            escapeHtml(rev)+
-          '</a>';
-        }).join('');
+        // Reports sit inside .ocard-main (not a footer strip). Avoid nested <a>.
         return '<div class="ocard live has-reports" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + '>'+
-          '<a class="ocard-nav" href="' + escapeHtml(href) + '">'+ mainHtml + '</a>'+
-          '<div class="ocard-reports">' + reportBtns + '</div>'+
+          '<a class="ocard-thumb-link" href="' + escapeHtml(href) + '"><div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div></a>'+
+          '<div class="ocard-main">'+
+            '<a class="ocard-main-link" href="' + escapeHtml(href) + '">'+ titleBlock + '</a>'+
+            reportsHtml +
+          '</div>'+
+          '<a class="ocard-chev-link" href="' + escapeHtml(href) + '"><img class="chev" src="assets/chevron_row.svg" alt="" /></a>'+
         '</div>';
       }
 
       return '<a class="ocard live" data-biz="' + escapeHtml(biz) + '" data-status="' + escapeHtml(statusKey) + '" data-ordered="' + escapeHtml(ordered) + '"' + draftAttr + ' href="' + href + '">'+
-        mainHtml +
+        '<div class="ocard-thumb icon"><img src="assets/order_icon.svg" alt="" /></div>'+
+        '<div class="ocard-main">'+ titleBlock + '</div>'+
         '<img class="chev" src="assets/chevron_row.svg" alt="" />'+
       '</a>';
     }
@@ -1133,9 +1156,11 @@
       var isTarget =
         ref === 'T-2608043334' ||
         appNo === '20260804034048639' ||
+        /^20260804034048639$/.test(ref) ||
         /智能机器人玩具|smart robot toy/i.test(product);
       if(!isTarget) return row;
-      var orderRef = ref || 'T-2608043334';
+      // Always expose the official T- order no. (API may store the long application no. in order_ref.)
+      var orderRef = /^T-/i.test(ref) ? ref : 'T-2608043334';
       var out = Object.assign({}, row);
       out.status = 'report_completed';
       out.order_ref = orderRef;
