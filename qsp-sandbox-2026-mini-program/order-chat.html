@@ -1176,6 +1176,26 @@
   .fm-input:focus, .fm-select:focus, .fm-textarea:focus {
     border-color: var(--pool-500); box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
+  .fm-input.is-error,
+  .fm-select.is-error,
+  .fm-textarea.is-error {
+    border-color: var(--cherry);
+    background: var(--cherry-100);
+    box-shadow: 0 0 0 3px rgba(229,53,61,.12);
+  }
+  .fm-input.is-error:focus,
+  .fm-select.is-error:focus,
+  .fm-textarea.is-error:focus {
+    border-color: var(--cherry);
+    box-shadow: 0 0 0 3px rgba(229,53,61,.16);
+  }
+  .edit-country-panel.is-error,
+  .fm-radio-stack.is-error {
+    border-radius: 10px;
+    outline: 1.5px solid var(--cherry);
+    outline-offset: 4px;
+    background: var(--cherry-100);
+  }
   .fm-suggest { position: relative; }
   .fm-suggest-results {
     display: none; margin-top: 6px; max-height: 180px; overflow-y: auto;
@@ -5237,6 +5257,89 @@
           section.fields.map(renderEditField).join('');
       }).join('');
       document.getElementById('fieldEditor').classList.add('show');
+      bindFieldEditorErrorClear();
+      markFieldEditorMissingRequired();
+    }
+
+    /** Highlight empty required controls in the field editor (Cherry border). */
+    function markFieldEditorMissingRequired(){
+      const grid = document.getElementById('fieldEditorGrid');
+      if(!grid) return;
+      grid.querySelectorAll('.is-error').forEach(function(el){ el.classList.remove('is-error'); });
+
+      grid.querySelectorAll('[data-field-name]').forEach(function(el){
+        const name = el.getAttribute('data-field-name');
+        if(!name || !isRequiredField(name)) return;
+        const empty = !String(el.value || '').trim();
+        if(!empty) return;
+
+        if(name === 'Countries/Regions of Distribution'){
+          const panel = el.closest('.fm-row') && el.closest('.fm-row').querySelector('.edit-country-panel');
+          if(panel) panel.classList.add('is-error');
+          return;
+        }
+        if(name === FIELD_ELECTRIC){
+          const stack = el.closest('.fm-row') && el.closest('.fm-row').querySelector('.fm-radio-stack');
+          if(stack) stack.classList.add('is-error');
+          return;
+        }
+        if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA'){
+          if(el.type === 'hidden') return;
+          el.classList.add('is-error');
+        }
+      });
+
+      const first = grid.querySelector('.is-error');
+      if(!first) return;
+      const body = document.querySelector('#fieldEditor .form-modal-body');
+      const row = first.closest('.fm-row') || first;
+      if(body && row){
+        setTimeout(function(){
+          body.scrollTop = Math.max(0, row.offsetTop - 12);
+        }, 40);
+      }
+    }
+
+    function bindFieldEditorErrorClear(){
+      const grid = document.getElementById('fieldEditorGrid');
+      if(!grid || grid.dataset.errorBound === '1') return;
+      grid.dataset.errorBound = '1';
+      grid.addEventListener('input', clearFieldEditorControlError);
+      grid.addEventListener('change', clearFieldEditorControlError);
+    }
+
+    function clearFieldEditorControlError(e){
+      const target = e && e.target;
+      if(!target) return;
+      target.classList.remove('is-error');
+      const row = target.closest('.fm-row');
+      if(!row) return;
+
+      if(target.matches('input[type="checkbox"]')){
+        const wrap = getEditCountryWrap(target);
+        if(wrap){
+          syncEditCountryHidden(wrap);
+          const hidden = getEditCountryHidden(wrap);
+          if(hidden && String(hidden.value || '').trim()){
+            const panel = wrap.querySelector('.edit-country-panel');
+            if(panel) panel.classList.remove('is-error');
+          }
+        }
+      }
+      if(target.name === 'fe_electric' || target.matches('input[type="radio"]')){
+        const stack = row.querySelector('.fm-radio-stack');
+        if(stack) stack.classList.remove('is-error');
+        // Electric description may become required — re-check that control only
+        if(target.name === 'fe_electric'){
+          const desc = document.getElementById('fe_electricDescription');
+          if(desc){
+            desc.classList.remove('is-error');
+            if(isRequiredField(FIELD_ELECTRIC_DESC) && !String(desc.value || '').trim()){
+              desc.classList.add('is-error');
+            }
+          }
+        }
+      }
     }
 
     function addEditSelectOption(btn){
@@ -5524,9 +5627,10 @@
           const label = opt || t('common.selectPlaceholder');
           return '<option value="'+escapeHtml(opt)+'"'+selected+'>'+escapeHtml(label)+'</option>';
         }).join('');
+        const reqMark = isRequiredField(field.name) ? ' <span class="req">*</span>' : '';
         let html =
           '<div class="fm-row'+(field.type === 'select-addable' ? ' edit-item-combo' : '')+'">'+
-            '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+'</div>'+
+            '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+reqMark+'</div>'+
             '<select class="fm-select" data-field-name="'+field.name+'">'+options+'</select>';
         if(field.type === 'select-addable'){
           html +=
@@ -5537,8 +5641,9 @@
         }
         return html+'</div>';
       }
+      const reqMark = isRequiredField(field.name) ? ' <span class="req">*</span>' : '';
       return '<div class="fm-row">'+
-        '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+'</div>'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+reqMark+'</div>'+
         '<input class="fm-input" data-field-name="'+field.name+'" value="'+escapeHtml(current)+'" placeholder="'+t('orderChat.fieldInputPlaceholder', {field: fieldLabel(field.name)})+'">'+
       '</div>';
     }
