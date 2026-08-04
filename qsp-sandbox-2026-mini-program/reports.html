@@ -217,6 +217,7 @@
   .list::-webkit-scrollbar { display: none; }
   .rlist-card {
     position: relative; display: block; overflow: hidden;
+    flex-shrink: 0; /* keep full card height; list scrolls instead of crushing rows */
     background:
       linear-gradient(135deg, var(--accent-wash), rgba(255,255,255,0) 46%),
       var(--white);
