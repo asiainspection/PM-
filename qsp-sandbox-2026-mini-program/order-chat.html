@@ -1195,8 +1195,7 @@
     border-color: var(--cherry);
     box-shadow: 0 0 0 3px rgba(229,53,61,.16);
   }
-  .edit-country-panel.is-error,
-  .fm-radio-stack.is-error {
+  .edit-country-panel.is-error {
     border-radius: 10px;
     outline: 1.5px solid var(--cherry);
     outline-offset: 4px;
@@ -5309,8 +5308,7 @@
           return;
         }
         if(name === FIELD_ELECTRIC){
-          const stack = el.closest('.fm-row') && el.closest('.fm-row').querySelector('.fm-radio-stack');
-          if(stack) stack.classList.add('is-error');
+          // Radio stack: no red outline — required state stays via label asterisk only.
           return;
         }
         if(el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA'){
