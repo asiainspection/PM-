@@ -241,16 +241,6 @@
               '<label class="lg-label" for="suCountry" data-i18n="signup.country">' + tr('signup.country') + '</label>' +
               '<select class="lg-input lg-select" id="suCountry">' +
                 '<option value="">' + tr('signup.countryPh') + '</option>' +
-                '<option value="cn">' + tr('signup.country.cn') + '</option>' +
-                '<option value="us">' + tr('signup.country.us') + '</option>' +
-                '<option value="gb">' + tr('signup.country.gb') + '</option>' +
-                '<option value="de">' + tr('signup.country.de') + '</option>' +
-                '<option value="fr">' + tr('signup.country.fr') + '</option>' +
-                '<option value="jp">' + tr('signup.country.jp') + '</option>' +
-                '<option value="vn">' + tr('signup.country.vn') + '</option>' +
-                '<option value="in">' + tr('signup.country.in') + '</option>' +
-                '<option value="au">' + tr('signup.country.au') + '</option>' +
-                '<option value="other">' + tr('signup.country.other') + '</option>' +
               '</select>' +
               '<p class="lg-error" id="suCountryError"></p>' +
             '</div>' +
@@ -259,14 +249,16 @@
               '<label class="lg-label" for="suState" data-i18n="signup.state">' + tr('signup.state') + '</label>' +
               '<select class="lg-input lg-select" id="suState">' +
                 '<option value="">' + tr('signup.statePh') + '</option>' +
-                '<option value="CA">California</option>' +
-                '<option value="NY">New York</option>' +
-                '<option value="TX">Texas</option>' +
-                '<option value="FL">Florida</option>' +
-                '<option value="WA">Washington</option>' +
-                '<option value="IL">Illinois</option>' +
               '</select>' +
               '<p class="lg-error" id="suStateError"></p>' +
+            '</div>' +
+
+            '<div class="lg-field" id="suCityField" hidden>' +
+              '<label class="lg-label" for="suCity" data-i18n="signup.city">' + tr('signup.city') + '</label>' +
+              '<select class="lg-input lg-select" id="suCity">' +
+                '<option value="">' + tr('signup.cityPh') + '</option>' +
+              '</select>' +
+              '<p class="lg-error" id="suCityError"></p>' +
             '</div>' +
 
             '<div class="lg-field" id="suIndustryField">' +
@@ -470,6 +462,89 @@
       : tr('binding.infoSupplier');
   }
 
+  function getSignupGeo() {
+    return global.QIMA_SIGNUP_GEO || {
+      countries: [],
+      statesByCountry: {},
+      cnCitiesByProvince: {},
+      logic: { stateVisibleWhen: [], cityVisibleWhen: ['China'] }
+    };
+  }
+
+  function fillSelectOptions(select, items, placeholder) {
+    if (!select) return;
+    var html = '<option value="">' + escapeHtml(placeholder) + '</option>';
+    (items || []).forEach(function (item) {
+      var value = item.value != null ? item.value : item;
+      var text = item.text != null ? item.text : item;
+      html += '<option value="' + escapeHtml(String(value)) + '">' + escapeHtml(String(text)) + '</option>';
+    });
+    select.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function populateSignupCountries() {
+    if (!el.suCountry || el.suCountry.dataset.geoReady === '1') return;
+    var geo = getSignupGeo();
+    fillSelectOptions(el.suCountry, geo.countries, tr('signup.countryPh'));
+    el.suCountry.dataset.geoReady = '1';
+  }
+
+  /** myQIMA: State appears for US / China / Mexico / India / Brazil; City only for China. */
+  function syncSignupGeoFields(opts) {
+    opts = opts || {};
+    var geo = getSignupGeo();
+    var country = el.suCountry ? el.suCountry.value : '';
+    var states = (geo.statesByCountry && geo.statesByCountry[country]) || [];
+    var showState = states.length > 0;
+    var showCity = (geo.logic && geo.logic.cityVisibleWhen
+      ? geo.logic.cityVisibleWhen.indexOf(country) !== -1
+      : country === 'China');
+
+    if (el.suStateField) el.suStateField.hidden = !showState;
+    if (el.suCityField) el.suCityField.hidden = !showCity;
+
+    if (!showState) {
+      if (el.suState) el.suState.value = '';
+      setError(el.suStateError, el.suStateField, '');
+    } else if (opts.resetState !== false) {
+      fillSelectOptions(el.suState, states, tr('signup.statePh'));
+    }
+
+    if (!showCity) {
+      if (el.suCity) el.suCity.value = '';
+      setError(el.suCityError, el.suCityField, '');
+    } else if (opts.resetCity !== false) {
+      syncSignupCities({ reset: true });
+    }
+  }
+
+  function syncSignupCities(opts) {
+    opts = opts || {};
+    if (!el.suCity) return;
+    var geo = getSignupGeo();
+    var country = el.suCountry ? el.suCountry.value : '';
+    var province = el.suState ? el.suState.value : '';
+    var cities = [];
+    if (country === 'China' && province) {
+      cities = (geo.cnCitiesByProvince && geo.cnCitiesByProvince[province]) || [];
+    }
+    if (opts.reset || el.suCity.options.length <= 1) {
+      if (cities.length) {
+        fillSelectOptions(el.suCity, cities, tr('signup.cityPh'));
+      } else {
+        fillSelectOptions(el.suCity, [], tr('signup.noCities'));
+      }
+    }
+  }
+
   function renderPasswordScreen() {
     setError(el.usernameError, el.usernameField, state.usernameError ? tr('login.usernameRequired') : '');
     setError(el.passwordError, el.passwordField, state.passwordError ? tr('login.passwordRequired') : '');
@@ -482,12 +557,15 @@
   }
 
   function renderRegisterScreen() {
-    var us = el.suCountry.value === 'us';
-    el.suStateField.hidden = !us;
-    if (!us) {
-      el.suState.value = '';
-      setError(el.suStateError, el.suStateField, '');
-    }
+    populateSignupCountries();
+    // Keep current country/state/city selections; cascade handlers own resets.
+    var country = el.suCountry ? el.suCountry.value : '';
+    var geo = getSignupGeo();
+    var states = (geo.statesByCountry && geo.statesByCountry[country]) || [];
+    var showState = states.length > 0;
+    var showCity = country === 'China';
+    if (el.suStateField) el.suStateField.hidden = !showState;
+    if (el.suCityField) el.suCityField.hidden = !showCity;
 
     el.suPass.type = state.showRegPassword ? 'text' : 'password';
     el.suEye.classList.toggle('is-visible', state.showRegPassword);
@@ -677,6 +755,7 @@
       [el.suCompanyError, el.suCompanyField],
       [el.suCountryError, el.suCountryField],
       [el.suStateError, el.suStateField],
+      [el.suCityError, el.suCityField],
       [el.suIndustryError, el.suIndustryField],
       [el.suEmailError, el.suEmailField],
       [el.suUserError, el.suUserField],
@@ -688,7 +767,23 @@
   }
 
   function bindRegisterEvents() {
-    el.suCountry.addEventListener('change', function () { renderRegisterScreen(); });
+    el.suCountry.addEventListener('change', function () {
+      setError(el.suCountryError, el.suCountryField, '');
+      setError(el.suStateError, el.suStateField, '');
+      setError(el.suCityError, el.suCityField, '');
+      syncSignupGeoFields({ resetState: true, resetCity: true });
+      renderRegisterScreen();
+    });
+
+    el.suState.addEventListener('change', function () {
+      setError(el.suStateError, el.suStateField, '');
+      setError(el.suCityError, el.suCityField, '');
+      syncSignupCities({ reset: true });
+    });
+
+    el.suCity.addEventListener('change', function () {
+      setError(el.suCityError, el.suCityField, '');
+    });
 
     el.suEye.addEventListener('click', function () {
       state.showRegPassword = !state.showRegPassword;
@@ -703,6 +798,7 @@
       var company = el.suCompany.value.trim();
       var country = el.suCountry.value;
       var stateVal = el.suState.value;
+      var cityVal = el.suCity ? el.suCity.value : '';
       var industry = el.suIndustry.value;
       var email = el.suEmail.value.trim();
       var user = el.suUser.value.trim();
@@ -710,6 +806,13 @@
       var service = el.suService.value;
       var ok = true;
       var focusEl = null;
+      var geo = getSignupGeo();
+      var states = (geo.statesByCountry && geo.statesByCountry[country]) || [];
+      var showState = states.length > 0;
+      var showCity = country === 'China';
+      var cities = (showCity && stateVal && geo.cnCitiesByProvince)
+        ? (geo.cnCitiesByProvince[stateVal] || [])
+        : [];
 
       function fail(errorNode, field, messageKey, input) {
         setError(errorNode, field, tr(messageKey));
@@ -721,7 +824,10 @@
       if (!last) fail(el.suLastError, el.suLastField, 'signup.required', el.suLast);
       if (!company) fail(el.suCompanyError, el.suCompanyField, 'signup.required', el.suCompany);
       if (!country) fail(el.suCountryError, el.suCountryField, 'signup.required', el.suCountry);
-      if (country === 'us' && !stateVal) fail(el.suStateError, el.suStateField, 'signup.required', el.suState);
+      // myQIMA: state required whenever the field is shown (US/CN/MX/IN/BR).
+      if (showState && !stateVal) fail(el.suStateError, el.suStateField, 'signup.required', el.suState);
+      // myQIMA: city required for China once province cities are available.
+      if (showCity && cities.length && !cityVal) fail(el.suCityError, el.suCityField, 'signup.required', el.suCity);
       if (!industry) fail(el.suIndustryError, el.suIndustryField, 'signup.required', el.suIndustry);
       if (!email) fail(el.suEmailError, el.suEmailField, 'signup.required', el.suEmail);
       else if (!EMAIL_RE.test(email)) fail(el.suEmailError, el.suEmailField, 'login.emailInvalid', el.suEmail);
@@ -925,6 +1031,9 @@
       suState: root.querySelector('#suState'),
       suStateField: root.querySelector('#suStateField'),
       suStateError: root.querySelector('#suStateError'),
+      suCity: root.querySelector('#suCity'),
+      suCityField: root.querySelector('#suCityField'),
+      suCityError: root.querySelector('#suCityError'),
       suIndustry: root.querySelector('#suIndustry'),
       suIndustryField: root.querySelector('#suIndustryField'),
       suIndustryError: root.querySelector('#suIndustryError'),
@@ -1067,7 +1176,11 @@
         el.suFirst.value = 'Lyon';
         el.suLast.value = 'Li';
         el.suCompany.value = 'Sunrise Toys Co., Ltd.';
-        el.suCountry.value = 'cn';
+        el.suCountry.value = 'China';
+        syncSignupGeoFields({ resetState: true, resetCity: true });
+        el.suState.value = 'Shanghai';
+        syncSignupCities({ reset: true });
+        el.suCity.value = 'Shanghai';
         el.suIndustry.value = 'toys';
         el.suEmail.value = 'lyon.li@sunrisetoys.com';
         el.suUser.value = 'lyon.li';
