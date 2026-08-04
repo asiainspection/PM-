@@ -7,23 +7,16 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <link rel="stylesheet" href="assets/fonts.css?v=20260803a" />
+<link rel="stylesheet" href="assets/qima-tokens.css?v=20260804a" />
 <link rel="stylesheet" href="assets/access-gate.css" />
 <script src="assets/access-gate.js?v=20260716a"></script>
 <title>QIMA 小程序 - 下单成功</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --carbon: #191919;
-    --seal: #737373;
-    --pool-500: #4169e1;
-    --pool-100: #e6ecfb;
-    --pool-050: #f2f5fd;
-    --border: #dedede;
-    --kiwi: #1f9d6b;
-  }
+  /* colors: assets/qima-tokens.css */
   html, body {
     font-family: var(--font-sans);
-    background: #c9ced8;
+    background: var(--phone-frame);
     color: var(--carbon);
     min-height: 100vh;
     overflow-x: hidden;
@@ -33,12 +26,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #f2f5fc 0%, #fafbfe 100%);
+    background: linear-gradient(180deg, var(--pool-050) 0%, var(--cloud) 100%);
     overflow: hidden;
   }
   .blob { position: absolute; border-radius: 68px; filter: blur(50px); pointer-events: none; z-index: 0; }
-  .blob-1 { width: 340px; height: 314px; background: #f58f00; opacity: .07; left: 230px; top: -130px; transform: rotate(30deg); }
-  .blob-3 { width: 129px; height: 119px; background: #a086c4; opacity: .12; left: -70px; top: 0; transform: rotate(-30deg); }
+  .blob-1 { width: 340px; height: 314px; background: var(--orange-500); opacity: .07; left: 230px; top: -130px; transform: rotate(30deg); }
+  .blob-3 { width: 129px; height: 119px; background: var(--pool-500); opacity: .12; left: -70px; top: 0; transform: rotate(-30deg); }
   .statusbar {
     position: relative; z-index: 2;
     height: 47px; width: 100%;
@@ -65,7 +58,7 @@
     display: flex; align-items: center; justify-content: space-around;
   }
   .nav-capsule img { width: 17px; height: 17px; }
-  .nav-capsule .divider { width: 1px; height: 18px; background: #d2d2d2; }
+  .nav-capsule .divider { width: 1px; height: 18px; background: var(--line); }
   .content {
     position: relative; z-index: 1;
     flex: 1;
@@ -76,7 +69,7 @@
   }
   .success-card {
     width: 100%;
-    background: #fff;
+    background: var(--white);
     border-radius: 16px;
     box-shadow: 0 2px 14px rgba(25,25,25,.08);
     padding: 34px 22px 20px;
@@ -85,7 +78,7 @@
   .success-icon {
     width: 72px; height: 72px; border-radius: 50%;
     margin: 0 auto 18px;
-    background: #eaf6f2;
+    background: var(--kiwi-100);
     color: var(--kiwi);
     display: flex; align-items: center; justify-content: center;
     font-size: 38px; font-weight: 700;
@@ -94,8 +87,8 @@
   .success-desc { margin-top: 8px; font-size: 13px; line-height: 20px; color: var(--seal); }
   .summary {
     margin-top: 22px;
-    background: #f7f9ff;
-    border: 1px solid #e3e9fb;
+    background: var(--pool-050);
+    border: 1px solid var(--pool-100);
     border-radius: 12px;
     padding: 12px 14px;
     text-align: left;
@@ -108,11 +101,11 @@
   .summary-row span:first-child { color: var(--seal); }
   .summary-row span:last-child { color: var(--carbon); font-weight: 600; text-align: right; }
   .card-block-divider {
-    height: 1px; background: #eef0f4; margin: 18px 0;
+    height: 1px; background: var(--mist); margin: 18px 0;
   }
   .reminder-banner {
-    background: #fff9e6;
-    border: 1px solid #f5d96e;
+    background: var(--lemon-200);
+    border: 1px solid var(--mandarine);
     border-radius: 12px;
     padding: 14px 16px;
     display: flex;
@@ -122,27 +115,27 @@
   }
   .reminder-icon {
     width: 22px; height: 22px; flex-shrink: 0;
-    background: #f5a623;
+    background: var(--orange-500);
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 13px; font-weight: 700;
+    color: var(--white); font-size: 13px; font-weight: 700;
     margin-top: 1px;
   }
-  .reminder-text { font-size: 13px; line-height: 20px; color: #6b5a1e; }
-  .reminder-text strong { color: #4a3d0e; }
+  .reminder-text { font-size: 13px; line-height: 20px; color: var(--lemon-900); }
+  .reminder-text strong { color: var(--lemon-900); }
   .lab-section { text-align: left; }
   .lab-section-title { font-size: 14px; font-weight: 700; color: var(--carbon); margin-bottom: 10px; }
   .lab-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .lab-tab {
     height: 32px; padding: 0 12px; border-radius: 999px;
-    border: 1px solid #dce4fb; background: #fff;
+    border: 1px solid var(--pool-100); background: var(--white);
     color: var(--seal); font-size: 12px; font-weight: 600; cursor: pointer;
   }
   .lab-tab.active {
-    background: var(--pool-050); border-color: #b8c6ee; color: var(--pool-500);
+    background: var(--pool-050); border-color: var(--pool-100); color: var(--pool-500);
   }
   .lab-address-box {
-    background: #f7f9ff; border: 1px solid #e3e9fb; border-radius: 10px;
+    background: var(--pool-050); border: 1px solid var(--pool-100); border-radius: 10px;
     padding: 12px;
   }
   .lab-meta { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
@@ -161,13 +154,13 @@
   }
   .copy-btn {
     margin-top: 10px; width: 100%; height: 36px; border-radius: 10px;
-    border: 1px solid #dce4fb; background: #fff; color: var(--pool-500);
+    border: 1px solid var(--pool-100); background: var(--white); color: var(--pool-500);
     font-size: 13px; font-weight: 600; cursor: pointer;
   }
   .copy-btn:active { background: var(--pool-050); }
   .copy-toast {
     position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%);
-    background: rgba(25,25,25,.86); color: #fff; font-size: 13px;
+    background: rgba(25,25,25,.86); color: var(--white); font-size: 13px;
     padding: 10px 14px; border-radius: 10px; opacity: 0; pointer-events: none;
     transition: opacity .2s ease; z-index: 20;
   }
@@ -186,8 +179,8 @@
     text-decoration: none;
     font-size: 15px; font-weight: 600;
   }
-  .action.primary { background: var(--pool-500); color: #fff; box-shadow: 0 6px 16px rgba(65,105,225,.28); }
-  .action.secondary { background: #fff; color: var(--pool-500); border: 1px solid #dce4fb; }
+  .action.primary { background: var(--pool-500); color: var(--white); box-shadow: 0 6px 16px rgba(65,105,225,.28); }
+  .action.secondary { background: var(--white); color: var(--pool-500); border: 1px solid var(--pool-100); }
 </style>
 <link rel="stylesheet" href="assets/phone-shell.css" />
 <link rel="stylesheet" href="assets/lang-toggle.css" />

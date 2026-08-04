@@ -10,7 +10,7 @@
   padding: 3px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.96);
-  border: 1px solid #d8deea;
+  border: 1px solid var(--pearl);
   box-shadow: 0 8px 24px rgba(25, 25, 25, 0.14);
   backdrop-filter: blur(8px);
 }
@@ -22,19 +22,19 @@
   border: none;
   border-radius: 9px;
   background: transparent;
-  color: #5c6475;
+  color: var(--seal);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .lang-switcher button.active {
-  background: #4169e1;
-  color: #fff;
+  background: var(--pool-500);
+  color: var(--white);
   box-shadow: 0 4px 10px rgba(65, 105, 225, 0.28);
 }
 
 .lang-switcher button:not(.active):hover {
-  background: #f2f5fd;
-  color: #4169e1;
+  background: var(--pool-050);
+  color: var(--pool-500);
 }

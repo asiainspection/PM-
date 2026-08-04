@@ -2,7 +2,7 @@
  * WeChat sign-in / account-linking overlay.
  *
  * The form mirrors the myQIMA (my.qima.com/v2/login) sign-in card — same
- * tokens: Pool-500 #4169e1 primary, Pool-100 #e6ecfb secondary, Smoke #b3b3b3
+ * tokens: Pool-500 var(--pool-500) primary, Pool-100 var(--pool-100) secondary, Smoke var(--smoke)
  * borders, 8px radii, 48px controls. It lives inside the .phone shell (not the
  * browser viewport) so the demo still reads as a mini program on desktop.
  * See assets/wechat-binding.js.
@@ -20,9 +20,9 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: #ff5f4e;
+  background: var(--cherry);
   font-family: var(--font-sans);
-  color: #191919;
+  color: var(--carbon);
   animation: wxbind-fade-in .28s ease-out;
 }
 
@@ -75,7 +75,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .wxbind-nav {
   position: relative;
   z-index: 1;
-  background: #fff;
+  background: var(--white);
   padding-bottom: 3px;
 }
 
@@ -141,13 +141,13 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   height: 30px;
   border-radius: 15px;
   background: rgba(255, 255, 255, .7);
-  border: .35px solid #dedede;
+  border: .35px solid var(--pearl);
   display: flex;
   align-items: center;
   justify-content: space-around;
 }
 .wxbind-capsule img { width: 17px; height: 17px; }
-.wxbind-capsule .wxbind-divider { width: 1px; height: 18px; background: #d2d2d2; }
+.wxbind-capsule .wxbind-divider { width: 1px; height: 18px; background: var(--line); }
 
 /* ===== Card ===== */
 .wxbind-card {
@@ -155,7 +155,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   z-index: 1;
   width: 358px;
   margin: 16px auto 0;
-  background: #fff;
+  background: var(--white);
   border-radius: 16px;
   padding: 20px 16px 24px;
   display: flex;
@@ -200,7 +200,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .lg-legal {
   font-size: 11px;
   line-height: 16px;
-  color: #737373;
+  color: var(--seal);
   text-align: center;
   margin: -2px 0 0;
 }
@@ -208,7 +208,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .lg-legal .lg-link {
   font-size: 11px;
   font-weight: 600;
-  color: #4169e1;
+  color: var(--pool-500);
 }
 
 .lg-check.is-block {
@@ -225,20 +225,20 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   gap: 6px;
   padding: 10px 12px;
   border-radius: 8px;
-  background: #f7f9ff;
-  border: 1px solid #e3e9fb;
+  background: var(--pool-050);
+  border: 1px solid var(--pool-100);
 }
 .lg-benefits-title {
   font-size: 12px;
   font-weight: 700;
-  color: #24407a;
+  color: var(--pool-900);
 }
 .lg-benefits ul {
   margin: 0;
   padding-left: 16px;
   font-size: 11px;
   line-height: 17px;
-  color: #737373;
+  color: var(--seal);
 }
 .lg-benefits li { margin-bottom: 2px; }
 
@@ -270,14 +270,14 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   font-weight: 400;
   line-height: 30px;
   letter-spacing: -.3px;
-  color: #191919;
+  color: var(--carbon);
   margin: 0;
 }
 
 .lg-signup {
   font-size: 13px;
   line-height: 19px;
-  color: #737373;
+  color: var(--seal);
   margin: 0;
   text-align: right;
 }
@@ -286,7 +286,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .lg-lead {
   font-size: 13px;
   line-height: 19.5px;
-  color: #191919;
+  color: var(--carbon);
   margin: -4px 0 0;
 }
 .lg-lead[hidden] { display: none; }
@@ -294,17 +294,17 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .lg-lead strong {
   display: block;
   font-weight: 600;
-  color: #191919;
+  color: var(--carbon);
   overflow-wrap: break-word;
 }
-.lg-head.is-stacked + .lg-lead { text-align: center; color: #737373; }
+.lg-head.is-stacked + .lg-lead { text-align: center; color: var(--seal); }
 
 /* ===== Context note (why linking matters) ===== */
 .wxbind-note {
   position: relative;
   min-height: 59px;
   border-radius: 8px;
-  background: #e6ecfb;
+  background: var(--pool-100);
   padding: 10px 12px 10px 36px;
   box-sizing: border-box;
 }
@@ -319,7 +319,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .wxbind-note p {
   font-size: 13px;
   line-height: 19.5px;
-  color: #153184;
+  color: var(--pool-900);
 }
 
 /* ===== Screens ===== */
@@ -348,27 +348,27 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .lg-label {
   font-size: 14px;
   line-height: 21px;
-  color: #737373;
+  color: var(--seal);
 }
 
 .lg-input {
   width: 100%;
   height: 48px;
-  border: 1px solid #b3b3b3;
+  border: 1px solid var(--smoke);
   border-radius: 8px;
-  background: #fff;
+  background: var(--white);
   padding: 0 16px;
   font-family: inherit;
   font-size: 14px;
   line-height: 20px;
-  color: #191919;
+  color: var(--carbon);
   box-sizing: border-box;
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .lg-input::placeholder { color: rgba(25, 25, 25, .45); }
 .lg-input:focus {
-  border-color: #4169e1;
+  border-color: var(--pool-500);
   box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
 }
 
@@ -386,7 +386,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   background: none;
   cursor: pointer;
   display: block;
-  color: #191919;
+  color: var(--carbon);
 }
 .lg-eye { width: 20px; height: 20px; }
 .lg-eye svg { width: 20px; height: 20px; display: block; }
@@ -400,20 +400,20 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 
 .lg-field.is-error .lg-input,
 .lg-field.is-error .lg-input:focus {
-  border: 2px solid #e5353d;
+  border: 2px solid var(--cherry);
   box-shadow: 0 0 0 3px rgba(229, 53, 61, .2);
 }
 
 .lg-error {
   font-size: 12px;
   line-height: 18px;
-  color: #9e141b;
+  color: var(--cherry);
 }
 .lg-error[hidden] { display: none; }
 .lg-error-center { text-align: center; }
 .lg-error-banner {
   border-radius: 8px;
-  background: #fdeaeb;
+  background: var(--cherry-100);
   padding: 8px 12px;
   margin-top: -2px;
 }
@@ -435,7 +435,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   gap: 8px;
   font-size: 12px;
   line-height: 18px;
-  color: #191919;
+  color: var(--carbon);
   cursor: pointer;
 }
 .lg-row .lg-link {
@@ -453,10 +453,10 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   flex: 0 0 18px;
   width: 18px;
   height: 18px;
-  border: 1px solid #b3b3b3;
+  border: 1px solid var(--smoke);
   border-radius: 4px;
-  background: #fff;
-  color: #fff;
+  background: var(--white);
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -464,8 +464,8 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 }
 .lg-check-box svg { width: 12px; height: 12px; opacity: 0; }
 .lg-check input:checked + .lg-check-box {
-  background: #4169e1;
-  border-color: #4169e1;
+  background: var(--pool-500);
+  border-color: var(--pool-500);
 }
 .lg-check input:checked + .lg-check-box svg { opacity: 1; }
 .lg-check input:focus-visible + .lg-check-box {
@@ -481,13 +481,13 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   font-size: 13px;
   font-weight: 600;
   line-height: 19px;
-  color: #4169e1;
+  color: var(--pool-500);
   text-decoration: underline;
   cursor: pointer;
 }
-.lg-link:active { color: #1e46bd; }
+.lg-link:active { color: var(--pool-900); }
 .lg-link:disabled {
-  color: #b3b3b3;
+  color: var(--smoke);
   text-decoration: none;
   cursor: default;
 }
@@ -510,27 +510,27 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   transition: background-color .15s ease, color .15s ease;
 }
 .lg-btn-primary {
-  background: #4169e1;
-  color: #fff;
+  background: var(--pool-500);
+  color: var(--white);
 }
-.lg-btn-primary:active { background: #1e46bd; }
+.lg-btn-primary:active { background: var(--pool-900); }
 .lg-btn-primary:disabled {
-  background: #f0f0f0;
-  color: #b3b3b3;
+  background: var(--mist);
+  color: var(--smoke);
   cursor: not-allowed;
 }
 .lg-btn-secondary {
-  background: #e6ecfb;
-  color: #4169e1;
+  background: var(--pool-100);
+  color: var(--pool-500);
 }
-.lg-btn-secondary:active { background: #d6e0f8; }
+.lg-btn-secondary:active { background: var(--pool-100); }
 
 /* ===== "or" divider ===== */
 .lg-divider {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #737373;
+  color: var(--seal);
   font-size: 13px;
   line-height: 19px;
 }
@@ -539,7 +539,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   content: "";
   flex: 1;
   height: 1px;
-  background: #dedede;
+  background: var(--pearl);
 }
 
 /* ===== One-time code boxes ===== */
@@ -552,32 +552,32 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   flex: 1 1 0;
   min-width: 0;
   height: 52px;
-  border: 1px solid #b3b3b3;
+  border: 1px solid var(--smoke);
   border-radius: 8px;
-  background: #fff;
+  background: var(--white);
   font-family: inherit;
   font-size: 20px;
   line-height: 28px;
   font-weight: 600;
   text-align: center;
-  color: #191919;
+  color: var(--carbon);
   outline: none;
   padding: 0;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 .lg-code-box:focus {
-  border-color: #4169e1;
+  border-color: var(--pool-500);
   box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);
 }
 .lg-code-boxes.is-error .lg-code-box {
-  border-color: #e5353d;
+  border-color: var(--cherry);
 }
 
 .lg-resend {
   text-align: center;
   font-size: 13px;
   line-height: 19px;
-  color: #737373;
+  color: var(--seal);
   margin: -2px 0 0;
 }
 
@@ -632,12 +632,12 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 .wxbind-success .wxbind-success-title {
   font-size: 16px;
   line-height: 24px;
-  color: #191919;
+  color: var(--carbon);
 }
 .wxbind-success .wxbind-success-desc {
   font-size: 13px;
   line-height: 19.5px;
-  color: #737373;
+  color: var(--seal);
 }
 
 /* ===== Skip button (bottom-right of the phone viewport) ===== */
@@ -660,7 +660,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   font-family: inherit;
   font-size: 13px;
   line-height: 1;
-  color: #191919;
+  color: var(--carbon);
   cursor: pointer;
 }
 .wxbind-skip:active { background: rgba(255, 255, 255, .95); }

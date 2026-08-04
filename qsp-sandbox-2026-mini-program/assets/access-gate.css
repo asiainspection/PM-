@@ -21,7 +21,7 @@ html.qima-gate-locked body > *:not(#qima-access-gate) {
   background:
     radial-gradient(ellipse 80% 50% at 70% -10%, rgba(245, 143, 0, 0.12), transparent 55%),
     radial-gradient(ellipse 60% 40% at 0% 20%, rgba(160, 134, 196, 0.14), transparent 50%),
-    #c9ced8;
+    var(--phone-frame);
   font-family: var(--font-sans);
   box-sizing: border-box;
 }
@@ -39,7 +39,7 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-phone {
   width: min(390px, 100%);
   min-height: min(720px, calc(100vh - 48px));
-  background: linear-gradient(180deg, #f2f5fc 0%, #fafbfe 100%);
+  background: linear-gradient(180deg, var(--pool-050) 0%, var(--cloud) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,7 +62,7 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-phone::before {
   width: 220px;
   height: 200px;
-  background: #f58f00;
+  background: var(--orange-500);
   opacity: 0.08;
   right: -40px;
   top: -60px;
@@ -71,7 +71,7 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-phone::after {
   width: 160px;
   height: 140px;
-  background: #a086c4;
+  background: var(--pool-500);
   opacity: 0.12;
   left: -50px;
   top: 40px;
@@ -101,7 +101,7 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-title {
   font-size: 18px;
   font-weight: 600;
-  color: #191919;
+  color: var(--carbon);
   letter-spacing: -0.2px;
   line-height: 1.4;
   margin: 0 0 8px;
@@ -110,7 +110,7 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-sub {
   margin: 0;
   font-size: 13px;
-  color: #737373;
+  color: var(--seal);
   line-height: 1.5;
 }
 
@@ -128,23 +128,23 @@ html.qima-gate-locked #qima-access-gate {
 .qima-gate-input {
   width: 100%;
   height: 48px;
-  border: 1px solid #dedede;
-  background: #fff;
+  border: 1px solid var(--pearl);
+  background: var(--white);
   padding: 0 14px;
   font-size: 15px;
-  color: #191919;
+  color: var(--carbon);
   outline: none;
   border-radius: 0;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .qima-gate-input:focus {
-  border-color: #e4002b;
+  border-color: var(--qima-red);
   box-shadow: 0 0 0 3px rgba(228, 0, 43, 0.12);
 }
 
 .qima-gate-input.qima-gate-invalid {
-  border-color: #e4002b;
+  border-color: var(--qima-red);
   animation: qima-gate-shake 0.35s ease;
 }
 
@@ -152,8 +152,8 @@ html.qima-gate-locked #qima-access-gate {
   width: 100%;
   height: 48px;
   border: none;
-  background: #e4002b;
-  color: #fff;
+  background: var(--qima-red);
+  color: var(--white);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -162,7 +162,7 @@ html.qima-gate-locked #qima-access-gate {
 }
 
 .qima-gate-btn:hover {
-  background: #c90026;
+  background: var(--qima-red);
 }
 
 .qima-gate-btn:active {
@@ -173,7 +173,7 @@ html.qima-gate-locked #qima-access-gate {
   min-height: 18px;
   margin: 0;
   font-size: 12px;
-  color: #e4002b;
+  color: var(--qima-red);
   text-align: center;
   opacity: 0;
   transition: opacity 0.2s ease;

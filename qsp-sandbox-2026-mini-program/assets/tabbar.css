@@ -15,9 +15,9 @@
  */
 :root {
   --tabbar-height: 71.5px;
-  --tabbar-inactive: #737373;
-  --tabbar-active: #4169e1;
-  --tabbar-badge: #e5353d;
+  --tabbar-inactive: var(--seal);
+  --tabbar-active: var(--pool-500);
+  --tabbar-badge: var(--cherry);
 }
 
 .tabbar {
@@ -26,7 +26,7 @@
   width: 100%;
   height: var(--tabbar-height);
   flex-shrink: 0;
-  background: #fff;
+  background: var(--white);
   border-radius: 12px 12px 0 0;
   box-shadow: 0 -1px 6px rgba(0, 0, 0, .06);
   display: flex;
@@ -78,7 +78,7 @@
 
 /* ── Hover (pointer devices only, so touch never sticks in this state) ── */
 @media (hover: hover) and (pointer: fine) {
-  .tab:hover:not(.active) .label { color: #4a4a4a; }
+  .tab:hover:not(.active) .label { color: var(--seal); }
   .tab:hover:not(.active) img { opacity: .72; }
 }
 
@@ -104,10 +104,10 @@
   min-width: 17px;
   height: 17px;
   padding: 0 4px;
-  border: 1.5px solid #fff;
+  border: 1.5px solid var(--white);
   border-radius: 9px;
   background: var(--tabbar-badge);
-  color: #fff;
+  color: var(--white);
   font-size: 10px;
   font-weight: 600;
   line-height: 13px;

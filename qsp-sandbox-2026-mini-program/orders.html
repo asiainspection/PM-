@@ -7,24 +7,16 @@
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
 <link rel="stylesheet" href="assets/fonts.css?v=20260803a" />
+<link rel="stylesheet" href="assets/qima-tokens.css?v=20260804a" />
 <link rel="stylesheet" href="assets/access-gate.css" />
 <script src="assets/access-gate.js?v=20260716a"></script>
 <title>QIMA 小程序 - 订单</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --carbon: #191919;
-    --seal: #737373;
-    --pool-500: #4169e1;
-    --pool-100: #e6ecfb;
-    --pool-050: #f2f5fd;
-    --qima-red: #e4002b;
-    --border: #dedede;
-    --kiwi: #1f9d6b;
-  }
+  /* colors: assets/qima-tokens.css */
   html, body {
     font-family: var(--font-sans);
-    background: #c9ced8;
+    background: var(--phone-frame);
     color: var(--carbon);
     min-height: 100vh;
     overflow-x: hidden;
@@ -36,13 +28,13 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #f2f5fc 0%, #fafbfe 100%);
+    background: linear-gradient(180deg, var(--pool-050) 0%, var(--cloud) 100%);
     overflow: hidden;
   }
   .blob { position: absolute; border-radius: 68px; filter: blur(50px); pointer-events: none; z-index: 0; }
-  .blob-1 { width: 340px; height: 314px; background: #f58f00; opacity: .07; left: 230px; top: -130px; transform: rotate(30deg); }
-  .blob-3 { width: 129px; height: 119px; background: #a086c4; opacity: .12; left: -70px; top: 0; transform: rotate(-30deg); }
-  .blob-4 { width: 129px; height: 119px; background: #ff9a7f; opacity: .12; left: -120px; top: 0; transform: rotate(-30deg); }
+  .blob-1 { width: 340px; height: 314px; background: var(--orange-500); opacity: .07; left: 230px; top: -130px; transform: rotate(30deg); }
+  .blob-3 { width: 129px; height: 119px; background: var(--pool-500); opacity: .12; left: -70px; top: 0; transform: rotate(-30deg); }
+  .blob-4 { width: 129px; height: 119px; background: var(--peach); opacity: .12; left: -120px; top: 0; transform: rotate(-30deg); }
 
   /* ===== 状态栏 ===== */
   .statusbar {
@@ -73,7 +65,7 @@
     display: flex; align-items: center; justify-content: space-around; position: relative;
   }
   .nav-capsule img { width: 17px; height: 17px; }
-  .nav-capsule .divider { width: 1px; height: 18px; background: #d2d2d2; }
+  .nav-capsule .divider { width: 1px; height: 18px; background: var(--line); }
 
   /* ===== 筛选区 ===== */
   .filterbar { position: relative; z-index: 2; padding: 8px 16px 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -81,13 +73,13 @@
   .chip {
     display: flex; align-items: center; gap: 4px; flex-shrink: 0;
     height: 36px; max-width: 118px; padding: 0 10px; border-radius: 8px;
-    background: #fff; border: 1px solid #e6e9f2;
+    background: var(--white); border: 1px solid var(--line);
     font: inherit; font-size: 12px; color: var(--carbon); white-space: nowrap;
     cursor: pointer;
   }
-  .chip:active { background: #f7f8fb; }
+  .chip:active { background: var(--mist); }
   .chip.open {
-    border-color: #c9d6f7;
+    border-color: var(--pool-100);
     background: var(--pool-050);
     color: var(--pool-500);
   }
@@ -101,20 +93,20 @@
   .chip.open .caret { color: var(--pool-500); transform: rotate(180deg); }
   .search {
     flex: 1; min-width: 0; height: 36px; border-radius: 8px;
-    background: #fff; border: 1px solid #e6e9f2;
+    background: var(--white); border: 1px solid var(--line);
     display: flex; align-items: center; gap: 6px; padding: 0 10px;
   }
-  .search svg { color: #9aa0ad; flex-shrink: 0; }
+  .search svg { color: var(--smoke); flex-shrink: 0; }
   .search input {
     border: none; outline: none; background: transparent; width: 100%;
     font-size: 13px; color: var(--carbon);
   }
-  .search input::placeholder { color: #aab0bc; }
+  .search input::placeholder { color: var(--smoke); }
   .filter-btn {
     flex-shrink: 0; width: 36px; height: 36px; padding: 0; border-radius: 8px;
     background: var(--pool-050); color: var(--pool-500);
     display: flex; align-items: center; justify-content: center;
-    border: 1px solid #dce4fb; cursor: pointer;
+    border: 1px solid var(--pool-100); cursor: pointer;
   }
   .filter-btn svg { display: block; }
 
@@ -131,7 +123,7 @@
      tap target, so no inner boxes and no separate "view all" link. */
   .ocard {
     display: flex; align-items: flex-start; gap: 12px;
-    background: #fff; border-radius: 14px;
+    background: var(--white); border-radius: 14px;
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 8px 20px rgba(25,25,25,.05);
     padding: 13px 14px;
     color: inherit;
@@ -140,7 +132,7 @@
     transition: background .12s ease, box-shadow .12s ease, transform .12s ease;
   }
   .ocard:active {
-    background: #fbfcff;
+    background: var(--pool-050);
     transform: scale(.993);
     box-shadow: 0 1px 2px rgba(25,25,25,.05), 0 4px 10px rgba(25,25,25,.05);
   }
@@ -153,7 +145,7 @@
   }
   .ocard-thumb.fabric-black { background: linear-gradient(135deg, #34343a 0%, #0e0e12 100%); }
   .ocard-thumb.fabric-denim { background: linear-gradient(135deg, #2c3656 0%, #10162a 100%); }
-  .ocard-thumb.fabric-grey { background: linear-gradient(135deg, #5a5f6b 0%, #2c303a 100%); }
+  .ocard-thumb.fabric-grey { background: linear-gradient(135deg, var(--seal) 0%, #2c303a 100%); }
   .ocard-thumb.fabric-black::after,
   .ocard-thumb.fabric-denim::after,
   .ocard-thumb.fabric-grey::after {
@@ -161,7 +153,7 @@
     background: repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px);
   }
   .ocard-thumb.icon {
-    background: #f2f5fc; display: grid; place-items: center;
+    background: var(--pool-050); display: grid; place-items: center;
   }
   .ocard-thumb.icon img { width: 22px; height: 22px; opacity: .8; }
 
@@ -183,10 +175,10 @@
     content: ""; width: 5px; height: 5px; border-radius: 50%;
     background: currentColor; flex-shrink: 0;
   }
-  .status.blue { background: #eef3ff; color: var(--pool-500); }
-  .status.green { background: #e9f6f0; color: var(--kiwi); }
-  .status.orange { background: #fef0ee; color: #ff5f4e; }
-  .status.amber { background: #fff2cf; color: #bd8a00; }
+  .status.blue { background: var(--pool-100); color: var(--pool-500); }
+  .status.green { background: var(--kiwi-100); color: var(--kiwi); }
+  .status.orange { background: var(--cherry-100); color: var(--cherry); }
+  .status.amber { background: var(--lemon-200); color: var(--lemon-900); }
   /* Beats the global English wrap rule: the card pill must stay one line so the
      product name keeps the width it needs. */
   html[lang="en"] .ocard .status {
@@ -202,10 +194,10 @@
   .result-tag {
     flex-shrink: 0; padding: 0 6px; border-radius: 4px;
     font-size: 11px; line-height: 16px;
-    background: #e9f6f0; color: var(--kiwi);
+    background: var(--kiwi-100); color: var(--kiwi);
   }
   .result-tag.draft-hint {
-    background: #fff2cf; color: #bd8a00;
+    background: var(--lemon-200); color: var(--lemon-900);
   }
 
   /* Wraps rather than truncates: an order number is a reference users quote back,
@@ -216,9 +208,9 @@
     font-size: 11px; line-height: 15px;
   }
   .meta-item { display: flex; align-items: center; gap: 4px; min-width: 0; }
-  .meta-item .mk { color: #a7aebb; flex-shrink: 0; }
+  .meta-item .mk { color: var(--smoke); flex-shrink: 0; }
   .meta-item .mv {
-    color: #6d7482; font-variant-numeric: tabular-nums;
+    color: var(--seal); font-variant-numeric: tabular-nums;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
@@ -249,14 +241,14 @@
   .biz-mask.show { opacity: 1; visibility: visible; }
   .biz-sheet {
     width: 100%;
-    background: #fff;
+    background: var(--white);
     border-radius: 16px 16px 0 0;
     padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
     transform: translateY(18px); transition: transform .22s ease;
   }
   .biz-mask.show .biz-sheet { transform: translateY(0); }
   .biz-grabber {
-    width: 36px; height: 4px; border-radius: 2px; background: #e1e4ea;
+    width: 36px; height: 4px; border-radius: 2px; background: var(--line);
     margin: 0 auto 12px;
   }
   .biz-sheet-title {
@@ -266,10 +258,10 @@
     width: 100%; display: flex; align-items: center; gap: 12px;
     padding: 13px 4px; border: none; background: transparent;
     font: inherit; text-align: left; cursor: pointer;
-    border-bottom: 1px solid #f0f2f6;
+    border-bottom: 1px solid var(--mist);
   }
   .biz-opt:last-of-type { border-bottom: none; }
-  .biz-opt:active { background: #f7f8fb; }
+  .biz-opt:active { background: var(--mist); }
   .biz-opt-body { flex: 1; min-width: 0; }
   .biz-opt-name {
     font-size: 14.5px; font-weight: 600; color: var(--carbon); line-height: 20px;
@@ -284,18 +276,18 @@
   .biz-opt.selected .biz-check { opacity: 1; }
   .biz-cancel {
     margin-top: 6px; height: 44px; border-radius: 11px;
-    border: 1px solid #e6e9f2; background: #f7f8fb;
+    border: 1px solid var(--line); background: var(--mist);
     font: inherit; font-size: 14px; font-weight: 600; color: var(--seal);
     cursor: pointer; width: 100%;
   }
-  .biz-cancel:active { background: #eef0f4; }
+  .biz-cancel:active { background: var(--mist); }
 
   .toast {
     position: absolute; left: 50%; bottom: 92px; z-index: 40;
     transform: translateX(-50%) translateY(8px);
     max-width: calc(100% - 48px);
     padding: 10px 14px; border-radius: 10px;
-    background: rgba(25,25,25,.88); color: #fff;
+    background: rgba(25,25,25,.88); color: var(--white);
     font-size: 13px; line-height: 18px; text-align: center;
     opacity: 0; pointer-events: none;
     transition: opacity .2s ease, transform .2s ease;

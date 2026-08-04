@@ -1,0 +1,50 @@
+/**
+ * myQIMA / QSP design tokens
+ * Source: qima-pm-agent.design-myqima DESIGN-TOKENS.md (Figma paint styles + verified renders)
+ */
+:root {
+  /* Neutrals */
+  --carbon: #191919;
+  --seal: #737373;
+  --smoke: #b3b3b3;
+  --pearl: #dedede;
+  --mist: #f0f0f0;
+  --cloud: #f7f7f7;
+  --white: #ffffff;
+  --line: #e6e6e6;
+  --header-line: #d6d6d6;
+
+  /* Accent — Pool */
+  --pool-050: #f2f5fd;
+  --pool-100: #e6ecfb;
+  --pool-500: #4169e1;
+  --pool-900: #153184;
+
+  /* Semantic — Kiwi (success) */
+  --kiwi-100: #eaf6f2;
+  --kiwi-500: #00a876;
+  --kiwi: var(--kiwi-500);
+
+  /* Semantic — Cherry (error / destructive action) */
+  --cherry-100: #fdefef;
+  --cherry-500: #e5353d;
+  --cherry: var(--cherry-500);
+
+  /* Semantic — Lemon / Orange (attention / warning) */
+  --lemon-200: #fff2cf;
+  --lemon-900: #bd8a00;
+  --orange-500: #f58f00;
+  --mandarine: #ffbe0f;
+
+  /* Brand */
+  --peach: #ff8261;
+  --qima-red: #e4002b;
+
+  /* Surfaces used across the mini-program shell */
+  --border: var(--pearl);
+  --page-bg: var(--cloud);
+  --phone-frame: #c9ced8; /* demo device chrome only — not a product fill */
+
+  /* Shadows (Level 1) */
+  --shadow-1: 0 2px 10px rgba(25, 25, 25, 0.10);
+}
