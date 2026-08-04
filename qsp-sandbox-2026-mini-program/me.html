@@ -128,7 +128,8 @@
     padding: 14px 16px 0;
     border-bottom: .5px solid var(--border);
   }
-  .card-head img { display: block; }
+  .card-head img,
+  .card-head svg { display: block; flex-shrink: 0; }
   .card-head .head-icon-16 { width: 16px; height: 16px; }
   .card-head .head-icon-18 { width: 18px; height: 18px; }
   .card-head .head-text {
@@ -177,6 +178,38 @@
   }
   .switch[aria-checked="true"] { background: var(--pool-500); }
   .switch[aria-checked="true"]::after { transform: translateX(16px); }
+
+  /* 语言切换 */
+  .lang-block { padding: 4px 16px 12px; }
+  .lang-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 0 4px;
+  }
+  .lang-seg {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center;
+    padding: 3px;
+    border-radius: 10px;
+    background: #f2f4f8;
+    border: .5px solid #e4e7ef;
+  }
+  .lang-seg button {
+    min-width: 48px; height: 28px;
+    padding: 0 12px;
+    border: none; border-radius: 8px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px; font-weight: 600;
+    color: #5c6475;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .lang-seg button.active {
+    background: var(--pool-500);
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(65, 105, 225, .28);
+  }
+  .lang-seg button:not(.active):active { background: #e8ecf5; color: var(--pool-500); }
 
   /* 操作行 */
   .action-row {
@@ -240,9 +273,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.me';</script>
-<script src="assets/i18n/zh.js?v=20260803l"></script>
-<script src="assets/i18n/en.js?v=20260803l"></script>
-<script src="assets/i18n-runtime.js"></script>
+<script src="assets/i18n/zh.js?v=20260804a"></script>
+<script src="assets/i18n/en.js?v=20260804a"></script>
+<script src="assets/i18n-runtime.js?v=20260804a"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -338,6 +371,31 @@
         </div>
       </div>
 
+      <!-- 语言 -->
+      <div class="card">
+        <div class="card-head">
+          <svg class="head-icon-16" viewBox="0 0 24 24" fill="none" stroke="#737373" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M3 12h18"/>
+            <path d="M12 3a14 14 0 0 1 0 18"/>
+            <path d="M12 3a14 14 0 0 0 0 18"/>
+          </svg>
+          <span class="head-text" data-i18n="me.language">语言</span>
+        </div>
+        <div class="me-block lang-block">
+          <div class="lang-row">
+            <div class="pref-text">
+              <span class="pref-title" data-i18n="me.languageTitle">显示语言</span>
+              <span class="pref-desc" data-i18n="me.languageDesc">切换后全站文案立即更新</span>
+            </div>
+            <div class="lang-seg" id="langSeg" role="group" aria-label="Language">
+              <button type="button" data-lang="zh" id="langZhBtn" data-i18n="me.langZh">中文</button>
+              <button type="button" data-lang="en" id="langEnBtn" data-i18n="me.langEn">EN</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 解绑微信 -->
       <div class="card">
         <button class="action-row" type="button" onclick="openUnbindConfirm()">
@@ -423,6 +481,26 @@
       state.textContent = t(orderNotifyOn ? 'me.switchOn' : 'me.switchOff');
     }
 
+    function renderLangSeg(){
+      const lang = (window.I18n && I18n.getLang) ? I18n.getLang() : 'zh';
+      const zhBtn = document.getElementById('langZhBtn');
+      const enBtn = document.getElementById('langEnBtn');
+      if (!zhBtn || !enBtn) return;
+      zhBtn.classList.toggle('active', lang === 'zh');
+      enBtn.classList.toggle('active', lang === 'en');
+      zhBtn.setAttribute('aria-pressed', lang === 'zh' ? 'true' : 'false');
+      enBtn.setAttribute('aria-pressed', lang === 'en' ? 'true' : 'false');
+    }
+
+    function switchDisplayLang(next){
+      if (!window.I18n) return;
+      const current = I18n.getLang();
+      if (next === current) return;
+      I18n.setLang(next);
+      // Persist first, then reload so every page (and dynamic copy) picks up the new dict.
+      location.reload();
+    }
+
     function toggleOrderNotify(){
       orderNotifyOn = !orderNotifyOn;
       renderOrderNotify();
@@ -480,10 +558,20 @@
       if (e.target === this) closeLogoutConfirm();
     });
 
+    document.getElementById('langSeg').addEventListener('click', function(e){
+      const btn = e.target.closest('button[data-lang]');
+      if (!btn) return;
+      switchDisplayLang(btn.getAttribute('data-lang'));
+    });
+
     if (window.I18n) {
-      I18n.initLangToggle({ onLangApplied: renderOrderNotify });
+      I18n.initLangToggle({ onLangApplied: function(){
+        renderOrderNotify();
+        renderLangSeg();
+      }});
     }
     renderOrderNotify();
+    renderLangSeg();
   </script>
 </body>
 </html>
