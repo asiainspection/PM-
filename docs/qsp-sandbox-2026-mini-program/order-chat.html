@@ -159,8 +159,8 @@
     margin-bottom: 6px; min-height: 16px;
   }
   .composer-row {
-    display: flex; align-items: flex-end; gap: 2px;
-    min-height: 88px; padding: 10px 8px 8px 8px;
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 10px 10px 8px; 
     border: 1px solid var(--line); border-radius: 14px;
     background: var(--white);
     box-shadow: 0 1px 4px rgba(25,25,25,.03);
@@ -170,20 +170,21 @@
     border-color: var(--pool-500);
     box-shadow: 0 0 0 3px rgba(65,105,225,.1);
   }
-  .composer-row:has(.voice-recording-bar) {
-    flex-wrap: wrap; align-items: center; min-height: 48px; padding: 8px;
+  .composer-tools {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
   }
+  .composer-row:has(.voice-recording-bar) { padding: 8px; }
   .composer-row:has(.voice-recording-bar) .composer-input,
   .composer-row:has(.voice-recording-bar) .composer-actions,
   .composer-row:has(.voice-recording-bar) .composer-icon-btn { display: none; }
   .composer-row:has(.voice-recording-bar) .voice-panel { flex: 1 1 100%; }
   .composer .voice-panel {
     flex-shrink: 0; border: none; border-radius: 0;
-    background: transparent; padding: 0; align-self: flex-end;
+    background: transparent; padding: 0;
   }
   .composer-actions {
-    display: flex; align-items: center; gap: 0; flex-shrink: 0;
-    align-self: flex-end;
+    display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+    margin-left: auto;
   }
   .voice-tips-title {
     font-size: 11px; font-weight: 600; color: var(--pool-900); margin-bottom: 4px;
@@ -213,9 +214,9 @@
   }
   .voice-btn.icon-only.processing { width: 34px; height: 34px; }
   .composer-input {
-    flex: 1; min-width: 0; min-height: 68px; height: auto;
+    width: 100%; min-width: 0; min-height: 48px; height: auto;
     border: none; border-radius: 0; resize: none;
-    padding: 6px 6px 8px; font-size: 13px; line-height: 1.45; outline: none;
+    padding: 2px 2px 4px; font-size: 13px; line-height: 1.5; outline: none;
     background: transparent; color: var(--carbon);
     font-family: inherit; box-sizing: border-box;
   }
@@ -1284,8 +1285,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260804q"></script>
-<script src="assets/i18n/en.js?v=20260804q"></script>
+<script src="assets/i18n/zh.js?v=20260804r"></script>
+<script src="assets/i18n/en.js?v=20260804r"></script>
 <script src="assets/i18n-runtime.js?v=20260804e"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -2567,17 +2568,19 @@
               '<button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button>'+
             '</div>'+
             '<div class="composer-row">'+
-              '<div class="voice-panel" id="voicePanel">'+
-                '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
-              '</div>'+
               '<textarea class="composer-input" id="linkIn" rows="3" placeholder="'+t('orderChat.composerPlaceholder')+'" oninput="updateParseButtonState()"></textarea>'+
-              '<div class="composer-actions">'+
-                '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.cameraCapture'))+'" title="'+escapeHtml(t('orderChat.cameraCapture'))+'" onclick="doUpload(\'photo\')">'+
-                  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'+
-                '</button>'+
-                '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" title="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" onclick="openProductFilePicker()">'+
-                  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
-                '</button>'+
+              '<div class="composer-tools">'+
+                '<div class="voice-panel" id="voicePanel">'+
+                  '<button class="voice-btn icon-only" id="voiceBtn" type="button" aria-label="'+escapeHtml(t('orderChat.voiceStart'))+'" title="'+escapeHtml(t('orderChat.voiceStart'))+'" onclick="toggleVoiceInput(this)">'+voiceBtnIdleHtml()+'</button>'+
+                '</div>'+
+                '<div class="composer-actions">'+
+                  '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.cameraCapture'))+'" title="'+escapeHtml(t('orderChat.cameraCapture'))+'" onclick="doUpload(\'photo\')">'+
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'+
+                  '</button>'+
+                  '<button class="composer-icon-btn" type="button" aria-label="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" title="'+escapeHtml(t('orderChat.uploadDocOptional'))+'" onclick="openProductFilePicker()">'+
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+                  '</button>'+
+                '</div>'+
               '</div>'+
             '</div>'+
             '<div class="voice-transcript" id="voiceTranscript">'+

@@ -522,7 +522,7 @@ window.I18N_ZH = {
   'orderChat.uploadHintTitle': '可上传 / 粘贴的信息',
   'orderChat.viewDetails': '详情',
   'orderChat.uploadHintTags': '规格书、产品照、包装标签、采购单/PI、发票、测试报告、商品链接（支持图片 / PDF / Word .docx）',
-  'orderChat.composerPlaceholder': '粘贴商品链接，或输入产品信息',
+  'orderChat.composerPlaceholder': '请输入产品信息，也可以粘贴商品链接。',
   'orderChat.linkPlaceholder': '粘贴 Amazon / TEMU / Shopify 商品链接',
   'orderChat.parseBtn': '开始解析',
   'orderChat.noDataFill': '暂无资料，直接填写',
