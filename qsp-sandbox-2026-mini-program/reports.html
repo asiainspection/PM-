@@ -91,24 +91,34 @@
     filter: drop-shadow(0 12px 18px rgba(65,105,225,.28)) drop-shadow(0 3px 5px rgba(31,42,68,.12));
   }
 
-  /* 筛选标签 + 搜索（对齐订单页 filter 行） */
+  /* 业务线下拉 + 搜索（对齐订单页 filter 行） */
   .cat-tabs {
     position: relative; z-index: 2;
     display: flex; align-items: center; gap: 8px;
     padding: 10px 16px 8px;
   }
   .cat-tabs::-webkit-scrollbar { display: none; }
-  .cat {
-    flex-shrink: 0; height: 36px; padding: 0 12px; border-radius: 8px;
+  .biz-chip {
+    display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    height: 36px; max-width: 118px; padding: 0 10px; border-radius: 8px;
     background: var(--white); border: 1px solid var(--line);
-    font-size: 12px; color: var(--carbon);
-    display: flex; align-items: center;
-    cursor: pointer; white-space: nowrap;
+    font: inherit; font-size: 12px; color: var(--carbon); white-space: nowrap;
+    cursor: pointer;
   }
-  .cat.active {
-    background: var(--pool-050); border-color: var(--pool-100);
-    color: var(--pool-500); font-weight: 600;
+  .biz-chip:active { background: var(--mist); }
+  .biz-chip.open {
+    border-color: var(--pool-100);
+    background: var(--pool-050);
+    color: var(--pool-500);
   }
+  .biz-chip .chip-label {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+  }
+  .biz-chip .caret {
+    color: var(--seal); flex-shrink: 0;
+    transition: transform .18s ease;
+  }
+  .biz-chip.open .caret { color: var(--pool-500); transform: rotate(180deg); }
   .cat-search {
     flex: 1; min-width: 0; height: 36px; border-radius: 8px;
     background: var(--white); border: 1px solid var(--line);
@@ -128,6 +138,75 @@
     cursor: pointer;
   }
   .cat-filter:active { background: var(--pool-100); }
+
+  .biz-mask {
+    position: absolute; inset: 0; z-index: 80;
+    background: rgba(25,25,25,.42);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .biz-mask.show { opacity: 1; visibility: visible; }
+  .biz-sheet {
+    width: 100%;
+    background: var(--white);
+    border-radius: 16px 16px 0 0;
+    padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    transform: translateY(18px); transition: transform .22s ease;
+  }
+  .biz-mask.show .biz-sheet { transform: translateY(0); }
+  .biz-grabber {
+    width: 36px; height: 4px; border-radius: 2px; background: var(--line);
+    margin: 0 auto 12px;
+  }
+  .biz-sheet-title {
+    font-size: 16px; font-weight: 700; color: var(--carbon); margin-bottom: 10px;
+  }
+  .biz-opt {
+    width: 100%; display: flex; align-items: center; gap: 12px;
+    padding: 13px 4px; border: none; background: transparent;
+    font: inherit; text-align: left; cursor: pointer;
+    border-bottom: 1px solid var(--mist);
+  }
+  .biz-opt:last-of-type { border-bottom: none; }
+  .biz-opt:active { background: var(--mist); }
+  .biz-opt-body { flex: 1; min-width: 0; }
+  .biz-opt-name {
+    font-size: 14.5px; font-weight: 600; color: var(--carbon); line-height: 20px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .biz-opt-badge {
+    font-size: 10px; font-weight: 500; line-height: 16px;
+    padding: 1px 6px; border-radius: 4px;
+    color: var(--lemon-900); background: var(--lemon-200);
+  }
+  .biz-opt.is-disabled { cursor: default; opacity: .72; }
+  .biz-opt.is-disabled .biz-opt-name { color: var(--smoke); font-weight: 500; }
+  .biz-opt.is-disabled:active { background: transparent; }
+  .biz-opt.is-disabled .biz-check { display: none; }
+  .biz-opt.selected .biz-opt-name { color: var(--pool-500); }
+  .biz-check {
+    width: 18px; height: 18px; flex-shrink: 0; color: var(--pool-500); opacity: 0;
+  }
+  .biz-opt.selected .biz-check { opacity: 1; }
+  .biz-cancel {
+    margin-top: 6px; height: 44px; border-radius: 11px;
+    border: 1px solid var(--line); background: var(--mist);
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--seal);
+    cursor: pointer; width: 100%;
+  }
+  .toast {
+    position: absolute; left: 50%; bottom: 92px; z-index: 90;
+    transform: translateX(-50%) translateY(8px);
+    max-width: calc(100% - 48px);
+    padding: 10px 14px; border-radius: 10px;
+    background: rgba(25,25,25,.88); color: var(--white);
+    font-size: 13px; line-height: 18px; text-align: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
 
   /* 报告列表 */
   .list {
@@ -348,9 +427,9 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260804i"></script>
-<script src="assets/i18n/en.js?v=20260804i"></script>
-<script src="assets/i18n-runtime.js?v=20260804i"></script>
+<script src="assets/i18n/zh.js?v=20260804j"></script>
+<script src="assets/i18n/en.js?v=20260804j"></script>
+<script src="assets/i18n-runtime.js?v=20260804j"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260803r"></script>
 </head>
@@ -391,16 +470,12 @@
       <div class="hero-art"><img src="assets/reports-hero-books.png" alt="" /></div>
     </div>
 
-    <!-- Category + search + filter (aligned with orders filter row) -->
+    <!-- Business line + search + filter (aligned with orders filter row) -->
     <div class="cat-tabs" id="catTabs">
-      <div class="cat active" data-cat="lab" data-i18n="reports.filterLabTesting">Lab testing</div>
-      <!-- Legacy chips kept for later
-      <div class="cat" data-cat="all" data-i18n="reports.filterAll">All</div>
-      <div class="cat" data-cat="psi">PSI</div>
-      <div class="cat" data-cat="dupro">DUPRO</div>
-      <div class="cat" data-cat="fri">FRI</div>
-      <div class="cat" data-cat="csr">CSR</div>
-      -->
+      <button type="button" class="biz-chip" id="bizChip" aria-haspopup="listbox" aria-expanded="false">
+        <span class="chip-label" id="bizChipLabel" data-i18n="index.serviceLab">实验室检测</span>
+        <svg class="caret" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <div class="cat-search">
         <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <input id="reportSearch" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search reports / SKU" data-i18n-placeholder="reports.searchPlaceholder" />
@@ -440,6 +515,47 @@
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
     </div>
+
+    <div class="biz-mask" id="bizMask" onclick="closeBizSheet(event)" aria-hidden="true">
+      <div class="biz-sheet" role="listbox" aria-labelledby="bizSheetTitle" onclick="event.stopPropagation()">
+        <div class="biz-grabber" aria-hidden="true"></div>
+        <div class="biz-sheet-title" id="bizSheetTitle" data-i18n="orders.bizSheetTitle">选择业务线</div>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="all" onclick="selectBizLine('all')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="orders.chipAll">全部</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt selected" role="option" aria-selected="true" data-biz="lab" onclick="selectBizLine('lab')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceLab">实验室检测</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="inspection" onclick="selectBizLine('inspection')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceInspection">产品检验</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="audit" onclick="selectBizLine('audit')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name" data-i18n="index.serviceAudit">供应商审核</div>
+          </div>
+          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="cert" onclick="selectBizLine('cert')">
+          <div class="biz-opt-body">
+            <div class="biz-opt-name">
+              <span data-i18n="index.serviceCert">认证服务</span>
+              <span class="biz-opt-badge" data-i18n="orders.bizInDev">开发中</span>
+            </div>
+          </div>
+        </button>
+        <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
+      </div>
+    </div>
+    <div class="toast" id="reportsToast" role="status" aria-live="polite"></div>
   </div>
 
   <script>
@@ -461,14 +577,109 @@
       pending: '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.1" stroke="currentColor" stroke-width="1.7"/><path d="M8 4.6V8l2.4 1.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     };
 
-    let currentCat = 'lab';
+    let currentBiz = 'lab';
     let searchQuery = '';
+
+    const BIZ_LABEL_KEYS = {
+      all: 'orders.chipAll',
+      lab: 'index.serviceLab',
+      inspection: 'index.serviceInspection',
+      audit: 'index.serviceAudit',
+      cert: 'index.serviceCert'
+    };
+    const BIZ_CAT_MAP = {
+      lab: ['lab'],
+      inspection: ['psi', 'dupro', 'fri'],
+      audit: ['csr'],
+      cert: []
+    };
 
     function t(key){ return (window.I18n && I18n.t) ? I18n.t(key) : key; }
     function escapeHtml(str){
       return window.I18n ? I18n.escapeHtml(str) : String(str == null ? '' : str)
         .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
+
+    function bizLabel(id){
+      const key = BIZ_LABEL_KEYS[id] || BIZ_LABEL_KEYS.all;
+      return t(key);
+    }
+
+    function matchesBiz(r){
+      if(currentBiz === 'all') return true;
+      const cats = BIZ_CAT_MAP[currentBiz];
+      if(!cats) return false;
+      return cats.indexOf(r.cat) >= 0;
+    }
+
+    function showReportsToast(message){
+      const el = document.getElementById('reportsToast');
+      if(!el || !message) return;
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(function(){ el.classList.remove('show'); }, 2200);
+    }
+
+    function openBizSheet(){
+      const mask = document.getElementById('bizMask');
+      const chip = document.getElementById('bizChip');
+      if(!mask) return;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      if(chip){
+        chip.classList.add('open');
+        chip.setAttribute('aria-expanded', 'true');
+      }
+      const ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = 'hidden';
+    }
+
+    function closeBizSheet(event){
+      if(event && event.target && event.currentTarget && event.target !== event.currentTarget) return;
+      const mask = document.getElementById('bizMask');
+      const chip = document.getElementById('bizChip');
+      if(mask){
+        mask.classList.remove('show');
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      if(chip){
+        chip.classList.remove('open');
+        chip.setAttribute('aria-expanded', 'false');
+      }
+      const ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = '';
+    }
+
+    function syncBizSelection(){
+      document.querySelectorAll('.biz-opt').forEach(function(opt){
+        const on = opt.getAttribute('data-biz') === currentBiz;
+        opt.classList.toggle('selected', on);
+        opt.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      const label = document.getElementById('bizChipLabel');
+      if(label){
+        const key = BIZ_LABEL_KEYS[currentBiz] || BIZ_LABEL_KEYS.lab;
+        label.setAttribute('data-i18n', key);
+        label.textContent = bizLabel(currentBiz);
+      }
+    }
+
+    function selectBizLine(id){
+      const tap = document.querySelector('.biz-opt[data-biz="' + id + '"]');
+      if(tap && tap.classList.contains('is-disabled')){
+        showReportsToast(t('orders.bizInDevToast'));
+        return;
+      }
+      currentBiz = BIZ_LABEL_KEYS[id] ? id : 'all';
+      syncBizSelection();
+      renderReports();
+      closeBizSheet();
+    }
+
+    // Expose for inline onclick handlers
+    window.openBizSheet = openBizSheet;
+    window.closeBizSheet = closeBizSheet;
+    window.selectBizLine = selectBizLine;
 
     function loadDecisions(){
       try {
@@ -509,7 +720,7 @@
     function filteredReports(){
       const q = String(searchQuery || '').trim().toLowerCase();
       return REPORTS.filter(function(r){
-        if(!(currentCat === 'all' || r.cat === currentCat)) return false;
+        if(!matchesBiz(r)) return false;
         if(!q) return true;
         return reportSearchHaystack(r).indexOf(q) >= 0;
       });
@@ -594,13 +805,7 @@
       }
     }
 
-    document.getElementById('catTabs').addEventListener('click', function(e){
-      const chip = e.target.closest('.cat');
-      if(!chip) return;
-      currentCat = chip.getAttribute('data-cat');
-      document.querySelectorAll('.cat').forEach(c => c.classList.toggle('active', c === chip));
-      renderReports();
-    });
+    document.getElementById('bizChip').addEventListener('click', openBizSheet);
 
     const searchInput = document.getElementById('reportSearch');
     if(searchInput){
@@ -610,7 +815,7 @@
       });
     }
 
-    document.querySelectorAll('.cat').forEach(c => c.classList.toggle('active', c.getAttribute('data-cat') === currentCat));
+    syncBizSelection();
     renderReports();
 
     if (window.I18n) {
@@ -621,6 +826,7 @@
           btn.setAttribute('aria-label', label);
           btn.setAttribute('title', label);
         }
+        syncBizSelection();
         renderReports();
       }});
     }
