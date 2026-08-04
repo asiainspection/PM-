@@ -144,19 +144,30 @@
   .decision-undo:active { background: #f5f6f8; }
 
   .decision-mask {
-    position: fixed; inset: 0; z-index: 80;
+    position: absolute; inset: 0; z-index: 80;
     background: rgba(25,25,25,.42);
     display: flex; align-items: flex-end; justify-content: center;
-    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .22s ease, visibility .22s ease;
   }
-  .decision-mask.show { opacity: 1; visibility: visible; }
+  .decision-mask.show {
+    opacity: 1; visibility: visible; pointer-events: auto;
+  }
   .decision-sheet {
-    width: 100%; background: #fff;
+    width: 100%;
+    background: #fff;
     border-radius: 16px 16px 0 0;
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-    transform: translateY(18px); transition: transform .22s ease;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 28px rgba(25,25,25,.12);
+    transform: translateY(100%);
+    transition: transform .28s cubic-bezier(.22,.61,.36,1);
+    will-change: transform;
   }
   .decision-mask.show .decision-sheet { transform: translateY(0); }
+  .decision-grabber {
+    width: 36px; height: 4px; border-radius: 2px; background: #e1e4ea;
+    margin: 0 auto 12px;
+  }
   .decision-sheet-title {
     font-size: 16px; font-weight: 700; color: var(--carbon);
   }
@@ -200,6 +211,7 @@
   }
   .decision-sheet-actions button {
     flex: 1; height: 42px; border-radius: 11px;
+    font-family: inherit;
     font-size: 15px; font-weight: 600; cursor: pointer; border: none;
   }
   .decision-sheet-actions .ghost {
@@ -211,6 +223,10 @@
   .decision-sheet-actions .solid.approve { background: var(--kiwi); }
   .decision-sheet-actions .solid.reject { background: var(--cherry); }
   .decision-sheet-actions button:active { opacity: .9; }
+  @media (prefers-reduced-motion: reduce) {
+    .decision-mask,
+    .decision-sheet { transition: none; }
+  }
 
   .preview-scroll {
     position: relative; z-index: 1;
@@ -360,8 +376,9 @@
 
     <div class="toast" id="toast"></div>
 
-    <div class="decision-mask" id="decisionMask" onclick="closeDecisionMask(event)">
-      <div class="decision-sheet" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+    <div class="decision-mask" id="decisionMask" onclick="closeDecisionMask(event)" aria-hidden="true">
+      <div class="decision-sheet" role="dialog" aria-modal="true" aria-labelledby="decisionSheetTitle" onclick="event.stopPropagation()">
+        <div class="decision-grabber" aria-hidden="true"></div>
         <div class="decision-sheet-title" id="decisionSheetTitle">Approve report</div>
         <div class="decision-sheet-tip" id="decisionSheetTip"></div>
         <div class="decision-toggle">
@@ -528,10 +545,13 @@
       commentWrap.hidden = true;
       comment.value = '';
       mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
     }
 
     function closeDecision() {
-      document.getElementById('decisionMask').classList.remove('show');
+      const mask = document.getElementById('decisionMask');
+      mask.classList.remove('show');
+      mask.setAttribute('aria-hidden', 'true');
       pendingDecision = null;
     }
 
