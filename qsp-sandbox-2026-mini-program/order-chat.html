@@ -5230,8 +5230,8 @@
       if(ok) return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div><div class="fv">'+escapeHtml(v)+'</div><div class="badge-ok">✓</div></div>';
       return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div>'+emptyFieldHtml(isOptional)+'</div>';
     }
-    function recognizeProgressCard(filled, total, percent, missing){
-      const complete = missing <= 0 || percent >= 100;
+    function recognizeProgressCard(filled, total, percent, missing, orderReady){
+      const complete = !!orderReady || missing <= 0 || percent >= 100;
       const titleKey = complete ? 'orderChat.recogTitleComplete' : 'orderChat.recogTitle';
       return '<div class="panel recog-card'+(complete ? ' is-complete' : '')+'">'+
         '<div class="recog-head">'+
