@@ -498,7 +498,7 @@ window.I18N_ZH = {
   'orderChat.refNumberPlaceholder': '请选择参考编号',
   'orderChat.chatPlaceholder': '请输入您的消息...',
   'orderChat.send': '发送',
-  'orderChat.uploadTitle': '提供产品信息',
+  'orderChat.uploadTitle': '请继续提供产品信息',
   'orderChat.cameraCapture': '相机拍摄',
   'orderChat.uploadDoc': '上传文档',
   'orderChat.uploadDocOptional': '上传资料',

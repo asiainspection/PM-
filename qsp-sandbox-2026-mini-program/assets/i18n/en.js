@@ -498,7 +498,7 @@ window.I18N_EN = {
   'orderChat.refNumberPlaceholder': 'Select reference number',
   'orderChat.chatPlaceholder': 'Type your message…',
   'orderChat.send': 'Send',
-  'orderChat.uploadTitle': 'Provide product information',
+  'orderChat.uploadTitle': 'Please continue providing product information',
   'orderChat.cameraCapture': 'Take photo',
   'orderChat.uploadDoc': 'Upload file',
   'orderChat.uploadDocOptional': 'Upload documents',
