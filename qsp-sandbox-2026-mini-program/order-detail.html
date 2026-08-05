@@ -293,6 +293,22 @@
   .next-action.is-halted .na-btn { background: var(--cherry); }
   .next-action.is-halted .na-btn:active { background: var(--cherry); }
   .na-btn[hidden] { display: none; }
+  .na-report-list { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .na-report-list[hidden] { display: none; }
+  .na-report {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px;
+    background: var(--white); border: 1px solid var(--mist); border-radius: 8px;
+  }
+  .na-report-tag {
+    flex-shrink: 0; min-width: 30px; text-align: center;
+    font-size: 11px; font-weight: 700; color: var(--pool-500);
+  }
+  .na-report-ref {
+    flex: 1; min-width: 0; font-size: 12px; color: var(--carbon);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .na-report-btn { height: 26px; padding: 0 10px; font-size: 11px; }
 
   .info-row:last-child { border-bottom: none; }
   .info-row .label {
@@ -690,6 +706,7 @@
           <div class="na-body">
             <div class="na-text" id="nextActionText">—</div>
             <div class="na-reason" id="nextActionReason" hidden></div>
+            <div class="na-report-list" id="nextActionReports" hidden></div>
           </div>
           <button class="na-btn" type="button" id="nextActionBtn" hidden></button>
         </div>
@@ -1538,11 +1555,14 @@
       }
       const stage = currentStageIndex(status);
       if(stage >= ORDER_STAGES.length){
+        const ref = order.orderRef || order.applicationNo || orderId;
         return {
           tone: 'done',
           textKey: 'orderDetail.nextReportReady',
-          buttonKey: 'orderDetail.nextViewReport',
-          onClick: function(){ window.location.href = 'report-preview.html'; }
+          reports: [
+            { tag: 'R1', ref: ref + '-11-R1', rev: 'R1', buttonKey: 'orderDetail.nextViewReport' },
+            { tag: 'R2', ref: ref + '-11-R2', rev: 'R2', buttonKey: 'orderDetail.nextViewReport' }
+          ]
         };
       }
       if(stage === 3){
@@ -1569,6 +1589,11 @@
         return { tone: 'done', textKey: 'orderDetail.nextSamplesInTransit' };
       }
       return { tone: 'info', textKey: 'orderDetail.nextWaitVerify' };
+    }
+
+    function viewReport(rev){
+      const ref = order.orderRef || order.applicationNo || orderId;
+      window.location.href = 'report-preview.html?order=' + encodeURIComponent(ref) + '&rev=' + encodeURIComponent(rev);
     }
 
     function stageLabel(item){
@@ -1620,6 +1645,19 @@
           reasonEl.hidden = true;
           reasonEl.textContent = '';
         }
+      }
+      // Multiple reports (e.g. R1 / R2), each with its own view button.
+      const reportList = document.getElementById('nextActionReports');
+      if(reportList){
+        const reports = action.reports || [];
+        reportList.hidden = reports.length === 0;
+        reportList.innerHTML = reports.map(function(rpt){
+          return '<div class="na-report">'+
+            '<span class="na-report-tag">'+escapeHtml(rpt.tag)+'</span>'+
+            '<span class="na-report-ref">'+escapeHtml(rpt.ref)+'</span>'+
+            '<button class="na-btn na-report-btn" type="button" onclick="viewReport(\''+escapeHtml(rpt.rev)+'\')">'+escapeHtml(t(rpt.buttonKey))+'</button>'+
+          '</div>';
+        }).join('');
       }
       const btn = document.getElementById('nextActionBtn');
       if(action.buttonKey){
