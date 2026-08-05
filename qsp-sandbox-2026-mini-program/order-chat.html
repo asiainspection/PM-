@@ -3790,16 +3790,21 @@
       // First-time privacy link only appears before the first AI submit.
       markAiInputUsed();
 
+      // The voice transcript is written back into the composer textarea, so a
+      // textarea that exactly matches the transcript is voice-only — don't echo
+      // the same text twice as typed product text.
+      const voiceOnly = !!(hasVoiceInput && v && v === voiceTranscript);
+
       const parts = [];
       if(hasVoiceInput) parts.push('🎤 '+escapeHtml(voiceTranscript));
       if(hasUploadedFiles) parts.push(uploadedFilesSummary());
-      if(v) parts.push((isLink ? '🔗 ' : '📝 ')+t(isLink ? 'orderChat.productLink' : 'orderChat.productText')+'：'+escapeHtml(v.length>40 ? v.slice(0,40)+'…' : v));
+      if(v && !voiceOnly) parts.push((isLink ? '🔗 ' : '📝 ')+t(isLink ? 'orderChat.productLink' : 'orderChat.productText')+'：'+escapeHtml(v.length>40 ? v.slice(0,40)+'…' : v));
       const userRow = userMsg(parts.join('<div style="margin-top:6px"></div>'));
       markUserBubbleParsing(userRow, true);
 
       const srcBits = [];
       if(hasVoiceInput) srcBits.push('voice');
-      if(v) srcBits.push(isLink ? 'link' : 'text');
+      if(v && !voiceOnly) srcBits.push(isLink ? 'link' : 'text');
       if(hasUploadedFiles) srcBits.push('doc');
       let src = t(isLink ? 'orderChat.recognizeSourceLink' : 'orderChat.recognizeSourceText');
       if(srcBits.length === 3) src = t('orderChat.recognizeSourceAll');
@@ -3814,7 +3819,7 @@
       const multiSource = srcBits.length >= 2;
       const hint = multiSource
         ? t('orderChat.parsingCombine')
-        : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingHint'));
+        : (v && !voiceOnly ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingHint'));
       const progressRow = botMsg(parseProgressCard(hint), true);
       // Voice + link page fetch + OCR can be slow
       const hasPdfUpload = uploadedFileList.some(function(item){
@@ -3831,7 +3836,7 @@
       }).then(function(files){
         updateParseProgressCard(
           progressRow,
-          multiSource ? t('orderChat.parsingCombine') : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingRemote'))
+          multiSource ? t('orderChat.parsingCombine') : (v && !voiceOnly ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingRemote'))
         );
 
         // Always send all three channels together — cloud merges into one form fill
@@ -3849,7 +3854,7 @@
           return result;
         }).catch(function(err){
           console.warn('parseOrder remote failed, trying local parse', err);
-          updateParseProgressCard(progressRow, multiSource ? t('orderChat.parsingCombine') : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingLocal')));
+          updateParseProgressCard(progressRow, multiSource ? t('orderChat.parsingCombine') : (v && !voiceOnly ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingLocal')));
           if(window.QimaLabelParse && typeof QimaLabelParse.parseFilesLocally === 'function'){
             return withTimeout(
               QimaLabelParse.parseFilesLocally(files, voiceTranscript, v, function(msg){
@@ -4230,7 +4235,6 @@
             field('Shipping Remark', remark, !!remark, true)
           : '')+
         '</div>'+
-        confirmReportFieldsBlock()+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.chipNeedModify')+'</span>'+t('orderChat.chipEdit')+'</button>'+
       '</div>';
     }
@@ -5091,7 +5095,6 @@
           field('Tracking Number', manualAnswers['Tracking Number'] || '', !!manualAnswers['Tracking Number'])+
           field('Shipping Remark', manualAnswers['Shipping Remark'] || '', !!manualAnswers['Shipping Remark'], true)+
         '</div>'+
-        confirmReportFieldsBlock()+
         editFieldsBtn('orderChat.hasError')+
       '</div>';
     }
@@ -5232,7 +5235,6 @@
           field('Tracking Number', val('Tracking Number'), ok('Tracking Number'))+
           field('Shipping Remark', val('Shipping Remark'), ok('Shipping Remark'), true)+
         '</div>'+
-        confirmReportFieldsBlock()+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.hasError')+'</span>'+t('orderChat.goEdit')+'</button>'+
       '</div>';
     }
@@ -5261,6 +5263,13 @@
             { name:'Carrier', fallback:'', type:'select', options:[''].concat(getCarriers()) },
             { name:'Tracking Number', fallback:'' },
             { name:'Shipping Remark', fallback:'' }
+          ]
+        },
+        {
+          title: t('index.reportFieldsNeed'),
+          fields: [
+            { name: FIELD_REPORT_NEED, fallback: t('common.no'), type:'report-radio' },
+            { name: FIELD_REPORT_DETAIL, fallback: '', type:'report-detail' }
           ]
         }
       ];
@@ -5643,6 +5652,12 @@
       if(field.type === 'electric-desc'){
         return renderEditElectricDescField(current);
       }
+      if(field.type === 'report-radio'){
+        return renderEditReportRadioField(current);
+      }
+      if(field.type === 'report-detail'){
+        return renderEditReportDetailField(current);
+      }
       if(field.type === 'multi-country'){
         return renderEditMultiCountryField(field);
       }
@@ -5724,6 +5739,42 @@
       }
     }
 
+    function renderEditReportRadioField(current){
+      const val = isReportFieldsYes(current) ? 'yes' : 'no';
+      const yesChecked = val === 'yes' ? ' checked' : '';
+      const noChecked = val === 'no' ? ' checked' : '';
+      return '<div class="fm-row">'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(FIELD_REPORT_NEED))+'</div>'+
+        '<div class="fm-radio-stack">'+
+          '<label class="fm-radio-line"><input type="radio" name="fe_report" value="yes"'+yesChecked+' onchange="feToggleReportDetail()"> <span>'+escapeHtml(t('common.yes'))+'</span></label>'+
+          '<label class="fm-radio-line"><input type="radio" name="fe_report" value="no"'+noChecked+' onchange="feToggleReportDetail()"> <span>'+escapeHtml(t('common.no'))+'</span></label>'+
+        '</div>'+
+        '<input type="hidden" data-field-name="'+FIELD_REPORT_NEED+'" id="fe_reportHidden" value="'+escapeHtml(val === 'yes' ? t('common.yes') : t('common.no'))+'">'+
+      '</div>';
+    }
+
+    function renderEditReportDetailField(current){
+      const val = isReportFieldsYes(manualAnswers[FIELD_REPORT_NEED] || getFieldValue(FIELD_REPORT_NEED));
+      return '<div class="fm-row" id="fe_reportDetailRow" style="display:'+(val ? 'block' : 'none')+';">'+
+        '<div class="fm-label">'+escapeHtml(fieldLabel(FIELD_REPORT_DETAIL))+' <span class="req">*</span></div>'+
+        '<textarea class="fm-textarea" data-field-name="'+FIELD_REPORT_DETAIL+'" id="fe_reportDetail" placeholder="'+escapeHtml(t('index.reportFieldsDetailPlaceholder'))+'">'+escapeHtml(current || manualAnswers[FIELD_REPORT_DETAIL] || '')+'</textarea>'+
+      '</div>';
+    }
+
+    function feToggleReportDetail(){
+      const selected = document.querySelector('input[name="fe_report"]:checked');
+      const row = document.getElementById('fe_reportDetailRow');
+      const hidden = document.getElementById('fe_reportHidden');
+      if(selected && hidden){
+        hidden.value = selected.value === 'yes' ? t('common.yes') : t('common.no');
+      }
+      if(row) row.style.display = (selected && selected.value === 'yes') ? 'block' : 'none';
+      if(selected && selected.value !== 'yes'){
+        const ta = document.getElementById('fe_reportDetail');
+        if(ta) ta.value = '';
+      }
+    }
+
     function closeFieldEditor(e){
       if(e && e.target && e.currentTarget && e.target !== e.currentTarget) return;
       document.getElementById('fieldEditor').classList.remove('show');
@@ -5779,6 +5830,12 @@
       }
       if(feElectric && feElectric.value !== 'electric' && feDesc){
         feDesc.value = '';
+      }
+      // Sync report-fields radio → hidden label before reading inputs
+      const feReport = document.querySelector('input[name="fe_report"]:checked');
+      const feReportHidden = document.getElementById('fe_reportHidden');
+      if(feReport && feReportHidden){
+        feReportHidden.value = feReport.value === 'yes' ? t('common.yes') : t('common.no');
       }
 
       const inputs = document.querySelectorAll('#fieldEditorGrid input, #fieldEditorGrid select, #fieldEditorGrid textarea');
@@ -6505,7 +6562,6 @@
           field('Tracking Number', getFieldValue('Tracking Number') || t('orderChat.fieldPending'), !!getFieldValue('Tracking Number'))+
           field('Shipping Remark', getFieldValue('Shipping Remark') || '', !!getFieldValue('Shipping Remark'), true)+
         '</div>'+
-        confirmReportFieldsBlock()+
       '</div>';
     }
     function reportFieldsCard(){
@@ -6628,22 +6684,11 @@
       if(row) row.remove();
       manualAnswers[FIELD_REPORT_NEED] = reportFields;
       manualAnswers[FIELD_REPORT_DETAIL] = reportFields === t('common.yes') ? reportFieldsDetail : '';
-      placeOrder(null, true);
+      placeOrder(null);
     }
 
-    function placeOrder(btn, skipReportFieldsQuestion){
+    function placeOrder(btn){
       if(blockPlaceOrderIfIncomplete(btn)) return;
-      if(!skipReportFieldsQuestion && manualAnswers[FIELD_REPORT_NEED] === undefined){
-        const captured = captureConfirmReportFieldsOrShowError();
-        if(captured && captured.error) return;
-        if(captured){
-          manualAnswers[FIELD_REPORT_NEED] = captured.need || t('common.no');
-          manualAnswers[FIELD_REPORT_DETAIL] = captured.need === t('common.yes') ? (captured.detail || '') : '';
-        } else {
-          askReportFieldsStep(btn);
-          return;
-        }
-      }
       removeActionRow(btn);
       if(manualAnswers[FIELD_REPORT_NEED] === undefined){
         manualAnswers[FIELD_REPORT_NEED] = t('common.no');
