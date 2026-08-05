@@ -1927,9 +1927,7 @@
 
     /** AI补充信息 + 手动补充信息 (optionally + place order / edit). */
     function completeInfoChips(extra){
-      var html =
-        I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)') +
-        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()');
+      var html = I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)');
       if(extra) html += extra;
       return chipsRow(html);
     }
@@ -1938,8 +1936,7 @@
       var missing = (typeof getOrderBlockers === 'function') ? getOrderBlockers() : [];
       // While fields are missing, 手动补充信息 already opens the form — no separate 编辑字段
       var html = missing.length
-        ? I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)') +
-          I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')
+        ? I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)')
         : I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)') +
           I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)');
       if(extra) html += extra;
@@ -2634,9 +2631,7 @@
     }
 
     /** After partial recognition: show slim AI card (voice / link / files) to fill gaps. */
-    function askAiSupplement(btn){
-      removeActionRow(btn);
-      userMsg(t('orderChat.chipAiSupplement'));
+    function showAiSupplementCard(){
       retirePreviousInputPanels();
       resetAiInputSession();
       botMsg(t('orderChat.aiSupplementPrompt'), false);
@@ -2646,6 +2641,12 @@
         showManual: false
       }), true);
       setTimeout(function(){ updateParseButtonState(); }, 0);
+    }
+
+    function askAiSupplement(btn){
+      removeActionRow(btn);
+      userMsg(t('orderChat.chipAiSupplement'));
+      showAiSupplementCard();
     }
 
     let voiceRecording = false;
@@ -2705,9 +2706,8 @@
       if(!voicePanel) return;
       voicePanel.innerHTML =
         '<div class="voice-recording-bar" id="voiceRecordingBar">'+
-          '<div class="voice-recording-dot"></div>'+
+          voiceWaveformHtml()+
           '<div class="voice-recording-time" id="voiceRecordingTime">'+formatVoiceRecordingTime(voiceRecordingSeconds)+'</div>'+
-          '<div class="voice-waveform" aria-hidden="true"></div>'+
           '<button class="voice-recording-cancel" type="button" aria-label="'+escapeHtml(t('orderChat.voiceCancel'))+'" onclick="cancelVoiceRecording(this)">×</button>'+
           '<button class="voice-recording-confirm" type="button" aria-label="'+escapeHtml(t('orderChat.voiceConfirm'))+'" onclick="confirmVoiceRecording(this)">✓</button>'+
         '</div>';
@@ -3768,17 +3768,23 @@
       hasVoiceInput = !!voiceTranscript;
       if(parseInFlight || (!hasUploadedFiles && !v && !hasVoiceInput)) return;
 
+      // Track whether the typed input is a real product link or free product text.
+      let isLink = false;
       if(v){
-        const normalized = (window.QimaLabelParse && QimaLabelParse.normalizeProductUrl)
-          ? QimaLabelParse.normalizeProductUrl(v)
-          : (/^https?:\/\//i.test(v) ? v : '');
-        if(!normalized){
-          botMsg(t('orderChat.invalidLink'), false);
-          return;
+        // If the input looks like a product link, normalize it; otherwise treat
+        // it as free product text (no link validation, no URL requirement).
+        let normalized = '';
+        if(window.QimaLabelParse && QimaLabelParse.normalizeProductUrl){
+          normalized = QimaLabelParse.normalizeProductUrl(v);
+        } else if(/^https?:\/\//i.test(v)){
+          normalized = v;
         }
-        v = normalized;
-        const linkIn = document.getElementById('linkIn');
-        if(linkIn) linkIn.value = v;
+        if(normalized){
+          v = normalized;
+          isLink = true;
+          const linkIn = document.getElementById('linkIn');
+          if(linkIn) linkIn.value = v;
+        }
       }
 
       // First-time privacy link only appears before the first AI submit.
@@ -3787,15 +3793,15 @@
       const parts = [];
       if(hasVoiceInput) parts.push('🎤 '+escapeHtml(voiceTranscript));
       if(hasUploadedFiles) parts.push(uploadedFilesSummary());
-      if(v) parts.push('🔗 '+t('orderChat.productLink')+'：'+escapeHtml(v.length>40 ? v.slice(0,40)+'…' : v));
+      if(v) parts.push((isLink ? '🔗 ' : '📝 ')+t(isLink ? 'orderChat.productLink' : 'orderChat.productText')+'：'+escapeHtml(v.length>40 ? v.slice(0,40)+'…' : v));
       const userRow = userMsg(parts.join('<div style="margin-top:6px"></div>'));
       markUserBubbleParsing(userRow, true);
 
       const srcBits = [];
       if(hasVoiceInput) srcBits.push('voice');
-      if(v) srcBits.push('link');
+      if(v) srcBits.push(isLink ? 'link' : 'text');
       if(hasUploadedFiles) srcBits.push('doc');
-      let src = t('orderChat.recognizeSourceLink');
+      let src = t(isLink ? 'orderChat.recognizeSourceLink' : 'orderChat.recognizeSourceText');
       if(srcBits.length === 3) src = t('orderChat.recognizeSourceAll');
       else if(hasVoiceInput && v) src = t('orderChat.recognizeSourceVoiceLink');
       else if(hasVoiceInput && hasUploadedFiles) src = t('orderChat.recognizeSourceVoiceDoc');
@@ -3808,7 +3814,7 @@
       const multiSource = srcBits.length >= 2;
       const hint = multiSource
         ? t('orderChat.parsingCombine')
-        : (v ? t('orderChat.parsingLink') : t('orderChat.parsingHint'));
+        : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingHint'));
       const progressRow = botMsg(parseProgressCard(hint), true);
       // Voice + link page fetch + OCR can be slow
       const hasPdfUpload = uploadedFileList.some(function(item){
@@ -3825,7 +3831,7 @@
       }).then(function(files){
         updateParseProgressCard(
           progressRow,
-          multiSource ? t('orderChat.parsingCombine') : (v ? t('orderChat.parsingLink') : t('orderChat.parsingRemote'))
+          multiSource ? t('orderChat.parsingCombine') : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingRemote'))
         );
 
         // Always send all three channels together — cloud merges into one form fill
@@ -3843,7 +3849,7 @@
           return result;
         }).catch(function(err){
           console.warn('parseOrder remote failed, trying local parse', err);
-          updateParseProgressCard(progressRow, multiSource ? t('orderChat.parsingCombine') : (v ? t('orderChat.parsingLink') : t('orderChat.parsingLocal')));
+          updateParseProgressCard(progressRow, multiSource ? t('orderChat.parsingCombine') : (v ? (isLink ? t('orderChat.parsingLink') : t('orderChat.parsingText')) : t('orderChat.parsingLocal')));
           if(window.QimaLabelParse && typeof QimaLabelParse.parseFilesLocally === 'function'){
             return withTimeout(
               QimaLabelParse.parseFilesLocally(files, voiceTranscript, v, function(msg){
@@ -4262,11 +4268,10 @@
     }
 
     function startFillMissingAfterParse(){
-      // Missing fields are completed in the form modal, not chat cards
+      // Missing fields are completed via the AI supplement card, not chat chips
       const missingCore = getMissingRequiredFields();
       if(!missingCore.length) return;
-      botMsg(tHtml('orderChat.continueFillMissing', { count: missingCore.length }), false);
-      botMsg(completeInfoChips(), true);
+      showAiSupplementCard();
     }
 
     function selectFieldCard(item, source){
@@ -5127,7 +5132,6 @@
       const typingRow = botTyping();
       setTimeout(function(){
         typingRow.remove();
-        botMsg(tHtml('orderChat.uploadSuccess', {src: src}), false);
         const typingRow2 = botTyping();
         setTimeout(function(){
           typingRow2.remove();
@@ -5139,13 +5143,11 @@
           ), true));
           botMsg(extractCard(displayFields, percent), true);
 
-          const needSampleOrShip = !getFieldDisplayValue('Sample Collection Method');
-          const hasMatched = !!(getFieldDisplayValue('Product Name') || getFieldDisplayValue('Item#/model#') || getFieldDisplayValue('Manufacturer') || getFieldDisplayValue('Program') || getFieldDisplayValue('Country of Origin') || getFieldDisplayValue('Countries/Regions of Distribution'));
-          const needForm = hasMatched || missingRequired.length > 0 || needSampleOrShip;
+          const needForm = missingRequired.length > 0;
 
           if(needForm){
-            botMsg(t('orderChat.fillMissingInForm'), false);
-            botMsg(completeInfoChips(), true);
+            // Directly show the AI supplement input box — no separate message bubble or chips row.
+            showAiSupplementCard();
           } else {
             botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')), true);
           }
@@ -5230,6 +5232,7 @@
           field('Tracking Number', val('Tracking Number'), ok('Tracking Number'))+
           field('Shipping Remark', val('Shipping Remark'), ok('Shipping Remark'), true)+
         '</div>'+
+        confirmReportFieldsBlock()+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.hasError')+'</span>'+t('orderChat.goEdit')+'</button>'+
       '</div>';
     }
@@ -5901,8 +5904,7 @@
         fields: labels
       }), false);
       botMsg(chipsRow(
-        I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)')+
-        I18n.chipHtml('orderChat.chipManualSupplement','edit','openManualFormModalForComplete()')
+        I18n.chipHtml('orderChat.chipAiSupplement','plus','askAiSupplement(this)')
       ), true);
       return true;
     }
