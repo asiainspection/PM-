@@ -342,7 +342,7 @@
           <span data-i18n="reports.status.pass">Pass</span>
         </div>
       </div>
-      <div class="meta-decision" id="decisionActions">
+      <div class="meta-decision" id="decisionActions" hidden>
         <button class="dec-btn approve" type="button" id="approveBtn" onclick="openDecision('approve')">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span data-i18n="reportPreview.approve">Approve</span>
@@ -534,6 +534,9 @@
       renderDecision();
     }
 
+    // Temporarily hide approve/reject actions in the demo.
+    const SHOW_DECISION_ACTIONS = false;
+
     function renderDecision() {
       const meta = currentMeta();
       const decision = getDecision(meta.sku);
@@ -557,7 +560,8 @@
       }
 
       result.hidden = true;
-      actions.hidden = false;
+      actions.hidden = !SHOW_DECISION_ACTIONS;
+      if(!SHOW_DECISION_ACTIONS) return;
       approveBtn.disabled = !allowed;
       rejectBtn.disabled = !allowed;
       approveBtn.title = allowed ? '' : t('reportPreview.decisionUnavailable');
