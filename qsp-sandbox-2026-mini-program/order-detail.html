@@ -300,10 +300,6 @@
     padding: 8px 10px;
     background: var(--white); border: 1px solid var(--mist); border-radius: 8px;
   }
-  .na-report-tag {
-    flex-shrink: 0; min-width: 30px; text-align: center;
-    font-size: 11px; font-weight: 700; color: var(--pool-500);
-  }
   .na-report-ref {
     flex: 1; min-width: 0; font-size: 12px; color: var(--carbon);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -1560,8 +1556,8 @@
           tone: 'done',
           textKey: 'orderDetail.nextReportReady',
           reports: [
-            { tag: 'R1', ref: ref + '-11-R1', rev: 'R1', buttonKey: 'orderDetail.nextViewReport' },
-            { tag: 'R2', ref: ref + '-11-R2', rev: 'R2', buttonKey: 'orderDetail.nextViewReport' }
+            { ref: ref + '-11-R1', rev: 'R1', buttonKey: 'orderDetail.nextViewReport' },
+            { ref: ref + '-11-R2', rev: 'R2', buttonKey: 'orderDetail.nextViewReport' }
           ]
         };
       }
@@ -1653,7 +1649,6 @@
         reportList.hidden = reports.length === 0;
         reportList.innerHTML = reports.map(function(rpt){
           return '<div class="na-report">'+
-            '<span class="na-report-tag">'+escapeHtml(rpt.tag)+'</span>'+
             '<span class="na-report-ref">'+escapeHtml(rpt.ref)+'</span>'+
             '<button class="na-btn na-report-btn" type="button" onclick="viewReport(\''+escapeHtml(rpt.rev)+'\')">'+escapeHtml(t(rpt.buttonKey))+'</button>'+
           '</div>';

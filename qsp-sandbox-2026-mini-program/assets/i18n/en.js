@@ -890,7 +890,7 @@ window.I18N_EN = {
   'reportPreview.approverName': 'Demo User',
 
   /* ── WeChat account linking (onboarding) ── */
-  'binding.infoSupplier': 'Once your supplier account is linked, you will receive date and factory address confirmations through WeChat.',
+  'binding.infoSupplier': 'Receive order and report status notifications via WeChat.',
   'binding.infoQima': 'Once your QIMA account is linked, you will receive order confirmations, inspection progress and report notifications through WeChat.',
   'binding.successTitle': 'Account linked',
   'binding.successDesc': 'Your WeChat is now linked to your QIMA account. Taking you to the home page…',

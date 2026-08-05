@@ -3716,7 +3716,7 @@
 
     function extractDisplayKeys(fields){
       const keys = [
-        'Product Name','Program','Country of Origin','Countries/Regions of Distribution',
+        'Product Name','Product Division','Program','Country of Origin','Countries/Regions of Distribution',
         'Item#/model#', FIELD_ELECTRIC, 'Manufacturer','Manufacturer Address',
         'Sample Collection Method','Carrier','Tracking Number'
       ];
@@ -4218,6 +4218,7 @@
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.confirmCardTitle')+'</div><div class="progress-pill">'+t('orderChat.pendingSubmit')+'</div></div>'+
         '<div class="fields">'+
           field('Product Name', pn, !!pn)+
+          field('Product Division', manualAnswers['Product Division'] || '', !!manualAnswers['Product Division'])+
           field('Program', prog, !!prog)+
           field('Country of Origin', origin, !!origin)+
           field('Countries/Regions of Distribution', countries.map(function(c){ return I18n.displayCountry(c); }).join(t('orderChat.listSep')), countries.length > 0)+
@@ -5084,6 +5085,7 @@
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.confirmCardTitle')+'</div><div class="progress-pill">'+t('orderChat.pendingSubmit')+'</div></div>'+
         '<div class="fields">'+
           field('Product Name', manualAnswers['Product Name'] || '', !!manualAnswers['Product Name'])+
+          field('Product Division', manualAnswers['Product Division'] || '', !!manualAnswers['Product Division'])+
           field('Program', manualAnswers['Program'] || '', !!manualAnswers['Program'])+
           field('Country of Origin', manualAnswers['Country of Origin'] || '', !!manualAnswers['Country of Origin'])+
           field('Countries/Regions of Distribution', manualAnswers['Countries/Regions of Distribution'] || '', !!manualAnswers['Countries/Regions of Distribution'])+
@@ -5222,6 +5224,7 @@
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.extractTitle')+'</div><div class="progress-pill">'+progressLabel+'</div></div>'+
         '<div class="fields">'+
           field('Product Name', val('Product Name'), ok('Product Name'))+
+          field('Product Division', val('Product Division'), ok('Product Division'))+
           field('Program', val('Program'), ok('Program'))+
           field('Country of Origin', val('Country of Origin'), ok('Country of Origin'))+
           field('Countries/Regions of Distribution', val('Countries/Regions of Distribution'), ok('Countries/Regions of Distribution'))+
@@ -6551,6 +6554,7 @@
         '<div class="extract-head"><div class="eh-title">'+t('orderChat.confirmCardTitle')+'</div><div class="progress-pill">'+t('orderChat.pendingSubmit')+'</div></div>'+
         '<div class="fields">'+
           field('Product Name', getFieldValue('Product Name') || t('orderChat.productRobotToy'), true)+
+          field('Product Division', getFieldValue('Product Division') || 'Toys', !!getFieldValue('Product Division'))+
           field('Program', getFieldValue('Program') || t('orderChat.projectTemuHardwareRefund'), true)+
           field('Country of Origin', getFieldValue('Country of Origin') || t('orderChat.originAland'), true)+
           field('Countries/Regions of Distribution', getFieldValue('Countries/Regions of Distribution') || t('orderChat.distributionPresetEn'), true)+
@@ -6939,6 +6943,7 @@
       return '<div class="panel">'+
         '<div class="fields">'+
           field('Product Name', productName, isCountedFieldValue(productName))+
+          field('Product Division', v('Product Division'), isCountedFieldValue(v('Product Division')))+
           field('Program', program, isCountedFieldValue(program))+
           field('Country of Origin', origin, isCountedFieldValue(origin))+
           field('Countries/Regions of Distribution', distribution, isCountedFieldValue(distribution))+

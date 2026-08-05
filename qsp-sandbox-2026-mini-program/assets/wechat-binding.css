@@ -219,29 +219,6 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 }
 .lg-check.is-block .lg-check-box { margin-top: 1px; }
 
-.lg-benefits {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: var(--pool-050);
-  border: 1px solid var(--pool-100);
-}
-.lg-benefits-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--pool-900);
-}
-.lg-benefits ul {
-  margin: 0;
-  padding-left: 16px;
-  font-size: 11px;
-  line-height: 17px;
-  color: var(--seal);
-}
-.lg-benefits li { margin-bottom: 2px; }
-
 .wxbind-marks {
   display: flex;
   align-items: center;

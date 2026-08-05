@@ -206,15 +206,6 @@
 
           // ===== Screen: Register (mirrors qima.com/register) =====
           '<div class="lg-screen" id="lgRegisterScreen" hidden>' +
-            '<div class="lg-benefits">' +
-              '<div class="lg-benefits-title" data-i18n="signup.benefitsTitle">' + tr('signup.benefitsTitle') + '</div>' +
-              '<ul>' +
-                '<li data-i18n="signup.benefitFree">' + tr('signup.benefitFree') + '</li>' +
-                '<li data-i18n="signup.benefitNoCommit">' + tr('signup.benefitNoCommit') + '</li>' +
-                '<li data-i18n="signup.benefitTrusted">' + tr('signup.benefitTrusted') + '</li>' +
-              '</ul>' +
-            '</div>' +
-
             '<div class="lg-field-row">' +
               '<div class="lg-field" id="suFirstField">' +
                 '<label class="lg-label" for="suFirst" data-i18n="signup.firstName">' + tr('signup.firstName') + '</label>' +

@@ -890,7 +890,7 @@ window.I18N_ZH = {
   'reportPreview.approverName': '演示用户',
 
   /* ── WeChat account linking (onboarding) ── */
-  'binding.infoSupplier': '成功绑定供应商账号后，您将通过微信接收日期和工厂地址确认通知。',
+  'binding.infoSupplier': '通过微信接受订单和报告状态通知。',
   'binding.infoQima': '成功绑定 QIMA 账号后，您将通过微信接收订单确认、检测进度及报告通知。',
   'binding.successTitle': '绑定成功',
   'binding.successDesc': '您的微信已与 QIMA 账号关联，正在进入首页…',
