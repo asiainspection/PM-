@@ -343,7 +343,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease;
 }
-.lg-input::placeholder { color: rgba(25, 25, 25, .45); }
+.lg-input::placeholder { color: #B3B3B3; opacity: 1; }
 .lg-input:focus {
   border-color: var(--pool-500);
   box-shadow: 0 0 0 3px rgba(65, 105, 225, .25);

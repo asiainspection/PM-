@@ -6,7 +6,7 @@
   /* Neutrals */
   --carbon: #191919;
   --seal: #737373;
-  --smoke: #b3b3b3;
+  --smoke: #B3B3B3;
   --pearl: #dedede;
   --mist: #f0f0f0;
   --cloud: #f7f7f7;
@@ -51,4 +51,29 @@
 
   /* Shadows (Level 1) */
   --shadow-1: 0 2px 10px rgba(25, 25, 25, 0.10);
+}
+
+/* All inputs / textareas — placeholder is Smoke #B3B3B3 */
+::-moz-placeholder {
+  color: #B3B3B3;
+  opacity: 1;
+}
+::placeholder {
+  color: #B3B3B3;
+  opacity: 1;
+}
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #B3B3B3;
+  opacity: 1;
+}
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: #B3B3B3;
+  opacity: 1;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #B3B3B3;
+  opacity: 1;
 }

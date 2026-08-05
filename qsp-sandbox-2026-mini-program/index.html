@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0" />
 <title>QIMA 小程序 - 首页</title>
 <link rel="stylesheet" href="assets/fonts.css?v=20260803a" />
-<link rel="stylesheet" href="assets/qima-tokens.css?v=20260804a" />
+<link rel="stylesheet" href="assets/qima-tokens.css?v=20260805r" />
 <link rel="stylesheet" href="assets/access-gate.css" />
 <script src="assets/access-gate.js?v=20260716a"></script>
 <style>
@@ -612,11 +612,11 @@
 <link rel="stylesheet" href="assets/phone-shell.css" />
 <link rel="stylesheet" href="assets/lang-toggle.css" />
 <link rel="stylesheet" href="assets/i18n-en.css" />
-<link rel="stylesheet" href="assets/wechat-binding.css?v=20260805b" />
+<link rel="stylesheet" href="assets/wechat-binding.css?v=20260805r" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260805q"></script>
-<script src="assets/i18n/en.js?v=20260805q"></script>
+<script src="assets/i18n/zh.js?v=20260805c"></script>
+<script src="assets/i18n/en.js?v=20260805c"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/signup-geo.js?v=20260804a"></script>
 <script src="assets/wechat-binding.js?v=20260805b"></script>
@@ -1576,8 +1576,7 @@
         return hay.indexOf(keyword) !== -1;
       });
       if(!matched.length){
-        rows.innerHTML = '<div class="supplier-empty" style="padding:24px 8px;text-align:center;color:var(--seal);font-size:13px;">' +
-          escapeHtml(t('common.noData')) + '</div>';
+        rows.innerHTML = '<div class="supplier-empty">' + escapeHtml(t('common.noData')) + '</div>';
         return;
       }
       rows.innerHTML = matched.map(function (item) {
