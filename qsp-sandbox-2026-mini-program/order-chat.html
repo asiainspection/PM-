@@ -1282,8 +1282,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260805k"></script>
-<script src="assets/i18n/en.js?v=20260805k"></script>
+<script src="assets/i18n/zh.js?v=20260805m"></script>
+<script src="assets/i18n/en.js?v=20260805m"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -3721,12 +3721,17 @@
       const keys = [
         'Product Name','Product Division','Program','Country of Origin','Countries/Regions of Distribution',
         'Item#/model#', FIELD_ELECTRIC, 'Manufacturer','Manufacturer Address',
-        'Sample Collection Method','Carrier','Tracking Number'
+        'Sample Collection Method','Tracking Number'
       ];
       // Echo Product Description whenever OCR/LLM filled it
       if(fields && fields[FIELD_ELECTRIC_DESC] && String(fields[FIELD_ELECTRIC_DESC]).trim()){
         const idx = keys.indexOf(FIELD_ELECTRIC);
         keys.splice(idx + 1, 0, FIELD_ELECTRIC_DESC);
+      }
+      // Carrier is optional — only count when filled (don't block 100%)
+      if(fields && isCountedFieldValue(fields['Carrier'])){
+        const idx = keys.indexOf('Sample Collection Method');
+        keys.splice(idx + 1, 0, 'Carrier');
       }
       // Optional remark: only count when filled (don't inflate denominator)
       if(fields && fields['Shipping Remark'] && String(fields['Shipping Remark']).trim()){
@@ -5259,7 +5264,7 @@
           field('Manufacturer', val('Manufacturer'), ok('Manufacturer'))+
           field('Manufacturer Address', val('Manufacturer Address'), ok('Manufacturer Address'))+
           field('Sample Collection Method', val('Sample Collection Method'), ok('Sample Collection Method'), true)+
-          field('Carrier', val('Carrier'), ok('Carrier'))+
+          field('Carrier', val('Carrier'), ok('Carrier'), true)+
           field('Tracking Number', val('Tracking Number'), ok('Tracking Number'), true)+
           field('Shipping Remark', val('Shipping Remark'), ok('Shipping Remark'), true)+
         '</div>'+
@@ -5977,20 +5982,12 @@
       if(REQUIRED_ORDER_FIELDS.indexOf(name) !== -1) return true;
       if(name === FIELD_ELECTRIC) return true;
       if(name === FIELD_ELECTRIC_DESC) return isElectricYes(getFieldDisplayValue(FIELD_ELECTRIC));
-      if(name === 'Carrier'){
-        const method = getFieldDisplayValue('Sample Collection Method');
-        return !!method && isSampleShip(method);
-      }
       return false;
     }
 
-    /** Required + carrier when user ships samples themselves. Tracking is optional at order creation. */
+    /** Fields that still block placing an order (Carrier is optional). */
     function getOrderBlockers(){
       const missing = getMissingRequiredFields().slice();
-      const method = getFieldDisplayValue('Sample Collection Method');
-      if(method && isSampleShip(method)){
-        if(!getFieldDisplayValue('Carrier')) missing.push('Carrier');
-      }
       // de-dupe
       const seen = {};
       return missing.filter(function(k){
@@ -6452,12 +6449,6 @@
         card.querySelector('#missingLab').focus();
         return;
       }
-      if(needsShipping && !carrier){
-        error.textContent = t('orderChat.missingErrorShipping');
-        error.classList.add('show');
-        card.querySelector('#missingCarrier').focus();
-        return;
-      }
       if(reportFields === t('common.yes') && !reportFieldsDetail){
         error.textContent = t('orderChat.missingErrorReport');
         error.classList.add('show');
@@ -6578,14 +6569,9 @@
     }
 
     function finishConfirm(){
-      const collectionMethod = manualAnswers['Sample Collection Method'] || getFieldValue('Sample Collection Method') || '';
-      const carrier = manualAnswers['Carrier'] || getFieldValue('Carrier') || '';
-      const needShipping = !isSampleCollect(collectionMethod);
-      const shippingComplete = !needShipping || !!carrier;
-      const pct = shippingComplete ? 100 : 85;
       const typingRow = botTyping();
       setTimeout(()=>{ typingRow.remove();
-        botMsg(tHtml(shippingComplete ? 'orderChat.finishComplete' : 'orderChat.finishPartial', {pct: pct}), false);
+        botMsg(tHtml('orderChat.finishComplete', {pct: 100}), false);
         const chips = '<div class="chips" data-keep="true">'+I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')+'</div>';
         botMsg('<div style="width:268px">'+chips+'</div>', true);
       }, 700);
