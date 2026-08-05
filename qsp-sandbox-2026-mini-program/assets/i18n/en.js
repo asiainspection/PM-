@@ -684,7 +684,7 @@ window.I18N_EN = {
   'orderChat.manualDone': 'Main fields are filled from your answers. Review the order and place it when ready.',
   'orderChat.noMissingReuse': 'No obvious gaps in the prefilled data ✅ You can place the order or tap Edit fields to fine-tune.',
   'orderChat.reuseShippingHint': 'Shipping details are incomplete in the history record. Add logistics below, or create a draft and finish later.',
-  'orderChat.savedEditComplete': 'Changes saved ✅<br>All required fields are complete — ready to confirm.',
+  'orderChat.savedEditComplete': 'Changes saved ✅<br>All fields are complete — ready to confirm the order.',
   'orderChat.savedEditPartial': 'Changes saved ✅<br>Required fields are <b>{percent}%</b> complete — <b>{count}</b> item(s) still needed 👇',
   'orderChat.cannotPlaceOrder': 'Required fields are incomplete — please finish them before placing the order.',
   'orderChat.cannotPlaceOrderList': 'Required fields still missing (<b>{count}</b>): {fields}. Please complete them before placing the order.',

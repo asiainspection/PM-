@@ -1282,8 +1282,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260805j"></script>
-<script src="assets/i18n/en.js?v=20260805j"></script>
+<script src="assets/i18n/zh.js?v=20260805k"></script>
+<script src="assets/i18n/en.js?v=20260805k"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -3765,6 +3765,27 @@
       return { filled: filled, total: REQUIRED_ORDER_FIELDS.length };
     }
 
+    /** Same filled/total/percent as the extract card progress pill. */
+    function getLiveExtractCompletion(){
+      const stats = countFilledExtractFields(Object.assign({}, manualAnswers));
+      const percent = stats.total ? Math.round((stats.filled / stats.total) * 100) : 0;
+      return {
+        filled: stats.filled,
+        total: stats.total,
+        percent: percent,
+        missing: Math.max(0, stats.total - stats.filled)
+      };
+    }
+
+    function syncExtractCardProgress(){
+      const completion = getLiveExtractCompletion();
+      const label = t('orderChat.progressPercent', { percent: completion.percent });
+      document.querySelectorAll('.panel .extract-head .progress-pill').forEach(function(el){
+        el.textContent = label;
+      });
+      return completion;
+    }
+
     function doParse(){
       let v = ((document.getElementById('linkIn')||{}).value || '').trim();
       voiceTranscript = getVoiceTranscriptValue();
@@ -5913,13 +5934,19 @@
 
       closeFieldEditor();
       userMsg(t('orderChat.editedFields'));
-      const completion = calculateRequiredCompletion();
-      const missing = getOrderBlockers();
-      if(!missing.length){
+      const completion = syncExtractCardProgress();
+      const ready = completion.percent === 100 || !getOrderBlockers().length;
+      if(ready){
         botMsg(tHtml('orderChat.savedEditComplete'), false);
-        botMsg(placeOrderChips(), true);
+        botMsg(chipsRow(
+          I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+
+          I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
+        ), true);
       } else {
-        botMsg(tHtml('orderChat.savedEditPartial', {percent: completion, count: missing.length}), false);
+        botMsg(tHtml('orderChat.savedEditPartial', {
+          percent: completion.percent,
+          count: completion.missing
+        }), false);
         botMsg(t('orderChat.fillMissingInForm'), false);
         botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
       }
@@ -5998,8 +6025,7 @@
     }
 
     function calculateRequiredCompletion(){
-      const missingCount = getMissingRequiredFields().length;
-      return Math.round(((REQUIRED_ORDER_FIELDS.length - missingCount) / REQUIRED_ORDER_FIELDS.length) * 100);
+      return getLiveExtractCompletion().percent;
     }
 
     let waybillOrigin = '';
@@ -6109,16 +6135,23 @@
     }
 
     function continueAfterWaybillShipping(){
-      const missing = getMissingRequiredFields();
       const typingRow = botTyping();
       setTimeout(function(){
         typingRow.remove();
-        if(!missing.length){
+        const completion = syncExtractCardProgress();
+        const ready = completion.percent === 100 || !getOrderBlockers().length;
+        if(ready){
           botMsg(t('orderChat.shippingRecordedConfirm'), false);
           botMsg(manualOrderCard(), true);
-          botMsg(placeOrderChips(), true);
+          botMsg(chipsRow(
+            I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+
+            I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
+          ), true);
         } else {
-          botMsg(tHtml('orderChat.savedEditPartial', {percent: calculateRequiredCompletion(), count: missing.length}), false);
+          botMsg(tHtml('orderChat.savedEditPartial', {
+            percent: completion.percent,
+            count: completion.missing
+          }), false);
           botMsg(t('orderChat.fillMissingInForm'), false);
           botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
         }

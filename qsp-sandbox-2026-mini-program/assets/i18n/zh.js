@@ -684,7 +684,7 @@ window.I18N_ZH = {
   'orderChat.manualDone': '已根据您的回答完成主要字段填写。请确认订单信息，确认无误后即可去下单。',
   'orderChat.noMissingReuse': '当前预填信息里没有明显缺失项 ✅ 您可以直接去下单，或点击「编辑字段」微调内容。',
   'orderChat.reuseShippingHint': '历史记录里没有完整物流信息。请在下方补充本批样品的快递信息；如果暂时没有，也可以先生成订单草稿。',
-  'orderChat.savedEditComplete': '已保存修改 ✅<br>当前必填字段已全部完成，我会以更新后的字段继续确认。',
+  'orderChat.savedEditComplete': '已保存修改 ✅<br>当前字段已全部完成，可以确认下单。',
   'orderChat.savedEditPartial': '已保存修改 ✅<br>当前必填字段完成度 <b>{percent}%</b>，还有 <b>{count}</b> 项需要补充 👇',
   'orderChat.cannotPlaceOrder': '必填字段未完成，请补全后再下单。',
   'orderChat.cannotPlaceOrderList': '还有 <b>{count}</b> 项必填未完成：{fields}。请补全后再下单。',
