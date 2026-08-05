@@ -97,6 +97,7 @@
   .panel-title { font-size: 14px; font-weight: 600; color: var(--carbon); margin-bottom: 12px; }
   .panel-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
   .panel-title-row .panel-title { margin-bottom: 0; }
+  .panel-desc { font-size: 12px; line-height: 18px; color: var(--seal); margin: -4px 0 12px; }
   .history-search {
     display: flex; align-items: center; gap: 8px;
     height: 36px; margin-bottom: 10px; padding: 0 10px;
@@ -2544,12 +2545,14 @@
     function buildAiInputCardHtml(opts){
       opts = opts || {};
       var title = opts.title || t('orderChat.uploadTitle');
+      var desc = opts.desc || '';
       var showTips = opts.showTips !== false;
       var showManual = opts.showManual !== false;
       // First AI-input entry only: let users read data-use / privacy before submitting.
       var showPrivacy = !!opts.showPrivacy;
       var html = '<div class="panel panel-pad">';
       if(title) html += '<div class="panel-title-row"><span class="panel-title">'+title+'</span><button class="detail-link" type="button" onclick="showUploadExamples()">'+t('orderChat.viewDetails')+'</button></div>';
+      if(desc) html += '<div class="panel-desc">'+desc+'</div>';
       if(showTips){
         html +=
           '<div class="input-guide">'+
@@ -2634,9 +2637,9 @@
     function showAiSupplementCard(){
       retirePreviousInputPanels();
       resetAiInputSession();
-      botMsg(t('orderChat.aiSupplementPrompt'), false);
       botMsg(buildAiInputCardHtml({
-        title: '',
+        title: t('orderChat.uploadTitle'),
+        desc: t('orderChat.aiSupplementPrompt'),
         showTips: false,
         showManual: false
       }), true);
@@ -5274,6 +5277,12 @@
             { name: FIELD_REPORT_NEED, fallback: t('common.no'), type:'report-radio' },
             { name: FIELD_REPORT_DETAIL, fallback: '', type:'report-detail' }
           ]
+        },
+        {
+          title: '',
+          fields: [
+            { name: 'Order Remark', fallback: '', type: 'textarea' }
+          ]
         }
       ];
     }
@@ -5293,7 +5302,7 @@
       const grid = document.getElementById('fieldEditorGrid');
       // Same section layout as #manualFormModal (fm-section-title + fm-row)
       grid.innerHTML = getEditableSections().map(function(section){
-        return '<div class="fm-section-title">'+escapeHtml(section.title)+'</div>'+
+        return (section.title ? '<div class="fm-section-title">'+escapeHtml(section.title)+'</div>' : '')+
           section.fields.map(renderEditField).join('');
       }).join('');
       document.getElementById('fieldEditor').classList.add('show');
@@ -5661,6 +5670,16 @@
       if(field.type === 'report-detail'){
         return renderEditReportDetailField(current);
       }
+      if(field.type === 'textarea'){
+        const reqMark = isRequiredField(field.name) ? ' <span class="req">*</span>' : '';
+        const placeholder = field.name === 'Order Remark'
+          ? t('index.optionalRemarkPlaceholder')
+          : t('orderChat.fieldInputPlaceholder', {field: fieldLabel(field.name)});
+        return '<div class="fm-row">'+
+          '<div class="fm-label">'+escapeHtml(fieldLabel(field.name))+reqMark+'</div>'+
+          '<textarea class="fm-textarea" data-field-name="'+field.name+'" placeholder="'+escapeHtml(placeholder)+'">'+escapeHtml(current)+'</textarea>'+
+        '</div>';
+      }
       if(field.type === 'multi-country'){
         return renderEditMultiCountryField(field);
       }
@@ -5747,7 +5766,6 @@
       const yesChecked = val === 'yes' ? ' checked' : '';
       const noChecked = val === 'no' ? ' checked' : '';
       return '<div class="fm-row">'+
-        '<div class="fm-label">'+escapeHtml(fieldLabel(FIELD_REPORT_NEED))+'</div>'+
         '<div class="fm-radio-stack">'+
           '<label class="fm-radio-line"><input type="radio" name="fe_report" value="yes"'+yesChecked+' onchange="feToggleReportDetail()"> <span>'+escapeHtml(t('common.yes'))+'</span></label>'+
           '<label class="fm-radio-line"><input type="radio" name="fe_report" value="no"'+noChecked+' onchange="feToggleReportDetail()"> <span>'+escapeHtml(t('common.no'))+'</span></label>'+
