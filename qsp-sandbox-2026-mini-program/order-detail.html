@@ -393,8 +393,8 @@
 
   .recipient-list, .edit-recipient-list { display: flex; flex-direction: column; gap: 10px; }
   .recipient-card, .edit-recipient-card {
-    border: 1px solid var(--line); border-radius: 12px;
-    background: var(--cloud); padding: 11px;
+    border: 1px solid var(--pearl); border-radius: 10px;
+    background: var(--white); padding: 11px;
   }
   .recipient-email {
     font-size: 13px; font-weight: 600; color: var(--carbon);
@@ -422,7 +422,7 @@
   .edit-recipient-types label {
     display: flex; align-items: center; gap: 6px;
     min-height: 32px; padding: 6px 8px; margin-bottom: 0;
-    border: 1px solid var(--line); border-radius: 9px;
+    border: 1px solid var(--pearl); border-radius: 9px;
     background: var(--white); color: var(--carbon);
     font-size: 11px; line-height: 16px;
   }
@@ -444,49 +444,55 @@
   }
   .edit-mask.show { display: flex; }
   .edit-modal {
-    width: 100%; max-height: 88%; background: var(--white);
+    width: 100%; max-height: 92%; background: var(--white);
     border-radius: 18px 18px 0 0; overflow: hidden;
     box-shadow: 0 -8px 28px rgba(25,25,25,.12);
+    display: flex; flex-direction: column;
   }
   .edit-modal-head {
-    height: 52px; padding: 0 16px;
+    height: 52px; padding: 0 16px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: space-between;
     border-bottom: .5px solid var(--mist);
   }
-  .edit-modal-title { font-size: 16px; font-weight: 600; color: var(--carbon); }
+  .edit-modal-title { font-size: 17px; font-weight: 700; color: var(--carbon); }
   .edit-close {
     border: none; background: var(--cloud); color: var(--seal);
     width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
     font-size: 18px; line-height: 28px;
   }
   .edit-modal-body {
-    max-height: 620px; overflow-y: auto; padding: 12px 16px 16px;
+    flex: 1; overflow-y: auto; padding: 16px 16px 24px;
   }
   .edit-modal-body::-webkit-scrollbar { display: none; }
-  .edit-grid { display: flex; flex-direction: column; gap: 12px; }
-  .edit-section {
-    border: 1px solid var(--mist); border-radius: 12px;
-    overflow: hidden; background: var(--white);
-  }
+  .edit-grid { display: flex; flex-direction: column; }
+  /* Flat section titles — match order-chat form-modal (.fm-section-title) */
+  .edit-section { border: none; border-radius: 0; background: transparent; overflow: visible; }
   .edit-section-title {
-    background: var(--pool-050); color: var(--pool-900);
+    background: transparent; color: var(--pool-900);
     font-size: 12px; font-weight: 700;
-    padding: 9px 11px;
-    border-bottom: .5px solid var(--mist);
+    margin: 18px 0 10px; padding: 10px 0 0;
+    border: none; border-top: .5px solid var(--mist);
   }
-  .edit-section-body { padding: 10px 11px 12px; display: flex; flex-direction: column; gap: 10px; }
+  .edit-section:first-child .edit-section-title {
+    margin-top: 0; padding-top: 0; border-top: none;
+  }
+  .edit-section-body {
+    padding: 0; display: flex; flex-direction: column; gap: 0;
+  }
+  .edit-item { margin-bottom: 14px; }
   .edit-item > label {
-    display: block; font-size: 12px; color: var(--seal); margin-bottom: 5px;
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--seal); margin-bottom: 6px;
   }
   .edit-item .req { color: var(--qima-red); }
   .edit-control {
-    width: 100%; height: 38px; border: 1px solid var(--line);
-    border-radius: 9px; padding: 0 10px;
+    width: 100%; height: 38px; border: 1px solid var(--pearl);
+    border-radius: 9px; padding: 0 11px;
     font-size: 13px; color: var(--carbon); outline: none;
     background: var(--white);
   }
   .edit-control.textarea {
-    height: auto; min-height: 72px; padding: 10px;
+    height: auto; min-height: 60px; padding: 10px 11px;
     resize: none; line-height: 18px;
   }
   /* Pick-from-list controls carry a chevron; keep the same white fill as text inputs. */
@@ -535,14 +541,14 @@
   .edit-item-country .edit-item-label-row {
     display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
   }
-  .edit-item-country .edit-item-label-row label { margin-bottom: 0; }
+  .edit-item-country .edit-item-label-row label { margin-bottom: 0; font-size: 12px; color: var(--seal); }
   .edit-info-icon {
     width: 14px; height: 14px; border-radius: 50%;
     background: var(--pool-100); color: var(--pool-500);
     font-size: 10px; font-weight: 700; line-height: 14px; text-align: center;
   }
   .edit-country-panel {
-    border: 1px solid var(--line); border-radius: 10px;
+    border: 1px solid var(--pearl); border-radius: 10px;
     background: var(--cloud); padding: 8px;
   }
   .edit-country-checks {
@@ -551,7 +557,7 @@
   .edit-item-country .edit-country-line {
     display: flex; align-items: center; gap: 7px;
     width: 100%; min-width: 0; height: 38px; padding: 0 12px; margin-bottom: 0;
-    border: 1px solid var(--line); border-radius: 9px;
+    border: 1px solid var(--pearl); border-radius: 9px;
     background: var(--white);
     font-size: 12px; color: var(--carbon);
     cursor: pointer; user-select: none;
@@ -612,13 +618,13 @@
   .edit-country-option.muted { color: var(--seal); cursor: default; opacity: .75; }
   .edit-country-option.muted:hover { background: var(--white); color: var(--seal); }
   .edit-lab-address {
-    margin-top: 8px; padding: 10px 12px;
-    background: var(--pool-050); border: 1px solid var(--pool-100); border-radius: 9px;
-    font-size: 12px; color: var(--pool-900); line-height: 18px;
+    margin-top: 8px; padding: 9px 11px;
+    background: var(--pool-050); border: 1px solid var(--pool-100); border-radius: 8px;
+    font-size: 11px; color: var(--pool-900); line-height: 16px;
   }
   .edit-modal-actions {
     display: flex; gap: 10px; padding: 12px 16px 16px;
-    border-top: .5px solid var(--mist);
+    border-top: .5px solid var(--mist); flex-shrink: 0;
   }
   .edit-action {
     flex: 1; height: 42px; border-radius: 12px; border: 1px solid var(--line);

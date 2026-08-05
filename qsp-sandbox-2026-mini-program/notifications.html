@@ -73,18 +73,6 @@
   .nav-capsule img { width: 17px; height: 17px; }
   .nav-capsule .divider { width: 1px; height: 18px; background: var(--line); }
 
-  /* 操作行（对应订单页筛选区的位置） */
-  .actionbar {
-    position: relative; z-index: 2; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: flex-end;
-    padding: 8px 16px 4px;
-  }
-  .mark-read {
-    background: none; border: 0; padding: 4px 0;
-    font-family: inherit; font-size: 12px; color: var(--pool-500); cursor: pointer;
-  }
-  .mark-read[disabled] { color: var(--smoke); cursor: default; }
-
   /* 内容区 */
   .content {
     position: relative; z-index: 2;
@@ -147,16 +135,6 @@
     font-size: 13px; color: var(--seal);
   }
 
-  .toast {
-    position: absolute; left: 50%; bottom: 120px; transform: translateX(-50%);
-    z-index: 70; max-width: 260px;
-    padding: 10px 16px; border-radius: 10px;
-    background: rgba(25,25,25,.86); color: var(--white);
-    font-size: 13px; line-height: 18px; text-align: center;
-    opacity: 0; visibility: hidden; transition: opacity .2s ease;
-  }
-  .toast.show { opacity: 1; visibility: visible; }
-
 </style>
 <link rel="stylesheet" href="assets/tabbar.css?v=20260803j" />
 <link rel="stylesheet" href="assets/phone-shell.css" />
@@ -200,10 +178,6 @@
       </div>
     </div>
 
-    <div class="actionbar">
-      <button class="mark-read" type="button" id="markAllBtn" onclick="markAllRead()" data-i18n="notifications.markAllRead">全部标为已读</button>
-    </div>
-
     <div class="content" id="notifContent"></div>
 
     <!-- 底部 Tab Bar -->
@@ -229,8 +203,6 @@
         <span class="label" data-i18n="common.tab.me">我的</span>
       </a>
     </div>
-
-    <div class="toast" id="toast"></div>
   </div>
 
   <script>
@@ -332,11 +304,8 @@
     function renderUnread(){
       const count = unreadCount();
       const badge = document.getElementById('unreadBadge');
-      const markBtn = document.getElementById('markAllBtn');
       badge.textContent = count;
       badge.style.display = count ? '' : 'none';
-      markBtn.disabled = !count;
-      markBtn.textContent = t('notifications.markAllRead');
       syncTabBadge();
     }
 
@@ -351,21 +320,6 @@
       }
       syncTabBadge();
       location.href = item.href;
-    }
-
-    function markAllRead(){
-      if(!unreadCount()) return;
-      NOTIFICATIONS.forEach(function(n){ n.unread = false; });
-      saveReadIds(NOTIFICATIONS.map(function(n){ return n.id; }));
-      renderNotifications();
-      showToast(t('notifications.allRead'));
-    }
-
-    function showToast(message){
-      const el = document.getElementById('toast');
-      el.textContent = message;
-      el.classList.add('show');
-      setTimeout(function(){ el.classList.remove('show'); }, 1600);
     }
 
     hydrateReadState();

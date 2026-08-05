@@ -1688,6 +1688,11 @@
               <textarea class="fm-textarea" id="mf_shippingRemark" placeholder="请输入备注信息" data-i18n-placeholder="index.shippingRemarkPlaceholder"></textarea>
             </div>
           </div>
+
+          <div class="fm-row">
+            <div class="fm-label" data-i18n="index.optionalRemark">订单备注</div>
+            <textarea class="fm-textarea" id="mf_orderRemark" placeholder="请输入订单备注" data-i18n-placeholder="index.optionalRemarkPlaceholder"></textarea>
+          </div>
         </div>
         <div class="form-modal-actions">
           <button class="form-modal-action" type="button" onclick="closeManualFormModal()" data-i18n="common.cancel">取消</button>
@@ -2353,7 +2358,7 @@
         Object.assign(manualAnswers, prefill.fields);
         botMsg(tHtml('orderChat.prefillDone', {sourceType: prefill.sourceType, id: id}), false);
         botMsg(reuseOrderCard(id, prefill), true);
-        botMsg(chipsRow(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+I18n.chipHtml('orderChat.chipAddMissing','plus','continueReuseMissing(this)')), true);
+        botMsg(chipsRow(I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')), true);
       }, 700);
     }
 
@@ -3672,6 +3677,7 @@
       })();
       setVal('mf_trackingNo', 'Tracking Number');
       setVal('mf_shippingRemark', 'Shipping Remark');
+      setVal('mf_orderRemark', 'Order Remark');
 
       const program = document.getElementById('mf_program');
       if(program && manualAnswers['Program']) matchSelectOption(program, manualAnswers['Program']);
@@ -3975,6 +3981,7 @@
       const carrier = (document.getElementById('mf_carrier') || {}).value;
       const trackingNo = (document.getElementById('mf_trackingNo') || {}).value;
       const shippingRemark = (document.getElementById('mf_shippingRemark') || {}).value;
+      const orderRemark = (document.getElementById('mf_orderRemark') || {}).value;
       if(productName && productName.trim()) manualAnswers['Product Name'] = productName.trim();
       if(productDivision) manualAnswers['Product Division'] = productDivision;
       if(program) manualAnswers['Program'] = program;
@@ -3985,6 +3992,7 @@
       if(carrier) manualAnswers['Carrier'] = carrier;
       if(trackingNo && trackingNo.trim()) manualAnswers['Tracking Number'] = trackingNo.trim();
       if(shippingRemark && shippingRemark.trim()) manualAnswers['Shipping Remark'] = shippingRemark.trim();
+      if(orderRemark && orderRemark.trim()) manualAnswers['Order Remark'] = orderRemark.trim();
 
       const salesCountries = [];
       document.querySelectorAll('#mf_salesCountryGrid input:checked').forEach(function(cb){
@@ -4188,6 +4196,7 @@
       const carrier = document.getElementById('mf_carrier').value;
       const trackingNo = document.getElementById('mf_trackingNo').value.trim();
       const shippingRemark = document.getElementById('mf_shippingRemark').value.trim();
+      const orderRemark = ((document.getElementById('mf_orderRemark') || {}).value || '').trim();
 
       manualAnswers['Product Name'] = productName || '';
       manualAnswers['Product Division'] = productDivision || '';
@@ -4203,6 +4212,7 @@
       manualAnswers['Carrier'] = carrier || '';
       manualAnswers['Tracking Number'] = trackingNo || '';
       manualAnswers['Shipping Remark'] = shippingRemark || '';
+      manualAnswers['Order Remark'] = orderRemark || '';
       if(labName) manualAnswers[FIELD_TESTING_LAB] = labName;
 
       closeManualFormModal();
@@ -4238,6 +4248,7 @@
             field('Tracking Number', tracking, !!tracking, true)+
             field('Shipping Remark', remark, !!remark, true)
           : '')+
+          field('Order Remark', manualAnswers['Order Remark'] || '', !!manualAnswers['Order Remark'], true)+
         '</div>'+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.chipNeedModify')+'</span>'+t('orderChat.chipEdit')+'</button>'+
       '</div>';
