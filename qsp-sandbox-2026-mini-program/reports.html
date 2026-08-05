@@ -67,30 +67,44 @@
   .nav-capsule img { width: 17px; height: 17px; }
   .nav-capsule .divider { width: 1px; height: 18px; background: var(--line); }
 
-  /* Hero 统计卡 */
+  /* Hero 统计卡 — Figma 15976:21232 */
   .hero {
     position: relative; z-index: 2;
     margin: 8px 16px 4px;
-    height: 102px;
-    background: linear-gradient(120deg, var(--pool-100) 0%, var(--pool-050) 100%);
-    border: 1px solid var(--pool-100);
+    min-height: 102px;
+    background: var(--pool-050);
+    border: .667px solid #d3dcf8;
     border-radius: 16px;
-    padding: 14px 14px 14px 18px;
+    padding: 18px 14px 18px 18px;
     display: flex; align-items: center; justify-content: space-between;
     overflow: hidden;
+    gap: 12px;
   }
-  .hero-text { position: relative; z-index: 1; }
+  .hero-text { position: relative; z-index: 1; min-width: 0; }
+  .hero-num-row {
+    display: flex; align-items: baseline; gap: 6px;
+    line-height: 1;
+  }
   .hero-num {
-    font-size: 32px; font-weight: 700; color: var(--pool-500);
-    line-height: 1; letter-spacing: -.5px;
+    font-size: 34px; font-weight: 700; color: var(--pool-500);
+    line-height: 34px; letter-spacing: -.11px;
   }
-  .hero-num .unit { font-size: 14px; font-weight: 600; color: var(--carbon); margin-left: 6px; }
-  .hero-label { margin-top: 4px; font-size: 12px; color: rgba(99,99,99,.9); }
-  .hero-art { flex-shrink: 0; line-height: 0; margin: -4px -2px -4px 0; }
+  .hero-num-row .unit {
+    font-size: 15px; font-weight: 600; color: var(--seal);
+    letter-spacing: -.73px; line-height: 15px;
+  }
+  .hero-label {
+    margin-top: 6px; font-size: 12px; line-height: 1.2; color: var(--seal);
+  }
+  .hero-art {
+    flex-shrink: 0;
+    width: 98px; height: 98px;
+    line-height: 0;
+    filter: drop-shadow(0 4px 2px rgba(0, 0, 0, .25));
+  }
   .hero-art img {
-    display: block; width: 116px; height: auto;
-    /* Figma 15976:21245 — shadow 3px 4px 5.5px rgba(2,23,88,.23) */
-    filter: drop-shadow(3px 4px 5.5px rgba(2, 23, 88, .23));
+    display: block; width: 98px; height: 98px;
+    object-fit: contain;
   }
 
   /* 业务线下拉 + 搜索（对齐订单页 filter 行） */
@@ -481,13 +495,16 @@
       </div>
     </div>
 
-    <!-- Hero 统计 -->
+    <!-- Hero 统计 — Figma 15976:21232 -->
     <div class="hero">
       <div class="hero-text">
-        <div class="hero-num">128<span class="unit" data-i18n="reports.statUnit">Reports</span></div>
+        <div class="hero-num-row">
+          <span class="hero-num">128</span>
+          <span class="unit" data-i18n="reports.statUnit">Reports</span>
+        </div>
         <div class="hero-label" data-i18n="reports.statLabel">全部报告</div>
       </div>
-      <div class="hero-art"><img src="assets/reports-hero-books.png" alt="" /></div>
+      <div class="hero-art"><img src="assets/reports-hero-clipboard.png?v=20260805g" width="98" height="98" alt="" /></div>
     </div>
 
     <!-- Business line + search + filter (aligned with orders filter row) -->
@@ -766,7 +783,7 @@
         subKey = 'reports.emptyBizSub';
       }
       return '<div class="list-empty" role="status">'+
-        '<img class="list-empty-art" src="assets/empty-state.svg" width="160" height="160" alt="" />'+
+        '<img class="list-empty-art" src="assets/empty-state.svg?v=20260805f" width="160" height="160" alt="" />'+
         '<div class="list-empty-title">'+escapeHtml(t(titleKey))+'</div>'+
         '<div class="list-empty-sub">'+escapeHtml(t(subKey))+'</div>'+
       '</div>';
