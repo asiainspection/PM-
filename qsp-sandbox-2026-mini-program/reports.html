@@ -147,6 +147,7 @@
   }
   .cat-search input::placeholder { color: var(--smoke); }
   .cat-filter {
+    position: relative;
     flex-shrink: 0;
     width: 36px; height: 36px; border-radius: 8px; padding: 0;
     background: var(--pool-050); border: 1px solid var(--pool-100); color: var(--pool-500);
@@ -154,6 +155,94 @@
     cursor: pointer;
   }
   .cat-filter:active { background: var(--pool-100); }
+  .cat-filter.active {
+    background: var(--pool-500); color: var(--white); border-color: var(--pool-500);
+  }
+  .cat-filter .filter-dot {
+    position: absolute; top: 5px; right: 5px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cherry); display: none;
+  }
+  .cat-filter.active .filter-dot { display: block; background: var(--lemon-200); }
+
+  .filter-mask {
+    position: absolute; inset: 0; z-index: 85;
+    background: rgba(25,25,25,.42);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity .2s ease;
+  }
+  .filter-mask.show { opacity: 1; visibility: visible; }
+  .filter-sheet {
+    width: 100%; max-height: min(78vh, 640px);
+    background: var(--white);
+    border-radius: 16px 16px 0 0;
+    display: flex; flex-direction: column;
+    transform: translateY(18px); transition: transform .22s ease;
+  }
+  .filter-mask.show .filter-sheet { transform: translateY(0); }
+  .filter-sheet-head {
+    padding: 10px 16px 0; flex-shrink: 0;
+  }
+  .filter-sheet-title {
+    font-size: 16px; font-weight: 700; color: var(--carbon); margin-bottom: 4px;
+  }
+  .filter-sheet-body {
+    flex: 1; min-height: 0; overflow-y: auto;
+    padding: 8px 16px 12px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .filter-sheet-body::-webkit-scrollbar { display: none; }
+  .filter-section-label {
+    font-size: 12px; line-height: 16px; color: var(--seal); margin-bottom: 8px;
+  }
+  .filter-chip-wrap {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .filter-chip {
+    height: 36px; padding: 0 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--white);
+    font: inherit; font-size: 13px; line-height: 20px; color: var(--carbon);
+    cursor: pointer; white-space: nowrap;
+  }
+  .filter-chip:active { background: var(--mist); }
+  .filter-chip.selected {
+    border-color: var(--pool-100); background: var(--pool-100); color: var(--pool-500);
+    font-weight: 600;
+  }
+  .filter-date-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+  }
+  .filter-date-row[hidden] { display: none !important; }
+  .filter-date-field label {
+    display: block; font-size: 12px; line-height: 16px; color: var(--seal); margin-bottom: 6px;
+  }
+  .filter-date-field input {
+    width: 100%; height: 36px; border-radius: 8px;
+    border: 1px solid var(--smoke); background: var(--white);
+    padding: 0 12px; font: inherit; font-size: 13px; color: var(--carbon);
+    outline: none; box-sizing: border-box;
+  }
+  .filter-date-field input:focus {
+    border-color: var(--pool-500);
+    box-shadow: 0 0 0 3px rgba(65,105,225,.1);
+  }
+  .filter-sheet-actions {
+    flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--mist); background: var(--white);
+  }
+  .filter-action {
+    height: 44px; border-radius: 8px; border: none;
+    font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .filter-action.reset {
+    background: var(--mist); color: var(--seal);
+  }
+  .filter-action.reset:active { background: var(--pearl, #dedede); }
+  .filter-action.apply {
+    background: var(--pool-500); color: var(--white);
+  }
+  .filter-action.apply:active { background: var(--pool-900); }
 
   .biz-mask {
     position: absolute; inset: 0; z-index: 80;
@@ -461,8 +550,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260805e"></script>
-<script src="assets/i18n/en.js?v=20260805e"></script>
+<script src="assets/i18n/zh.js?v=20260805h"></script>
+<script src="assets/i18n/en.js?v=20260805h"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260805a"></script>
@@ -517,8 +606,9 @@
         <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <input id="reportSearch" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search reports / SKU / product name" data-i18n-placeholder="reports.searchPlaceholder" />
       </div>
-      <button type="button" class="cat-filter" id="reportFilterBtn" aria-label="Filter" title="Filter" data-i18n-title="common.filter">
+      <button type="button" class="cat-filter" id="reportFilterBtn" aria-label="Filter" title="Filter" data-i18n-title="common.filter" aria-haspopup="dialog" aria-expanded="false" onclick="openReportFilterSheet()">
         <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M4.5 8h7M6.5 13h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span class="filter-dot" aria-hidden="true"></span>
       </button>
     </div>
 
@@ -594,6 +684,40 @@
         <button type="button" class="biz-cancel" onclick="closeBizSheet()" data-i18n="common.cancel">取消</button>
       </div>
     </div>
+    <div class="filter-mask" id="reportFilterMask" onclick="closeReportFilterSheet(event)" aria-hidden="true">
+      <div class="filter-sheet" role="dialog" aria-modal="true" aria-labelledby="reportFilterSheetTitle" onclick="event.stopPropagation()">
+        <div class="filter-sheet-head">
+          <div class="biz-grabber" aria-hidden="true"></div>
+          <div class="filter-sheet-title" id="reportFilterSheetTitle" data-i18n="reports.filterTitle">Filter</div>
+        </div>
+        <div class="filter-sheet-body">
+          <div class="filter-section">
+            <div class="filter-section-label" data-i18n="reports.filterReportTime">Report time</div>
+            <div class="filter-chip-wrap" id="reportFilterTimeChips" role="radiogroup" aria-label="Report time">
+              <button type="button" class="filter-chip selected" data-time="all" role="radio" aria-checked="true" onclick="selectReportFilterTime('all')" data-i18n="reports.filterTimeAll">All time</button>
+              <button type="button" class="filter-chip" data-time="7d" role="radio" aria-checked="false" onclick="selectReportFilterTime('7d')" data-i18n="reports.filterTime7d">Last 7 days</button>
+              <button type="button" class="filter-chip" data-time="30d" role="radio" aria-checked="false" onclick="selectReportFilterTime('30d')" data-i18n="reports.filterTime30d">Last 30 days</button>
+              <button type="button" class="filter-chip" data-time="90d" role="radio" aria-checked="false" onclick="selectReportFilterTime('90d')" data-i18n="reports.filterTime90d">Last 90 days</button>
+              <button type="button" class="filter-chip" data-time="custom" role="radio" aria-checked="false" onclick="selectReportFilterTime('custom')" data-i18n="reports.filterTimeCustom">Custom</button>
+            </div>
+            <div class="filter-date-row" id="reportFilterCustomDates" hidden>
+              <div class="filter-date-field">
+                <label for="reportFilterDateFrom" data-i18n="reports.filterDateFrom">From</label>
+                <input id="reportFilterDateFrom" type="date" />
+              </div>
+              <div class="filter-date-field">
+                <label for="reportFilterDateTo" data-i18n="reports.filterDateTo">To</label>
+                <input id="reportFilterDateTo" type="date" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-sheet-actions">
+          <button type="button" class="filter-action reset" onclick="resetReportFilterSheet()" data-i18n="reports.filterReset">Reset</button>
+          <button type="button" class="filter-action apply" onclick="applyReportFilterSheet()" data-i18n="reports.filterApply">Apply</button>
+        </div>
+      </div>
+    </div>
     <div class="toast" id="reportsToast" role="status" aria-live="polite"></div>
   </div>
 
@@ -649,6 +773,8 @@
 
     let currentBiz = 'lab';
     let searchQuery = '';
+    let draftTimeFilter = { time: 'all', dateFrom: '', dateTo: '' };
+    let appliedTimeFilter = { time: 'all', dateFrom: '', dateTo: '' };
 
     const BIZ_LABEL_KEYS = {
       all: 'orders.chipAll',
@@ -691,6 +817,7 @@
     }
 
     function openBizSheet(){
+      closeReportFilterSheet();
       const mask = document.getElementById('bizMask');
       const chip = document.getElementById('bizChip');
       if(!mask) return;
@@ -750,6 +877,135 @@
     window.openBizSheet = openBizSheet;
     window.closeBizSheet = closeBizSheet;
     window.selectBizLine = selectBizLine;
+    window.openReportFilterSheet = openReportFilterSheet;
+    window.closeReportFilterSheet = closeReportFilterSheet;
+    window.selectReportFilterTime = selectReportFilterTime;
+    window.resetReportFilterSheet = resetReportFilterSheet;
+    window.applyReportFilterSheet = applyReportFilterSheet;
+
+    function cloneTimeFilter(src){
+      return {
+        time: (src && src.time) || 'all',
+        dateFrom: (src && src.dateFrom) || '',
+        dateTo: (src && src.dateTo) || ''
+      };
+    }
+
+    function parseReportDate(value){
+      var s = String(value || '').slice(0, 10);
+      if(!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+      var parts = s.split('-').map(Number);
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function startOfToday(){
+      var now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function daysAgo(n){
+      var d = startOfToday();
+      d.setDate(d.getDate() - n);
+      return d;
+    }
+
+    function matchesReportTimeFilter(dateRaw, filter){
+      var time = (filter && filter.time) || 'all';
+      if(time === 'all') return true;
+      var reportDate = parseReportDate(dateRaw);
+      if(!reportDate) return false;
+      if(time === 'custom'){
+        var from = filter.dateFrom ? parseReportDate(filter.dateFrom) : null;
+        var to = filter.dateTo ? parseReportDate(filter.dateTo) : null;
+        if(from && reportDate < from) return false;
+        if(to && reportDate > to) return false;
+        return true;
+      }
+      var days = time === '7d' ? 7 : (time === '30d' ? 30 : 90);
+      return reportDate >= daysAgo(days);
+    }
+
+    function hasActiveReportTimeFilter(){
+      return appliedTimeFilter.time !== 'all';
+    }
+
+    function syncReportFilterBtnState(){
+      var btn = document.getElementById('reportFilterBtn');
+      if(!btn) return;
+      btn.classList.toggle('active', hasActiveReportTimeFilter());
+    }
+
+    function renderReportFilterControls(){
+      document.querySelectorAll('#reportFilterTimeChips .filter-chip').forEach(function(chip){
+        var on = chip.getAttribute('data-time') === draftTimeFilter.time;
+        chip.classList.toggle('selected', on);
+        chip.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+      var custom = document.getElementById('reportFilterCustomDates');
+      if(custom) custom.hidden = draftTimeFilter.time !== 'custom';
+      var from = document.getElementById('reportFilterDateFrom');
+      var to = document.getElementById('reportFilterDateTo');
+      if(from) from.value = draftTimeFilter.dateFrom || '';
+      if(to) to.value = draftTimeFilter.dateTo || '';
+    }
+
+    function openReportFilterSheet(){
+      closeBizSheet();
+      draftTimeFilter = cloneTimeFilter(appliedTimeFilter);
+      renderReportFilterControls();
+      var mask = document.getElementById('reportFilterMask');
+      var btn = document.getElementById('reportFilterBtn');
+      if(!mask) return;
+      mask.classList.add('show');
+      mask.setAttribute('aria-hidden', 'false');
+      if(btn) btn.setAttribute('aria-expanded', 'true');
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = 'hidden';
+    }
+
+    function closeReportFilterSheet(event){
+      if(event && event.target && event.currentTarget && event.target !== event.currentTarget) return;
+      var mask = document.getElementById('reportFilterMask');
+      var btn = document.getElementById('reportFilterBtn');
+      if(mask){
+        mask.classList.remove('show');
+        mask.setAttribute('aria-hidden', 'true');
+      }
+      if(btn) btn.setAttribute('aria-expanded', 'false');
+      var ds = document.getElementById('demoShortcuts');
+      if(ds) ds.style.visibility = '';
+    }
+
+    function selectReportFilterTime(time){
+      draftTimeFilter.time = time || 'all';
+      if(draftTimeFilter.time !== 'custom'){
+        draftTimeFilter.dateFrom = '';
+        draftTimeFilter.dateTo = '';
+      }
+      renderReportFilterControls();
+    }
+
+    function resetReportFilterSheet(){
+      draftTimeFilter = { time: 'all', dateFrom: '', dateTo: '' };
+      renderReportFilterControls();
+    }
+
+    function applyReportFilterSheet(){
+      if(draftTimeFilter.time === 'custom'){
+        var from = document.getElementById('reportFilterDateFrom');
+        var to = document.getElementById('reportFilterDateTo');
+        draftTimeFilter.dateFrom = from ? from.value : '';
+        draftTimeFilter.dateTo = to ? to.value : '';
+        if(draftTimeFilter.dateFrom && draftTimeFilter.dateTo && draftTimeFilter.dateFrom > draftTimeFilter.dateTo){
+          showReportsToast(t('reports.filterDateInvalid'));
+          return;
+        }
+      }
+      appliedTimeFilter = cloneTimeFilter(draftTimeFilter);
+      syncReportFilterBtnState();
+      renderReports();
+      closeReportFilterSheet();
+    }
 
     function reportSearchHaystack(r){
       return [
@@ -767,6 +1023,7 @@
       const q = String(searchQuery || '').trim().toLowerCase();
       return REPORTS.filter(function(r){
         if(!matchesBiz(r)) return false;
+        if(!matchesReportTimeFilter(r.date, appliedTimeFilter)) return false;
         if(!q) return true;
         return reportSearchHaystack(r).indexOf(q) >= 0;
       });
@@ -778,6 +1035,9 @@
       if(String(searchQuery || '').trim()){
         titleKey = 'reports.emptySearchHint';
         subKey = 'reports.emptySearchSub';
+      } else if(hasActiveReportTimeFilter()){
+        titleKey = 'reports.emptyFilterHint';
+        subKey = 'reports.emptyFilterSub';
       } else if(currentBiz && currentBiz !== 'all' && currentBiz !== 'lab'){
         titleKey = 'reports.emptyBizTitle';
         subKey = 'reports.emptyBizSub';
@@ -876,6 +1136,7 @@
     }
 
     syncBizSelection();
+    syncReportFilterBtnState();
     renderReports();
 
     if (window.I18n) {
@@ -887,6 +1148,7 @@
           btn.setAttribute('title', label);
         }
         syncBizSelection();
+        syncReportFilterBtnState();
         renderReports();
       }});
     }
