@@ -530,11 +530,13 @@
           </div>
           <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
-        <button type="button" class="biz-opt" role="option" aria-selected="false" data-biz="audit" onclick="selectBizLine('audit')">
+        <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="audit" onclick="selectBizLine('audit')">
           <div class="biz-opt-body">
-            <div class="biz-opt-name" data-i18n="index.serviceAudit">供应商审核</div>
+            <div class="biz-opt-name">
+              <span data-i18n="index.serviceAudit">供应商审核</span>
+              <span class="biz-opt-badge" data-i18n="orders.bizInDev">开发中</span>
+            </div>
           </div>
-          <svg class="biz-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.2l3.4 3.4 7.6-7.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <button type="button" class="biz-opt is-disabled" role="option" aria-selected="false" aria-disabled="true" data-biz="cert" onclick="selectBizLine('cert')">
           <div class="biz-opt-body">
