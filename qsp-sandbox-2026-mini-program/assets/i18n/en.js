@@ -568,7 +568,7 @@ window.I18N_EN = {
   'orderChat.chipManualShipping': 'Enter logistics manually',
   'orderChat.chipFillLater': 'Add later',
   'orderChat.needAdjust': 'Need changes?',
-  'orderChat.goEdit': 'Edit',
+  'orderChat.goEdit': 'Edit manually',
   'orderChat.hasError': 'Something wrong?',
   'orderChat.continueFill': 'Continue',
   'orderChat.suspectedProduct': 'Likely product',

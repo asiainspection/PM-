@@ -568,7 +568,7 @@ window.I18N_ZH = {
   'orderChat.chipManualShipping': '手动填写物流',
   'orderChat.chipFillLater': '稍后补充',
   'orderChat.needAdjust': '需要调整？',
-  'orderChat.goEdit': '去编辑',
+  'orderChat.goEdit': '去手动编辑',
   'orderChat.hasError': '有错误？',
   'orderChat.continueFill': '继续补充',
   'orderChat.suspectedProduct': '疑似商品',
