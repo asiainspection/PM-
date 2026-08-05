@@ -281,6 +281,34 @@
   }
   .rlist-supplier svg { width: 13px; height: 13px; color: var(--smoke); flex-shrink: 0; }
   .rlist-supplier span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 24px 48px;
+    text-align: center;
+    gap: 8px;
+  }
+  .list-empty-art {
+    width: 160px;
+    height: 160px;
+    margin: 0 0 8px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .list-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--carbon);
+    line-height: 22px;
+  }
+  .list-empty-sub {
+    font-size: 12.5px;
+    line-height: 18px;
+    color: var(--seal);
+    max-width: 260px;
+  }
   .rlist-bottom {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line);
@@ -419,8 +447,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.reports';</script>
-<script src="assets/i18n/zh.js?v=20260805d"></script>
-<script src="assets/i18n/en.js?v=20260805d"></script>
+<script src="assets/i18n/zh.js?v=20260805e"></script>
+<script src="assets/i18n/en.js?v=20260805e"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
 <script src="assets/notif-badge.js?v=20260805a"></script>
@@ -567,12 +595,7 @@
       { cat: 'lab',   color: 'c-orange', tag: 'LAB',   nameKey: 'reports.product.plastics',   sku: 'SKU-48765', status: 'informationOnly',      reportId: 'T-24106096-11-R1', date: '2026-05-14', supplierKey: 'reports.supplier.plastics', decision: 'pending' },
       { cat: 'lab',   color: 'c-teal',   tag: 'LAB',   nameKey: 'reports.product.kitchen',    sku: 'SKU-46320', status: 'marginal',             reportId: 'T-24106097-11-R1', date: '2026-05-10', supplierKey: 'reports.supplier.kitchen', decision: 'pending' },
       { cat: 'lab',   color: 'c-blue',   tag: 'LAB',   nameKey: 'reports.product.food',       sku: 'SKU-38771', status: 'na',                   reportId: 'T-24106089-11-R1', date: '2026-05-08', supplierKey: 'reports.supplier.food', decision: 'pending' },
-      /* Inspection */
-      { cat: 'psi',   color: 'c-blue',   tag: 'PSI',   nameKey: 'reports.product.psi',        sku: 'SKU-89231', status: 'pass',                 reportId: 'T-24106084-11-R1', date: '2026-06-03', supplierKey: 'reports.supplier.psi', decision: 'approved' },
-      { cat: 'dupro', color: 'c-purple', tag: 'DUPRO', nameKey: 'reports.product.textile',    sku: 'SKU-77321', status: 'fail',                 reportId: 'T-24106086-11-R1', date: '2026-06-02', supplierKey: 'reports.supplier.textile', decision: 'rejected' },
-      { cat: 'dupro', color: 'c-orange', tag: 'DUPRO', nameKey: 'reports.product.bags',       sku: 'SKU-74510', status: 'failAccepted',         reportId: 'T-24106098-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.bags', decision: 'approved' },
-      { cat: 'fri',   color: 'c-orange', tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-51840', status: 'passWithInfo',         reportId: 'T-24106087-11-R1', date: '2026-05-28', supplierKey: 'reports.supplier.electronics', decision: 'approved' },
-      { cat: 'fri',   color: 'c-blue',   tag: 'FRI',   nameKey: 'reports.product.electronics',sku: 'SKU-50112', status: 'inconclusiveWithInfo', reportId: 'T-24106099-11-R1', date: '2026-05-16', supplierKey: 'reports.supplier.electronics', decision: 'pending' },
+      /* Product inspection: no demo reports yet — empty state */
       /* Audit */
       { cat: 'csr',   color: 'c-purple', tag: 'CSR',   nameKey: 'reports.product.csrAudit',   sku: 'SKU-33001', status: 'conditionalPass',      reportId: 'A-24106100-11-R1', date: '2026-05-05', supplierKey: 'reports.supplier.csrAudit', decision: 'pending' }
     ];
@@ -732,13 +755,29 @@
       });
     }
 
+    function reportsEmptyHtml(){
+      var titleKey = 'reports.emptyHint';
+      var subKey = 'reports.emptyHintSub';
+      if(String(searchQuery || '').trim()){
+        titleKey = 'reports.emptySearchHint';
+        subKey = 'reports.emptySearchSub';
+      } else if(currentBiz && currentBiz !== 'all' && currentBiz !== 'lab'){
+        titleKey = 'reports.emptyBizTitle';
+        subKey = 'reports.emptyBizSub';
+      }
+      return '<div class="list-empty" role="status">'+
+        '<img class="list-empty-art" src="assets/empty-state.svg" width="160" height="160" alt="" />'+
+        '<div class="list-empty-title">'+escapeHtml(t(titleKey))+'</div>'+
+        '<div class="list-empty-sub">'+escapeHtml(t(subKey))+'</div>'+
+      '</div>';
+    }
+
     function renderReportList(){
       const listEl = document.getElementById('reportList');
       if(!listEl) return;
       const list = filteredReports();
       if(!list.length){
-        const emptyKey = searchQuery.trim() ? 'reports.emptySearchHint' : 'reports.emptyHint';
-        listEl.innerHTML = '<div style="text-align:center;color:var(--seal);font-size:13px;padding:40px 0;">'+t(emptyKey)+'</div>';
+        listEl.innerHTML = reportsEmptyHtml();
         return;
       }
       listEl.innerHTML = list.map(function(r){
@@ -776,7 +815,7 @@
       if(!grid) return;
       const list = filteredReports();
       if(!list.length){
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--seal);font-size:13px;padding:40px 0;">'+t('reports.emptyHint')+'</div>';
+        grid.innerHTML = '<div style="grid-column:1/-1;">'+reportsEmptyHtml()+'</div>';
         return;
       }
       grid.innerHTML = list.map(r =>
