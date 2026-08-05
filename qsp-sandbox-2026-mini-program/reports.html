@@ -88,8 +88,9 @@
   .hero-label { margin-top: 4px; font-size: 12px; color: rgba(99,99,99,.9); }
   .hero-art { flex-shrink: 0; line-height: 0; margin: -4px -2px -4px 0; }
   .hero-art img {
-    display: block; width: 112px; height: auto;
-    filter: drop-shadow(0 12px 18px rgba(65,105,225,.28)) drop-shadow(0 3px 5px rgba(31,42,68,.12));
+    display: block; width: 116px; height: auto;
+    /* Figma 15976:21245 — shadow 3px 4px 5.5px rgba(2,23,88,.23) */
+    filter: drop-shadow(3px 4px 5.5px rgba(2, 23, 88, .23));
   }
 
   /* 业务线下拉 + 搜索（对齐订单页 filter 行） */
@@ -271,7 +272,7 @@
   .rlist-meta .rlist-date { flex-shrink: 0; font-variant-numeric: tabular-nums; }
   .rlist-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--smoke); flex-shrink: 0; }
   .rlist-supplier-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     margin-top: 9px;
   }
   .rlist-supplier {
@@ -280,20 +281,6 @@
   }
   .rlist-supplier svg { width: 13px; height: 13px; color: var(--smoke); flex-shrink: 0; }
   .rlist-supplier span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rlist-decision {
-    flex-shrink: 0;
-    display: inline-flex; align-items: center; gap: 5px;
-    height: 21px; padding: 0 9px; border-radius: 999px; white-space: nowrap;
-    font-size: 11px; font-weight: 600;
-    background: var(--mist); color: var(--seal);
-  }
-  .rlist-decision::before {
-    content: ""; width: 5px; height: 5px; border-radius: 50%;
-    background: currentColor; flex-shrink: 0;
-  }
-  .rlist-decision.is-pending { background: var(--lemon-200); color: var(--lemon-900); }
-  .rlist-decision.is-approved { background: var(--kiwi-100); color: var(--kiwi); }
-  .rlist-decision.is-rejected { background: var(--cherry-100); color: var(--cherry); }
   .rlist-bottom {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
     margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--line);
@@ -436,7 +423,7 @@
 <script src="assets/i18n/en.js?v=20260804p"></script>
 <script src="assets/i18n-runtime.js?v=20260804k"></script>
 <script src="assets/demo-shortcuts.js?v=20260803e"></script>
-<script src="assets/notif-badge.js?v=20260803r"></script>
+<script src="assets/notif-badge.js?v=20260805a"></script>
 </head>
 <body>
   <div class="phone">
@@ -565,7 +552,6 @@
 
   <script>
     const USE_FOLDER_VIEW = false; // 旧文件夹视图开关，先关闭保留代码
-    const DECISION_STORAGE_KEY = 'qima-report-decision-v1';
 
     const REPORTS = [
       /* Lab — myQIMA Overall result examples */
@@ -723,36 +709,6 @@
     window.closeBizSheet = closeBizSheet;
     window.selectBizLine = selectBizLine;
 
-    function loadDecisions(){
-      try {
-        return JSON.parse(localStorage.getItem(DECISION_STORAGE_KEY) || '{}') || {};
-      } catch (e) {
-        return {};
-      }
-    }
-
-    function canDecideStatus(status){
-      return status === 'pass' || status === 'fail' ||
-        status === 'passWithInfo' || status === 'failWithInfo' ||
-        status === 'conditionalPass' || status === 'failAccepted' ||
-        status === 'marginal';
-    }
-
-    function resolveDecision(report){
-      // myQIMA: only final / actionable overall results support approve/reject.
-      if(!canDecideStatus(report.status)) return 'pending';
-      const saved = loadDecisions()[report.sku];
-      if(saved && saved.state === 'approved') return 'approved';
-      if(saved && saved.state === 'rejected') return 'rejected';
-      return report.decision || 'pending';
-    }
-
-    function decisionLabel(state){
-      if(state === 'approved') return t('reports.decision.approved');
-      if(state === 'rejected') return t('reports.decision.rejected');
-      return t('reports.decision.pending');
-    }
-
     function reportSearchHaystack(r){
       return [
         t(r.nameKey),
@@ -761,7 +717,6 @@
         r.tag,
         t(r.supplierKey),
         t('reports.status.' + r.status),
-        decisionLabel(resolveDecision(r)),
         r.date
       ].join(' ').toLowerCase();
     }
@@ -785,7 +740,6 @@
         return;
       }
       listEl.innerHTML = list.map(function(r){
-        const decision = resolveDecision(r);
         return '<a class="rlist-card '+statusAccent(r.status)+'" href="report-preview.html?sku='+encodeURIComponent(r.sku)+'">'+
           '<div class="rlist-top">'+
             '<div class="rlist-title">'+
@@ -805,7 +759,6 @@
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21V10l6 3.5V10l6 3.5V6l4 2v13"/><path d="M7 21v-3.5h3V21"/></svg>'+
               '<span>'+escapeHtml(t(r.supplierKey))+'</span>'+
             '</span>'+
-            '<span class="rlist-decision is-'+decision+'">'+escapeHtml(decisionLabel(decision))+'</span>'+
           '</div>'+
           '<div class="rlist-bottom">'+
             '<span class="rlist-preview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>'+escapeHtml(t('reportPreview.title'))+'</span>'+

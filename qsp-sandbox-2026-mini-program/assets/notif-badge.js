@@ -6,7 +6,7 @@
  * opened or explicitly marked read.
  */
 (function (global) {
-  var STORAGE_KEY = 'qima-notif-unread';
+  var STORAGE_KEY = 'qima-notif-unread-v2';
   var DEFAULT_UNREAD = 2;
 
   function readCount() {

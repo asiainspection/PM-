@@ -368,7 +368,7 @@
               'data-i18n="login.backToSignIn">' + tr('login.backToSignIn') + '</button>' +
           '</div>' +
 
-          // ===== Screen 4: linked =====
+          // ===== Screen 4: linked / register thank-you (qima.com register success) =====
           '<div class="wxbind-success" id="wxbindSuccess" hidden>' +
             '<svg class="wxbind-success-icon" viewBox="0 0 56 56" aria-hidden="true">' +
               '<circle class="wxbind-success-ring" cx="28" cy="28" r="26" fill="none" ' +
@@ -378,6 +378,8 @@
             '</svg>' +
             '<div class="wxbind-success-title" data-i18n="binding.successTitle">' + tr('binding.successTitle') + '</div>' +
             '<div class="wxbind-success-desc" data-i18n="binding.successDesc">' + tr('binding.successDesc') + '</div>' +
+            '<button class="lg-btn lg-btn-primary wxbind-success-cta" type="button" id="wxbindSuccessCta" hidden ' +
+              'data-i18n="signup.successCta">' + tr('signup.successCta') + '</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -654,16 +656,29 @@
     }, 240);
   }
 
-  function showSuccess() {
+  function showSuccess(opts) {
     stopCountdown();
-    if (root) root.classList.remove('is-register');
-    var fromRegister = state.screen === 'register';
+    var fromRegister = !!(opts && opts.fromRegister) || state.screen === 'register';
+    state.successFromRegister = fromRegister;
+    if (root) {
+      root.classList.toggle('is-register', false);
+      root.classList.toggle('is-thankyou', fromRegister);
+    }
     var title = root.querySelector('.wxbind-success-title');
     var desc = root.querySelector('.wxbind-success-desc');
+    var cta = root.querySelector('#wxbindSuccessCta');
     if (title) title.textContent = tr(fromRegister ? 'signup.successTitle' : 'binding.successTitle');
     if (desc) desc.textContent = tr(fromRegister ? 'signup.successDesc' : 'binding.successDesc');
+    if (cta) {
+      cta.hidden = !fromRegister;
+      cta.textContent = tr('signup.successCta');
+    }
+    if (el.skip) el.skip.hidden = true;
     showScreen('success');
-    setTimeout(function () { dismiss('bound'); }, 1800);
+    // Official site keeps the thank-you modal until Close; binding still auto-continues.
+    if (!fromRegister) {
+      setTimeout(function () { dismiss('bound'); }, 1800);
+    }
   }
 
   function goToPasswordScreen() {
@@ -831,9 +846,9 @@
         return;
       }
 
-      // Demo: creating an account also links WeChat, then lands on home.
+      // Demo: creating an account also links WeChat, then shows the official thank-you.
       state.email = email;
-      showSuccess();
+      showSuccess({ fromRegister: true });
     });
   }
 
@@ -969,6 +984,9 @@
     bindEmailEvents();
     bindCodeEvents();
     el.skip.addEventListener('click', function () { dismiss('skipped'); });
+    if (el.successCta) {
+      el.successCta.addEventListener('click', function () { dismiss('bound'); });
+    }
     if (el.back) el.back.addEventListener('click', goBack);
   }
 
@@ -1062,6 +1080,7 @@
       backFromCode: root.querySelector('#lgBackFromCode'),
 
       success: root.querySelector('#wxbindSuccess'),
+      successCta: root.querySelector('#wxbindSuccessCta'),
       skip: root.querySelector('#wxbindSkip'),
       back: root.querySelector('#wxbindBack')
     };
@@ -1181,6 +1200,9 @@
         return;
       } else if (stateName === 'success') {
         showSuccess();
+        return;
+      } else if (stateName === 'register-success' || stateName === 'thankyou') {
+        showSuccess({ fromRegister: true });
         return;
       }
       render();

@@ -569,11 +569,18 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   text-align: center;
   padding: 12px 0 8px;
 }
+.wxbind.is-thankyou .wxbind-success {
+  gap: 12px;
+  padding: 28px 8px 12px;
+}
 .wxbind-success-icon {
   width: 56px;
   height: 56px;
   margin-bottom: 8px;
   animation: wxbind-pop .32s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+.wxbind.is-thankyou .wxbind-success-icon {
+  margin-bottom: 4px;
 }
 /* Ring then tick, so the check reads as "just completed" */
 .wxbind-success-ring {
@@ -611,10 +618,28 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
   line-height: 24px;
   color: var(--carbon);
 }
+.wxbind.is-thankyou .wxbind-success-title {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -.2px;
+}
 .wxbind-success .wxbind-success-desc {
   font-size: 13px;
   line-height: 19.5px;
   color: var(--seal);
+}
+.wxbind.is-thankyou .wxbind-success-desc {
+  font-size: 14px;
+  line-height: 22px;
+  max-width: 280px;
+}
+.wxbind-success-cta {
+  width: 100%;
+  margin-top: 12px;
+}
+.wxbind-success-cta[hidden] {
+  display: none;
 }
 
 /* ===== Skip button (bottom-right of the phone viewport) ===== */
@@ -642,6 +667,7 @@ html.qima-wxbind-active .phone > *:not(.wxbind) {
 }
 .wxbind-skip:active { background: rgba(255, 255, 255, .95); }
 .wxbind-skip svg { width: 14px; height: 14px; display: block; }
+.wxbind-skip[hidden] { display: none; }
 
 @media (max-width: 640px) {
   .wxbind-statusbar {

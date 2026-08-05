@@ -422,10 +422,6 @@
   }
   .parse-progress-title {
     font-size: 13px; font-weight: 600; color: var(--carbon);
-    margin-bottom: 6px;
-  }
-  .parse-progress-desc {
-    font-size: 12px; color: var(--seal); line-height: 1.45;
   }
   .parse-progress-bar {
     margin-top: 10px; height: 6px; border-radius: 999px;
@@ -1629,7 +1625,7 @@
           <div class="fm-section-title" data-i18n="orderChat.sampleCollection">样品收集</div>
 
           <div class="fm-row">
-            <div class="fm-label"><span data-i18n="orderChat.sampleMethodLabel">样品收集方式</span> <span class="req" data-i18n="common.required">*</span></div>
+            <div class="fm-label"><span data-i18n="orderChat.sampleMethodLabel">样品收集方式</span></div>
             <div class="fm-radio-stack">
               <label class="fm-radio-line"><input type="radio" name="mf_sample" value="ship" checked onchange="mfToggleSampleFields()"> <span data-sample-label>您或者供应商会寄送样本</span></label>
               <label class="fm-radio-line"><input type="radio" name="mf_sample" value="collect" onchange="mfToggleSampleFields()"> <span data-sample-label>启迈 QIMA 将在执行产品服务时收集样本</span></label>
@@ -1691,7 +1687,7 @@
 
           <div class="fm-row">
             <div class="fm-label" data-i18n="index.optionalRemark">订单备注</div>
-            <textarea class="fm-textarea" id="mf_orderRemark" placeholder="请输入订单备注" data-i18n-placeholder="index.optionalRemarkPlaceholder"></textarea>
+            <textarea class="fm-textarea" id="mf_orderRemark" placeholder="可告诉我们您是否需要报价，任何测试偏好，以及是否需要 CPC 证书，或者其他任何需要我们知道的信息。" data-i18n-placeholder="index.optionalRemarkPlaceholder"></textarea>
           </div>
         </div>
         <div class="form-modal-actions">
@@ -3226,9 +3222,9 @@
     }
 
     function parseProgressCard(desc){
+      void desc;
       return '<div class="parse-progress-card">'+
         '<div class="parse-progress-title">'+escapeHtml(t('orderChat.parsingOrder'))+'</div>'+
-        '<div class="parse-progress-desc" data-parse-desc>'+escapeHtml(desc || t('orderChat.parsingHint'))+'</div>'+
         '<div class="parse-progress-bar"><i></i></div>'+
       '</div>';
     }
@@ -3251,9 +3247,7 @@
     }
 
     function updateParseProgressCard(row, desc){
-      if(!row) return;
-      const el = row.querySelector('[data-parse-desc]');
-      if(el) el.textContent = desc;
+      void row; void desc;
     }
 
     /* ===== AI 解析失败：重试 / 更换资料 / 转手动填写 ===== */
@@ -4178,10 +4172,6 @@
       if(!productDivision){
         alert(t('index.alertSelectProductDivision'));
         document.getElementById('mf_productDivision').focus();
-        return;
-      }
-      if(!sampleMethod){
-        alert(t('orderChat.alertSelectSample'));
         return;
       }
 
@@ -5247,9 +5237,9 @@
           electricDescRow+
           field('Manufacturer', val('Manufacturer'), ok('Manufacturer'))+
           field('Manufacturer Address', val('Manufacturer Address'), ok('Manufacturer Address'))+
-          field('Sample Collection Method', val('Sample Collection Method'), ok('Sample Collection Method'))+
+          field('Sample Collection Method', val('Sample Collection Method'), ok('Sample Collection Method'), true)+
           field('Carrier', val('Carrier'), ok('Carrier'))+
-          field('Tracking Number', val('Tracking Number'), ok('Tracking Number'))+
+          field('Tracking Number', val('Tracking Number'), ok('Tracking Number'), true)+
           field('Shipping Remark', val('Shipping Remark'), ok('Shipping Remark'), true)+
         '</div>'+
         '<button class="edit-fields" onclick="openFieldEditor()"><span>'+t('orderChat.hasError')+'</span>'+t('orderChat.goEdit')+'</button>'+
@@ -5943,8 +5933,7 @@
       'Countries/Regions of Distribution',
       'Item#/model#',
       'Manufacturer',
-      'Manufacturer Address',
-      'Sample Collection Method'
+      'Manufacturer Address'
     ];
 
     function getFieldDisplayValue(name){
@@ -6316,7 +6305,7 @@
         '<div class="missing-desc">'+t('orderChat.missingDesc')+'</div>'+
         '<div class="missing-form">'+
           '<div class="missing-group">'+
-            '<div class="missing-label">'+t('orderChat.sampleMethodLabel')+' <span class="req">*</span></div>'+
+            '<div class="missing-label">'+t('orderChat.sampleMethodLabel')+'</div>'+
             missingRadio('ship', sampleMethodShip(), true)+
             missingRadio('collect', sampleMethodCollect(), false)+
             missingRadio('received', sampleMethodReceived(), false)+
