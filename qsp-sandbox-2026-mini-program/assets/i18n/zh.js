@@ -809,7 +809,7 @@ window.I18N_ZH = {
   'reports.title': '报告中心',
   'reports.statLabel': '全部报告',
   'reports.statUnit': 'Reports',
-  'reports.searchPlaceholder': '搜索报告 / SKU',
+  'reports.searchPlaceholder': '搜索报告 / SKU / 产品名称',
   'reports.emptySearchHint': '没有符合条件的报告',
   'reports.filterAll': '全部',
   'reports.filterLabTesting': '实验室检测',

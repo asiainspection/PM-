@@ -809,7 +809,7 @@ window.I18N_EN = {
   'reports.title': 'Reports',
   'reports.statLabel': 'All reports',
   'reports.statUnit': 'Reports',
-  'reports.searchPlaceholder': 'Search reports / SKU',
+  'reports.searchPlaceholder': 'Search reports / SKU / product name',
   'reports.emptySearchHint': 'No matching reports',
   'reports.filterAll': 'All',
   'reports.filterLabTesting': 'Lab testing',
