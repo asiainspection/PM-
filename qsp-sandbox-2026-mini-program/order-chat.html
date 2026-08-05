@@ -674,6 +674,11 @@
   .recog-stat.done::before { background: var(--pool-500); }
   .recog-stat.todo::before { background: var(--orange-500); }
   .recog-card.is-complete .recog-stat.done::before { background: var(--kiwi); }
+  .saved-edit-hint {
+    margin-top: 10px; padding-top: 10px;
+    border-top: .5px solid var(--mist);
+    font-size: 12px; line-height: 18px; color: var(--seal); text-align: left;
+  }
   @media (prefers-reduced-motion: reduce) {
     .recog-bar span { transition: none; }
   }
@@ -1282,8 +1287,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260805p"></script>
-<script src="assets/i18n/en.js?v=20260805p"></script>
+<script src="assets/i18n/zh.js?v=20260805s"></script>
+<script src="assets/i18n/en.js?v=20260805s"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -3790,6 +3795,8 @@
         el.textContent = label;
       });
       document.querySelectorAll('.recog-card').forEach(function(card){
+        // Don't rewrite the post-save progress card title/hint
+        if(card.querySelector('.saved-edit-hint')) return;
         card.classList.toggle('is-complete', ready);
         const title = card.querySelector('.recog-title');
         if(title) title.textContent = t(ready ? 'orderChat.recogTitleComplete' : 'orderChat.recogTitle');
@@ -5246,6 +5253,30 @@
       '</div>';
     }
 
+    /** Progress card after field editor save — same bar pattern as recognition. */
+    function savedEditProgressCard(completion, ready){
+      const total = completion.total || 0;
+      const filled = ready ? total : (completion.filled || 0);
+      const missing = ready ? 0 : (completion.missing || 0);
+      const percent = ready ? 100 : (completion.percent || 0);
+      return '<div class="panel recog-card'+(ready ? ' is-complete' : '')+'">'+
+        '<div class="recog-head">'+
+          '<div class="recog-title">'+escapeHtml(t('orderChat.savedEditTitle'))+'</div>'+
+          '<div class="recog-pct">'+percent+'%</div>'+
+        '</div>'+
+        '<div class="recog-bar"><span data-pct="'+percent+'"></span></div>'+
+        '<div class="recog-stats">'+
+          '<span class="recog-stat done">'+tHtml('orderChat.recogFilled', { filled: filled, total: total })+'</span>'+
+          (ready ? '' : '<span class="recog-stat todo">'+tHtml('orderChat.recogTodo', { missing: missing })+'</span>')+
+        '</div>'+
+        '<div class="saved-edit-hint">'+
+          (ready
+            ? escapeHtml(t('orderChat.savedEditCompleteHint'))
+            : tHtml('orderChat.savedEditPartialHint', { count: missing }))+
+        '</div>'+
+      '</div>';
+    }
+
     // Fill starts at 0 so the bar animates once the card is on screen.
     function playRecogBar(row){
       const bar = row && row.querySelector('.recog-bar span');
@@ -5968,16 +5999,13 @@
       const completion = syncExtractCardProgress();
       const ready = completion.percent === 100 || !getOrderBlockers().length;
       if(ready){
-        botMsg(tHtml('orderChat.savedEditComplete'), false);
+        playRecogBar(botMsg(savedEditProgressCard(completion, true), true));
         botMsg(chipsRow(
           I18n.chipHtml('orderChat.chipPlaceOrder','cart','placeOrder(this)')+
           I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
         ), true);
       } else {
-        botMsg(tHtml('orderChat.savedEditPartial', {
-          percent: completion.percent,
-          count: completion.missing
-        }), false);
+        playRecogBar(botMsg(savedEditProgressCard(completion, false), true));
         botMsg(t('orderChat.fillMissingInForm'), false);
         botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
       }
@@ -6171,10 +6199,7 @@
             I18n.chipHtml('orderChat.chipEditFields','edit','openFieldEditor(this)')
           ), true);
         } else {
-          botMsg(tHtml('orderChat.savedEditPartial', {
-            percent: completion.percent,
-            count: completion.missing
-          }), false);
+          playRecogBar(botMsg(savedEditProgressCard(completion, false), true));
           botMsg(t('orderChat.fillMissingInForm'), false);
           botMsg(completeInfoChips(I18n.chipHtml('orderChat.chipContinueEdit','edit','openFieldEditor(this)')), true);
         }
