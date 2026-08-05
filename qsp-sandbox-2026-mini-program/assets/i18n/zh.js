@@ -297,6 +297,7 @@ window.I18N_ZH = {
   'index.continueOptional': '修改/继续填写非必填项',
   'index.confirmOrder': '确认下单',
   'index.refPickerTitle': '选择过往订单 / 测试',
+  'index.refPickerSearch': '搜索订单号 / 产品名称',
   'index.supplierPickerTitle': '选择供应商',
   'index.supplierName': '供应商名称',
   'index.supplierAddress': '地址',

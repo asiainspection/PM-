@@ -297,6 +297,7 @@ window.I18N_EN = {
   'index.continueOptional': 'Edit / complete optional fields',
   'index.confirmOrder': 'Confirm order',
   'index.refPickerTitle': 'Select past order / test',
+  'index.refPickerSearch': 'Search order ID / product name',
   'index.supplierPickerTitle': 'Select supplier',
   'index.supplierName': 'Supplier name',
   'index.supplierAddress': 'Address',

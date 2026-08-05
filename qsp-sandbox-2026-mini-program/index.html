@@ -615,8 +615,8 @@
 <link rel="stylesheet" href="assets/wechat-binding.css?v=20260805b" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.index';</script>
-<script src="assets/i18n/zh.js?v=20260805c"></script>
-<script src="assets/i18n/en.js?v=20260805c"></script>
+<script src="assets/i18n/zh.js?v=20260805q"></script>
+<script src="assets/i18n/en.js?v=20260805q"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/signup-geo.js?v=20260804a"></script>
 <script src="assets/wechat-binding.js?v=20260805b"></script>
@@ -1184,6 +1184,10 @@
           <button class="supplier-close" type="button" onclick="closeReferencePicker()" aria-label="关闭" data-i18n-title="common.close">×</button>
         </div>
         <div class="supplier-body">
+          <div class="supplier-search">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <input id="referenceSearch" type="text" data-i18n-placeholder="index.refPickerSearch" placeholder="搜索订单号 / 产品名称" oninput="renderReferenceRows()" />
+          </div>
           <div class="reference-list" id="referenceRows"></div>
         </div>
       </div>
@@ -1546,8 +1550,11 @@
 
     function selectProductReference(button) {
       activeReferenceButton = button;
+      var search = document.getElementById('referenceSearch');
+      if(search) search.value = '';
       renderReferenceRows();
       document.getElementById('referencePicker').classList.add('show');
+      if(search) setTimeout(function(){ search.focus(); }, 50);
     }
 
     function closeReferencePicker(event) {
@@ -1557,7 +1564,23 @@
 
     function renderReferenceRows() {
       const rows = document.getElementById('referenceRows');
-      rows.innerHTML = referenceOptions.map(function (item) {
+      if(!rows) return;
+      const keyword = ((document.getElementById('referenceSearch') || {}).value || '').trim().toLowerCase();
+      const matched = referenceOptions.filter(function (item) {
+        if(!keyword) return true;
+        const hay = [
+          item.id,
+          t(item.serviceKey),
+          t(item.productKey)
+        ].join(' ').toLowerCase();
+        return hay.indexOf(keyword) !== -1;
+      });
+      if(!matched.length){
+        rows.innerHTML = '<div class="supplier-empty" style="padding:24px 8px;text-align:center;color:var(--seal);font-size:13px;">' +
+          escapeHtml(t('common.noData')) + '</div>';
+        return;
+      }
+      rows.innerHTML = matched.map(function (item) {
         return '<button class="reference-option" type="button" onclick="chooseProductReference(\'' + escapeJs(item.id) + '\')">' +
           '<span class="reference-option-id">' + escapeHtml(item.id) + '</span>' +
           '<span class="reference-option-meta">' + escapeHtml(t(item.serviceKey)) + '</span>' +
