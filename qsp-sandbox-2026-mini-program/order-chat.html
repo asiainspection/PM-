@@ -1282,8 +1282,8 @@
 <link rel="stylesheet" href="assets/i18n-en.css" />
 <link rel="stylesheet" href="assets/demo-shortcuts.css?v=20260803e" />
 <script>window.PAGE_TITLE_KEY = 'title.orderChat';</script>
-<script src="assets/i18n/zh.js?v=20260805m"></script>
-<script src="assets/i18n/en.js?v=20260805m"></script>
+<script src="assets/i18n/zh.js?v=20260805k"></script>
+<script src="assets/i18n/en.js?v=20260805k"></script>
 <script src="assets/i18n-runtime.js?v=20260805c"></script>
 <script src="assets/supabase-config.js?v=20260715c"></script>
 <script src="assets/supabase-client.js?v=20260715c"></script>
@@ -3784,9 +3784,33 @@
 
     function syncExtractCardProgress(){
       const completion = getLiveExtractCompletion();
+      const ready = completion.percent === 100 || (typeof getOrderBlockers === 'function' && !getOrderBlockers().length);
       const label = t('orderChat.progressPercent', { percent: completion.percent });
       document.querySelectorAll('.panel .extract-head .progress-pill').forEach(function(el){
         el.textContent = label;
+      });
+      document.querySelectorAll('.recog-card').forEach(function(card){
+        card.classList.toggle('is-complete', ready);
+        const title = card.querySelector('.recog-title');
+        if(title) title.textContent = t(ready ? 'orderChat.recogTitleComplete' : 'orderChat.recogTitle');
+        const pct = card.querySelector('.recog-pct');
+        if(pct) pct.textContent = completion.percent + '%';
+        const bar = card.querySelector('.recog-bar span');
+        if(bar){
+          bar.setAttribute('data-pct', String(completion.percent));
+          bar.style.width = completion.percent + '%';
+        }
+        const stats = card.querySelector('.recog-stats');
+        if(stats){
+          stats.innerHTML =
+            '<span class="recog-stat done">'+tHtml('orderChat.recogFilled', {
+              filled: completion.filled,
+              total: completion.total
+            })+'</span>'+
+            (ready ? '' : '<span class="recog-stat todo">'+tHtml('orderChat.recogTodo', {
+              missing: completion.missing
+            })+'</span>');
+        }
       });
       return completion;
     }
@@ -5206,10 +5230,11 @@
       return '<div class="field" data-field="'+k+'"'+opt+'><div class="fk">'+label+'</div>'+emptyFieldHtml(isOptional)+'</div>';
     }
     function recognizeProgressCard(filled, total, percent, missing){
-      const complete = missing <= 0;
+      const complete = missing <= 0 || percent >= 100;
+      const titleKey = complete ? 'orderChat.recogTitleComplete' : 'orderChat.recogTitle';
       return '<div class="panel recog-card'+(complete ? ' is-complete' : '')+'">'+
         '<div class="recog-head">'+
-          '<div class="recog-title">'+escapeHtml(t('orderChat.recogTitle'))+'</div>'+
+          '<div class="recog-title">'+escapeHtml(t(titleKey))+'</div>'+
           '<div class="recog-pct">'+percent+'%</div>'+
         '</div>'+
         '<div class="recog-bar"><span data-pct="'+percent+'"></span></div>'+
@@ -6434,7 +6459,6 @@
       const reportFieldsDetail = ((card.querySelector('#missingReportFieldsDetail') || {}).value || '').trim();
       const isCollect = selected && selected.value === 'collect';
       const isShip = selected && selected.value === 'ship';
-      const needsShipping = selected && (selected.value === 'ship' || selected.value === 'received');
       const error = card.querySelector('#missingFormError');
 
       if(isCollect && !refNumber){

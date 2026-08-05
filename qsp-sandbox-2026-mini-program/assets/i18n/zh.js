@@ -585,6 +585,7 @@ window.I18N_ZH = {
   'orderChat.recognizeDone': '识别完成！已自动完成 <b>7/10（70%）</b> 字段填写 🎉<br>还有 <b>3</b> 项需要您确认，请选择下方「AI补充信息」或「手动补充信息」。',
   'orderChat.recognizeDoneDynamic': '识别完成！已自动完成 <b>{filled}/{total}（{percent}%）</b> 字段填写 🎉<br>还有 <b>{missing}</b> 项需要您确认，请选择下方「AI补充信息」或「手动补充信息」。',
   'orderChat.recogTitle': '识别完成 🎉',
+  'orderChat.recogTitleComplete': '填写完成',
   'orderChat.recogFilled': '已自动填写 <b>{filled}/{total}</b>',
   'orderChat.recogTodo': '待确认 <b>{missing}</b> 项',
   'orderChat.fillMissingInForm': '还有缺失项，可用 AI 继续补充，或打开表单手动填写。',

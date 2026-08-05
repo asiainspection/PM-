@@ -585,6 +585,7 @@ window.I18N_EN = {
   'orderChat.recognizeDone': 'Recognition complete — <b>7/10 (70%)</b> fields filled 🎉<br>Please choose <b>AI fill missing</b> or <b>Fill manually</b> below to finish the remaining <b>3</b> items.',
   'orderChat.recognizeDoneDynamic': 'Recognition complete — <b>{filled}/{total} ({percent}%)</b> fields filled 🎉<br>Please choose <b>AI fill missing</b> or <b>Fill manually</b> below to finish the remaining <b>{missing}</b> items.',
   'orderChat.recogTitle': 'Recognition complete 🎉',
+  'orderChat.recogTitleComplete': 'Filling complete',
   'orderChat.recogFilled': 'Filled <b>{filled}/{total}</b>',
   'orderChat.recogTodo': '<b>{missing}</b> to confirm',
   'orderChat.fillMissingInForm': 'Some fields are still missing. Use AI to add more, or open the form to fill them manually.',
